@@ -194,26 +194,6 @@ const DEFAULT_BINDINGS = compile([
     whenAst: whenNot(whenIdentifier("terminalFocus")),
   },
   {
-    shortcut: modShortcut("c", { altKey: true }),
-    command: "chat.newClaude",
-    whenAst: whenNot(whenIdentifier("terminalFocus")),
-  },
-  {
-    shortcut: modShortcut("x", { altKey: true }),
-    command: "chat.newCodex",
-    whenAst: whenNot(whenIdentifier("terminalFocus")),
-  },
-  {
-    shortcut: modShortcut("r", { altKey: true }),
-    command: "chat.newCursor",
-    whenAst: whenNot(whenIdentifier("terminalFocus")),
-  },
-  {
-    shortcut: modShortcut("g", { altKey: true }),
-    command: "chat.newGemini",
-    whenAst: whenNot(whenIdentifier("terminalFocus")),
-  },
-  {
     shortcut: ctrlShortcut("tab"),
     command: "view.recent.next",
   },
@@ -861,81 +841,6 @@ describe("chat/editor shortcuts", () => {
     );
   });
 
-  it("resolves provider-specific new chat shortcuts", () => {
-    assert.strictEqual(
-      resolveShortcutCommand(event({ key: "c", metaKey: true, altKey: true }), DEFAULT_BINDINGS, {
-        platform: "MacIntel",
-        context: { terminalFocus: false },
-      }),
-      "chat.newClaude",
-    );
-    assert.strictEqual(
-      resolveShortcutCommand(event({ key: "x", metaKey: true, altKey: true }), DEFAULT_BINDINGS, {
-        platform: "MacIntel",
-        context: { terminalFocus: false },
-      }),
-      "chat.newCodex",
-    );
-    assert.strictEqual(
-      resolveShortcutCommand(event({ key: "r", metaKey: true, altKey: true }), DEFAULT_BINDINGS, {
-        platform: "MacIntel",
-        context: { terminalFocus: false },
-      }),
-      "chat.newCursor",
-    );
-    assert.strictEqual(
-      resolveShortcutCommand(event({ key: "g", metaKey: true, altKey: true }), DEFAULT_BINDINGS, {
-        platform: "MacIntel",
-        context: { terminalFocus: false },
-      }),
-      "chat.newGemini",
-    );
-    assert.strictEqual(
-      resolveShortcutCommand(
-        event({ code: "KeyC", key: "ç", metaKey: true, altKey: true }),
-        DEFAULT_BINDINGS,
-        {
-          platform: "MacIntel",
-          context: { terminalFocus: false },
-        },
-      ),
-      "chat.newClaude",
-    );
-    assert.strictEqual(
-      resolveShortcutCommand(
-        event({ code: "KeyX", key: "≈", metaKey: true, altKey: true }),
-        DEFAULT_BINDINGS,
-        {
-          platform: "MacIntel",
-          context: { terminalFocus: false },
-        },
-      ),
-      "chat.newCodex",
-    );
-    assert.strictEqual(
-      resolveShortcutCommand(
-        event({ code: "KeyR", key: "®", metaKey: true, altKey: true }),
-        DEFAULT_BINDINGS,
-        {
-          platform: "MacIntel",
-          context: { terminalFocus: false },
-        },
-      ),
-      "chat.newCursor",
-    );
-    assert.strictEqual(
-      resolveShortcutCommand(
-        event({ code: "KeyG", key: "©", metaKey: true, altKey: true }),
-        DEFAULT_BINDINGS,
-        {
-          platform: "MacIntel",
-          context: { terminalFocus: false },
-        },
-      ),
-      "chat.newGemini",
-    );
-  });
-
   it("resolves visible chat cycle shortcuts", () => {
     assert.strictEqual(
       resolveShortcutCommand(event({ key: "]", metaKey: true, shiftKey: true }), DEFAULT_BINDINGS, {
@@ -1201,89 +1106,6 @@ describe("resolveShortcutCommand", () => {
         context: { terminalFocus: false },
       }),
       "composer.focus.toggle",
-    );
-  });
-
-  it("falls back to provider-specific new chat defaults when runtime config is missing them", () => {
-    const legacyBindings = DEFAULT_BINDINGS.filter(
-      (binding) =>
-        binding.command !== "chat.newClaude" &&
-        binding.command !== "chat.newCodex" &&
-        binding.command !== "chat.newCursor" &&
-        binding.command !== "chat.newGemini",
-    );
-
-    assert.strictEqual(
-      resolveShortcutCommand(event({ key: "c", metaKey: true, altKey: true }), legacyBindings, {
-        platform: "MacIntel",
-        context: { terminalFocus: false },
-      }),
-      "chat.newClaude",
-    );
-    assert.strictEqual(
-      resolveShortcutCommand(event({ key: "x", metaKey: true, altKey: true }), legacyBindings, {
-        platform: "MacIntel",
-        context: { terminalFocus: false },
-      }),
-      "chat.newCodex",
-    );
-    assert.strictEqual(
-      resolveShortcutCommand(event({ key: "r", metaKey: true, altKey: true }), legacyBindings, {
-        platform: "MacIntel",
-        context: { terminalFocus: false },
-      }),
-      "chat.newCursor",
-    );
-    assert.strictEqual(
-      resolveShortcutCommand(event({ key: "g", metaKey: true, altKey: true }), legacyBindings, {
-        platform: "MacIntel",
-        context: { terminalFocus: false },
-      }),
-      "chat.newGemini",
-    );
-    assert.strictEqual(
-      resolveShortcutCommand(
-        event({ code: "KeyC", key: "ç", metaKey: true, altKey: true }),
-        legacyBindings,
-        {
-          platform: "MacIntel",
-          context: { terminalFocus: false },
-        },
-      ),
-      "chat.newClaude",
-    );
-    assert.strictEqual(
-      resolveShortcutCommand(
-        event({ code: "KeyX", key: "≈", metaKey: true, altKey: true }),
-        legacyBindings,
-        {
-          platform: "MacIntel",
-          context: { terminalFocus: false },
-        },
-      ),
-      "chat.newCodex",
-    );
-    assert.strictEqual(
-      resolveShortcutCommand(
-        event({ code: "KeyR", key: "®", metaKey: true, altKey: true }),
-        legacyBindings,
-        {
-          platform: "MacIntel",
-          context: { terminalFocus: false },
-        },
-      ),
-      "chat.newCursor",
-    );
-    assert.strictEqual(
-      resolveShortcutCommand(
-        event({ code: "KeyG", key: "©", metaKey: true, altKey: true }),
-        legacyBindings,
-        {
-          platform: "MacIntel",
-          context: { terminalFocus: false },
-        },
-      ),
-      "chat.newGemini",
     );
   });
 });

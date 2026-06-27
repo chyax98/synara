@@ -44,7 +44,7 @@ describe("createPastedTextDraft / pastedTextTitle", () => {
   });
 
   it("falls back to a generic title for whitespace-only content", () => {
-    expect(pastedTextTitle("   \n\t")).toBe("Pasted text");
+    expect(pastedTextTitle("   \n\t")).toBe("粘贴的文本");
   });
 });
 

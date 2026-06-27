@@ -92,12 +92,12 @@ describe("resolvePlanFollowUpSubmission", () => {
 describe("buildPlanImplementationThreadTitle", () => {
   it("uses the plan heading when building the implementation thread title", () => {
     expect(buildPlanImplementationThreadTitle("# Integrate RPC\n\nBody")).toBe(
-      "Implement Integrate RPC",
+      "实施 Integrate RPC",
     );
   });
 
   it("falls back when the plan has no markdown heading", () => {
-    expect(buildPlanImplementationThreadTitle("- step 1")).toBe("Implement plan");
+    expect(buildPlanImplementationThreadTitle("- step 1")).toBe("实施计划");
   });
 });
 

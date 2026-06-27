@@ -377,7 +377,7 @@ describe("add-project error helpers", () => {
       describeAddProjectError(
         "Orchestration command invariant failed (project.create): Project 'project-duplicate' already uses workspace root 'C:\\Labs\\influenzo'.",
       ),
-    ).toContain("already linked to an existing project");
+    ).toContain("已关联到现有项目");
   });
 
   it("explains root-absolute add-project paths that probably missed the home directory", () => {

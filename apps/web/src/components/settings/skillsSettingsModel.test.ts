@@ -94,7 +94,7 @@ describe("buildSettingsSkillSections", () => {
       }),
     ]);
 
-    expect(sections.map((section) => section.title)).toEqual(["Shared skills", "From OpenCode"]);
+    expect(sections.map((section) => section.title)).toEqual(["共享技能", "来自 OpenCode"]);
     expect(sections[0]?.groups.map((group) => group.key)).toEqual(["logic-consolidator"]);
   });
 });

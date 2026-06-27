@@ -2235,6 +2235,16 @@ function subagentSecondaryLabel(
   return parts.join(" • ");
 }
 
+const SUBAGENT_STATUS_CLASS_RUNNING = "border-sky-500/18 bg-sky-500/8 text-sky-200/90";
+const SUBAGENT_STATUS_CLASS_COMPLETED =
+  "border-emerald-500/18 bg-emerald-500/8 text-emerald-200/90";
+const SUBAGENT_STATUS_CLASS_FAILED = "border-rose-500/18 bg-rose-500/8 text-rose-200/90";
+const SUBAGENT_STATUS_CLASS_STOPPED = "border-amber-500/18 bg-amber-500/8 text-amber-200/90";
+const SUBAGENT_STATUS_CLASS_QUEUED = "border-violet-500/18 bg-violet-500/8 text-violet-200/90";
+const SUBAGENT_STATUS_CLASS_IDLE = "border-border/45 bg-background/85 text-muted-foreground/68";
+const SUBAGENT_LIST_PADDING_COMPACT = "px-2.5 py-2";
+const SUBAGENT_LIST_PADDING_DEFAULT = "px-3 py-[9px]";
+
 function subagentStatusClasses(
   statusLabel: string | undefined,
   rawStatus: string | undefined,
@@ -2242,18 +2252,18 @@ function subagentStatusClasses(
 ): string {
   switch (normalizeSubagentStatusKind(statusLabel ?? rawStatus, isActive)) {
     case "running":
-      return "border-sky-500/18 bg-sky-500/8 text-sky-200/90";
+      return SUBAGENT_STATUS_CLASS_RUNNING;
     case "completed":
-      return "border-emerald-500/18 bg-emerald-500/8 text-emerald-200/90";
+      return SUBAGENT_STATUS_CLASS_COMPLETED;
     case "failed":
-      return "border-rose-500/18 bg-rose-500/8 text-rose-200/90";
+      return SUBAGENT_STATUS_CLASS_FAILED;
     case "stopped":
-      return "border-amber-500/18 bg-amber-500/8 text-amber-200/90";
+      return SUBAGENT_STATUS_CLASS_STOPPED;
     case "queued":
-      return "border-violet-500/18 bg-violet-500/8 text-violet-200/90";
+      return SUBAGENT_STATUS_CLASS_QUEUED;
     case "idle":
     default:
-      return "border-border/45 bg-background/85 text-muted-foreground/68";
+      return SUBAGENT_STATUS_CLASS_IDLE;
   }
 }
 
@@ -2511,7 +2521,7 @@ const SimpleWorkEntryRow = memo(function SimpleWorkEntryRow(props: {
             <div
               className={cn(
                 "space-y-[5px] rounded-[14px] border border-border/45 bg-background/50 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]",
-                compact ? "px-2.5 py-2" : "px-3 py-[9px]",
+                compact ? SUBAGENT_LIST_PADDING_COMPACT : SUBAGENT_LIST_PADDING_DEFAULT,
               )}
             >
               {visibleSubagents.map((subagent) => {

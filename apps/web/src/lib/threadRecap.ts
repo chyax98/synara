@@ -130,7 +130,7 @@ function formatMessageForRecap(message: ChatMessage): string {
             if (attachment.type === "image" || attachment.type === "file") {
               return attachment.name;
             }
-            return "assistant selection";
+            return "助手选择";
           })
           .join(", ")}.`
       : "";

@@ -514,18 +514,20 @@ export async function recoverExistingAddProjectTarget(input: {
   return "create";
 }
 
+const WINDOWS_OS_LABEL = "Windows";
+
 // Translates low-level add-project failures into a short explanation without
 // hiding the original error text that developers may need for diagnosis.
 export function describeAddProjectError(message: string): string | null {
   if (isDuplicateProjectCreateError(message)) {
-    return "This usually means the folder is already linked to an existing project. On Windows, the same folder can arrive with a different path format, so it looks new even when it is not.";
+    return `这通常表示该文件夹已关联到现有项目。在 ${WINDOWS_OS_LABEL} 上，同一文件夹可能以不同路径格式出现，因此看起来像是新项目，实则不然。`;
   }
 
   if (
     message.startsWith("Failed to create project directory: /") ||
     message.startsWith("Project directory does not exist: /")
   ) {
-    return "This is an absolute path from the filesystem root. If the folder is in your home directory, use ~/Developer/... or the full /Users/<name>/Developer/... path.";
+    return "这是从文件系统根目录开始的绝对路径。如果文件夹在你的主目录中，请使用 ~/Developer/... 或完整的 /Users/<name>/Developer/... 路径。";
   }
 
   return null;

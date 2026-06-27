@@ -137,7 +137,7 @@ describe("voice helpers", () => {
         isHomeChat: true,
         isEmpty: true,
       }),
-    ).toBe("New Chat");
+    ).toBe("新聊天");
   });
 
   it("prefers the resolved subagent label when present", () => {

@@ -1326,7 +1326,7 @@ function SplitChatSurface(props: { splitViewId: SplitViewId; routeThreadId: Thre
           <DialogHeader className="items-center text-center">
             <DialogTitle>选择聊天</DialogTitle>
             <DialogDescription className="max-w-sm text-center">
-              Pick which chat should appear in the focused split pane.
+              选择要在聚焦分屏中显示的聊天。
             </DialogDescription>
           </DialogHeader>
           <DialogPanel className="space-y-3">

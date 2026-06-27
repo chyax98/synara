@@ -187,8 +187,7 @@ export function PullRequestThreadDialog({
         <DialogHeader>
           <DialogTitle>检出拉取请求</DialogTitle>
           <DialogDescription>
-            Resolve a GitHub pull request, then create the draft thread in the main repo or in a
-            dedicated worktree.
+            解析 GitHub 拉取请求，然后在主仓库或独立工作树中创建草稿会话。
           </DialogDescription>
         </DialogHeader>
         <DialogPanel className="space-y-4">

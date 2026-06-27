@@ -1196,7 +1196,7 @@ function SettingsRouteView() {
                   }}
                   aria-label="主题"
                 />
-                <span className="text-xs text-muted-foreground">px</span>
+                <span className="text-xs text-muted-foreground">像素</span>
               </div>
             }
           />
@@ -1237,7 +1237,7 @@ function SettingsRouteView() {
                   }}
                   aria-label="终端字号（像素）"
                 />
-                <span className="text-xs text-muted-foreground">px</span>
+                <span className="text-xs text-muted-foreground">像素</span>
               </div>
             }
           />

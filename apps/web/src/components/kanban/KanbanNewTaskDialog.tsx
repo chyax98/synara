@@ -391,7 +391,7 @@ export function KanbanNewTaskDialog({
             />
             <ChevronRightIcon className="size-3.5 shrink-0 text-muted-foreground/50" aria-hidden />
             <DialogTitle className="font-system-ui truncate font-medium text-[length:var(--app-font-size-ui,12px)] leading-none">
-              New task
+              新任务
             </DialogTitle>
           </div>
           <DialogDescription className="sr-only">

@@ -62,11 +62,11 @@ function commandMenuTitle(
 ): string {
   switch (item.command) {
     case "clear":
-      return "Clear";
+      return "清空";
     case "compact":
       return "压缩上下文";
     case "model":
-      return "Model";
+      return "模型";
     case "fast":
       return "快速模式";
     case "plan":
@@ -76,13 +76,13 @@ function commandMenuTitle(
     case "review":
       return "代码审查";
     case "fork":
-      return "Fork";
+      return "分叉";
     case "side":
-      return "Sidechat";
+      return "侧聊";
     case "status":
       return "状态";
     case "subagents":
-      return "Subagents";
+      return "子代理";
     default:
       return humanizeProviderCommandName(item.command);
   }
@@ -94,11 +94,11 @@ function commandMenuTrailingMeta(item: ComposerCommandItem): string | null {
   }
 
   if (item.type === "plugin") {
-    return "Plugin";
+    return "插件";
   }
 
   if (item.type === "local-root") {
-    return "Local";
+    return "本地";
   }
 
   if (item.type === "skill") {
@@ -106,7 +106,7 @@ function commandMenuTrailingMeta(item: ComposerCommandItem): string | null {
   }
 
   if (item.type === "model") {
-    return "Model";
+    return "模型";
   }
 
   if (item.type === "slash-command" || item.type === "provider-native-command") {

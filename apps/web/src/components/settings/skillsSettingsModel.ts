@@ -87,9 +87,9 @@ function sourceSortKey(source: SettingsSkillSource): string {
 
 function sectionTitle(section: string): string {
   if (section === SHARED_SKILLS_SECTION) {
-    return "Shared skills";
+    return "共享技能";
   }
-  return `From ${skillOriginInfo(section).label}`;
+  return `来自 ${skillOriginInfo(section).label}`;
 }
 
 function sectionRank(section: string): number {

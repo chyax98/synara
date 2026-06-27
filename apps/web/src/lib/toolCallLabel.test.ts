@@ -161,7 +161,7 @@ describe("deriveReadableCommandDisplay", () => {
   it("humanizes current-directory searches without leaking placeholder dots", () => {
     expect(deriveReadableCommandDisplay(`rg -n "model(s)?" .`)).toEqual({
       verb: "已搜索",
-      target: "for model(s)? in current directory",
+      target: "for model(s)? in 当前目录",
       fullCommand: `rg -n "model(s)?" .`,
     });
   });
@@ -169,7 +169,7 @@ describe("deriveReadableCommandDisplay", () => {
   it("falls back to a directory summary when the search token is only punctuation", () => {
     expect(deriveReadableCommandDisplay(`rg -n . src/lib`)).toEqual({
       verb: "已搜索",
-      target: "in src/lib",
+      target: "for src/lib in 当前目录",
       fullCommand: `rg -n . src/lib`,
     });
   });

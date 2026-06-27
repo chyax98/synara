@@ -2026,7 +2026,7 @@ describe("MessagesTimeline", () => {
               label: "Web search",
               tone: "tool",
               itemType: "web_search",
-              toolTitle: "Searched the web",
+              toolTitle: "搜索了网络",
               detail: "48 files found",
             },
           },
@@ -2047,7 +2047,7 @@ describe("MessagesTimeline", () => {
       />,
     );
 
-    expect(markup).toContain("Searched the web");
+    expect(markup).toContain("搜索了网络");
     expect(markup).toContain("48 files found");
     expect(markup).toContain("tabler-icon-world");
   });

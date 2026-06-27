@@ -26,7 +26,7 @@ export function deriveThreadMarkerLabel(marker: ThreadMarker): string {
     .replace(/\s+/g, " ")
     .trim();
   if (cleaned.length === 0) {
-    return "Marked text";
+    return "标记文本";
   }
   return cleaned.length > THREAD_MARKER_LABEL_MAX_CHARS
     ? `${cleaned.slice(0, THREAD_MARKER_LABEL_MAX_CHARS - 1)}…`

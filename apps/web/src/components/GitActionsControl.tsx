@@ -189,42 +189,42 @@ function getMenuActionDisabledReason({
 
   if (item.id === "commit") {
     if (!hasChanges) {
-      return "worktree 没有变更。先修改文件再提交。";
+      return "工作树没有变更。先修改文件再提交。";
     }
     return "当前无法提交。";
   }
 
   if (item.id === "push") {
     if (!hasBranch) {
-      return "分离 HEAD：先切换到一个 branch 再推送。";
+      return `${DETACHED_HEAD_LABEL}：先切换到一个分支再推送。`;
     }
     if (hasChanges) {
-      return "先提交或 stash 本地变更再推送。";
+      return "先提交或暂存本地变更再推送。";
     }
     if (isBehind) {
-      return "branch 落后上游。先拉取/rebase 再推送。";
+      return `分支落后上游。先拉取/${GIT_REBASE_HINT} 再推送。`;
     }
     if (!gitStatus.hasUpstream && !hasOriginRemote) {
-      return '先添加 "origin" remote 再推送。';
+      return `先添加「${DEFAULT_ORIGIN_REMOTE_NAME}」远程再推送。`;
     }
     if (!isAhead) {
-      return "没有可推送的本地 commit。";
+      return "没有可推送的本地提交。";
     }
     return "当前无法推送。";
   }
 
   if (item.id === "commit_push") {
     if (!hasBranch) {
-      return "分离 HEAD：先切换到一个 branch 再提交并推送。";
+      return `${DETACHED_HEAD_LABEL}：先切换到一个分支再提交并推送。`;
     }
     if (isBehind) {
-      return "branch 落后上游。先拉取/rebase 再提交并推送。";
+      return `分支落后上游。先拉取/${GIT_REBASE_HINT} 再提交并推送。`;
     }
     if (!gitStatus.hasUpstream && !hasOriginRemote) {
-      return '先添加 "origin" remote 再提交并推送。';
+      return `先添加「${DEFAULT_ORIGIN_REMOTE_NAME}」远程再提交并推送。`;
     }
     if (!hasChanges && !isAhead) {
-      return "没有可推送的本地变更或 commit。";
+      return "没有可推送的本地变更或提交。";
     }
     return "当前无法提交并推送。";
   }
@@ -233,25 +233,28 @@ function getMenuActionDisabledReason({
     return "当前无法查看 PR。";
   }
   if (!hasBranch) {
-    return "分离 HEAD：先切换到一个 branch 再创建 PR。";
+    return `${DETACHED_HEAD_LABEL}：先切换到一个分支再创建 PR。`;
   }
   if (hasChanges) {
     return "先提交本地变更再创建 PR。";
   }
   if (!gitStatus.hasUpstream && !hasOriginRemote) {
-    return '先添加 "origin" remote 再创建 PR。';
+    return `先添加「${DEFAULT_ORIGIN_REMOTE_NAME}」远程再创建 PR。`;
   }
   if (!isAhead) {
-    return "没有可纳入 PR 的本地 commit。";
+    return "没有可纳入 PR 的本地提交。";
   }
   if (isBehind) {
-    return "branch 落后上游。先拉取/rebase 再创建 PR。";
+    return `分支落后上游。先拉取/${GIT_REBASE_HINT} 再创建 PR。`;
   }
   return "当前无法创建 PR。";
 }
 
 const COMMIT_DIALOG_TITLE = "提交更改";
 const COMMIT_DIALOG_DESCRIPTION = "检查并确认你的提交。留空提交信息会自动生成。";
+const DEFAULT_ORIGIN_REMOTE_NAME = "origin";
+const GIT_REBASE_HINT = "rebase";
+const DETACHED_HEAD_LABEL = "游离提交点";
 
 // Central icons render as masked spans (not <svg>), so size them explicitly here
 // rather than relying on parent `[&>svg]` selectors.
@@ -1522,7 +1525,7 @@ export default function GitActionsControl({
           <DialogHeader>
             <DialogTitle>创建分支</DialogTitle>
             <DialogDescription>
-              从当前 HEAD 创建并切换到新分支。此后的提交、推送和 PR 都将使用该分支。
+              从当前提交点创建并切换到新分支。此后的提交、推送和 PR 都将使用该分支。
             </DialogDescription>
           </DialogHeader>
           <DialogPanel className="space-y-3">

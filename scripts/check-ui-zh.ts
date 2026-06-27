@@ -50,6 +50,9 @@ const BRAND_ALLOWLIST = new Set([
   "Shift",
   "Esc",
   "X",
+  "Aa",
+  "AM",
+  "PM",
 ]);
 
 const STATUS_ENUM_VALUES = new Set([
@@ -72,7 +75,7 @@ const STATUS_ENUM_VALUES = new Set([
 const USER_FACING_PROP_NAMES =
   "title|description|label|tooltip|placeholder|status|aria-label|ariaLabel|resetLabel|valueContent|eyebrow|keywords|message|detail";
 
-const ENGLISH_RUN = /[A-Za-z]{3,}/;
+const ENGLISH_RUN = /[A-Za-z]{2,}/;
 
 function hasCjk(text: string): boolean {
   return /[\u3400-\u9fff]/.test(text);
@@ -94,7 +97,7 @@ function stripTemplateExpressions(text: string): string {
 function isBrandAllowedWhole(text: string): boolean {
   const trimmed = text.trim();
   if (BRAND_ALLOWLIST.has(trimmed)) return true;
-  if (trimmed.length <= 2) return true;
+  // Allow punctuation-only; alphabetic 2-char tokens (On/Off) must not pass here.
   if (/^[\d\s%.,:;!?()[\]{}+\-*/=<>|&@#$^~`\\]+$/.test(trimmed)) return true;
   return false;
 }
@@ -327,6 +330,7 @@ function extractUserFacingValues(content: string, filePath: string): ExtractedVa
       for (const m of line.matchAll(/>\s*([A-Za-z][^<{]{1,}?)\s*</g)) {
         const text = (m[1] ?? "").trim();
         if (isLikelyCodeFragment(text)) continue;
+        if (/^\d+px$/i.test(text)) continue;
         // Single-word labels (Cron, Skills, Save) are user-facing unless brand-allowlisted.
         if (!/\s/.test(text) && isBrandAllowedWhole(text)) continue;
         pushIfViolation(results, "", "jsx-text", text, i + 1);
@@ -334,7 +338,36 @@ function extractUserFacingValues(content: string, filePath: string): ExtractedVa
     }
   }
 
-  // 6) dialog strings in main.ts
+  // 6) return "…" UI literals in helper functions (.ts + .tsx)
+  const returnStringRe = /return\s+(["'`])([\s\S]*?)\1/g;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i] ?? "";
+    if (line.trim().startsWith("//")) continue;
+    let m: RegExpExecArray | null;
+    returnStringRe.lastIndex = 0;
+    while ((m = returnStringRe.exec(line)) !== null) {
+      const text = m[2] ?? "";
+      if (text.length === 0 || isLikelyCodeFragment(text)) continue;
+      const stripped = stripTemplateExpressions(text).trim();
+      // Skip internal enum/id tokens (worktree, opencode, arrowup, lastTurn, …).
+      if (/^[a-z][a-z0-9_.-]*$/i.test(stripped)) continue;
+      if (/^\d+(?:ms|px|%)?$/i.test(stripped)) continue;
+      if (/^(?:border-|bg-|text-|px-|py-|opacity-)/.test(stripped)) continue;
+      if (!containsForbiddenEnglish(stripped, "return")) continue;
+      pushIfViolation(results, "", "return", text, i + 1);
+    }
+  }
+
+  // 7) Multi-line JSX text in common dialog/label wrappers
+  const multilineJsxRe =
+    /<(?:DialogDescription|DialogTitle|EmptyPanel|SectionHeader|MenuGroupLabel)(?:\s[^>]*)?>\s*([\s\S]*?)\s*<\/(?:DialogDescription|DialogTitle|EmptyPanel|SectionHeader|MenuGroupLabel)>/g;
+  for (const m of content.matchAll(multilineJsxRe)) {
+    const text = (m[1] ?? "").replace(/\s+/g, " ").trim();
+    if (text.length === 0 || isLikelyCodeFragment(text)) continue;
+    pushIfViolation(results, "", "jsx-block", text, lineNumberAt(content, m.index ?? 0));
+  }
+
+  // 8) dialog strings in main.ts
   if (content.includes("showMessageBox")) {
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i] ?? "";

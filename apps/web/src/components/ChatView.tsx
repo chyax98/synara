@@ -1681,7 +1681,6 @@ export default function ChatView({
   voiceProviderRef.current = selectedProvider;
   const customModelsByProvider = useMemo(() => getCustomModelsByProvider(settings), [settings]);
   const featureFlags = useFeatureFlags();
-  const showExpandedCursorModelVariants = featureFlags["show-expanded-cursor-model-variants"];
   const showDebugTaskBanner = import.meta.env.DEV && featureFlags["show-debug-task-banner"];
   const serverConfigQuery = useQuery(serverConfigQueryOptions());
   const composerModelHintByProvider = useMemo<Record<ProviderKind, string | null>>(() => {
@@ -7748,7 +7747,7 @@ export default function ChatView({
         model: resolvedModel,
       };
       setComposerDraftModelSelection(activeThread.id, nextModelSelection);
-      if (provider === "opencode" && !showExpandedCursorModelVariants) {
+      if (provider === "opencode") {
         setComposerDraftProviderModelOptions(activeThread.id, provider, undefined, {
           persistSticky: true,
           model: resolvedModel,
@@ -7764,7 +7763,6 @@ export default function ChatView({
       setComposerDraftModelSelection,
       setComposerDraftProviderModelOptions,
       setStickyComposerModelSelection,
-      showExpandedCursorModelVariants,
       customModelsByProvider,
       modelOptionsByProvider,
     ],

@@ -92,10 +92,6 @@ export const DEFAULT_KEYBINDINGS: ReadonlyArray<KeybindingRule> = [
   { key: "mod+shift+n", command: "chat.newLatestProject", when: "!terminalFocus" },
   { key: "mod+alt+n", command: "chat.newChat", when: "!terminalFocus" },
   { key: "mod+shift+t", command: "chat.newTerminal", when: "!terminalFocus" },
-  { key: "mod+alt+c", command: "chat.newClaude", when: "!terminalFocus" },
-  { key: "mod+alt+x", command: "chat.newCodex", when: "!terminalFocus" },
-  { key: "mod+alt+r", command: "chat.newCursor", when: "!terminalFocus" },
-  { key: "mod+alt+g", command: "chat.newGemini", when: "!terminalFocus" },
   { key: "mod+\\", command: "chat.split", when: "!terminalFocus" },
   // Recent-view switcher (Ctrl+Tab) is an installed-app feature only: Electron and
   // standalone PWA windows have no tab strip, so the chord reaches the page. It remains

@@ -21,9 +21,10 @@ describe("providerOrdering", () => {
     expect(new Set(DEFAULT_PROVIDER_ORDER)).toEqual(new Set(ALL_PROVIDER_KINDS));
   });
 
-  it("keeps Pi as a valid provider for persisted order and visibility settings", () => {
+  it("normalizes persisted order and visibility to opencode-only values", () => {
     expect(isProviderKind("opencode")).toBe(true);
-    expect(normalizeProviderOrder(["opencode", "codex"])[0]).toBe("opencode");
+    expect(isProviderKind("codex")).toBe(false);
+    expect(normalizeProviderOrder(["opencode", "bogus"])).toEqual(["opencode"]);
     expect(normalizeHiddenProviders(["bogus", "opencode", "opencode"])).toEqual(["opencode"]);
   });
 });

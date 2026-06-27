@@ -96,10 +96,10 @@ function humanizeRequestKind(
   if (requestKind === "file-read") return "Read";
   if (requestKind === "file-change" || itemType === "file_change") return "Edited";
   // Don't handle command types here — let humanizeCommandToolLabel produce more specific labels
-  if (itemType === "web_search") return "Searched the web";
-  if (itemType === "image_generation") return "Generated image";
-  if (itemType === "image_view") return "Viewed image";
-  if (itemType === "collab_agent_tool_call") return "Agent task";
+  if (itemType === "web_search") return "搜索了网络";
+  if (itemType === "image_generation") return "生成了图片";
+  if (itemType === "image_view") return "查看了图片";
+  if (itemType === "collab_agent_tool_call") return "代理任务";
   return null;
 }
 
@@ -427,10 +427,10 @@ function lastPathComponents(args: string, fallback: string): string {
 
 function compactPath(path: string): string {
   if (path === ".") {
-    return "current directory";
+    return "当前目录";
   }
   if (path === "..") {
-    return "parent directory";
+    return "上级目录";
   }
   const parts = path.split(/[\\/]/).filter(Boolean);
   if (parts.length <= 2) {

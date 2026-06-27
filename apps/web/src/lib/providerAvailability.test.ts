@@ -130,7 +130,7 @@ describe("isProviderUsable", () => {
 describe("providerUnavailableReason", () => {
   it("returns provider-specific guidance", () => {
     expect(providerUnavailableReason({ ...BASE_STATUS, authStatus: "unauthenticated" })).toBe(
-      "OpenCode is not authenticated yet.",
+      "OpenCode 尚未完成认证。",
     );
     expect(providerUnavailableReason(BASE_STATUS)).toBe(BASE_STATUS.message);
   });

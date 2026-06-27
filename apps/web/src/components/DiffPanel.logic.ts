@@ -170,7 +170,7 @@ export function resolveDiffPanelPickerLabel(
 ): string {
   if (source.kind === "turn") {
     if (source.turnId !== null) {
-      return "Turn diff";
+      return "轮次差异";
     }
     return turnScopeIntent === "last" ? "上一轮" : "所有轮次";
   }

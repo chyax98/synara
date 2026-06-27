@@ -77,12 +77,12 @@ function asCheckpointErrorMessage(error: unknown): string {
 function normalizeCheckpointErrorMessage(error: unknown): string {
   const message = asCheckpointErrorMessage(error).trim();
   if (message.length === 0) {
-    return "Failed to load checkpoint diff.";
+    return "加载检查点差异失败。";
   }
 
   const lower = message.toLowerCase();
   if (lower.includes("not a git repository")) {
-    return "Turn diffs are unavailable because this project is not a git repository.";
+    return "此项目不是 Git 仓库，无法显示轮次差异。";
   }
 
   if (

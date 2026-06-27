@@ -81,26 +81,6 @@ const AVAILABLE_NOW_DEFINITIONS: readonly ShortcutDefinition[] = [
     description: "创建直接进入终端模式的会话。",
   },
   {
-    command: "chat.newClaude",
-    label: `新建 ${"Claude"} 会话`,
-    description: `以 ${"Claude"} 为提供商新建会话。`,
-  },
-  {
-    command: "chat.newCodex",
-    label: "新建 Codex 会话",
-    description: "以 Codex 为提供商新建会话。",
-  },
-  {
-    command: "chat.newCursor",
-    label: `新建 ${"Cursor"} 会话`,
-    description: `以 ${"Cursor"} 为提供商新建会话。`,
-  },
-  {
-    command: "chat.newGemini",
-    label: `新建 ${"Gemini"} 会话`,
-    description: `以 ${"Gemini"} 为提供商新建会话。`,
-  },
-  {
     command: "chat.split",
     label: "分屏聊天",
     description: "在第二个窗格中打开当前对话。",

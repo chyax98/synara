@@ -48,21 +48,21 @@ describe("KanbanNewTaskDialog logic", () => {
         firstImageName: "screen.png",
         assistantSelectionCount: 1,
       }),
-    ).toBe("Image: screen.png");
+    ).toBe("图片：screen.png");
     expect(
       buildKanbanTaskPreview({
         trimmedPrompt: "",
         firstImageName: null,
         assistantSelectionCount: 1,
       }),
-    ).toBe("Referenced assistant selection");
+    ).toBe("引用的助手选择");
     expect(
       buildKanbanTaskPreview({
         trimmedPrompt: "",
         firstImageName: null,
         assistantSelectionCount: 0,
       }),
-    ).toBe("New task");
+    ).toBe("新任务");
   });
 
   it("truncates long previews for toasts", () => {

@@ -806,26 +806,26 @@ describe("composerAutomation", () => {
   describe("automationClarificationPrompt", () => {
     it("asks for both the task and cadence when the task is missing", () => {
       expect(automationClarificationPrompt(["taskPrompt", "schedule"])).toContain(
-        "what should this automation do",
+        "这个自动化要做什么",
       );
     });
 
     it("asks only for the cadence when just the schedule is missing", () => {
       const prompt = automationClarificationPrompt(["schedule"]);
-      expect(prompt).toContain("How often");
-      expect(prompt).not.toContain("what should this automation do");
+      expect(prompt).toContain("多久运行一次");
+      expect(prompt).not.toContain("这个自动化要做什么");
     });
 
     it("asks only for the task when the cadence is already known", () => {
       const prompt = automationClarificationPrompt(["taskPrompt"]);
-      expect(prompt).toContain("What should this automation do");
-      expect(prompt).not.toContain("How often");
+      expect(prompt).toContain("这个自动化要做什么");
+      expect(prompt).not.toContain("多久运行一次");
     });
 
     it("asks for task and cadence when nothing was reported, so setup can recover", () => {
       // Empty missingFields (generation timed out/failed) must not loop on cadence for a
       // bare request that has no task yet.
-      expect(automationClarificationPrompt([])).toContain("what should this automation do");
+      expect(automationClarificationPrompt([])).toContain("这个自动化要做什么");
     });
   });
 

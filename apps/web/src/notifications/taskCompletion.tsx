@@ -314,18 +314,18 @@ export function buildNotificationSettingsSupportText(
   permissionState: BrowserNotificationPermissionState,
 ): string {
   if (isElectron) {
-    return "Desktop app notifications use your operating system notification center.";
+    return "桌面应用通知使用操作系统的通知中心。";
   }
   switch (permissionState) {
     case "granted":
-      return "Browser notifications are enabled for this app.";
+      return "已为此应用启用浏览器通知。";
     case "denied":
-      return "Browser notifications are blocked. Re-enable them in your browser site settings.";
+      return "浏览器通知已被阻止。请在浏览器网站设置中重新启用。";
     case "insecure":
-      return "Browser notifications need a secure context. Localhost works; plain HTTP does not.";
+      return "浏览器通知需要安全上下文。本地主机可用；未加密连接不可用。";
     case "unsupported":
-      return "This browser does not support desktop notifications.";
+      return "此浏览器不支持桌面通知。";
     case "default":
-      return "Allow browser notifications to get alerts when chats or terminal agents finish or need input in the background.";
+      return "允许浏览器通知，以便在聊天或终端代理完成或需要输入时在后台收到提醒。";
   }
 }

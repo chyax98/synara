@@ -44,7 +44,7 @@ describe("parseChatAutomationIntent", () => {
         "check if on this website the black google fitbit air is available in black https://www.amazon.it/example",
       schedule: { type: "interval", everySeconds: 21_600 },
     });
-    expect(intent?.name).toContain("availability");
+    expect(intent?.name).toContain("可用性");
   });
 
   it("parses an already-extracted invocation without re-reading the composer marker", () => {

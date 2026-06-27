@@ -308,7 +308,7 @@ function errorDetails(error: unknown): string {
   try {
     return JSON.stringify(error, null, 2);
   } catch {
-    return "No additional error details are available.";
+    return "没有更多错误详情。";
   }
 }
 

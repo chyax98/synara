@@ -84,28 +84,8 @@ export const DEFAULT_SHORTCUT_FALLBACKS: ResolvedKeybindingsConfig = [
     whenAst: whenNotTerminalFocus,
   },
   {
-    command: "chat.newClaude",
-    shortcut: commandShortcut("c", { altKey: true }),
-    whenAst: whenNotTerminalFocus,
-  },
-  {
     command: "chat.newChat",
     shortcut: commandShortcut("n", { altKey: true }),
-    whenAst: whenNotTerminalFocus,
-  },
-  {
-    command: "chat.newCodex",
-    shortcut: commandShortcut("x", { altKey: true }),
-    whenAst: whenNotTerminalFocus,
-  },
-  {
-    command: "chat.newCursor",
-    shortcut: commandShortcut("r", { altKey: true }),
-    whenAst: whenNotTerminalFocus,
-  },
-  {
-    command: "chat.newGemini",
-    shortcut: commandShortcut("g", { altKey: true }),
     whenAst: whenNotTerminalFocus,
   },
   {
@@ -638,38 +618,6 @@ export function isChatNewChatShortcut(
 }
 
 export const isChatNewLocalShortcut = isChatNewChatShortcut;
-
-export function isChatNewClaudeShortcut(
-  event: ShortcutEventLike,
-  keybindings: ResolvedKeybindingsConfig,
-  options?: ShortcutMatchOptions,
-): boolean {
-  return matchesCommandShortcut(event, keybindings, "chat.newClaude", options);
-}
-
-export function isChatNewCodexShortcut(
-  event: ShortcutEventLike,
-  keybindings: ResolvedKeybindingsConfig,
-  options?: ShortcutMatchOptions,
-): boolean {
-  return matchesCommandShortcut(event, keybindings, "chat.newCodex", options);
-}
-
-export function isChatNewCursorShortcut(
-  event: ShortcutEventLike,
-  keybindings: ResolvedKeybindingsConfig,
-  options?: ShortcutMatchOptions,
-): boolean {
-  return matchesCommandShortcut(event, keybindings, "chat.newCursor", options);
-}
-
-export function isChatNewGeminiShortcut(
-  event: ShortcutEventLike,
-  keybindings: ResolvedKeybindingsConfig,
-  options?: ShortcutMatchOptions,
-): boolean {
-  return matchesCommandShortcut(event, keybindings, "chat.newGemini", options);
-}
 
 export function isOpenFavoriteEditorShortcut(
   event: ShortcutEventLike,

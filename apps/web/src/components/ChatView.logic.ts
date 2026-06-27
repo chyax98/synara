@@ -241,7 +241,7 @@ export function resolveActiveThreadTitle(input: {
     return input.subagentTitle;
   }
   if (input.isHomeChat && input.isEmpty && isGenericChatThreadTitle(input.title)) {
-    return "New Chat";
+    return "新聊天";
   }
   return input.title;
 }

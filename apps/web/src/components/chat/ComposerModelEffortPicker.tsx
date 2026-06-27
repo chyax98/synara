@@ -148,7 +148,7 @@ export const ComposerModelEffortPicker = memo(function ComposerModelEffortPicker
     : effortLabel
       ? effortLabel
       : thinkingEnabled !== null
-        ? `Thinking ${thinkingEnabled ? "On" : "Off"}`
+        ? `思考 ${thinkingEnabled ? "开" : "关"}`
         : null;
   const showsFastBadge = supportsFastModeControl && fastModeEnabled;
 

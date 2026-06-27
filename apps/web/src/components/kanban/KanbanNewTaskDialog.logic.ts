@@ -43,12 +43,12 @@ export function buildKanbanTaskPreview(input: {
     return input.trimmedPrompt;
   }
   if (input.firstImageName) {
-    return `Image: ${input.firstImageName}`;
+    return `图片：${input.firstImageName}`;
   }
   if (input.assistantSelectionCount > 0) {
-    return "Referenced assistant selection";
+    return "引用的助手选择";
   }
-  return "New task";
+  return "新任务";
 }
 
 export function truncateKanbanTaskPreview(preview: string, maxLength = 80): string {

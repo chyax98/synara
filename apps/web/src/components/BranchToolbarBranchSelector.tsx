@@ -266,7 +266,7 @@ function handleCheckoutError(
                   description: "无法切换分支。",
                   data: { copyText: toBranchActionErrorMessage(stashError) },
                   actionProps: {
-                    children: "丢弃 stash",
+                    children: "丢弃暂存",
                     className:
                       "border-destructive bg-destructive text-white shadow-destructive/24 hover:bg-destructive/90",
                     onClick: () => {
@@ -326,10 +326,10 @@ function getBranchTriggerLabel(input: {
 }): string {
   const { activeWorktreePath, effectiveEnvMode, resolvedActiveBranch } = input;
   if (!resolvedActiveBranch) {
-    return "Select branch";
+    return "选择分支";
   }
   if (effectiveEnvMode === "worktree" && !activeWorktreePath) {
-    return `From ${resolvedActiveBranch}`;
+    return `来自 ${resolvedActiveBranch}`;
   }
   return resolvedActiveBranch;
 }
@@ -986,12 +986,12 @@ export function BranchToolbarBranchSelector({
       >
         <DialogPopup className="max-w-xl">
           <DialogHeader>
-            <DialogTitle>丢弃已保存的 stash？</DialogTitle>
-            <DialogDescription>这将永久删除用于保留未提交更改的 stash 条目。</DialogDescription>
+            <DialogTitle>丢弃已保存的暂存？</DialogTitle>
+            <DialogDescription>这将永久删除用于保留未提交更改的暂存条目。</DialogDescription>
           </DialogHeader>
           <DialogPanel className="space-y-4">
             {stashDiscardDialog?.loading ? (
-              <p className="text-muted-foreground text-sm">正在加载 stash 详情…</p>
+              <p className="text-muted-foreground text-sm">正在加载暂存详情…</p>
             ) : stashDiscardDialog?.error ? (
               <p className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-destructive text-sm">
                 {stashDiscardDialog.error}
@@ -1002,7 +1002,7 @@ export function BranchToolbarBranchSelector({
                   <div className="flex min-w-0 gap-2">
                     <span className="w-20 shrink-0 text-muted-foreground">分支</span>
                     <span className="min-w-0 truncate font-medium">
-                      {stashDiscardDialog.info.branch ?? currentGitBranch ?? "Detached HEAD"}
+                      {stashDiscardDialog.info.branch ?? currentGitBranch ?? "游离提交点"}
                     </span>
                   </div>
                   <div className="flex min-w-0 gap-2">
@@ -1024,7 +1024,7 @@ export function BranchToolbarBranchSelector({
                 </div>
                 <div className="space-y-2">
                   <p className="font-medium text-sm">
-                    Changed files ({stashDiscardDialog.info.files.length})
+                    已更改文件（{stashDiscardDialog.info.files.length}）
                   </p>
                   {stashDiscardDialog.info.files.length > 0 ? (
                     <ul className="max-h-48 overflow-auto rounded-lg border border-[color:var(--color-border-light)] bg-[var(--color-background-control-opaque)] py-1">
@@ -1040,7 +1040,7 @@ export function BranchToolbarBranchSelector({
                     </ul>
                   ) : (
                     <p className="rounded-lg border border-[color:var(--color-border-light)] px-3 py-2 text-muted-foreground text-sm">
-                      Git did not report changed file names for this stash.
+                      Git 未报告此暂存的已更改文件名。
                     </p>
                   )}
                 </div>
@@ -1056,7 +1056,7 @@ export function BranchToolbarBranchSelector({
                 setIsDroppingStash(false);
               }}
             >
-              保留 stash
+              保留暂存
             </Button>
             <Button
               variant="destructive"

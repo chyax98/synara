@@ -108,17 +108,17 @@ export function automationClarificationPrompt(
   const needsTask = fields.includes("taskPrompt");
   const needsSchedule = fields.includes("schedule");
   if (needsTask && needsSchedule) {
-    return 'Sure, what should this automation do, and how often should it run? For example: "every weekday at 9am, summarize my open PRs."';
+    return '好的，这个自动化要做什么？多久运行一次？例如："每个工作日上午 9 点，汇总我未合并的 PR。"';
   }
   if (needsTask) {
     // Cadence is already known, so asking for it again risks the user repeating it and
     // leaving a duplicate schedule phrase in the saved task.
-    return "What should this automation do? For example: summarize my open PRs, or check the build.";
+    return "这个自动化要做什么？例如：汇总我未合并的 PR，或检查构建状态。";
   }
   if (needsSchedule) {
-    return "How often should this automation run? For example: every 6 hours, weekdays at 9am, or daily at 18:00.";
+    return "这个自动化多久运行一次？例如：每 6 小时、工作日上午 9 点，或每天 18:00。";
   }
-  return "A couple more details: what should this automation do, and how often should it run?";
+  return "还需要一些信息：这个自动化要做什么？多久运行一次？";
 }
 
 // ─── ENTRY POINT ─────────────────────────────────────────────

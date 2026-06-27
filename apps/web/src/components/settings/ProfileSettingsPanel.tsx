@@ -297,9 +297,9 @@ function InsightRow({ label, value }: { label: string; value: string }) {
 
 function formatHour(hour: number): string {
   const normalized = ((hour % 24) + 24) % 24;
-  if (normalized === 0) return "12 AM";
-  if (normalized === 12) return "12 PM";
-  return normalized < 12 ? `${normalized} AM` : `${normalized - 12} PM`;
+  if (normalized === 0) return "凌晨 12 点";
+  if (normalized === 12) return "中午 12 点";
+  return normalized < 12 ? `上午 ${normalized} 点` : `下午 ${normalized - 12} 点`;
 }
 
 function formatPeakHourLabel(startHour: number | null): string {

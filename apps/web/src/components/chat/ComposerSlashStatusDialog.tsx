@@ -21,16 +21,16 @@ import { ContextWindowMeter } from "./ContextWindowMeter";
 
 function formatRateLimitMessage(rateLimitStatus: RateLimitStatus): string {
   const resetSuffix = rateLimitStatus.resetsAt
-    ? ` Resets at ${new Date(rateLimitStatus.resetsAt).toLocaleTimeString()}.`
+    ? ` 将于 ${new Date(rateLimitStatus.resetsAt).toLocaleTimeString()} 重置。`
     : "";
   if (rateLimitStatus.status === "rejected") {
-    return `Rate limit reached.${resetSuffix}`;
+    return `已达到速率限制。${resetSuffix}`;
   }
   const utilizationSuffix =
     typeof rateLimitStatus.utilization === "number"
-      ? ` (${Math.round(rateLimitStatus.utilization * 100)}% used)`
+      ? `（已用 ${Math.round(rateLimitStatus.utilization * 100)}%）`
       : "";
-  return `Approaching rate limit${utilizationSuffix}.${resetSuffix}`;
+  return `接近速率限制${utilizationSuffix}。${resetSuffix}`;
 }
 
 function formatEnvironmentLabel(
@@ -38,9 +38,9 @@ function formatEnvironmentLabel(
   envState: ResolvedThreadWorkspaceState,
 ): string {
   if (envMode === "local") {
-    return "Local";
+    return "本地";
   }
-  return envState === "worktree-pending" ? "New worktree (pending)" : "Worktree";
+  return envState === "worktree-pending" ? "新工作树（待创建）" : "工作树";
 }
 
 export function ComposerSlashStatusDialog(props: {
@@ -81,9 +81,7 @@ export function ComposerSlashStatusDialog(props: {
       <DialogPopup className="max-w-xl">
         <DialogHeader>
           <DialogTitle>会话状态</DialogTitle>
-          <DialogDescription>
-            Runtime controls and local thread state for the active composer.
-          </DialogDescription>
+          <DialogDescription>当前输入框的运行时控制项与会话本地状态。</DialogDescription>
         </DialogHeader>
         <DialogPanel className="space-y-4">
           <div className="grid gap-3 rounded-lg border border-border/60 bg-muted/20 p-4 text-sm sm:grid-cols-2">
@@ -93,7 +91,7 @@ export function ComposerSlashStatusDialog(props: {
             </div>
             <div className="space-y-1">
               <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">快速模式</p>
-              <p className="font-medium text-foreground">{fastModeEnabled ? "On" : "Off"}</p>
+              <p className="font-medium text-foreground">{fastModeEnabled ? "开" : "关"}</p>
             </div>
             <div className="space-y-1">
               <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">推理</p>
@@ -106,16 +104,14 @@ export function ComposerSlashStatusDialog(props: {
               </p>
             </div>
             <div className="space-y-1">
-              <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">
-                Environment
-              </p>
+              <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">环境</p>
               <p className="font-medium text-foreground">
                 {formatEnvironmentLabel(envMode, envState)}
               </p>
             </div>
             <div className="space-y-1">
               <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">分支</p>
-              <p className="font-medium text-foreground">{branch ?? "Unknown"}</p>
+              <p className="font-medium text-foreground">{branch ?? "未知"}</p>
             </div>
           </div>
 
@@ -123,15 +119,13 @@ export function ComposerSlashStatusDialog(props: {
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">
-                  Context Window
+                  上下文窗口
                 </p>
-                <p className="text-sm text-muted-foreground">
-                  Latest usage reported by the active thread.
-                </p>
+                <p className="text-sm text-muted-foreground">当前会话报告的最新用量。</p>
                 {pendingContextWindowLabel ? (
                   <p className="text-sm text-muted-foreground">
-                    Current session: {activeContextWindowLabel ?? "Unknown"}. Next turn:{" "}
-                    {pendingContextWindowLabel}.
+                    当前会话：{activeContextWindowLabel ?? "未知"}。下一轮：
+                    {pendingContextWindowLabel}。
                   </p>
                 ) : null}
               </div>
@@ -167,16 +161,12 @@ export function ComposerSlashStatusDialog(props: {
                 <div>
                   <p className="text-muted-foreground">费用</p>
                   <p className="font-medium text-foreground">
-                    {cumulativeCostUsd !== null
-                      ? formatCostUsd(cumulativeCostUsd)
-                      : "Not available"}
+                    {cumulativeCostUsd !== null ? formatCostUsd(cumulativeCostUsd) : "不可用"}
                   </p>
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">
-                Context usage has not been reported yet for this thread.
-              </p>
+              <p className="text-sm text-muted-foreground">此会话尚未报告上下文用量。</p>
             )}
           </div>
 
@@ -185,15 +175,13 @@ export function ComposerSlashStatusDialog(props: {
             {rateLimitStatus ? (
               <p className="text-sm text-foreground">{formatRateLimitMessage(rateLimitStatus)}</p>
             ) : (
-              <p className="text-sm text-muted-foreground">
-                No active rate-limit warning for this thread.
-              </p>
+              <p className="text-sm text-muted-foreground">此会话当前没有速率限制警告。</p>
             )}
           </div>
         </DialogPanel>
         <DialogFooter variant="bare">
           <Button type="button" size="sm" onClick={() => onOpenChange(false)}>
-            Close
+            关闭
           </Button>
         </DialogFooter>
       </DialogPopup>

@@ -1760,7 +1760,7 @@ describe("deriveWorkLogEntries", () => {
         command: "ls -la",
         rawCommand: `/bin/zsh -lc "ls -la"`,
         toolTitle: "正在列出",
-        preview: "current directory",
+        preview: "当前目录",
       },
     ]);
   });

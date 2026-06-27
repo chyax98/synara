@@ -31,7 +31,6 @@ import { selectThreadTerminalState, useTerminalStateStore } from "../terminalSta
 import { useThreadSelectionStore } from "../threadSelectionStore";
 import { onServerMaintenanceUpdated } from "../wsNativeApi";
 import { useProviderStatusesForLocalConfig } from "~/hooks/useProviderStatusesForLocalConfig";
-import { resolveProviderSendAvailability } from "~/lib/providerAvailability";
 import { toastManager } from "~/components/ui/toast";
 import {
   Sidebar,
@@ -366,44 +365,6 @@ function ChatRouteGlobalShortcuts() {
               worktreePath: activeThread?.worktreePath ?? null,
             }),
           entryPoint: "terminal",
-        });
-        return;
-      }
-
-      if (
-        command === "chat.newClaude" ||
-        command === "chat.newCodex" ||
-        command === "chat.newCursor" ||
-        command === "chat.newGemini"
-      ) {
-        const provider = "opencode";
-        const providerAvailability = resolveProviderSendAvailability({
-          provider,
-          statuses: providerStatuses,
-        });
-        if (!providerAvailability.usable) {
-          event.preventDefault();
-          event.stopPropagation();
-          toastManager.add({
-            type: "error",
-            title: providerAvailability.unavailableReason,
-          });
-          return;
-        }
-        const projectId = activeProjectId ?? (allowProjectFallback ? projects[0]?.id : null);
-        if (!projectId) return;
-        event.preventDefault();
-        event.stopPropagation();
-        void handleNewThread(projectId, {
-          provider,
-          branch: activeThread?.branch ?? activeDraftThread?.branch ?? null,
-          worktreePath: activeThread?.worktreePath ?? activeDraftThread?.worktreePath ?? null,
-          envMode:
-            activeDraftThread?.envMode ??
-            resolveThreadEnvironmentMode({
-              envMode: activeThread?.envMode,
-              worktreePath: activeThread?.worktreePath ?? null,
-            }),
         });
         return;
       }

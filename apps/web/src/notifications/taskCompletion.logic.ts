@@ -222,11 +222,11 @@ export function collectCompletedTerminalCandidates(
 function approvalSummary(requestKind: "command" | "file-read" | "file-change"): string {
   switch (requestKind) {
     case "command":
-      return "Command approval requested.";
+      return "请求命令审批。";
     case "file-read":
-      return "File-read approval requested.";
+      return "请求文件读取审批。";
     case "file-change":
-      return "File-change approval requested.";
+      return "请求文件更改审批。";
   }
 }
 

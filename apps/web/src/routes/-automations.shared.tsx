@@ -315,7 +315,7 @@ export function runResultSummary(run: AutomationRun): string {
   if (run.error) return run.error;
   switch (run.result?.outcome) {
     case "findings":
-      return "发现待 review 的内容";
+      return "发现待审核的内容";
     case "no-findings":
       return "未发现异常";
     case "changed-files":

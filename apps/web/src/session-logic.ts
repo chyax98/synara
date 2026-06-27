@@ -216,8 +216,10 @@ function orderedActivities(
   return ordered;
 }
 
+const ZERO_DURATION_MS_LABEL = "0ms";
+
 function formatDuration(durationMs: number): string {
-  if (!Number.isFinite(durationMs) || durationMs < 0) return "0ms";
+  if (!Number.isFinite(durationMs) || durationMs < 0) return ZERO_DURATION_MS_LABEL;
   if (durationMs < 1_000) return `${Math.max(1, Math.round(durationMs))}ms`;
   if (durationMs < 10_000) return `${(durationMs / 1_000).toFixed(1)}s`;
   if (durationMs < 60_000) return `${Math.round(durationMs / 1_000)}s`;
@@ -1734,10 +1736,10 @@ function compactWorkLogPath(value: string | undefined): string | null {
     return null;
   }
   if (value === ".") {
-    return "current directory";
+    return "当前目录";
   }
   if (value === "..") {
-    return "parent directory";
+    return "上级目录";
   }
   const parts = value.split(/[\\/]/).filter(Boolean);
   if (parts.length <= 2) {

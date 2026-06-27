@@ -92,7 +92,7 @@ function defaultBrowserState(threadId: ThreadId): ThreadBrowserState {
 
 function defaultBrowserTitle(url: string): string {
   if (url === "about:blank") {
-    return "New tab";
+    return "新标签页";
   }
   try {
     return new URL(url).hostname || url;

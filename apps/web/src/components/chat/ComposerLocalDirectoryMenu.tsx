@@ -118,15 +118,15 @@ function isRootDirectory(directoryPath: string): boolean {
 function summarizeDirectoryLoadError(error: unknown): string {
   const raw = error instanceof Error ? error.message : String(error ?? "");
   if (/ENOENT|no such file or directory/i.test(raw)) {
-    return "Folder not found.";
+    return "未找到文件夹。";
   }
   if (/EACCES|permission denied/i.test(raw)) {
-    return "Permission denied.";
+    return "权限被拒绝。";
   }
   if (/ENOTDIR|not a directory/i.test(raw)) {
-    return "Not a folder.";
+    return "不是文件夹。";
   }
-  return "Unable to load folders.";
+  return "无法加载文件夹。";
 }
 
 export const ComposerLocalDirectoryMenu = memo(function ComposerLocalDirectoryMenu(props: {

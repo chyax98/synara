@@ -72,7 +72,7 @@ export default function ShortcutsDialog(props: {
         <DialogHeader className="pb-2">
           <DialogTitle className="text-base">键盘快捷键</DialogTitle>
           <DialogDescription className="text-xs">
-            Reflects the bindings active in your current context.
+            显示当前上下文中生效的快捷键绑定。
           </DialogDescription>
           <div className="pt-2">
             <Input

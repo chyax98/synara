@@ -110,7 +110,7 @@ export function pastedTextTitle(text: string): string {
       return trimmed.length > 140 ? `${trimmed.slice(0, 137)}...` : trimmed;
     }
   }
-  return "Pasted text";
+  return "粘贴的文本";
 }
 
 // --- Send-time serialization (cards -> trailing block)

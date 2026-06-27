@@ -13,17 +13,17 @@ import { getModelCapabilities, normalizeModelSlug, trimOrNull } from "@t3tools/s
 function runtimeEffortLabel(value: string): string {
   switch (value) {
     case "none":
-      return "None";
+      return "无";
     case "minimal":
-      return "Minimal";
+      return "极低";
     case "low":
-      return "Low";
+      return "低";
     case "medium":
-      return "Medium";
+      return "中";
     case "high":
-      return "High";
+      return "高";
     case "xhigh":
-      return "Extra High";
+      return "极高";
     default:
       return value
         .split(/[-_\s]+/u)

@@ -78,16 +78,16 @@ export function isProviderUsable(status: ServerProviderStatus | null | undefined
 
 export function providerUnavailableReason(status: ServerProviderStatus | null | undefined): string {
   if (!status) {
-    return "Provider status is still loading.";
+    return "提供商状态仍在加载中。";
   }
   const providerLabel = PROVIDER_DISPLAY_NAMES[status.provider] ?? status.provider;
   if (status.authStatus === "unauthenticated") {
-    return `${providerLabel} is not authenticated yet.`;
+    return `${providerLabel} 尚未完成认证。`;
   }
   if (!status.available) {
-    return status.message ?? `${providerLabel} is unavailable right now.`;
+    return status.message ?? `${providerLabel} 当前不可用。`;
   }
-  return status.message ?? `${providerLabel} has limited availability right now.`;
+  return status.message ?? `${providerLabel} 当前可用性受限。`;
 }
 
 export function findProviderStatus(

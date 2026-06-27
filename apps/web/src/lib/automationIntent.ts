@@ -213,15 +213,18 @@ export function extractPlainChatAutomationCreationInvocation(value: string): str
 // Keeps a clarification carry-forward parseable as an automation across turns. Explicit
 // /automation markers and cadence-only remainders lose their trigger once stripped, so we
 // re-seed a canonical creation scaffold when none survives; the parser strips it back out.
+/** Internal parser scaffold — must stay English for prefix matching. */
+const AUTOMATION_CREATION_SCAFFOLD = "create an automation";
+
 export function ensureAutomationConversationScaffold(message: string): string {
   const normalized = normalizeInlineText(message);
   if (!normalized) {
-    return "create an automation";
+    return AUTOMATION_CREATION_SCAFFOLD;
   }
   if (PLAIN_INVOCATION_AUTOMATION_CREATION_PREFIX_PATTERN.test(normalized)) {
     return normalized;
   }
-  return `create an automation ${normalized}`;
+  return `${AUTOMATION_CREATION_SCAFFOLD} ${normalized}`;
 }
 
 function removeMatchedText(value: string, match: RegExpExecArray): string {
@@ -805,7 +808,7 @@ function truncateName(value: string): string {
 function sentenceCase(value: string): string {
   const trimmed = normalizeInlineText(value);
   if (!trimmed) {
-    return "Chat automation";
+    return "聊天自动化";
   }
   return `${trimmed.charAt(0).toUpperCase()}${trimmed.slice(1)}`;
 }
@@ -816,7 +819,7 @@ export function deriveAutomationIntentName(prompt: string): string {
     /\b(?:check|verify|monitor|watch|controlla|verifica|monitora)\s+(?:if|whether|se)?\s*(.+?)\s+(?:is|are|e|available|disponibile|disponibili|in stock)\b/i,
   );
   if (availabilitySubject?.[1]) {
-    return truncateName(`Check ${sentenceCase(availabilitySubject[1])} availability`);
+    return truncateName(`检查 ${sentenceCase(availabilitySubject[1])} 可用性`);
   }
 
   const actionSeed = withoutUrls.replace(

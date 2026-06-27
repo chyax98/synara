@@ -477,7 +477,7 @@ describe("buildInputNeededCopy", () => {
       }),
     ).toEqual({
       title: "需要输入",
-      body: "Polish notifications: Command approval requested.",
+      body: "Polish notifications: 请求命令审批。",
     });
   });
 
