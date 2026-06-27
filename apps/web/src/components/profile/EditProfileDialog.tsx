@@ -201,7 +201,7 @@ export function EditProfileDialog({
 
           {/* Fields */}
           <div className="divide-y divide-border/60 overflow-hidden rounded-xl border border-border/60">
-            <Field label="Display name">
+            <Field label="显示名称">
               <InputGroup className={fieldControlClassName}>
                 <InputGroupInput
                   value={draftName}
@@ -210,7 +210,7 @@ export function EditProfileDialog({
                 />
               </InputGroup>
             </Field>
-            <Field label="Username">
+            <Field label="用户名">
               <InputGroup className={fieldControlClassName}>
                 <InputGroupAddon>
                   <InputGroupText>@</InputGroupText>

@@ -88,7 +88,7 @@ export function ComposerSlashStatusDialog(props: {
         <DialogPanel className="space-y-4">
           <div className="grid gap-3 rounded-lg border border-border/60 bg-muted/20 p-4 text-sm sm:grid-cols-2">
             <div className="space-y-1">
-              <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">Model</p>
+              <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">模型</p>
               <p className="font-medium text-foreground">{selectedModel}</p>
             </div>
             <div className="space-y-1">
@@ -96,13 +96,13 @@ export function ComposerSlashStatusDialog(props: {
               <p className="font-medium text-foreground">{fastModeEnabled ? "On" : "Off"}</p>
             </div>
             <div className="space-y-1">
-              <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">Reasoning</p>
-              <p className="font-medium text-foreground">{selectedPromptEffort ?? "Default"}</p>
+              <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">推理</p>
+              <p className="font-medium text-foreground">{selectedPromptEffort ?? "默认"}</p>
             </div>
             <div className="space-y-1">
-              <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">Mode</p>
+              <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">模式</p>
               <p className="font-medium text-foreground">
-                {interactionMode === "plan" ? "Plan" : "Default"}
+                {interactionMode === "plan" ? "计划" : "默认"}
               </p>
             </div>
             <div className="space-y-1">
@@ -114,7 +114,7 @@ export function ComposerSlashStatusDialog(props: {
               </p>
             </div>
             <div className="space-y-1">
-              <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">Branch</p>
+              <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">分支</p>
               <p className="font-medium text-foreground">{branch ?? "Unknown"}</p>
             </div>
           </div>
@@ -147,25 +147,25 @@ export function ComposerSlashStatusDialog(props: {
             {contextWindow ? (
               <div className="grid gap-3 text-sm sm:grid-cols-2">
                 <div>
-                  <p className="text-muted-foreground">Used</p>
+                  <p className="text-muted-foreground">已用</p>
                   <p className="font-medium text-foreground">
                     {formatContextWindowTokens(contextWindow.usedTokens)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Remaining</p>
+                  <p className="text-muted-foreground">剩余</p>
                   <p className="font-medium text-foreground">
                     {formatContextWindowTokens(contextWindow.remainingTokens)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Window</p>
+                  <p className="text-muted-foreground">窗口</p>
                   <p className="font-medium text-foreground">
                     {formatContextWindowTokens(contextWindow.maxTokens)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Cost</p>
+                  <p className="text-muted-foreground">费用</p>
                   <p className="font-medium text-foreground">
                     {cumulativeCostUsd !== null
                       ? formatCostUsd(cumulativeCostUsd)

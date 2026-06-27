@@ -633,7 +633,7 @@ function AutomationDetailView() {
                   </EditRow>
                 ) : null}
                 {schedule.type === "cron" ? (
-                  <EditRow label="Cron">
+                  <EditRow label="定时表达式">
                     <InlineCommitTextInput
                       value={schedule.expression}
                       onCommit={(value) =>

@@ -101,7 +101,7 @@ function TerminalRuntimeStatusOverlay({ status }: { status: TerminalRuntimeStatu
       )}
     >
       <TriangleAlertIcon className="size-3" />
-      <span className="truncate">Error</span>
+      <span className="truncate">错误</span>
     </div>
   );
 }

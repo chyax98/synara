@@ -1000,25 +1000,25 @@ export function BranchToolbarBranchSelector({
               <>
                 <div className="grid gap-2 rounded-lg border border-[color:var(--color-border-light)] bg-[var(--color-background-elevated-secondary)] p-3 text-sm">
                   <div className="flex min-w-0 gap-2">
-                    <span className="w-20 shrink-0 text-muted-foreground">Branch</span>
+                    <span className="w-20 shrink-0 text-muted-foreground">分支</span>
                     <span className="min-w-0 truncate font-medium">
                       {stashDiscardDialog.info.branch ?? currentGitBranch ?? "Detached HEAD"}
                     </span>
                   </div>
                   <div className="flex min-w-0 gap-2">
-                    <span className="w-20 shrink-0 text-muted-foreground">Worktree</span>
+                    <span className="w-20 shrink-0 text-muted-foreground">工作树</span>
                     <span className="min-w-0 truncate font-mono text-xs">
                       {stashDiscardDialog.info.cwd}
                     </span>
                   </div>
                   <div className="flex min-w-0 gap-2">
-                    <span className="w-20 shrink-0 text-muted-foreground">Stash</span>
+                    <span className="w-20 shrink-0 text-muted-foreground">暂存</span>
                     <span className="min-w-0 truncate font-mono text-xs">
                       {stashDiscardDialog.info.stashRef}
                     </span>
                   </div>
                   <div className="flex min-w-0 gap-2">
-                    <span className="w-20 shrink-0 text-muted-foreground">Name</span>
+                    <span className="w-20 shrink-0 text-muted-foreground">名称</span>
                     <span className="min-w-0 truncate">{stashDiscardDialog.info.message}</span>
                   </div>
                 </div>

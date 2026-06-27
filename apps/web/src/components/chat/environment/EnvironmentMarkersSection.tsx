@@ -50,7 +50,7 @@ export function EnvironmentMarkersSection({
     return null;
   }
   return (
-    <EnvironmentCollapsibleSection label="Markers">
+    <EnvironmentCollapsibleSection label="标记">
       <ul className="flex flex-col">
         {markers.map((marker) => (
           <MarkerRow

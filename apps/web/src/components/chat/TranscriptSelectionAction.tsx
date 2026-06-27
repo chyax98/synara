@@ -64,16 +64,16 @@ export function TranscriptSelectionAction(props: TranscriptSelectionActionProps)
         )}
       >
         {props.onHighlight ? (
-          <TranscriptSelectionToolbarButton label="Highlight" onClick={props.onHighlight}>
+          <TranscriptSelectionToolbarButton label="高亮" onClick={props.onHighlight}>
             <PencilIcon className="size-3.5" />
           </TranscriptSelectionToolbarButton>
         ) : null}
         {props.onUnderline ? (
-          <TranscriptSelectionToolbarButton label="Underline" onClick={props.onUnderline}>
+          <TranscriptSelectionToolbarButton label="下划线" onClick={props.onUnderline}>
             <TextWrapIcon className="size-3.5" />
           </TranscriptSelectionToolbarButton>
         ) : null}
-        <TranscriptSelectionToolbarButton label="Add to chat" onClick={props.onAddToChat}>
+        <TranscriptSelectionToolbarButton label="添加到聊天" onClick={props.onAddToChat}>
           <MessageCircleIcon className="size-3.5" />
         </TranscriptSelectionToolbarButton>
       </div>

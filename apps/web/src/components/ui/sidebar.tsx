@@ -304,7 +304,7 @@ function Sidebar({
             }
           >
             <SheetHeader className="sr-only">
-              <SheetTitle>Sidebar</SheetTitle>
+              <SheetTitle>侧边栏</SheetTitle>
               <SheetDescription>显示移动端侧边栏。</SheetDescription>
             </SheetHeader>
             <div className={cn("flex h-full w-full flex-col", innerClassName)}>{children}</div>

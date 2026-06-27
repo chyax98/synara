@@ -49,7 +49,7 @@ describe("AgentActivityDetailView", () => {
       />,
     );
 
-    expect(markup).toContain("Back");
+    expect(markup).toContain("返回");
     expect(markup).toContain("Find changelog implementation");
     expect(markup).toContain("Explore the changelog implementation.");
     expect(markup).toContain("Agent found the relevant files.");

@@ -33,7 +33,7 @@ export function EnvironmentAutomationsSection({
 
   return (
     <div className="flex flex-col gap-0.5">
-      <EnvironmentSectionLabel>Automations</EnvironmentSectionLabel>
+      <EnvironmentSectionLabel>自动化</EnvironmentSectionLabel>
       {automations.map(({ definition }) => {
         const cadence = definition.enabled ? formatCadence(definition.schedule) : "已暂停";
         return (

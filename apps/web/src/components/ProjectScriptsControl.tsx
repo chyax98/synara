@@ -310,7 +310,7 @@ export default function ProjectScriptsControl({
               CHAT_HEADER_ICON_STRENGTH_CLASS_NAME,
             )}
             onClick={() => onRunScript(primaryScript)}
-            title={`Run ${primaryScript.name}`}
+            title={`运行 ${primaryScript.name}`}
           >
             <ScriptIcon icon={primaryScript.icon} />
             <span className="sr-only @sm/header-actions:not-sr-only @sm/header-actions:ml-0.5">
@@ -415,7 +415,7 @@ export default function ProjectScriptsControl({
           <DialogPanel>
             <form id={addScriptFormId} className="space-y-4" onSubmit={submitAddScript}>
               <div className="space-y-1.5">
-                <Label htmlFor="script-name">Name</Label>
+                <Label htmlFor="script-name">名称</Label>
                 <div className="flex items-center gap-2">
                   <Popover onOpenChange={setIconPickerOpen} open={iconPickerOpen}>
                     <PopoverTrigger
@@ -466,7 +466,7 @@ export default function ProjectScriptsControl({
                 </div>
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="script-keybinding">Keybinding</Label>
+                <Label htmlFor="script-keybinding">快捷键</Label>
                 <Input
                   id="script-keybinding"
                   placeholder="按下快捷键"
@@ -479,7 +479,7 @@ export default function ProjectScriptsControl({
                 </p>
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="script-command">Command</Label>
+                <Label htmlFor="script-command">命令</Label>
                 <Textarea
                   id="script-command"
                   placeholder="bun 测试"

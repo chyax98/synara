@@ -74,13 +74,13 @@ describe("ComposerExtrasMenu", () => {
   it("shows the attachment action in the menu", async () => {
     await using _ = await mountMenu({ interactionMode: "plan", fastModeEnabled: true });
 
-    await page.getByLabelText("Composer extras").click();
+    await page.getByLabelText("编辑器扩展").click();
 
     await vi.waitFor(() => {
       const text = document.body.textContent ?? "";
-      expect(text).toContain("Add image");
-      expect(text).toContain("Plan mode");
-      expect(text).toContain("Fast");
+      expect(text).toContain("添加图片");
+      expect(text).toContain("计划模式");
+      expect(text).toContain("快速");
       expect(text).not.toContain("Plugins");
     });
   });
@@ -88,10 +88,10 @@ describe("ComposerExtrasMenu", () => {
   it("wires the plan and speed controls", async () => {
     await using menu = await mountMenu();
 
-    await page.getByLabelText("Composer extras").click();
-    await page.getByText("Plan mode").click();
-    await page.getByText("Fast").click();
-    await page.getByRole("menuitemradio", { name: "Fast" }).click();
+    await page.getByLabelText("编辑器扩展").click();
+    await page.getByText("计划模式").click();
+    await page.getByText("快速").click();
+    await page.getByRole("menuitemradio", { name: "快速" }).click();
 
     expect(menu.onSetPlanMode).toHaveBeenCalledWith(true);
     expect(menu.onToggleFastMode).toHaveBeenCalledTimes(1);

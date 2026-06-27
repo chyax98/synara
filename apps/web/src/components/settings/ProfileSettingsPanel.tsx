@@ -128,14 +128,14 @@ function ProfileContent({
           label="峰值日"
           value={tokensPending ? null : formatCompact(tokenStats?.peakDayTokens ?? null)}
         />
-        <StatTile label="Total prompts" value={formatNumber(stats.activity.totalPromptsSent)} />
-        <StatTile label="Current streak" value={formatDays(stats.activity.currentStreakDays)} />
-        <StatTile label="Longest streak" value={formatDays(stats.activity.longestStreakDays)} />
+        <StatTile label="总提示数" value={formatNumber(stats.activity.totalPromptsSent)} />
+        <StatTile label="当前连续" value={formatDays(stats.activity.currentStreakDays)} />
+        <StatTile label="最长连续" value={formatDays(stats.activity.longestStreakDays)} />
       </div>
 
       {/* Heatmap */}
       <section className="flex min-w-0 flex-col gap-3">
-        <h3 className="text-sm font-medium">Activity</h3>
+        <h3 className="text-sm font-medium">活动</h3>
         <ActivityHeatmap
           cells={heatmapCells}
           fill
@@ -179,9 +179,9 @@ function ProfileContent({
             />
             <InsightRow label="最活跃时段" value={peakHourLabel} />
             <InsightRow label="最常工作项目" value={mostWorkedProjectLabel} />
-            <InsightRow label="已探索 Skill" value={formatNumber(stats.insights.skillsExplored)} />
+            <InsightRow label="已探索技能" value={formatNumber(stats.insights.skillsExplored)} />
             <InsightRow label="技能使用总数" value={formatNumber(stats.insights.totalSkillsUsed)} />
-            <InsightRow label="Total threads" value={formatNumber(stats.activity.totalThreads)} />
+            <InsightRow label="总会话数" value={formatNumber(stats.activity.totalThreads)} />
           </dl>
         </section>
 

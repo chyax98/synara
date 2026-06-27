@@ -370,7 +370,7 @@ export default function WorkspaceView({ workspaceId }: { workspaceId: string }) 
                 onClick={createWorkspaceTerminal}
               >
                 <Plus className="size-3" />
-                <span className="hidden sm:inline">Terminal</span>
+                <span className="hidden sm:inline">终端</span>
               </Button>
               <Button
                 size="icon-xs"

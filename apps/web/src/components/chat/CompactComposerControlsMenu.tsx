@@ -46,7 +46,7 @@ export const CompactComposerControlsMenu = memo(function CompactComposerControls
           </>
         ) : null}
         <MenuGroup>
-          <MenuGroupLabel>Mode</MenuGroupLabel>
+          <MenuGroupLabel>模式</MenuGroupLabel>
           <MenuRadioGroup
             value={props.interactionMode}
             onValueChange={(value) => {
@@ -54,8 +54,8 @@ export const CompactComposerControlsMenu = memo(function CompactComposerControls
               props.onToggleInteractionMode();
             }}
           >
-            <MenuRadioItem value="default">Build</MenuRadioItem>
-            <MenuRadioItem value="plan">Plan</MenuRadioItem>
+            <MenuRadioItem value="default">构建</MenuRadioItem>
+            <MenuRadioItem value="plan">计划</MenuRadioItem>
           </MenuRadioGroup>
         </MenuGroup>
         {props.activePlan ? (

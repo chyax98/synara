@@ -74,7 +74,7 @@ export const ComposerExtrasMenu = memo(function ComposerExtrasMenu(props: {
             }}
           >
             <PaperclipIcon className="size-4 shrink-0" />
-            Add image
+            添加图片
           </MenuItem>
 
           <MenuSeparator />
@@ -87,7 +87,7 @@ export const ComposerExtrasMenu = memo(function ComposerExtrasMenu(props: {
           >
             <span className="inline-flex items-center gap-2">
               <GoTasklist className="size-4 shrink-0" />
-              Plan mode
+              计划模式
             </span>
           </MenuCheckboxItem>
 
@@ -95,7 +95,7 @@ export const ComposerExtrasMenu = memo(function ComposerExtrasMenu(props: {
             <>
               <MenuSeparator />
               <MenuSub>
-                <MenuSubTrigger>Fast</MenuSubTrigger>
+                <MenuSubTrigger>快速</MenuSubTrigger>
                 <ComposerPickerMenuSubPopup>
                   <MenuRadioGroup
                     value={props.fastModeEnabled ? "fast" : "normal"}
@@ -105,8 +105,8 @@ export const ComposerExtrasMenu = memo(function ComposerExtrasMenu(props: {
                       props.onToggleFastMode();
                     }}
                   >
-                    <MenuRadioItem value="normal">Default</MenuRadioItem>
-                    <MenuRadioItem value="fast">Fast</MenuRadioItem>
+                    <MenuRadioItem value="normal">默认</MenuRadioItem>
+                    <MenuRadioItem value="fast">快速</MenuRadioItem>
                   </MenuRadioGroup>
                 </ComposerPickerMenuSubPopup>
               </MenuSub>

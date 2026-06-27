@@ -827,7 +827,7 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
 
                   {!isBrowsing && matchedActions.length > 0 ? (
                     <CommandGroup>
-                      <CommandGroupLabel className="pt-0 pb-1.5 pl-3">Suggested</CommandGroupLabel>
+                      <CommandGroupLabel className="pt-0 pb-1.5 pl-3">建议</CommandGroupLabel>
                       {matchedActions.map((action) => {
                         const onSelect = actionHandler(action.id, props);
                         const Icon = ACTION_ICONS[action.id];
@@ -952,7 +952,7 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
 
                   {!isBrowsing && matchedProjects.length > 0 ? (
                     <CommandGroup>
-                      <CommandGroupLabel className="py-1.5 pl-3">Projects</CommandGroupLabel>
+                      <CommandGroupLabel className="py-1.5 pl-3">项目</CommandGroupLabel>
                       {matchedProjects.map(({ id, project }) => (
                         <CommandItem
                           key={id}
@@ -988,7 +988,7 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
                     <>
                       {themeCommandItems.length > 0 ? (
                         <CommandGroup>
-                          <CommandGroupLabel className="py-1.5 pl-3">Configure</CommandGroupLabel>
+                          <CommandGroupLabel className="py-1.5 pl-3">配置</CommandGroupLabel>
                           {themeCommandItems.map((themeCommandItem) => (
                             <CommandItem
                               key={themeCommandItem.id}

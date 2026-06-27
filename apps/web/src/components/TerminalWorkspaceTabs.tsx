@@ -53,7 +53,7 @@ export default function TerminalWorkspaceTabs({
             onSelectTab("terminal");
           }}
         >
-          <span className="font-mono tracking-wide">Terminal</span>
+          <span className="font-mono tracking-wide">终端</span>
           <span className="ml-1.5 font-mono text-[10px] text-muted-foreground">
             {terminalCount}
           </span>
@@ -73,7 +73,7 @@ export default function TerminalWorkspaceTabs({
             onSelectTab("chat");
           }}
         >
-          <span className="font-mono tracking-wide">Chat</span>
+          <span className="font-mono tracking-wide">聊天</span>
           {isWorking ? (
             <span className="ml-1.5 inline-flex size-1.5 rounded-full bg-emerald-500/80" />
           ) : null}

@@ -168,7 +168,7 @@ export function ShareDialog({
             >
               <SiReddit className="size-5" />
             </ShareButton>
-            <ShareButton label="Save" busy={busy === "save"} onClick={() => void handleSave()}>
+            <ShareButton label="保存" busy={busy === "save"} onClick={() => void handleSave()}>
               <DownloadIcon className="size-5" />
             </ShareButton>
           </div>

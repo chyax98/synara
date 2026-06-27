@@ -111,7 +111,7 @@ export function SkillsSettingsPanel() {
 
   return (
     <div className="space-y-8">
-      <SettingsSection title="可移植 Skill">
+      <SettingsSection title="可移植技能">
         <SettingsRow
           title="Synara 技能文件夹"
           description="放在此处的技能可在所有提供商中使用。若某提供商已自带同名技能，则优先使用该副本；否则回退到 Synara 副本。"
@@ -131,7 +131,7 @@ export function SkillsSettingsPanel() {
       </SettingsSection>
 
       {catalogQuery.isError ? (
-        <SettingsSection title="Skill">
+        <SettingsSection title="技能">
           <SettingsRow
             title="技能发现失败"
             description="Synara 无法扫描技能文件夹。请确认服务器正在运行后重试。"
@@ -140,7 +140,7 @@ export function SkillsSettingsPanel() {
       ) : null}
 
       {!catalogQuery.isLoading && !catalogQuery.isError && totalSkills === 0 ? (
-        <SettingsSection title="Skill">
+        <SettingsSection title="技能">
           <SettingsRow
             title="未找到技能"
             description="请在上方 Synara Skill 文件夹中添加包含 SKILL.md 的 Skill 文件夹，或为支持的 Provider 安装 Skill。"

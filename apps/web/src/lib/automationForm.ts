@@ -64,7 +64,7 @@ export const SCHEDULE_KIND_OPTIONS: readonly { value: ScheduleKind; label: strin
   { value: "weekdays", label: "工作日" },
   { value: "weekly", label: "每周" },
   { value: "custom", label: "自定义" },
-  { value: "cron", label: `${"Cron"} 表达式` },
+  { value: "cron", label: "定时表达式" },
 ];
 
 export type AutomationFormState = {
@@ -258,7 +258,7 @@ export function formatSchedule(schedule: AutomationSchedule): string {
     case "weekly":
       return `每周 ${weekdayLabel(schedule.dayOfWeek)} ${schedule.timeOfDay}${timezoneSuffix(schedule)}`;
     case "cron":
-      return `Cron ${schedule.expression} ${schedule.timezone}`;
+      return `定时 ${schedule.expression} ${schedule.timezone}`;
   }
 }
 
@@ -285,7 +285,7 @@ export function formatCadence(schedule: AutomationSchedule): string {
     case "weekly":
       return `每周${weekdayLabel(schedule.dayOfWeek)} ${formatClockTime(schedule.timeOfDay)}`;
     case "cron":
-      return `Cron ${schedule.expression}`;
+      return `定时 ${schedule.expression}`;
   }
 }
 

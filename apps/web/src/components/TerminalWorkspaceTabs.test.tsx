@@ -36,7 +36,7 @@ describe("TerminalWorkspaceTabs", () => {
       />,
     );
 
-    expect(markup).toContain("Terminal");
-    expect(markup).toContain("Chat");
+    expect(markup).toContain("终端");
+    expect(markup).toContain("聊天");
   });
 });

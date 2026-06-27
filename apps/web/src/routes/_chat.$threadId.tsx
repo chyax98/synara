@@ -188,7 +188,7 @@ const DiffLoadingFallback = (props: { mode: DiffPanelMode; hideHeader?: boolean 
       mode={props.mode}
       header={props.hideHeader ? null : <DiffPanelHeaderSkeleton />}
     >
-      <DiffPanelLoadingState label="正在加载 diff 查看器…" />
+      <DiffPanelLoadingState label="正在加载差异查看器…" />
     </DiffPanelShell>
   );
 };

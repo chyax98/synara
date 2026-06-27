@@ -107,7 +107,7 @@ describe("CompactComposerControlsMenu", () => {
       modelSelection: { provider: "opencode", model: "claude-opus-4-6" },
     });
 
-    await page.getByLabelText("More composer controls").click();
+    await page.getByLabelText("更多编辑器控件").click();
 
     await vi.waitFor(() => {
       const text = document.body.textContent ?? "";
@@ -122,7 +122,7 @@ describe("CompactComposerControlsMenu", () => {
       modelSelection: { provider: "opencode", model: "claude-sonnet-4-6" },
     });
 
-    await page.getByLabelText("More composer controls").click();
+    await page.getByLabelText("更多编辑器控件").click();
 
     await vi.waitFor(() => {
       expect(document.body.textContent ?? "").not.toContain("Speed");
@@ -134,7 +134,7 @@ describe("CompactComposerControlsMenu", () => {
       modelSelection: { provider: "opencode", model: "claude-sonnet-4-6" },
     });
 
-    await page.getByLabelText("More composer controls").click();
+    await page.getByLabelText("更多编辑器控件").click();
 
     await vi.waitFor(() => {
       const text = document.body.textContent ?? "";
@@ -155,7 +155,7 @@ describe("CompactComposerControlsMenu", () => {
       },
     });
 
-    await page.getByLabelText("More composer controls").click();
+    await page.getByLabelText("更多编辑器控件").click();
 
     await vi.waitFor(() => {
       const text = document.body.textContent ?? "";
@@ -175,7 +175,7 @@ describe("CompactComposerControlsMenu", () => {
       prompt: "Ultrathink:\nInvestigate this",
     });
 
-    await page.getByLabelText("More composer controls").click();
+    await page.getByLabelText("更多编辑器控件").click();
 
     await vi.waitFor(() => {
       const text = document.body.textContent ?? "";
@@ -188,12 +188,12 @@ describe("CompactComposerControlsMenu", () => {
   it("shows both build and plan mode options", async () => {
     await using _ = await mountMenu();
 
-    await page.getByLabelText("More composer controls").click();
+    await page.getByLabelText("更多编辑器控件").click();
 
     await vi.waitFor(() => {
       const text = document.body.textContent ?? "";
-      expect(text).toContain("Build");
-      expect(text).toContain("Plan");
+      expect(text).toContain("构建");
+      expect(text).toContain("计划");
     });
   });
 
@@ -203,10 +203,10 @@ describe("CompactComposerControlsMenu", () => {
       interactionMode: "plan",
     });
 
-    await page.getByLabelText("More composer controls").click();
+    await page.getByLabelText("更多编辑器控件").click();
 
     await vi.waitFor(() => {
-      expect(document.body.textContent ?? "").toContain("Show plan sidebar");
+      expect(document.body.textContent ?? "").toContain("显示计划侧栏");
     });
   });
 });

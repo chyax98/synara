@@ -1111,7 +1111,7 @@ export default function DiffPanel({
           {gitRepoStatusError}
         </PanelStateMessage>
       ) : gitRepoStatus === undefined && diffQueriesEnabled && activeCwd ? (
-        <DiffPanelLoadingState label="Checking git repository..." />
+        <DiffPanelLoadingState label="正在检查 Git 仓库…" />
       ) : diffEnvironmentPending ? (
         <PanelStateMessage density="compact" fill="flex">
           This chat environment is still being prepared. Diffs will be available once the worktree

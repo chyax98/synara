@@ -160,7 +160,7 @@ export const WorkspaceFilePreviewHeader = memo(function WorkspaceFilePreviewHead
 
         {hasChatActions ? (
           <Menu>
-            <MenuTrigger render={<ChatHeaderIconButton label="More actions" tone="plain" />}>
+            <MenuTrigger render={<ChatHeaderIconButton label="更多操作" tone="plain" />}>
               <EllipsisIcon aria-hidden="true" className="size-3.5" />
             </MenuTrigger>
             <ComposerPickerMenuPopup align="end" side="bottom" className="w-52 min-w-52">

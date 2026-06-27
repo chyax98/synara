@@ -1098,7 +1098,7 @@ function SettingsRouteView() {
             description="选择 Synara 在应用中的外观。"
             resetAction={
               theme !== "system" ? (
-                <SettingResetButton label="theme" onClick={() => setTheme("system")} />
+                <SettingResetButton label="主题" onClick={() => setTheme("system")} />
               ) : null
             }
             control={
@@ -1833,7 +1833,7 @@ function SettingsRouteView() {
     <div className="space-y-6">
       <SettingsSection title="提供商">
         <SettingsRow
-          title="OpenCode"
+          title="唯一提供商"
           description="Synara 仅支持 OpenCode 作为唯一提供商，无需额外配置。"
         />
       </SettingsSection>

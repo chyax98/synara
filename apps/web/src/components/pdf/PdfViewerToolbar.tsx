@@ -102,7 +102,7 @@ export const PdfViewerToolbar = memo(function PdfViewerToolbar(props: PdfViewerT
 
       <div className="flex min-w-0 flex-1 items-center justify-end gap-1.5">
         <div className="flex items-center gap-0.5">
-          <ChatHeaderIconButton label="Zoom out" tone="plain" onClick={props.onZoomOut}>
+          <ChatHeaderIconButton label="缩小" tone="plain" onClick={props.onZoomOut}>
             <MinusIcon aria-hidden="true" className="size-4" />
           </ChatHeaderIconButton>
           <Menu>
@@ -144,7 +144,7 @@ export const PdfViewerToolbar = memo(function PdfViewerToolbar(props: PdfViewerT
               </MenuRadioGroup>
             </ComposerPickerMenuPopup>
           </Menu>
-          <ChatHeaderIconButton label="Zoom in" tone="plain" onClick={props.onZoomIn}>
+          <ChatHeaderIconButton label="放大" tone="plain" onClick={props.onZoomIn}>
             <PlusIcon aria-hidden="true" className="size-4" />
           </ChatHeaderIconButton>
         </div>

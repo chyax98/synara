@@ -77,7 +77,7 @@ export const OpenInPicker = memo(function OpenInPicker({
   } = useEditorLaunchers({ keybindings, availableEditors, openInTarget, defaultEditor });
 
   return (
-    <ChatHeaderSplitGroup label="Open in editor">
+    <ChatHeaderSplitGroup label="在编辑器中打开">
       <ChatHeaderButton
         tone="outline"
         className={CHAT_HEADER_SPLIT_LEADING_CLASS_NAME}
@@ -93,7 +93,7 @@ export const OpenInPicker = memo(function OpenInPicker({
               : "sr-only @sm/header-actions:not-sr-only @sm/header-actions:ml-0.5",
           )}
         >
-          Open
+          打开
         </span>
       </ChatHeaderButton>
       <ChatHeaderSplitDivider />
@@ -143,7 +143,7 @@ export const OpenInPicker = memo(function OpenInPicker({
                 <span className="shrink-0">
                   <PlusIcon aria-hidden="true" className="size-3.5 text-muted-foreground" />
                 </span>
-                Add action
+                添加操作
               </MenuItem>
             </>
           ) : null}

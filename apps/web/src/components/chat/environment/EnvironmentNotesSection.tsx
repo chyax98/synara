@@ -21,7 +21,7 @@ export function EnvironmentNotesSection({
   const autosave = useThreadNotesAutosave({ threadId, notes, onChange });
 
   return (
-    <EnvironmentCollapsibleSection label="Notepad">
+    <EnvironmentCollapsibleSection label="记事本">
       <div className="px-2 pb-1">
         <Textarea
           // `unstyled` drops the default surface (filled background + focus ring/border tint),

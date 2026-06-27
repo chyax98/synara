@@ -329,9 +329,9 @@ export const ComposerModelEffortPicker = memo(function ComposerModelEffortPicker
                 )}
               />
               <span className="truncate">
-                Speed
+                速度
                 {fastModeEnabled ? (
-                  <span className="ms-1.5 text-muted-foreground/65">Fast</span>
+                  <span className="ms-1.5 text-muted-foreground/65">快速</span>
                 ) : null}
               </span>
             </MenuSubTrigger>
@@ -340,8 +340,8 @@ export const ComposerModelEffortPicker = memo(function ComposerModelEffortPicker
                 value={fastModeEnabled ? "on" : "off"}
                 onValueChange={handleFastModeChange}
               >
-                <MenuRadioItem value="off">Default</MenuRadioItem>
-                <MenuRadioItem value="on">Fast</MenuRadioItem>
+                <MenuRadioItem value="off">默认</MenuRadioItem>
+                <MenuRadioItem value="on">快速</MenuRadioItem>
               </MenuRadioGroup>
             </ComposerPickerMenuSubPopup>
           </MenuSub>

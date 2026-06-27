@@ -84,7 +84,7 @@ export function GeneratedMarkdownImage(props: GeneratedMarkdownImageProps) {
         <span className="chat-generated-image__overlay" aria-hidden="true">
           <span className="chat-generated-image__overlay-pill chat-generated-image__overlay-pill--expand">
             <Maximize2 className="size-3.5" />
-            <span>Expand</span>
+            <span>展开</span>
           </span>
         </span>
       </button>
@@ -98,7 +98,7 @@ export function GeneratedMarkdownImage(props: GeneratedMarkdownImageProps) {
         title="下载"
       >
         <DownloadIcon className="size-3.5" aria-hidden="true" />
-        <span>Download</span>
+        <span>下载</span>
       </a>
     </span>
   );

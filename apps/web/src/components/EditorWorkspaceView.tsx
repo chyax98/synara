@@ -1125,7 +1125,7 @@ export function EditorWorkspaceView(props: EditorWorkspaceViewProps) {
           onClick={props.onExitEditorView}
         >
           <ChatBubbleIcon className="size-3.5" />
-          <span className="truncate font-normal">Chat</span>
+          <span className="truncate font-normal">聊天</span>
         </ChatHeaderButton>
       </div>
       <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">

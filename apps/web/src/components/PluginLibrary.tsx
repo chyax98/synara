@@ -587,9 +587,7 @@ export function PluginLibrary() {
               (pluginsQuery.data?.marketplaceLoadErrors.length ?? 0) > 0)) && (
             <div className="mx-auto max-w-2xl space-y-1.5 px-6 pb-4">
               {!discoveryCwd && selectedTab === "skills" ? (
-                <InlineWarning>
-                  Skills need a workspace path. Open a project or thread first.
-                </InlineWarning>
+                <InlineWarning>技能发现需要工作区路径。请先打开项目或会话。</InlineWarning>
               ) : null}
               {selectedTab === "plugins" && pluginsQuery.data?.remoteSyncError ? (
                 <InlineWarning>{pluginsQuery.data.remoteSyncError}</InlineWarning>
@@ -655,10 +653,10 @@ export function PluginLibrary() {
                     ))}
                   </div>
                 ) : filteredSkills.length === 0 ? (
-                  <EmptyPanel title="No skills found" description="No skills match this search." />
+                  <EmptyPanel title="未找到技能" description="没有符合此搜索条件的技能。" />
                 ) : (
                   <div>
-                    <SectionHeader title="Skills" />
+                    <SectionHeader title="技能" />
                     <div className="grid grid-cols-1 sm:grid-cols-2">
                       {filteredSkills.map((skill) => (
                         <SkillGridItem key={skill.path} skill={skill} />

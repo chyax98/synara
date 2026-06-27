@@ -2731,7 +2731,7 @@ describe("ChatView timeline estimator parity (full app)", () => {
       await vi.waitFor(
         () => {
           expect(document.body.textContent).toContain("queue this follow-up");
-          expect(document.body.textContent).toContain("Steer");
+          expect(document.body.textContent).toContain("引导");
         },
         { timeout: 8_000, interval: 16 },
       );

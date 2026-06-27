@@ -81,7 +81,7 @@ describe("ChatTranscriptPane", () => {
     });
 
     expect(markup).toContain('data-agent-activity-detail="true"');
-    expect(markup).toContain("Back");
+    expect(markup).toContain("返回");
     expect(markup).toContain("Checked the sidebar issue.");
     expect(markup).not.toContain("Scroll to bottom");
   });

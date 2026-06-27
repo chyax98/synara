@@ -31,7 +31,7 @@ function QueuedComposerActions({
     <div className="flex shrink-0 items-center gap-0">
       <Button variant="subtle" size="chip" onClick={() => void onSteer(queuedTurn)}>
         <SteerIcon />
-        <span>Steer</span>
+        <span>引导</span>
       </Button>
       <IconButton
         variant="ghost"
@@ -55,7 +55,7 @@ function QueuedComposerActions({
           <EllipsisIcon />
         </MenuTrigger>
         <ComposerPickerMenuPopup align="end" side="top" sideOffset={6}>
-          <MenuItem onClick={() => onEdit(queuedTurn)}>Edit queued prompt</MenuItem>
+          <MenuItem onClick={() => onEdit(queuedTurn)}>编辑排队的提示词</MenuItem>
           <MenuItem onClick={() => onRemove(queuedTurn.id)}>删除排队中的提示词</MenuItem>
         </ComposerPickerMenuPopup>
       </Menu>

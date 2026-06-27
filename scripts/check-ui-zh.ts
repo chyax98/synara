@@ -46,6 +46,10 @@ const BRAND_ALLOWLIST = new Set([
   "Ctrl",
   "npm run dev",
   "keybindings.json",
+  "Backspace",
+  "Shift",
+  "Esc",
+  "X",
 ]);
 
 const STATUS_ENUM_VALUES = new Set([
@@ -220,9 +224,10 @@ function extractTemplateLiterals(text: string): string[] {
 }
 
 /** Full-file extraction: props, ternaries, aria-label=, inline objects, JSX text. */
-function extractUserFacingValues(content: string): ExtractedValue[] {
+function extractUserFacingValues(content: string, filePath: string): ExtractedValue[] {
   const results: ExtractedValue[] = [];
   const lines = content.split("\n");
+  const isTsx = filePath.endsWith(".tsx");
 
   const propKeyPattern = new RegExp(`^\\s*(${USER_FACING_PROP_NAMES})\\s*[:=]\\s*`);
 
@@ -260,22 +265,35 @@ function extractUserFacingValues(content: string): ExtractedValue[] {
     }
   }
 
-  // 3) JSX aria-label="…" and aria-label={'…'}
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i] ?? "";
-    for (const m of line.matchAll(/aria-label\s*=\s*(["'])/g)) {
-      const quote = m[1] ?? '"';
-      const start = (m.index ?? 0) + m[0].length;
-      const rest = line.slice(start);
-      const close = findClosingQuote(rest, quote);
-      if (close !== null) {
-        pushIfViolation(results, "", "aria-label", rest.slice(0, close), i + 1);
+  // 3) JSX user-facing props: label="…", title="…", aria-label="…", etc. (.tsx only)
+  const jsxPropAttrRe = new RegExp(`(?:^|[\\s>])(?:${USER_FACING_PROP_NAMES})\\s*=\\s*(["'])`, "g");
+  if (!isTsx) {
+    // Skip JSX attribute + text-node extraction for plain .ts sources.
+  } else
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i] ?? "";
+      if (line.trim().startsWith("//")) continue;
+      let m: RegExpExecArray | null;
+      jsxPropAttrRe.lastIndex = 0;
+      while ((m = jsxPropAttrRe.exec(line)) !== null) {
+        const prop = m[0]
+          .trim()
+          .replace(/\s*=\s*["']$/, "")
+          .replace(/^.*\s/, "");
+        const quote = m[1] ?? '"';
+        const start = (m.index ?? 0) + m[0].length;
+        const rest = line.slice(start);
+        const close = findClosingQuote(rest, quote);
+        if (close !== null) {
+          pushIfViolation(results, "", prop, rest.slice(0, close), i + 1);
+        }
+      }
+      for (const m of line.matchAll(
+        new RegExp(`(?:${USER_FACING_PROP_NAMES})\\s*=\\s*\\{\\\`([^\\\`]+)\\\`\\}`, "g"),
+      )) {
+        pushIfViolation(results, "", m[0].split("=")[0]?.trim() ?? "template", m[1] ?? "", i + 1);
       }
     }
-    for (const m of line.matchAll(/aria-label\s*=\s*\{`([^`]+)`\}/g)) {
-      pushIfViolation(results, "", "aria-label", m[1] ?? "", i + 1);
-    }
-  }
 
   // 4) JSX expressions: ternaries with string/template branches
   const ternaryRe =
@@ -301,15 +319,18 @@ function extractUserFacingValues(content: string): ExtractedValue[] {
     }
   }
 
-  // 5) JSX text nodes
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i] ?? "";
-    if (line.trim().startsWith("//")) continue;
-    for (const m of line.matchAll(/>\s*([A-Za-z][^<{]{2,}?)\s*</g)) {
-      const text = (m[1] ?? "").trim();
-      if (isLikelyCodeFragment(text)) continue;
-      if (!/\s/.test(text) && /^[A-Z][a-zA-Z]+$/.test(text)) continue;
-      pushIfViolation(results, "", "jsx-text", text, i + 1);
+  // 5) JSX text nodes (.tsx only — avoids matching TS generics like Array<…> in .ts files)
+  if (isTsx) {
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i] ?? "";
+      if (line.trim().startsWith("//")) continue;
+      for (const m of line.matchAll(/>\s*([A-Za-z][^<{]{1,}?)\s*</g)) {
+        const text = (m[1] ?? "").trim();
+        if (isLikelyCodeFragment(text)) continue;
+        // Single-word labels (Cron, Skills, Save) are user-facing unless brand-allowlisted.
+        if (!/\s/.test(text) && isBrandAllowedWhole(text)) continue;
+        pushIfViolation(results, "", "jsx-text", text, i + 1);
+      }
     }
   }
 
@@ -388,7 +409,7 @@ const violations: string[] = [];
 for (const file of collectScanFiles()) {
   if (isTestFile(file) || isAllowedPath(file)) continue;
   const content = readFileSync(file, "utf8");
-  for (const { prop, text, line } of extractUserFacingValues(content)) {
+  for (const { prop, text, line } of extractUserFacingValues(content, file)) {
     if (looksLikeCssOrCode(text)) continue;
     if (containsForbiddenEnglish(text, prop)) {
       const snippet = text.length > 100 ? `${text.slice(0, 97)}...` : text;

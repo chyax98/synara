@@ -522,7 +522,7 @@ export const TraitsPicker = memo(function TraitsPicker({
             <span className="text-muted-foreground/45">·</span>
             <span className="inline-flex items-center gap-1">
               <IoFlash aria-hidden="true" className="size-3 text-[hsl(var(--chart-4))]" />
-              <span>Fast</span>
+              <span>快速</span>
             </span>
           </>
         ) : null}

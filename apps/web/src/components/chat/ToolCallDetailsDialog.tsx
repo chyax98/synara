@@ -59,13 +59,13 @@ export function ToolCallDetailsDialog({ entry, open, onOpenChange }: ToolCallDet
           {details ? (
             <>
               {details.command ? (
-                <ToolDetailSection title="Command">
+                <ToolDetailSection title="命令">
                   <ToolCodeBlock tone="command">{details.command}</ToolCodeBlock>
                 </ToolDetailSection>
               ) : null}
 
               {details.files?.length ? (
-                <ToolDetailSection title="Files">
+                <ToolDetailSection title="文件">
                   <div className="flex flex-wrap gap-1.5">
                     {details.files.map((file) => (
                       <span
@@ -81,13 +81,13 @@ export function ToolCallDetailsDialog({ entry, open, onOpenChange }: ToolCallDet
               ) : null}
 
               {details.diff ? (
-                <ToolDetailSection title="Diff">
+                <ToolDetailSection title="差异">
                   <DiffCodeBlock>{details.diff}</DiffCodeBlock>
                 </ToolDetailSection>
               ) : null}
 
               {details.edits?.length ? (
-                <ToolDetailSection title="Edits">
+                <ToolDetailSection title="编辑">
                   <div className="space-y-3">
                     {details.edits.map((edit, index) => (
                       <div
@@ -101,12 +101,12 @@ export function ToolCallDetailsDialog({ entry, open, onOpenChange }: ToolCallDet
                         ) : null}
                         <div className="grid gap-0 md:grid-cols-2">
                           {edit.oldText !== undefined ? (
-                            <TextChangeBlock title="Before" tone="remove">
+                            <TextChangeBlock title="修改前" tone="remove">
                               {edit.oldText}
                             </TextChangeBlock>
                           ) : null}
                           {edit.newText !== undefined ? (
-                            <TextChangeBlock title="After" tone="add">
+                            <TextChangeBlock title="修改后" tone="add">
                               {edit.newText}
                             </TextChangeBlock>
                           ) : null}
@@ -149,16 +149,16 @@ function ToolDetailSection(props: { title: string; children: ReactNode }) {
 
 function ToolOutputSection({ output }: { output: WorkLogToolOutputDetails }) {
   return (
-    <ToolDetailSection title="Output">
+    <ToolDetailSection title="输出">
       <div className="space-y-3">
         {output.output ? <ToolCodeBlock>{output.output}</ToolCodeBlock> : null}
         {output.stdout ? (
-          <LabeledCodeBlock title="Stdout" tone="output">
+          <LabeledCodeBlock title="标准输出" tone="output">
             {output.stdout}
           </LabeledCodeBlock>
         ) : null}
         {output.stderr ? (
-          <LabeledCodeBlock title="Stderr" tone="error">
+          <LabeledCodeBlock title="标准错误" tone="error">
             {output.stderr}
           </LabeledCodeBlock>
         ) : null}

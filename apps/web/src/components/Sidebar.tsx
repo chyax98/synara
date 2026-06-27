@@ -5821,7 +5821,7 @@ export default function Sidebar() {
                       SIDEBAR_SECTION_LABEL_CLASS_NAME,
                     )}
                   >
-                    <span className="truncate">Projects</span>
+                    <span className="truncate">项目</span>
                   </div>
                   <SidebarSectionToolbar placement="overlay" revealOnHover>
                     {standardProjects.length > 0 ? (
@@ -6273,7 +6273,7 @@ export default function Sidebar() {
                 }
               >
                 <ProjectContextMenuIcon icon={XIcon} />
-                <span>Remove</span>
+                <span>移除</span>
               </MenuItem>
             </MenuGroup>
           </ComposerPickerMenuPopup>

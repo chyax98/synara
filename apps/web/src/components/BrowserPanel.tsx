@@ -438,7 +438,7 @@ function BrowserLocalServersHome({
     <div className="absolute inset-0 z-20 flex flex-col overflow-hidden bg-[#0d0d0d] text-white">
       <div className="mx-auto flex h-full w-full max-w-[52rem] flex-col px-8 py-9">
         <div className="flex shrink-0 items-center justify-between">
-          <p className="text-[15px] font-medium text-white/35">Local</p>
+          <p className="text-[15px] font-medium text-white/35">本地</p>
           <Button
             type="button"
             variant="ghost"
@@ -1353,7 +1353,7 @@ export function BrowserPanel({
             ) : (
               <RefreshCwIcon className="size-3.5" />
             )}
-            <span className="sr-only">Reload</span>
+            <span className="sr-only">重新加载</span>
           </Button>
         </div>
         <form

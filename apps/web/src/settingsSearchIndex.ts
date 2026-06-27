@@ -111,7 +111,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "appearance:theme",
     section: "appearance",
     title: "主题",
-    keywords: "选择应用在界面中的外观。深色 浅色 系统 颜色",
+    keywords: "选择 Synara 在应用中的外观。深色 浅色 系统 颜色",
   },
   {
     id: "appearance:ui-density",
@@ -237,8 +237,8 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   {
     id: "providers:opencode",
     section: "providers",
-    title: "OpenCode",
-    keywords: "唯一提供商 无需配置",
+    title: "唯一提供商",
+    keywords: "OpenCode 提供商 无需配置",
   },
 
   // ── Skills ────────────────────────────────────────────────────────────────────
