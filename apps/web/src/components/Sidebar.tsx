@@ -2480,22 +2480,13 @@ export default function Sidebar() {
               }
             : null;
       if (!modelSelection) {
-        throw new Error("Select a Pi model before importing a Pi thread.");
+        throw new Error("导入 OpenCode 会话前请先选择模型。");
       }
       const threadId = newThreadId();
       const createdAt = new Date().toISOString();
       const trimmedExternalId = externalId.trim();
       const suffix = trimmedExternalId.slice(-8);
-      const title =
-        provider === "opencode"
-          ? `Imported Claude session${suffix ? ` ${suffix}` : ""}`
-          : provider === "opencode"
-            ? `Imported Cursor session${suffix ? ` ${suffix}` : ""}`
-            : provider === "opencode"
-              ? `Imported Kilo session${suffix ? ` ${suffix}` : ""}`
-              : provider === "opencode"
-                ? `Imported OpenCode session${suffix ? ` ${suffix}` : ""}`
-                : `Imported Codex thread${suffix ? ` ${suffix}` : ""}`;
+      const title = `导入的 OpenCode 会话${suffix ? ` ${suffix}` : ""}`;
       let createdThread = false;
 
       try {
@@ -2798,8 +2789,8 @@ export default function Sidebar() {
       if (appSettings.confirmThreadDelete) {
         const api = readNativeApi();
         const confirmationMessage = [
-          `Delete thread "${thread.title}"?`,
-          "This permanently clears conversation history for this thread.",
+          `删除会话「${thread.title}」？`,
+          "这将永久清除该会话的对话记录。",
         ].join("\n");
         const confirmed = api
           ? await api.dialogs.confirm(confirmationMessage)
@@ -2827,8 +2818,8 @@ export default function Sidebar() {
       if (thread.session?.status === "running" && thread.session.activeTurnId != null) {
         toastManager.add({
           type: "error",
-          title: "Cannot archive",
-          description: "Stop the running session before archiving this thread.",
+          title: "无法归档",
+          description: "请先停止运行中的会话，再归档此会话。",
         });
         return;
       }
@@ -2869,8 +2860,8 @@ export default function Sidebar() {
       if (appSettings.confirmThreadArchive) {
         const api = readNativeApi();
         const confirmationMessage = [
-          `Archive thread "${thread.title}"?`,
-          "Archived threads are hidden from the sidebar but can be restored later.",
+          `归档会话「${thread.title}」？`,
+          "已归档的会话会从侧边栏隐藏，但以后可以恢复。",
         ].join("\n");
         const confirmed = api
           ? await api.dialogs.confirm(confirmationMessage)
@@ -2915,8 +2906,8 @@ export default function Sidebar() {
       if (projectThreads.length === 0) {
         toastManager.add({
           type: "info",
-          title: "Nothing to archive",
-          description: `"${project.name}" has no threads to archive.`,
+          title: "没有可归档的会话",
+          description: `「${project.name}」下没有可归档的会话。`,
         });
         return;
       }
@@ -2929,11 +2920,11 @@ export default function Sidebar() {
       if (archivableThreads.length === 0) {
         toastManager.add({
           type: "error",
-          title: "Cannot archive threads",
+          title: "无法归档会话",
           description:
             runningCount === 1
-              ? "The only thread in this project is running. Stop it before archiving."
-              : `All ${runningCount} threads in this project are running. Stop them before archiving.`,
+              ? "此项目中唯一会话正在运行，请先停止后再归档。"
+              : `此项目中 ${runningCount} 个会话正在运行，请先停止后再归档。`,
         });
         return;
       }
@@ -2942,14 +2933,11 @@ export default function Sidebar() {
       // `appSettings.confirmThreadArchive` (default `false`) is scoped to
       // single-thread archiving where the user explicitly picked one row.
       const archiveLines = [
-        `Archive ${archivableThreads.length} ${pluralize(archivableThreads.length, "thread")} in "${project.name}"?`,
-        "Archived threads are hidden from the sidebar but can be restored later.",
+        `归档「${project.name}」中的 ${archivableThreads.length} 个会话？`,
+        "已归档的会话会从侧边栏隐藏，但以后可以恢复。",
       ];
       if (runningCount > 0) {
-        archiveLines.push(
-          "",
-          `${runningCount} running ${pluralize(runningCount, "thread is", "threads are")} currently active and will be skipped.`,
-        );
+        archiveLines.push("", `${runningCount} 个正在运行的会话将被跳过。`);
       }
       const archiveConfirmed = api
         ? await api.dialogs.confirm(archiveLines.join("\n"))
@@ -2977,24 +2965,22 @@ export default function Sidebar() {
 
       if (archivedCount > 0) {
         const skippedDescription =
-          runningCount > 0
-            ? ` Skipped ${runningCount} running ${pluralize(runningCount, "thread")}.`
-            : "";
+          runningCount > 0 ? `已跳过 ${runningCount} 个正在运行的会话。` : "";
         toastManager.add({
           type: failureCount > 0 ? "warning" : "success",
-          title: archivedCount === 1 ? "Thread archived" : `Archived ${archivedCount} threads`,
+          title: archivedCount === 1 ? "会话已归档" : `已归档 ${archivedCount} 个会话`,
           description:
             failureCount > 0
-              ? `Failed to archive ${failureCount} ${pluralize(failureCount, "thread")}.${skippedDescription}`
+              ? `归档失败 ${failureCount} 个会话。${skippedDescription}`
               : runningCount > 0
-                ? skippedDescription.trim()
-                : `"${project.name}" cleared.`,
+                ? skippedDescription
+                : `「${project.name}」已清空。`,
         });
       } else if (failureCount > 0) {
         toastManager.add({
           type: "error",
-          title: "Failed to archive threads",
-          description: `Could not archive ${failureCount} ${pluralize(failureCount, "thread")} in "${project.name}".`,
+          title: "归档会话失败",
+          description: `无法在「${project.name}」中归档 ${failureCount} 个会话。`,
         });
       }
     },
@@ -3033,8 +3019,8 @@ export default function Sidebar() {
         if (options?.showEmptyToast ?? true) {
           toastManager.add({
             type: "info",
-            title: "Nothing to delete",
-            description: `"${project.name}" has no threads to delete.`,
+            title: "没有可删除的会话",
+            description: `「${project.name}」下没有可删除的会话。`,
           });
         }
         return {
@@ -3048,8 +3034,8 @@ export default function Sidebar() {
       const deleteConfirmationMessage =
         options?.confirmMessage === undefined
           ? [
-              `Delete ${projectThreads.length} ${pluralize(projectThreads.length, "thread")} in "${project.name}"?`,
-              "This permanently clears conversation history for these threads.",
+              `删除「${project.name}」中的 ${projectThreads.length} 个会话？`,
+              "这将永久清除这些会话的对话记录。",
             ].join("\n")
           : options.confirmMessage;
       if (deleteConfirmationMessage !== null) {
@@ -3093,17 +3079,17 @@ export default function Sidebar() {
         if (deletedCount > 0) {
           toastManager.add({
             type: failureCount > 0 ? "warning" : "success",
-            title: deletedCount === 1 ? "Thread deleted" : `Deleted ${deletedCount} threads`,
+            title: deletedCount === 1 ? "会话已删除" : `已删除 ${deletedCount} 个会话`,
             description:
               failureCount > 0
-                ? `Failed to delete ${failureCount} ${pluralize(failureCount, "thread")}.`
-                : `"${project.name}" cleared.`,
+                ? `删除失败 ${failureCount} 个会话。`
+                : `「${project.name}」已清空。`,
           });
         } else if (failureCount > 0) {
           toastManager.add({
             type: "error",
-            title: "Failed to delete threads",
-            description: `Could not delete ${failureCount} ${pluralize(failureCount, "thread")} in "${project.name}".`,
+            title: "删除会话失败",
+            description: `无法在「${project.name}」中删除 ${failureCount} 个会话。`,
           });
         }
       }
@@ -3156,7 +3142,7 @@ export default function Sidebar() {
       const clicked = await api.contextMenu.show(
         [
           { id: "rename", label: "Rename thread" },
-          { id: "toggle-pin", label: isPinned ? "Unpin thread" : "Pin thread" },
+          { id: "toggle-pin", label: isPinned ? "取消置顶会话" : "置顶会话" },
           ...(threadStatus?.dismissible
             ? [{ id: "clear-notification", label: "Clear notification" }]
             : []),
@@ -3167,7 +3153,7 @@ export default function Sidebar() {
             : []),
           { id: "copy-thread-id", label: "Copy Thread ID" },
           ...(options?.extraItems ?? []),
-          { id: "archive", label: "Archive", separatorBefore: true },
+          { id: "archive", label: "归档", separatorBefore: true },
           { id: "delete", label: "删除", destructive: true },
         ],
         position,
@@ -3331,8 +3317,8 @@ export default function Sidebar() {
       const clicked = await api.contextMenu.show(
         [
           { id: "mark-unread", label: `Mark unread (${count})` },
-          { id: "archive", label: `Archive (${count})` },
-          { id: "delete", label: `Delete (${count})`, destructive: true },
+          { id: "archive", label: `归档 (${count})` },
+          { id: "delete", label: `删除 (${count})`, destructive: true },
         ],
         position,
       );
@@ -3349,10 +3335,7 @@ export default function Sidebar() {
       if (clicked === "archive") {
         if (appSettings.confirmThreadArchive) {
           const confirmed = await api.dialogs.confirm(
-            [
-              `Archive ${count} ${pluralize(count, "thread")}?`,
-              "Archived threads are hidden from the sidebar but can be restored later.",
-            ].join("\n"),
+            [`归档 ${count} 个会话？`, "已归档的会话会从侧边栏隐藏，但以后可以恢复。"].join("\n"),
           );
           if (!confirmed) return;
         }
@@ -3368,10 +3351,7 @@ export default function Sidebar() {
 
       if (appSettings.confirmThreadDelete) {
         const confirmed = await api.dialogs.confirm(
-          [
-            `Delete ${count} ${pluralize(count, "thread")}?`,
-            "This permanently clears conversation history for these threads.",
-          ].join("\n"),
+          [`删除 ${count} 个会话？`, "这将永久清除这些会话的对话记录。"].join("\n"),
         );
         if (!confirmed) return;
       }
@@ -4468,7 +4448,7 @@ export default function Sidebar() {
             void inlineConfirmArchiveThread(threadId);
           }}
         >
-          <span>Confirm</span>
+          <span>确认</span>
         </button>
       );
     }
@@ -4531,7 +4511,7 @@ export default function Sidebar() {
               void inlineConfirmArchiveThread(input.threadId);
             }}
           >
-            <span>Confirm</span>
+            <span>确认</span>
           </button>
         ) : (
           <div className="pointer-events-auto inline-flex items-center gap-2">
@@ -5134,9 +5114,9 @@ export default function Sidebar() {
           </SidebarMenuButton>
           <button
             type="button"
-            aria-label={isProjectPinned ? `Unpin ${project.name}` : `Pin ${project.name}`}
+            aria-label={isProjectPinned ? `取消置顶 ${project.name}` : `置顶 ${project.name}`}
             aria-pressed={isProjectPinned}
-            title={isProjectPinned ? `Unpin ${project.name}` : `Pin ${project.name}`}
+            title={isProjectPinned ? `取消置顶 ${project.name}` : `置顶 ${project.name}`}
             className={cn(
               "sidebar-icon-button absolute left-2 top-1/2 z-20 inline-flex size-4 -translate-y-1/2 cursor-pointer items-center justify-center rounded-sm text-muted-foreground/62 transition-opacity hover:text-foreground/82 focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring",
               isProjectPinned
@@ -5677,22 +5657,13 @@ export default function Sidebar() {
         id: "import-thread",
         label: "Import thread from...",
         description: "Attach a local thread to an existing provider session.",
-        keywords: [
-          "import",
-          "resume",
-          "thread",
-          "session",
-          "codex",
-          "claude",
-          "opencode",
-          "opencode",
-        ],
+        keywords: ["import", "resume", "thread", "session", "opencode", "opencode"],
         shortcutLabel: importThreadShortcutLabel,
       },
       {
         id: "settings",
-        label: "Settings",
-        description: "Open app settings.",
+        label: "设置",
+        description: "打开应用设置。",
         keywords: ["preferences", "config"],
       },
     ],
@@ -6477,7 +6448,7 @@ export default function Sidebar() {
                     <SidebarLeadingIcon size="sm">
                       <SidebarGlyph icon={SettingsIcon} variant="leading" />
                     </SidebarLeadingIcon>
-                    <span>Settings</span>
+                    <span>设置</span>
                   </SidebarMenuButton>
                 )}
                 {showDesktopUpdateButton ? (
@@ -6634,7 +6605,7 @@ export default function Sidebar() {
                 }
               >
                 <ProjectContextMenuIcon icon={PinIcon} />
-                <span>{projectContextMenuIsPinned ? "Unpin project" : "Pin project"}</span>
+                <span>{projectContextMenuIsPinned ? "取消置顶项目" : "置顶项目"}</span>
               </MenuItem>
               {projectContextMenuHasArchivableThreads || projectContextMenuHasAnyThreads ? (
                 <MenuSeparator />
@@ -6650,7 +6621,7 @@ export default function Sidebar() {
                   }
                 >
                   <ProjectContextMenuIcon icon={ArchiveIcon} />
-                  <span>Archive threads</span>
+                  <span>归档会话</span>
                 </MenuItem>
               ) : null}
               {projectContextMenuHasAnyThreads ? (
@@ -6664,7 +6635,7 @@ export default function Sidebar() {
                   }
                 >
                   <ProjectContextMenuIcon icon={Trash2} />
-                  <span>Delete threads</span>
+                  <span>删除会话</span>
                 </MenuItem>
               ) : null}
               <MenuSeparator />

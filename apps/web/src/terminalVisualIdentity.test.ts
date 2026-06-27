@@ -16,16 +16,16 @@ describe("terminal visual identity", () => {
       terminalIds: ["terminal-1", "terminal-2"],
       runningTerminalIds: [" terminal-1 "],
       terminalAttentionStatesById: { "terminal-2": "attention" },
-      terminalCliKindsById: { "terminal-1": "codex" },
-      terminalLabelsById: { "terminal-1": "Codex 1", "terminal-2": "bun dev" },
+      terminalCliKindsById: { "terminal-1": "opencode" },
+      terminalLabelsById: { "terminal-1": "OpenCode 1", "terminal-2": "bun dev" },
       terminalTitleOverridesById: { "terminal-2": "Dev server" },
     });
 
     expect(identities.get("terminal-1")).toMatchObject({
-      cliKind: "codex",
-      iconKey: "openai",
+      cliKind: "opencode",
+      iconKey: "opencode",
       state: "running",
-      title: "Codex 1",
+      title: "OpenCode 1",
     });
     expect(identities.get("terminal-2")).toMatchObject({
       cliKind: null,
@@ -41,14 +41,14 @@ describe("terminal visual identity", () => {
       runningTerminalIds: [],
       terminalAttentionStatesById: {},
       terminalCliKindsById: {},
-      terminalLabelsById: { "terminal-1": "Codex 1" },
+      terminalLabelsById: { "terminal-1": "OpenCode 1" },
       terminalTitleOverridesById: {},
     });
 
     expect(identities.get("terminal-1")).toMatchObject({
       cliKind: null,
       iconKey: "terminal",
-      title: "Codex 1",
+      title: "OpenCode 1",
     });
   });
 
@@ -57,8 +57,8 @@ describe("terminal visual identity", () => {
       terminalIds: ["terminal-1", "terminal-2"],
       runningTerminalIds: ["terminal-1"],
       terminalAttentionStatesById: { "terminal-2": "attention" },
-      terminalCliKindsById: { "terminal-1": "codex" },
-      terminalLabelsById: { "terminal-1": "Codex 1", "terminal-2": "bun dev" },
+      terminalCliKindsById: { "terminal-1": "opencode" },
+      terminalLabelsById: { "terminal-1": "OpenCode 1", "terminal-2": "bun dev" },
       terminalTitleOverridesById: {},
     });
 
@@ -77,8 +77,8 @@ describe("terminal visual identity", () => {
       terminalIds: ["terminal-1", "terminal-2"],
       runningTerminalIds: [],
       terminalAttentionStatesById: {},
-      terminalCliKindsById: { "terminal-1": "codex" },
-      terminalLabelsById: { "terminal-1": "Codex 1", "terminal-2": "bun dev" },
+      terminalCliKindsById: { "terminal-1": "opencode" },
+      terminalLabelsById: { "terminal-1": "OpenCode 1", "terminal-2": "bun dev" },
       terminalTitleOverridesById: {},
     });
 
@@ -90,7 +90,7 @@ describe("terminal visual identity", () => {
       }),
     ).toMatchObject({
       terminalId: "terminal-1",
-      identity: { iconKey: "openai", state: "idle" },
+      identity: { iconKey: "opencode", state: "idle" },
     });
   });
 

@@ -47,11 +47,11 @@ describe("buildSettingsSkillGroups", () => {
     const shared = groups.find((group) => group.key === "check-code");
     expect(shared?.section).toBe("shared");
     expect(shared?.providers).toEqual(["opencode"]);
-    expect(shared?.sources.map((source) => source.origin)).toEqual(["codex", "claude", "opencode"]);
+    expect(shared?.sources.map((source) => source.origin)).toEqual(["opencode", "claude", "codex"]);
     expect(shared?.sources.map((source) => source.skill.path)).toEqual([
-      "/Users/test/.codex/skills/check-code/SKILL.md",
-      "/Users/test/.claude/skills/check-code/SKILL.md",
       "/Users/test/.gemini/skills/check-code/SKILL.md",
+      "/Users/test/.claude/skills/check-code/SKILL.md",
+      "/Users/test/.codex/skills/check-code/SKILL.md",
     ]);
 
     const cursorOnly = groups.find((group) => group.key === "cursor-only");

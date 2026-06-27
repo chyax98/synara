@@ -73,7 +73,7 @@ export const ProviderListSkillsResult = Schema.Struct({
 export type ProviderListSkillsResult = typeof ProviderListSkillsResult.Type;
 
 // Unified cross-provider skills catalog (Synara portable skills). Descriptors use
-// `scope` to carry the origin label ("synara", "codex", "claude", "cursor", ...).
+// `scope` to carry the origin label ("synara", "opencode", "agents", "project", ...).
 export const ProviderSkillsCatalogInput = Schema.Struct({
   cwd: Schema.optional(TrimmedNonEmptyString),
 });

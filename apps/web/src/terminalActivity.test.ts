@@ -28,14 +28,14 @@ describe("terminalActivityFromEvent", () => {
     const active = terminalActivityFromEvent({
       ...eventBase(),
       type: "activity",
-      cliKind: "codex",
+      cliKind: "opencode",
       agentState: "running",
       hasRunningSubprocess: true,
     });
     const attention = terminalActivityFromEvent({
       ...eventBase(),
       type: "activity",
-      cliKind: "claude",
+      cliKind: "opencode",
       agentState: "attention",
       hasRunningSubprocess: true,
     });

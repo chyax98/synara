@@ -242,8 +242,8 @@ describe("terminalStateStore actions", () => {
     const store = useTerminalStateStore.getState();
     store.newTerminal(THREAD_ID, "terminal-2");
     store.setTerminalMetadata(THREAD_ID, "terminal-2", {
-      cliKind: "codex",
-      label: "Codex CLI",
+      cliKind: "opencode",
+      label: "OpenCode CLI",
     });
 
     let terminalState = selectThreadTerminalState(
@@ -252,9 +252,9 @@ describe("terminalStateStore actions", () => {
     );
     expect(terminalState.terminalLabelsById).toEqual({
       default: "Terminal 1",
-      "terminal-2": "Codex 1",
+      "terminal-2": "OpenCode 1",
     });
-    expect(terminalState.terminalCliKindsById).toEqual({ "terminal-2": "codex" });
+    expect(terminalState.terminalCliKindsById).toEqual({ "terminal-2": "opencode" });
 
     store.closeTerminal(THREAD_ID, "terminal-2");
 
@@ -270,8 +270,8 @@ describe("terminalStateStore actions", () => {
     const store = useTerminalStateStore.getState();
     store.newTerminal(THREAD_ID, "terminal-2");
     store.setTerminalMetadata(THREAD_ID, "terminal-2", {
-      cliKind: "codex",
-      label: "Codex CLI",
+      cliKind: "opencode",
+      label: "OpenCode CLI",
     });
     store.setTerminalMetadata(THREAD_ID, "terminal-2", {
       cliKind: null,

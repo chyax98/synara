@@ -8,7 +8,7 @@ import type { TerminalIconKey } from "@t3tools/shared/terminalThreads";
 import { TerminalSquare } from "~/lib/icons";
 import { cn } from "~/lib/utils";
 
-import { ClaudeAI, OpenAI } from "../Icons";
+import { OpenCodeIcon } from "../Icons";
 
 interface TerminalIdentityIconProps {
   iconKey: TerminalIconKey;
@@ -17,8 +17,7 @@ interface TerminalIdentityIconProps {
 
 // Keep provider branding reusable across every terminal surface.
 export default function TerminalIdentityIcon({ iconKey, className }: TerminalIdentityIconProps) {
-  const IconComponent =
-    iconKey === "openai" ? OpenAI : iconKey === "claude" ? ClaudeAI : TerminalSquare;
+  const IconComponent = iconKey === "opencode" ? OpenCodeIcon : TerminalSquare;
 
   return (
     <span className={cn("inline-flex shrink-0 items-center justify-center", className)}>

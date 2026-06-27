@@ -1,52 +1,51 @@
 # Synara
 
-Synara is a local-first desktop app for coding with the AI agents and subscriptions you already use.
+Synara 是一款本地优先的桌面应用，通过 **OpenCode 原生 SDK** 在同一工作区中完成 AI 编程协作。
 
-It brings chats, terminals, browser previews, diffs, branches, provider sessions, and handoffs into one focused workspace so you can run agent work without juggling a dozen windows.
+它将聊天、终端、浏览器预览、diff、分支与 OpenCode 会话整合到一个专注的界面中，无需在多个窗口之间来回切换。
 
-![Synara app showing parallel agent threads, terminal output, and project navigation](assets/prod/readme-screenshot.jpeg)
+![Synara 应用界面：并行 agent 会话、终端输出与项目导航](assets/prod/readme-screenshot.jpeg)
 
-## What it does
+## 功能概览
 
-- Use the AI accounts you already pay for: Claude Code, Codex, Gemini, OpenCode, Cursor, Grok, Kilo Code, and Pi.
-- Run parallel work across projects, threads, and isolated Git worktrees without branches stepping on each other.
-- Keep split chats, terminals, browser previews, and agent output visible in the same window.
-- Hand off a thread to another provider when you want a second model to pick up with the same context.
-- Review diffs, create branches, commit, push, and open PRs from the app.
-- Keep your workspace local. Synara stores chats, projects, and history on your machine and talks directly to the providers you choose.
+- **单一 Provider**：仅集成 OpenCode 原生 SDK，无多 provider 切换或 handoff。
+- **并行工作**：在同一窗口中跨项目、会话与隔离 Git worktree 并行推进任务。
+- **统一视图**：分屏聊天、终端、浏览器预览与 agent 输出同屏可见。
+- **Git 工作流**：在应用内查看 diff、创建分支、提交、推送并打开 PR。
+- **本地优先**：聊天、项目与历史记录保存在本机；会话流量直连 OpenCode，不经过 Synara 云端。
 
-## How to use
+## 使用方式
 
 > [!WARNING]
-> You need to have [Codex CLI](https://github.com/openai/codex) installed and authorized for Codex sessions to work.
+> 需要先安装并授权 [OpenCode CLI](https://opencode.ai/docs/)，会话才能正常工作。
 
-Install the [desktop app from the Releases page](https://github.com/Emanuele-web04/Synara/releases), or download it from [trysynara.com](https://www.trysynara.com/).
+从 [Releases 页面](https://github.com/Emanuele-web04/Synara/releases) 安装桌面应用，或访问 [trysynara.com](https://www.trysynara.com/)。
 
-You can also run Synara locally while the project is still early:
+也可以在项目早期阶段本地运行：
 
 ```sh
 bun install
 bun run dev
 ```
 
-## Privacy
+## 隐私
 
-Synara runs as the workspace layer on your machine. There is no Synara cloud holding your repositories, chats, or project history.
+Synara 作为本机工作区层运行，没有 Synara 云端托管你的仓库、聊天或项目历史。
 
-The provider you choose still receives the prompts, file snippets, diffs, terminal output, or tool results needed for a session, but that traffic goes to the provider you picked rather than through a separate Synara-hosted workspace.
+OpenCode 仍会收到会话所需的提示词、文件片段、diff、终端输出或工具结果，但该流量直接发往你所配置的 OpenCode 环境，而非经由独立的 Synara 托管工作区。
 
-## Some notes
+## 说明
 
-Synara is still very early. Expect bugs, rough edges, and fast-moving internals.
+Synara 仍处于早期阶段，可能存在 bug、体验粗糙与快速迭代的内部实现。
 
-Focused issues and PRs are welcome, especially bug fixes, reliability fixes, and small maintenance improvements.
+欢迎提交聚焦的 issue 与 PR，尤其是 bug 修复、可靠性改进与小型维护性改动。
 
-## Contributing
+## 参与贡献
 
-Read [CONTRIBUTING.md](./CONTRIBUTING.md) before opening an issue or PR.
+提交 issue 或 PR 前请先阅读 [CONTRIBUTING.md](./CONTRIBUTING.md)。
 
-Need support? Join the [Discord](https://discord.gg/jn4EGJjrvv).
+需要帮助？加入 [Discord](https://discord.gg/jn4EGJjrvv)。
 
-## Origins
+## 起源
 
-Synara began as a fork of [T3Code](https://github.com/pingdotgg/t3code), but it has since become a substantially different product with its own branding, packaging, release system, provider orchestration, desktop app behavior, and product direction.
+Synara 最初 fork 自 [T3Code](https://github.com/pingdotgg/t3code)，此后已发展为独立产品，拥有自有品牌、打包与发布体系、OpenCode 原生集成、桌面端行为与产品方向。

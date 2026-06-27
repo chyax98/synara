@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { GENERIC_TERMINAL_THREAD_TITLE } from "@t3tools/shared/terminalThreads";
+
 import {
   consumeTerminalThreadTitleInput,
   deriveTerminalThreadTitleFromCommand,
@@ -9,13 +11,14 @@ import { TerminalThreadTitleTracker } from "./terminalThreadTitleTracker";
 
 describe("terminalThreadTitle", () => {
   it("recognizes the generic terminal placeholder title", () => {
-    expect(isGenericTerminalThreadTitle("New terminal")).toBe(true);
+    expect(isGenericTerminalThreadTitle(GENERIC_TERMINAL_THREAD_TITLE)).toBe(true);
     expect(isGenericTerminalThreadTitle("git push")).toBe(false);
   });
 
   it("derives CLI-focused labels from submitted commands", () => {
-    expect(deriveTerminalThreadTitleFromCommand("codex --model gpt-5.4")).toBe("Codex CLI");
-    expect(deriveTerminalThreadTitleFromCommand("claude code")).toBe("Claude Code");
+    expect(deriveTerminalThreadTitleFromCommand("opencode run --model openai/gpt-5")).toBe(
+      "OpenCode",
+    );
     expect(deriveTerminalThreadTitleFromCommand("git push origin main")).toBe("git push");
     expect(deriveTerminalThreadTitleFromCommand("npm run dev -- --token secret")).toBe(
       "npm run dev",
@@ -40,12 +43,12 @@ describe("terminalThreadTitle", () => {
 
     expect(
       tracker.consumeWrite({
-        currentTitle: "New terminal",
-        data: "codex --model gpt-5.4\r",
+        currentTitle: GENERIC_TERMINAL_THREAD_TITLE,
+        data: "opencode run --model openai/gpt-5\r",
         terminalId: "default",
         threadId: "thread-1",
       }),
-    ).toBe("Codex CLI");
+    ).toBe("OpenCode");
     expect(
       tracker.consumeWrite({
         currentTitle: "Manual rename",

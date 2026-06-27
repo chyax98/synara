@@ -1310,7 +1310,10 @@ describe("composerDraftStore modelSelection", () => {
     expect(draft?.modelSelectionByProvider.opencode).toEqual(
       modelSelection("opencode", "claude-opus-4-6", { variant: "max", agent: "build" }),
     );
-    expect(draft?.modelSelectionByProvider.opencode?.options).toEqual({ variant: "max", agent: "build" });
+    expect(draft?.modelSelectionByProvider.opencode?.options).toEqual({
+      variant: "max",
+      agent: "build",
+    });
     expect(draft?.activeProvider).toBe("opencode");
   });
 
@@ -1319,7 +1322,12 @@ describe("composerDraftStore modelSelection", () => {
 
     store.setModelSelection(threadId, modelSelection("opencode", "gpt-5.4"));
 
-    store.setProviderModelOptions(threadId, "opencode", { variant: "high" }, { persistSticky: true });
+    store.setProviderModelOptions(
+      threadId,
+      "opencode",
+      { variant: "high" },
+      { persistSticky: true },
+    );
 
     expect(useComposerDraftStore.getState().stickyModelSelectionByProvider.opencode).toEqual(
       modelSelection("opencode", "gpt-5.4", { variant: "high" }),

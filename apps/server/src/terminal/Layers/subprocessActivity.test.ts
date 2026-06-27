@@ -51,10 +51,10 @@ describe("inspectSubprocessActivity", () => {
   it("detects a provider descendant nested under a wrapper shell", () => {
     const map = buildChildrenMap([
       { ppid: 100, pid: 200, command: "zsh" },
-      { ppid: 200, pid: 300, command: "codex" },
+      { ppid: 200, pid: 300, command: "opencode" },
     ]);
     expect(inspectSubprocessActivity(100, map)).toEqual({
-      cliKind: "codex",
+      cliKind: "opencode",
       hasNonProviderSubprocess: false,
       hasProviderDescendant: true,
       hasRunningSubprocess: true,
@@ -65,12 +65,12 @@ describe("inspectSubprocessActivity", () => {
     // A single captured snapshot must yield independent, correct results per
     // terminal — this is the property the per-cycle batching relies on.
     const map = buildChildrenMap([
-      { ppid: 100, pid: 200, command: "codex" },
+      { ppid: 100, pid: 200, command: "opencode" },
       { ppid: 400, pid: 500, command: "zsh" },
     ]);
 
     expect(inspectSubprocessActivity(100, map).hasProviderDescendant).toBe(true);
-    expect(inspectSubprocessActivity(100, map).cliKind).toBe("codex");
+    expect(inspectSubprocessActivity(100, map).cliKind).toBe("opencode");
     expect(inspectSubprocessActivity(400, map)).toEqual({
       cliKind: null,
       hasNonProviderSubprocess: false,

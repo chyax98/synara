@@ -106,10 +106,7 @@ function normalizeTerminalCliKinds(
   const validTerminalIdSet = new Set(terminalIds);
   const normalizedEntries = Object.entries(terminalCliKindsById ?? {})
     .map(([terminalId, cliKind]) => [terminalId.trim(), cliKind] as const)
-    .filter(
-      ([terminalId, cliKind]) =>
-        terminalId.length > 0 && (cliKind === "codex" || cliKind === "claude"),
-    )
+    .filter(([terminalId, cliKind]) => terminalId.length > 0 && cliKind === "opencode")
     .filter(([terminalId]) => validTerminalIdSet.has(terminalId))
     .toSorted(([leftId], [rightId]) => leftId.localeCompare(rightId));
   return Object.fromEntries(normalizedEntries);
@@ -144,9 +141,8 @@ function clearTerminalReviewState(
 }
 
 function generatedTerminalTitleBase(cliKind: TerminalCliKind | null): string {
-  if (cliKind === "codex") return "Codex";
-  if (cliKind === "claude") return "Claude";
-  return "Terminal";
+  if (cliKind === "opencode") return "OpenCode";
+  return "终端";
 }
 
 function resolveTerminalDisplayTitle(options: {

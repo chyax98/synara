@@ -35,33 +35,14 @@ export interface SettingsSkillSection {
 
 const SHARED_SKILLS_SECTION = "shared";
 const PERSONAL_ORIGIN = "personal";
-export const ORIGIN_SECTION_ORDER = [
-  "synara",
-  "codex",
-  "claude",
-  "cursor",
-  "gemini",
-  "grok",
-  "kilo",
-  "opencode",
-  "pi",
-  "agents",
-  "project",
-] as const;
+export const ORIGIN_SECTION_ORDER = ["synara", "opencode", "agents", "project"] as const;
 export const PROVIDER_STACK_ORDER: readonly ProviderKind[] = ["opencode"] as const;
 
 const SKILL_ORIGIN_LABELS: Record<string, string> = {
   synara: "Synara",
-  codex: "Codex",
-  claude: "Claude",
-  cursor: "Cursor",
-  gemini: "Gemini",
-  grok: "Grok",
-  kilo: "Kilo",
   opencode: PROVIDER_DISPLAY_NAMES.opencode,
-  pi: "Pi",
-  agents: "Shared (.agents)",
-  project: "Project",
+  agents: "共享 (.agents)",
+  project: "项目",
 };
 
 export function skillOriginInfo(scope: string | undefined): SkillOriginInfo {

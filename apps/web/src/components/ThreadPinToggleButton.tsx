@@ -15,7 +15,7 @@ import { SIDEBAR_TRAILING_ICON_CLASS } from "./sidebarGlyphs";
 export function ThreadPinToggleButton({
   pinned,
   presentation,
-  targetLabel = "thread",
+  targetLabel = "对话",
   toneClassName,
   onToggle,
 }: {
@@ -25,7 +25,7 @@ export function ThreadPinToggleButton({
   toneClassName?: string;
   onToggle: (event: React.MouseEvent<HTMLButtonElement> | React.MouseEvent) => void;
 }) {
-  const label = `${pinned ? "Unpin" : "Pin"} ${targetLabel}`;
+  const label = `${pinned ? "取消固定" : "固定"}${targetLabel}`;
 
   return (
     <IconButton

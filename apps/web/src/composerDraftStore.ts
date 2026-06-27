@@ -918,15 +918,11 @@ function shouldRemoveDraft(draft: ComposerThreadDraftState): boolean {
 }
 
 function normalizeProviderKind(value: unknown): ProviderKind | null {
-  if (
-    value === "codex" ||
-    value === "claudeAgent" ||
-    value === "cursor" ||
-    value === "gemini" ||
-    value === "grok" ||
-    value === "kilo" ||
-    value === "pi"
-  ) {
+  if (value === "opencode") {
+    return "opencode";
+  }
+  // Older persisted drafts may carry a provider label from pre-OpenCode builds.
+  if (typeof value === "string" && value.trim().length > 0) {
     return "opencode";
   }
   return isProviderKind(value) ? value : null;

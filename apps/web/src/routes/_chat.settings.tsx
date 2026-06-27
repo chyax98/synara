@@ -343,22 +343,21 @@ const INSTALL_PROVIDER_SETTINGS: readonly InstallProviderSettings[] = [
       { label: "配置", href: "https://opencode.ai/docs/config/" },
     ],
     binaryPathKey: "openCodeBinaryPath",
-    binaryPlaceholder: "OpenCode binary path",
+    binaryPlaceholder: "OpenCode 可执行文件路径",
     binaryDescription: (
       <>
-        Leave blank to use <code>opencode</code> from your PATH.
+        留空则使用 PATH 中的 <code>opencode</code>。
       </>
     ),
     serverUrlKey: "openCodeServerUrl",
     serverUrlPlaceholder: "http://127.0.0.1:4096",
-    serverUrlDescription:
-      "Optional existing OpenCode server URL. Leave blank to spawn a local server.",
+    serverUrlDescription: "可选的已有 OpenCode 服务器 URL。留空则启动本地服务器。",
     serverPasswordKey: "openCodeServerPassword",
-    serverPasswordPlaceholder: "OpenCode server password",
-    serverPasswordDescription: "Optional password for an externally managed OpenCode server.",
+    serverPasswordPlaceholder: "OpenCode 服务器密码",
+    serverPasswordDescription: "外部托管 OpenCode 服务器的可选密码。",
     experimentalWebSocketsKey: "openCodeExperimentalWebSockets",
     experimentalWebSocketsDescription:
-      "Use Opencode's experimental OpenAI response WebSocket transport for managed local servers.",
+      "对托管的本地服务器使用 OpenCode 实验性 OpenAI 响应 WebSocket 传输。",
   },
 ];
 

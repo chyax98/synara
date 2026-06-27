@@ -983,7 +983,7 @@ describe("shouldAutoDeleteTerminalThreadOnLastClose", () => {
         isServerThread: true,
         terminalEntryPoint: "terminal",
         thread: {
-          title: "New terminal",
+          title: "新终端",
           messages: [],
           latestTurn: null,
           session: null,
@@ -1017,7 +1017,7 @@ describe("shouldAutoDeleteTerminalThreadOnLastClose", () => {
         isServerThread: true,
         terminalEntryPoint: "terminal",
         thread: {
-          title: "New terminal",
+          title: "新终端",
           messages: [
             {
               id: "msg-1" as never,

@@ -3187,9 +3187,7 @@ describe("hasLiveTurnTailWork", () => {
 
 describe("PROVIDER_OPTIONS", () => {
   it("lists available providers", () => {
-    expect(PROVIDER_OPTIONS).toEqual([
-      { value: "opencode", label: "OpenCode", available: true },
-    ]);
+    expect(PROVIDER_OPTIONS).toEqual([{ value: "opencode", label: "OpenCode", available: true }]);
   });
 
   it("humanizes Codex find commands from real DB payload (regression)", () => {

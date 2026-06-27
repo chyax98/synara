@@ -12,12 +12,12 @@ describe("resolveTerminalVisualIdentity", () => {
       resolveTerminalVisualIdentity({
         cliKind: null,
         fallbackTitle: "Terminal 1",
-        title: "Codex 1",
+        title: "OpenCode 1",
       }),
     ).toMatchObject({
       cliKind: null,
       iconKey: "terminal",
-      title: "Codex 1",
+      title: "OpenCode 1",
     });
   });
 
@@ -25,12 +25,12 @@ describe("resolveTerminalVisualIdentity", () => {
     expect(
       resolveTerminalVisualIdentity({
         fallbackTitle: "Terminal 1",
-        title: "Claude Code",
+        title: "OpenCode",
       }),
     ).toMatchObject({
-      cliKind: "claude",
-      iconKey: "claude",
-      title: "Claude Code",
+      cliKind: "opencode",
+      iconKey: "opencode",
+      title: "OpenCode",
     });
   });
 });

@@ -319,18 +319,7 @@ export interface SkillsCatalogRootInput extends SkillsCatalogDiscoveryInput {
   readonly includeSynaraRoot?: boolean;
 }
 
-const HOME_ORIGIN_ORDER = [
-  "synara",
-  "codex",
-  "claude",
-  "cursor",
-  "gemini",
-  "grok",
-  "kilo",
-  "opencode",
-  "pi",
-  "agents",
-] as const;
+const HOME_ORIGIN_ORDER = ["synara", "opencode", "agents"] as const;
 export type SkillsCatalogOrigin = (typeof HOME_ORIGIN_ORDER)[number] | "project";
 
 // Composer skill pickers refetch aggressively (per keystroke, per provider); a
@@ -384,42 +373,9 @@ const SKILL_ORIGIN_ROOTS = {
     homeRoots: (input) => [synaraSkillsDir(input.synaraBaseDir)],
     projectRootNames: [".synara"],
   },
-  codex: {
-    // Keep Synara's existing Codex-local root. Official Codex discovery uses
-    // `.agents/skills`, which is represented separately by the shared origin.
-    homeRoots: (input) => [nodePath.join(input.homeDir, ".codex", "skills")],
-    projectRootNames: [".codex"],
-  },
-  claude: {
-    homeRoots: (input) => [nodePath.join(input.homeDir, ".claude", "skills")],
-    projectRootNames: [".claude"],
-  },
-  cursor: {
-    homeRoots: (input) => [
-      nodePath.join(input.homeDir, ".cursor", "skills-cursor"),
-      nodePath.join(input.homeDir, ".cursor", "skills"),
-    ],
-    projectRootNames: [".cursor"],
-  },
-  gemini: {
-    homeRoots: (input) => [nodePath.join(input.homeDir, ".gemini", "skills")],
-    projectRootNames: [".gemini"],
-  },
-  grok: {
-    homeRoots: (input) => [nodePath.join(input.homeDir, ".grok", "skills")],
-    projectRootNames: [".grok"],
-  },
-  kilo: {
-    homeRoots: (input) => [nodePath.join(input.homeDir, ".kilo", "skills")],
-    projectRootNames: [".kilo"],
-  },
   opencode: {
     homeRoots: (input) => [nodePath.join(input.homeDir, ".config", "opencode", "skills")],
     projectRootNames: [".opencode"],
-  },
-  pi: {
-    homeRoots: (input) => [nodePath.join(input.homeDir, ".pi", "agent", "skills")],
-    projectRootNames: [".pi"],
   },
   agents: {
     homeRoots: (input) => [nodePath.join(input.homeDir, ".agents", "skills")],
@@ -428,7 +384,7 @@ const SKILL_ORIGIN_ROOTS = {
 } as const satisfies Record<SkillsHomeOrigin, SkillOriginRootSpec>;
 
 const PROVIDER_SKILL_ORIGIN_PREFERENCES = {
-  opencode: ["opencode", "claude", "agents"],
+  opencode: ["opencode", "agents", "synara"],
 } as const satisfies Partial<Record<ProviderKind, readonly SkillsHomeOrigin[]>>;
 
 function homeRootsForOrigin(
@@ -482,7 +438,6 @@ function rootsForOrderedOrigins(
     homeRootsForOrigin(origin, input).map((path) => ({
       path,
       scope: origin,
-      ...(origin === "pi" ? { includeMarkdownFiles: true } : {}),
     })),
   );
   const homeRootPaths = new Set(homeRoots.map((root) => nodePath.resolve(root.path)));
@@ -509,7 +464,6 @@ function rootsForOrderedOrigins(
           projectRoots.push({
             path: rootPath,
             scope: "project",
-            ...(origin === "pi" ? { includeMarkdownFiles: true } : {}),
           });
         }
       }
