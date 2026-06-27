@@ -1087,7 +1087,7 @@ async function waitForComposerEditor(): Promise<HTMLElement> {
 
 async function waitForSendButton(): Promise<HTMLButtonElement> {
   return waitForElement(
-    () => document.querySelector<HTMLButtonElement>('button[aria-label="Send message"]'),
+    () => document.querySelector<HTMLButtonElement>('button[aria-label="发送消息"]'),
     "Unable to find send button.",
   );
 }
@@ -2699,7 +2699,7 @@ describe("ChatView timeline estimator parity (full app)", () => {
 
     try {
       const stopButton = await waitForElement(
-        () => document.querySelector<HTMLButtonElement>('button[aria-label="Stop generation"]'),
+        () => document.querySelector<HTMLButtonElement>('button[aria-label="停止生成"]'),
         "Unable to find stop generation button.",
       );
 
@@ -2743,7 +2743,7 @@ describe("ChatView timeline estimator parity (full app)", () => {
       expect(queuedRow).not.toBeNull();
 
       const stopButton = await waitForElement(
-        () => document.querySelector<HTMLButtonElement>('button[aria-label="Stop generation"]'),
+        () => document.querySelector<HTMLButtonElement>('button[aria-label="停止生成"]'),
         "Unable to find stop generation button.",
       );
       expect(stopButton).not.toBeNull();
@@ -4005,7 +4005,7 @@ describe("ChatView timeline estimator parity (full app)", () => {
       await vi.waitFor(
         () => {
           expect(
-            document.querySelector<HTMLButtonElement>('button[aria-label="Stop generation"]'),
+            document.querySelector<HTMLButtonElement>('button[aria-label="停止生成"]'),
           ).toBeNull();
         },
         { timeout: 8_000, interval: 16 },

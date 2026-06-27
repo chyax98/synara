@@ -220,7 +220,7 @@ function ProfileContent({
 
       {/* Model usage */}
       <section className="flex flex-col gap-3">
-        <h3 className="text-sm font-medium">Model usage</h3>
+        <h3 className="text-sm font-medium">模型用量</h3>
         {stats.providerModels.length > 0 ? (
           <ul className="grid grid-cols-1 gap-x-12 gap-y-3 sm:grid-cols-2">
             {stats.providerModels.slice(0, 6).map((entry) => (

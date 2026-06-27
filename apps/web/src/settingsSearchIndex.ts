@@ -37,7 +37,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "general:default-provider",
     section: "general",
     title: "默认 provider",
-    keywords: "Choose the provider used for new chats. agent codex claude",
+    keywords: "为新会话选择默认 provider。agent codex claude",
   },
   {
     id: "general:new-threads",
@@ -50,7 +50,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "general:project-order",
     section: "general",
     title: "项目排序",
-    keywords: "Controls how projects are arranged in the main sidebar. sort updated created manual",
+    keywords: "控制主侧边栏中项目的排列方式。排序 更新 创建 手动",
   },
   {
     id: "general:thread-order",
@@ -135,21 +135,20 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   {
     id: "appearance:terminal-font-size",
     section: "appearance",
-    title: "Terminal 字号",
-    keywords: "Adjust terminal text independently from the app and chat font size.",
+    title: "终端字号",
+    keywords: "独立于应用与聊天字号调整终端文字 terminal font size",
   },
   {
     id: "appearance:terminal-font",
     section: "appearance",
-    title: "Terminal 字体",
-    keywords:
-      "Type any monospace font installed on this device e.g. Fira Code. system monospace family",
+    title: "终端字体",
+    keywords: "输入本机已安装的等宽字体，例如 Fira Code。系统默认等宽字体",
   },
   {
     id: "appearance:font-smoothing",
     section: "appearance",
     title: "字体平滑",
-    keywords: "Use macOS-style antialiasing for lighter, crisper text rendering.",
+    keywords: "使用 macOS 风格抗锯齿，使文字更轻、更清晰。",
     target: null,
   },
   {
@@ -181,13 +180,13 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "behavior:assistant-output",
     section: "behavior",
     title: "助手输出",
-    keywords: "Show token-by-token output while a response is in progress. streaming",
+    keywords: "在回复进行中逐 token 显示输出。流式 streaming",
   },
   {
     id: "behavior:diff-line-wrapping",
     section: "behavior",
     title: "Diff 自动换行",
-    keywords: "Set the default wrap state when the diff panel opens. word wrap",
+    keywords: "设置打开 diff 面板时的默认换行状态。自动换行 word wrap",
   },
   {
     id: "behavior:prompt-suggestions",
@@ -200,19 +199,19 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "behavior:delete-confirmation",
     section: "behavior",
     title: "删除确认",
-    keywords: "Ask before deleting a thread and its chat history. safety confirm",
+    keywords: "删除会话及聊天历史前进行确认。安全 confirm",
   },
   {
     id: "behavior:archive-confirmation",
     section: "behavior",
     title: "归档确认",
-    keywords: "Ask before archiving a thread. safety confirm",
+    keywords: "归档会话前进行确认。安全 confirm",
   },
   {
     id: "behavior:terminal-close-confirmation",
     section: "behavior",
     title: "关闭 Terminal 确认",
-    keywords: "Ask before closing a terminal tab and clearing its history. safety confirm",
+    keywords: "关闭终端标签并清除其历史前进行确认。安全 confirm",
   },
 
   // ── Worktrees ─────────────────────────────────────────────────────────────────
@@ -229,7 +228,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "archived:archived-threads",
     section: "archived",
     title: "已归档会话",
-    keywords: "View and restore archived threads. unarchive history",
+    keywords: "查看并恢复已归档会话。取消归档 历史",
     target: null,
   },
 
@@ -265,7 +264,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "providers:installed-clis",
     section: "providers",
     title: "已安装 CLI",
-    keywords: "Review provider versions and update tools. binary overrides path install",
+    keywords: "查看 provider 版本并更新工具。二进制 覆盖 路径 安装",
   },
 
   // ── Skills ────────────────────────────────────────────────────────────────────
@@ -273,7 +272,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "skills:skills",
     section: "skills",
     title: "Skill",
-    keywords: "Every skill found across providers, with toggles to control availability. agent",
+    keywords: "各 provider 中发现的所有技能，可开关控制可用性。agent",
     target: null,
   },
 
@@ -296,7 +295,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "advanced:version",
     section: "advanced",
     title: "版本",
-    keywords: "Current application version. about",
+    keywords: "当前应用版本。关于 about",
   },
   {
     id: "advanced:release-history",

@@ -96,8 +96,8 @@ export const SETTINGS_NAV_ITEMS: readonly SettingsNavItem[] = [
   {
     id: "worktrees",
     group: "app",
-    label: "Worktree",
-    description: "查看并清理 Synara 创建的 worktree。",
+    label: "工作树",
+    description: "查看并清理 Synara 创建的工作树。",
     icon: "branch-simple",
     eyebrow: "工作区管理",
   },
@@ -131,7 +131,7 @@ export const SETTINGS_NAV_ITEMS: readonly SettingsNavItem[] = [
     label: "Skill",
     description: "跨 provider 发现的所有 skill，可开关可用性。",
     icon: "building-blocks",
-    eyebrow: "Agent skill",
+    eyebrow: "Agent 技能",
   },
   {
     id: "advanced",

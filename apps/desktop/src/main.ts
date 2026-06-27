@@ -2630,7 +2630,11 @@ if (hasSingleInstanceLock) {
       configureMediaPermissions();
       configureApplicationMenu();
       registerDesktopProtocol();
-      configureAutoUpdater();
+      setUpdateState({
+        ...createInitialDesktopUpdateState(app.getVersion(), desktopRuntimeInfo),
+        enabled: false,
+        status: "disabled",
+      });
       void bootstrap().catch((error) => {
         handleFatalStartupError("bootstrap", error);
       });

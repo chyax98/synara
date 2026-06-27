@@ -305,7 +305,7 @@ export function appendVoiceTranscriptToPrompt(
 export function sanitizeVoiceErrorMessage(message: string): string {
   const normalized = message.trim();
   if (normalized.length === 0) {
-    return "The voice note could not be transcribed.";
+    return "语音便签无法转写。";
   }
 
   const firstLine = normalized.split("\n")[0]?.trim() ?? normalized;
@@ -316,9 +316,7 @@ export function sanitizeVoiceErrorMessage(message: string): string {
   );
   const withoutRepeatedErrorPrefix = withoutRemoteMethodPrefix.replace(/^(Error:\s*)+/i, "").trim();
 
-  return withoutRepeatedErrorPrefix.length > 0
-    ? withoutRepeatedErrorPrefix
-    : "The voice note could not be transcribed.";
+  return withoutRepeatedErrorPrefix.length > 0 ? withoutRepeatedErrorPrefix : "语音便签无法转写。";
 }
 
 export function isVoiceAuthExpiredMessage(message: string): boolean {
@@ -328,29 +326,29 @@ export function isVoiceAuthExpiredMessage(message: string): boolean {
 
 export function describeVoiceRecordingStartError(error: unknown): string {
   if (!(error instanceof Error)) {
-    return "The microphone could not be opened.";
+    return "无法打开麦克风。";
   }
 
   const normalizedMessage = error.message.trim();
   const errorName = typeof error.name === "string" ? error.name : "";
 
   if (errorName === "NotAllowedError" || errorName === "PermissionDeniedError") {
-    return "Microphone access was denied. Enable it in macOS Privacy & Security > Microphone for Synara, then try again.";
+    return "麦克风访问被拒绝。请在 macOS「隐私与安全性」>「麦克风」中为 Synara 开启权限，然后重试。";
   }
   if (errorName === "NotFoundError" || errorName === "DevicesNotFoundError") {
-    return "No microphone was found. Connect one and try again.";
+    return "未找到麦克风。请连接后重试。";
   }
   if (errorName === "NotReadableError" || errorName === "TrackStartError") {
-    return "The microphone is busy or unavailable right now. Close other audio apps and try again.";
+    return "麦克风当前忙碌或不可用。请关闭其他音频应用后重试。";
   }
   if (errorName === "SecurityError") {
-    return "Microphone access is blocked in this environment.";
+    return "当前环境阻止了麦克风访问。";
   }
   if (normalizedMessage.length > 0) {
     return sanitizeVoiceErrorMessage(normalizedMessage);
   }
 
-  return "The microphone could not be opened.";
+  return "无法打开麦克风。";
 }
 
 export function deriveComposerVoiceState(input: {
@@ -594,16 +592,16 @@ export function buildExpiredTerminalContextToastCopy(
   variant: "omitted" | "empty",
 ): { title: string; description: string } {
   const count = Math.max(1, Math.floor(expiredTerminalContextCount));
-  const noun = count === 1 ? "Expired terminal context" : "Expired terminal contexts";
+  const noun = count === 1 ? "过期的终端上下文" : "过期的终端上下文";
   if (variant === "empty") {
     return {
-      title: `${noun} won't be sent`,
-      description: "Remove it or re-add it to include terminal output.",
+      title: `${noun}不会被发送`,
+      description: "移除或重新添加以包含终端输出。",
     };
   }
   return {
-    title: `${noun} omitted from message`,
-    description: "Re-add it if you want that terminal output included.",
+    title: `已从消息中省略${noun}`,
+    description: "如需包含该终端输出，请重新添加。",
   };
 }
 

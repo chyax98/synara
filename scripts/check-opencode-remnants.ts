@@ -37,7 +37,7 @@ const ALLOWED_LITERALS: ReadonlyArray<{
   { pathIncludes: "contracts/src/editor.ts", literals: ["cursor"] },
   {
     pathIncludes: "desktop/src/voiceTranscription.ts",
-    literals: ["chatgpt-codex", "openai-codex", "openai-chatgpt"],
+    literals: ["openai-chatgpt"],
   },
   { pathIncludes: "server/src/localServerMonitor.ts", literals: ["cursor"] },
   { pathIncludes: "server/src/profileStats.ts", literals: ["codex", "claude"] },

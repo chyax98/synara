@@ -35,7 +35,7 @@ export function EnvironmentNotesSection({
           onChange={autosave.onChange}
           onFocus={autosave.onFocus}
           onBlur={autosave.onBlur}
-          placeholder="Type here"
+          placeholder="在此输入"
           maxLength={THREAD_NOTES_MAX_CHARS}
         />
       </div>

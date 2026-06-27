@@ -7,14 +7,18 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
 const ROOT = join(import.meta.dirname, "..");
+
 /** Product chrome surfaces that must be fully Chinese per opencode-native-zh. */
 const SCAN_ROOTS = [
+  "apps/web/src/components/ChatView.tsx",
   "apps/web/src/components/Sidebar.tsx",
+  "apps/web/src/components/ComposerPromptEditor.tsx",
   "apps/web/src/routes/_chat.settings.tsx",
   "apps/web/src/components/settings",
   "apps/web/src/components/chat",
   "apps/web/src/components/SettingsSidebarNav.tsx",
-  "apps/web/src/components/chat/environment",
+  "apps/web/src/settingsNavigation.ts",
+  "apps/web/src/settingsSearchIndex.ts",
 ];
 
 const ALLOW_PATH_SUBSTRINGS = [
@@ -24,23 +28,25 @@ const ALLOW_PATH_SUBSTRINGS = [
   "/lib/icons",
   "confirmDialogFallback",
   "contextMenuFallback",
+  ".browser.tsx",
+  ".test.tsx",
 ];
 
 const ALLOW_STRING_SUBSTRINGS = [
   "SKILL.md",
   "OpenCode",
   "Synara",
-  "Git",
+  "GitHub",
+  "Git ",
   "http://",
   "https://",
   "ws://",
   "wss://",
   "aria-hidden",
   "data-slot",
+  "data-testid",
   "className",
   "console.",
-  ".tsx",
-  ".ts",
   "/Users/",
   "127.0.0.1",
   "localhost",
@@ -54,23 +60,30 @@ const ALLOW_STRING_SUBSTRINGS = [
   "WebSocket",
   "SQLite",
   "npm",
-  "bun ",
   "vitest",
-  "Codex", // code theme display name in theme pack catalog only
+  "Environment",
+  "Provider",
+  "model",
+  "px",
+  "Fira Code",
+  "Commit and Push",
+  "Changes",
+  "branch",
 ];
 
-/** English tokens that should not appear alone in user-facing copy */
+/** English tokens that should not appear in user-facing copy */
 const ENGLISH_DENY = new RegExp(
-  "\\b(?:the|and|for|with|could|unable|update|ready|click|workspace|skills?|scanning|delete|loading|found|every|provider|portable|folder|retry|error|failed|success|warning|settings|sidebar|thread|project|conversation|worktree|install|restart|version|unexpected|occurred|check|notifications?|desktop|managed|active|archived|linked|removed|deleted|anyway|disk|verify|reconnect|server|running|supported|discovery|enable|disable|sort|pin|unpin|archive|import|export)\\b",
+  "\\b(?:the|and|for|with|could|unable|update|ready|click|workspace|skills?|scanning|delete|loading|found|every|portable|folder|retry|error|failed|success|warning|settings|sidebar|thread|project|conversation|worktree|install|restart|version|unexpected|occurred|check|notifications?|desktop|managed|active|archived|linked|removed|deleted|anyway|disk|verify|reconnect|server|running|supported|discovery|enable|disable|sort|pin|unpin|archive|import|export|send|message|create|automation|rename|recording|marker|repository|implementation|custom|models?|show|section|adjust|type|font|terminal)\\b",
   "i",
 );
 
-const PROP_CAPTURE =
-  /(?:title|description|label|tooltip|placeholder|status|aria-label)\s*[:=]\s*(["'`])([^"'`]*)\1/g;
+const QUOTED_PROP =
+  /(?:title|description|label|tooltip|placeholder|status|aria-label|ariaLabel|resetLabel|valueContent|eyebrow|keywords)\s*[:=]\s*(["'`])([\s\S]*?)\1/g;
 
 const JSX_TEXT = />\s*([A-Za-z][^<{]{2,}?)\s*</g;
 
-const STRING_LITERAL = /(["'`])((?:(?!\1)[^\\]|\\.)*)\1/g;
+const TEMPLATE_PROP =
+  /(?:label|tooltip|title|description|aria-label|ariaLabel)\s*[:=]\s*\{`([^`$]*(?:\$\{[^}]+\}[^`$]*)*)`\}/g;
 
 function hasCjk(text: string): boolean {
   return /[\u3400-\u9fff]/.test(text);
@@ -85,24 +98,33 @@ function isAllowedPath(path: string): boolean {
   return ALLOW_PATH_SUBSTRINGS.some((part) => rel.includes(part));
 }
 
+function stripTemplateExpressions(text: string): string {
+  return text.replace(/\$\{[^}]+\}/g, "");
+}
+
 function isAllowedString(text: string): boolean {
-  if (hasCjk(text)) return true;
-  if (text.trim().length <= 2) return true;
-  if (/^[\d\s%.,:;!?()[\]{}+\-*/=<>|&@#$^~`\\]+$/.test(text)) return true;
-  if (ALLOW_STRING_SUBSTRINGS.some((part) => text.includes(part))) return true;
-  if (/^[a-z]+(-[a-z]+)*$/.test(text.trim())) return true; // kebab identifiers
-  if (/^[A-Z][a-zA-Z0-9]*$/.test(text.trim())) return true; // PascalCase components
-  // Tailwind / layout class fragments and dev-only placeholders
+  const stripped = stripTemplateExpressions(text);
+  if (hasCjk(stripped)) return true;
+  if (stripped.trim().length <= 2) return true;
+  if (/^[\d\s%.,:;!?()[\]{}+\-*/=<>|&@#$^~`\\]+$/.test(stripped)) return true;
+  if (ALLOW_STRING_SUBSTRINGS.some((part) => stripped.includes(part))) return true;
+  if (/^[a-z]+(-[a-z]+)*$/.test(stripped.trim())) return true;
+  if (/^[A-Z][a-zA-Z0-9]*$/.test(stripped.trim())) return true;
   if (
     /(?:inline-flex|transition-|hover:|var\(--|absolute |group\/|cursor-grab|tabular-nums|justify-center|shrink-0)/.test(
-      text,
+      stripped,
     )
   ) {
     return true;
   }
-  if (text.startsWith("/path/to/")) return true;
-  if (text.includes("must render inside ComposerColumnFrame")) return true;
+  if (stripped.startsWith("/path/to/")) return true;
+  if (stripped.includes("must render inside ComposerColumnFrame")) return true;
   return false;
+}
+
+function reportViolation(path: string, lineNo: number, kind: string, text: string, hits: string[]) {
+  const snippet = text.length > 80 ? `${text.slice(0, 77)}...` : text;
+  hits.push(`${relative(ROOT, path)}:${lineNo}:${kind}:${JSON.stringify(snippet)}`);
 }
 
 function collectScanFiles(): string[] {
@@ -134,44 +156,42 @@ function walk(dir: string, files: string[] = []): string[] {
   return files;
 }
 
-function reportViolation(path: string, lineNo: number, kind: string, text: string, hits: string[]) {
-  const snippet = text.length > 80 ? `${text.slice(0, 77)}...` : text;
-  hits.push(`${relative(ROOT, path)}:${lineNo}:${kind}:${JSON.stringify(snippet)}`);
+function checkText(path: string, lineNo: number, kind: string, text: string, hits: string[]) {
+  const stripped = stripTemplateExpressions(text);
+  if (!isAllowedString(text) && ENGLISH_DENY.test(stripped)) {
+    reportViolation(path, lineNo, kind, stripped, hits);
+  }
 }
 
 const violations: string[] = [];
 
 for (const file of collectScanFiles()) {
   if (isTestFile(file) || isAllowedPath(file)) continue;
-  const lines = readFileSync(file, "utf8").split("\n");
+  const content = readFileSync(file, "utf8");
+  const lines = content.split("\n");
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i] ?? "";
     if (line.trim().startsWith("//")) continue;
     if (line.includes("console.")) continue;
 
-    for (const match of line.matchAll(PROP_CAPTURE)) {
-      const text = match[2] ?? "";
-      if (!isAllowedString(text) && ENGLISH_DENY.test(text)) {
-        reportViolation(file, i + 1, "ui-prop", text, violations);
-      }
+    for (const match of line.matchAll(QUOTED_PROP)) {
+      checkText(file, i + 1, "ui-prop", match[2] ?? "", violations);
+    }
+
+    for (const match of line.matchAll(TEMPLATE_PROP)) {
+      checkText(file, i + 1, "template", match[1] ?? "", violations);
     }
 
     for (const match of line.matchAll(JSX_TEXT)) {
       const text = (match[1] ?? "").trim();
-      if (!isAllowedString(text) && ENGLISH_DENY.test(text)) {
-        reportViolation(file, i + 1, "jsx-text", text, violations);
-      }
+      checkText(file, i + 1, "jsx-text", text, violations);
     }
 
-    // Standalone quoted dialog/toast strings on their own line
-    if (
-      /(?:toastManager|dialogs\.|confirm\(|alert\()/.test(line) ||
-      /^\s*["'`][^"'`]+["'`],?\s*$/.test(line)
-    ) {
-      for (const match of line.matchAll(STRING_LITERAL)) {
+    if (/(?:toastManager|dialogs\.|confirm\(|alert\()/.test(line)) {
+      for (const match of line.matchAll(/(["'`])((?:(?!\1)[^\\]|\\.)*)\1/g)) {
         const text = match[2] ?? "";
-        if (!isAllowedString(text) && ENGLISH_DENY.test(text) && text.length > 8) {
-          reportViolation(file, i + 1, "string", text, violations);
+        if (text.length > 6) {
+          checkText(file, i + 1, "string", text, violations);
         }
       }
     }

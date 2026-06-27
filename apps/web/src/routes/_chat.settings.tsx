@@ -389,15 +389,7 @@ function SettingsRouteView() {
     (providerSettings) => providerSettings.provider === CUSTOM_MODEL_PROVIDER,
   )!;
   const selectedCustomModelError = customModelErrorByProvider[CUSTOM_MODEL_PROVIDER] ?? null;
-  const totalCustomModels =
-    settings.customCodexModels.length +
-    settings.customClaudeModels.length +
-    settings.customCursorModels.length +
-    settings.customGeminiModels.length +
-    settings.customGrokModels.length +
-    settings.customKiloModels.length +
-    settings.customOpenCodeModels.length +
-    settings.customPiModels.length;
+  const totalCustomModels = settings.customOpenCodeModels.length;
   const savedCustomModelRows = useMemo(
     () =>
       MODEL_PROVIDER_SETTINGS.flatMap((providerSettings) =>
@@ -451,16 +443,7 @@ function SettingsRouteView() {
       ? ["关闭终端确认"]
       : []),
     ...(isGitTextGenerationModelDirty ? ["Git 文案模型"] : []),
-    ...(settings.customCodexModels.length > 0 ||
-    settings.customClaudeModels.length > 0 ||
-    settings.customCursorModels.length > 0 ||
-    settings.customGeminiModels.length > 0 ||
-    settings.customGrokModels.length > 0 ||
-    settings.customKiloModels.length > 0 ||
-    settings.customOpenCodeModels.length > 0 ||
-    settings.customPiModels.length > 0
-      ? ["自定义模型"]
-      : []),
+    ...(settings.customOpenCodeModels.length > 0 ? ["自定义模型"] : []),
   ];
 
   const openKeybindingsFile = useCallback(() => {
@@ -775,7 +758,7 @@ function SettingsRouteView() {
       if (!api) return;
 
       const confirmed = await api.dialogs.confirm(
-        `Permanently delete "${threadTitle}"?\n\nThis will remove the thread and its conversation history forever.`,
+        `永久删除「${threadTitle}」？\n\n这将移除该会话及其对话历史，且无法恢复。`,
       );
       if (!confirmed) return;
 
@@ -970,7 +953,7 @@ function SettingsRouteView() {
                 }
                 updateSettings({ sidebarProjectSortOrder: value });
               }}
-              ariaLabel="Project sort order"
+              ariaLabel="项目排序"
               valueContent={SIDEBAR_PROJECT_SORT_ORDER_LABELS[settings.sidebarProjectSortOrder]}
             >
               <SelectItem hideIndicator value="updated_at">
@@ -1029,16 +1012,16 @@ function SettingsRouteView() {
           settingKey: "showChatsSection",
           title: "会话列表",
           description: "在侧边栏底部显示独立的会话列表（未绑定到项目的会话）。",
-          resetLabel: "chats section",
-          ariaLabel: "Show the Chats section in the sidebar",
+          resetLabel: "聊天分区",
+          ariaLabel: "在侧边栏显示聊天分区",
         })}
 
         {renderBooleanSettingRow({
           settingKey: "showWorkspaceSection",
           title: "工作区",
-          description: "在侧边栏切换器中显示工作区标签。Threads 标签始终可见。",
-          resetLabel: "项目排序",
-          ariaLabel: "Show the Workspace section in the sidebar",
+          description: "在侧边栏切换器中显示工作区标签。会话标签始终可见。",
+          resetLabel: "工作区分区",
+          ariaLabel: "在侧边栏显示工作区分区",
         })}
       </SettingsSection>
 
@@ -1049,8 +1032,8 @@ function SettingsRouteView() {
             title: "仓库",
             description:
               "在 chat Environment 面板中显示 GitHub 仓库链接。git 区块（Changes、Worktree、branch、Commit and Push）始终可见。",
-            resetLabel: "repository section",
-            ariaLabel: "Show the Repository section in the Environment panel",
+            resetLabel: "仓库分区",
+            ariaLabel: "在 Environment 面板中显示仓库分区",
           })}
 
           {renderBooleanSettingRow({
@@ -1066,15 +1049,15 @@ function SettingsRouteView() {
             settingKey: "showEnvironmentRecap",
             title: "回顾",
             description: "在 Environment 面板中显示自动生成的聊天回顾。",
-            resetLabel: "recap section",
-            ariaLabel: "Show the Recap section in the Environment panel",
+            resetLabel: "回顾分区",
+            ariaLabel: "在 Environment 面板中显示回顾分区",
           })}
 
           {renderBooleanSettingRow({
             settingKey: "showEnvironmentPinned",
             title: "置顶消息",
             description: "在 Environment 面板中显示置顶消息清单。",
-            resetLabel: "pinned messages section",
+            resetLabel: "置顶消息分区",
             ariaLabel: "Environment 面板",
           })}
 
@@ -1253,7 +1236,7 @@ function SettingsRouteView() {
                       terminalFontSizePx: normalizeTerminalFontSizePx(Number(nextValue)),
                     });
                   }}
-                  aria-label="Terminal font size in pixels"
+                  aria-label="终端字号（像素）"
                 />
                 <span className="text-xs text-muted-foreground">px</span>
               </div>
@@ -1266,7 +1249,7 @@ function SettingsRouteView() {
             resetAction={
               settings.terminalFontFamily !== defaults.terminalFontFamily ? (
                 <SettingResetButton
-                  label="terminal font"
+                  label="终端字体"
                   onClick={() =>
                     updateSettings({
                       terminalFontFamily: defaults.terminalFontFamily,
@@ -1297,7 +1280,7 @@ function SettingsRouteView() {
                     autoComplete="off"
                     placeholder="默认（JetBrains Mono）"
                     className="w-full sm:w-56"
-                    aria-label="Terminal font family"
+                    aria-label="终端字体"
                   />
                   <AutocompletePopup className="w-56 min-w-56 font-system-ui">
                     <AutocompleteList>
@@ -1330,7 +1313,7 @@ function SettingsRouteView() {
                 title: "字体平滑",
                 description: "使用 macOS 风格抗锯齿，使文字更轻、更清晰。",
                 resetLabel: "terminal 字号",
-                ariaLabel: "Enable font smoothing",
+                ariaLabel: "启用字体平滑",
               })
             : null}
         </SettingsCard>
@@ -1390,8 +1373,8 @@ function SettingsRouteView() {
           settingKey: "enableTaskCompletionToasts",
           title: "活动 Toast",
           description: "当聊天或托管终端代理完成或需要输入时，显示应用内 Toast。",
-          resetLabel: "activity toasts",
-          ariaLabel: "Activity toast notifications",
+          resetLabel: "活动通知",
+          ariaLabel: "活动 Toast 通知",
         })}
 
         <SettingsRow
@@ -1464,8 +1447,8 @@ function SettingsRouteView() {
           settingKey: "confirmThreadDelete",
           title: "删除确认",
           description: "删除会话及其聊天历史前进行确认。",
-          resetLabel: "delete confirmation",
-          ariaLabel: "Confirm thread deletion",
+          resetLabel: "删除确认",
+          ariaLabel: "确认删除会话",
         })}
 
         {renderBooleanSettingRow({
@@ -1473,15 +1456,15 @@ function SettingsRouteView() {
           title: "归档确认",
           description: "归档会话前进行确认。",
           resetLabel: "运行时行为",
-          ariaLabel: "Confirm thread archive",
+          ariaLabel: "确认归档会话",
         })}
 
         {renderBooleanSettingRow({
           settingKey: "confirmTerminalTabClose",
           title: "关闭终端确认",
           description: "关闭终端标签并清除其历史前进行确认。",
-          resetLabel: "terminal close confirmation",
-          ariaLabel: "Confirm terminal tab close",
+          resetLabel: "关闭终端确认",
+          ariaLabel: "确认关闭终端标签",
         })}
       </SettingsSection>
     </div>
@@ -1758,17 +1741,10 @@ function SettingsRouteView() {
           resetAction={
             totalCustomModels > 0 ? (
               <SettingResetButton
-                label="custom models"
+                label="自定义模型"
                 onClick={() => {
                   updateSettings({
-                    customCodexModels: defaults.customCodexModels,
-                    customClaudeModels: defaults.customClaudeModels,
-                    customCursorModels: defaults.customCursorModels,
-                    customGeminiModels: defaults.customGeminiModels,
-                    customGrokModels: defaults.customGrokModels,
-                    customKiloModels: defaults.customKiloModels,
                     customOpenCodeModels: defaults.customOpenCodeModels,
-                    customPiModels: defaults.customPiModels,
                   });
                   setCustomModelErrorByProvider({});
                   setShowAllCustomModels(false);

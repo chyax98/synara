@@ -406,7 +406,7 @@ function EditorRailTabs(props: {
             </MenuItem>
             <MenuItem onClick={newTerminalTab}>
               <TerminalIcon className="size-3.5 shrink-0 text-[var(--color-text-accent)]" />
-              <span>New terminal</span>
+              <span>新建终端</span>
             </MenuItem>
           </ComposerPickerMenuPopup>
         </Menu>

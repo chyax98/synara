@@ -107,7 +107,7 @@ export function usePinnedMessageActions({
       if (pins.length >= PINNED_MESSAGES_MAX_COUNT) {
         toastManager.add({
           type: "warning",
-          title: "Pinned message limit reached",
+          title: "置顶消息已达上限",
           description: `每个会话最多可置顶 ${PINNED_MESSAGES_MAX_COUNT} 条消息。`,
         });
         return;

@@ -708,7 +708,7 @@ function buildQueuedComposerPreviewText(input: {
   if (pastedTitle) {
     return pastedTitle;
   }
-  return "Queued follow-up";
+  return "排队的后续消息";
 }
 
 function formatPastedTextTitleSeed(pastedTexts: ReadonlyArray<PastedTextDraft>): string | null {
@@ -718,7 +718,7 @@ function formatPastedTextTitleSeed(pastedTexts: ReadonlyArray<PastedTextDraft>):
   }
   return pastedTexts.length === 1
     ? pastedTextTitle(firstPastedText.text)
-    : `${pastedTexts.length} pasted texts`;
+    : `${pastedTexts.length} 段粘贴文本`;
 }
 
 const COMPOSER_PATH_QUERY_DEBOUNCE_MS = 120;
@@ -769,14 +769,14 @@ function ComposerControlSkeleton(props: { widthClassName: string }) {
 function ComposerModelLoadingControl(props: { widthClassName: string }) {
   return (
     <div
-      aria-label="Loading models"
+      aria-label="正在加载模型"
       className={cn(
         "flex h-8 shrink-0 items-center gap-2 rounded-md border border-border/50 px-2 text-muted-foreground",
         props.widthClassName,
       )}
     >
       <RefreshCwIcon aria-hidden="true" className="size-3.5 animate-spin" />
-      <span className="truncate text-[length:var(--app-font-size-ui-xs,11px)]">Loading models</span>
+      <span className="truncate text-[length:var(--app-font-size-ui-xs,11px)]">正在加载模型</span>
     </div>
   );
 }
@@ -2058,9 +2058,11 @@ export default function ChatView({
       sidebarPlanSourceThreadProposedPlans,
     ],
   );
-  const planSidebarLabel = sidebarProposedPlan ? "Plan details" : "Tasks";
-  const planSidebarToggleLabel = planSidebarOpen ? `Hide ${planSidebarLabel}` : planSidebarLabel;
-  const planSidebarToggleTitle = `${planSidebarOpen ? "Hide" : "Show"} ${planSidebarLabel.toLowerCase()} sidebar`;
+  const planSidebarLabel = sidebarProposedPlan ? "计划详情" : "任务";
+  const planSidebarToggleLabel = planSidebarOpen ? `隐藏${planSidebarLabel}` : planSidebarLabel;
+  const planSidebarToggleTitle = planSidebarOpen
+    ? `隐藏${planSidebarLabel}侧边栏`
+    : `显示${planSidebarLabel}侧边栏`;
   const [activeTaskListCardHeight, setActiveTaskListCardHeight] = useState(0);
   const activeTaskListCardRef = useRef<HTMLDivElement | null>(null);
   const previousActiveTaskListCardHeightRef = useRef(0);
@@ -2463,7 +2465,7 @@ export default function ChatView({
       .then(() => {
         toastManager.add({
           type: "success",
-          title: "Project instructions added to notepad.",
+          title: "项目说明已添加到记事本。",
         });
       })
       .catch(() => {
@@ -2485,7 +2487,7 @@ export default function ChatView({
         console.error("Failed to remove thread marker", error);
         toastManager.add({
           type: "error",
-          title: "Could not remove marker.",
+          title: "无法移除标记。",
         });
       });
     },
@@ -2504,7 +2506,7 @@ export default function ChatView({
         console.error("Failed to update thread marker", error);
         toastManager.add({
           type: "error",
-          title: "Could not update marker.",
+          title: "无法更新标记。",
         });
       });
     },
@@ -2519,7 +2521,7 @@ export default function ChatView({
         console.error("Failed to rename thread marker", error);
         toastManager.add({
           type: "error",
-          title: "Could not rename marker.",
+          title: "无法重命名标记。",
         });
       });
     },
@@ -2807,18 +2809,18 @@ export default function ChatView({
           id: "fork-target:worktree",
           type: "fork-target" as const,
           target: "worktree" as const,
-          label: "Fork Into New Worktree",
-          description: "Continue in a new worktree",
+          label: "分叉到新 worktree",
+          description: "在新 worktree 中继续",
         },
         {
           id: "fork-target:local",
           type: "fork-target" as const,
           target: "local" as const,
-          label: "Fork Into Local",
+          label: "分叉到本地",
           description:
             activeThread?.worktreePath || activeThread?.envMode === "worktree"
-              ? "Continue in this local worktree"
-              : "Continue in the current local thread",
+              ? "在此本地 worktree 中继续"
+              : "在当前本地会话中继续",
         },
       ];
     }
@@ -2828,15 +2830,15 @@ export default function ChatView({
           id: "review-target:changes",
           type: "review-target" as const,
           target: "changes" as const,
-          label: "Review Uncommitted Changes",
-          description: "Review local uncommitted changes",
+          label: "审查未提交变更",
+          description: "审查本地未提交变更",
         },
         {
           id: "review-target:base-branch",
           type: "review-target" as const,
           target: "base-branch" as const,
-          label: "Review Against Base Branch",
-          description: "Review the current branch diff against its base",
+          label: "对照基线分支审查",
+          description: "审查当前分支相对基线的 diff",
         },
       ];
     }
@@ -3121,9 +3123,8 @@ export default function ChatView({
       void api?.browser.open({ threadId, initialUrl: url }).catch((error) => {
         toastManager.add({
           type: "error",
-          title: "Could not open repository",
-          description:
-            error instanceof Error ? error.message : "The in-app browser could not open GitHub.",
+          title: "无法打开仓库",
+          description: error instanceof Error ? error.message : "应用内浏览器无法打开 GitHub。",
         });
       });
       if (onOpenBrowserUrl) {
@@ -3930,7 +3931,7 @@ export default function ChatView({
       } catch (error) {
         setThreadError(
           activeThreadId,
-          error instanceof Error ? error.message : `Failed to run script "${script.name}".`,
+          error instanceof Error ? error.message : `运行脚本「${script.name}」失败。`,
         );
       }
     },
@@ -4107,13 +4108,13 @@ export default function ChatView({
         });
         toastManager.add({
           type: "success",
-          title: `Deleted action "${deletedName ?? "Unknown"}"`,
+          title: `已删除操作「${deletedName ?? "未知"}」`,
         });
       } catch (error) {
         toastManager.add({
           type: "error",
-          title: "Could not delete action",
-          description: error instanceof Error ? error.message : "An unexpected error occurred.",
+          title: "无法删除操作",
+          description: error instanceof Error ? error.message : "发生了意外错误。",
         });
       }
     },
@@ -4141,9 +4142,8 @@ export default function ChatView({
             .catch((error) => {
               toastManager.add({
                 type: "error",
-                title: "Could not update access mode",
-                description:
-                  error instanceof Error ? error.message : "An unexpected error occurred.",
+                title: "无法更新访问模式",
+                description: error instanceof Error ? error.message : "发生了意外错误。",
               });
             });
         }
@@ -4182,9 +4182,8 @@ export default function ChatView({
             .catch((error) => {
               toastManager.add({
                 type: "error",
-                title: "Could not update plan mode",
-                description:
-                  error instanceof Error ? error.message : "An unexpected error occurred.",
+                title: "无法更新计划模式",
+                description: error instanceof Error ? error.message : "发生了意外错误。",
               });
             });
         }
@@ -4484,7 +4483,7 @@ export default function ChatView({
       if (!message) {
         toastManager.add({
           type: "warning",
-          title: "Could not find the selected message.",
+          title: "找不到所选消息。",
         });
         return;
       }
@@ -4495,8 +4494,8 @@ export default function ChatView({
       if (!range) {
         toastManager.add({
           type: "warning",
-          title: "Select a unique phrase to mark it.",
-          description: "Try including a few more words so Synara can find the exact place.",
+          title: "请选择唯一短语以进行标记。",
+          description: "请多包含几个字，以便 Synara 准确定位。",
         });
         return;
       }
@@ -4515,7 +4514,7 @@ export default function ChatView({
             console.error("Failed to remove thread marker", error);
             toastManager.add({
               type: "error",
-              title: "Could not remove marker.",
+              title: "无法移除标记。",
             });
           });
         }
@@ -4534,7 +4533,7 @@ export default function ChatView({
         console.error("Failed to create thread marker", error);
         toastManager.add({
           type: "error",
-          title: "Could not create marker.",
+          title: "无法创建标记。",
         });
       });
     },
@@ -5314,21 +5313,21 @@ export default function ChatView({
     if (voiceProviderStatus?.authStatus === "unauthenticated") {
       toastManager.add({
         type: "error",
-        title: "Sign in to ChatGPT in Codex before using voice notes.",
+        title: "在 Codex 中登录 ChatGPT 后才能使用语音便签。",
       });
       return;
     }
     if (!canStartVoiceNotes) {
       toastManager.add({
         type: "error",
-        title: "Voice notes require a ChatGPT-authenticated Codex session.",
+        title: "语音便签需要已在 Codex 中登录 ChatGPT。",
       });
       return;
     }
     if (pendingUserInputs.length > 0) {
       toastManager.add({
         type: "error",
-        title: "Answer plan questions before recording a voice note.",
+        title: "先回答 plan 问题，再录制语音便签。",
       });
       return;
     }
@@ -5339,7 +5338,7 @@ export default function ChatView({
     } catch (error) {
       toastManager.add({
         type: "error",
-        title: "Could not start recording",
+        title: "无法开始录制",
         description: describeVoiceRecordingStartError(error),
       });
     }
@@ -5374,7 +5373,7 @@ export default function ChatView({
     if (!api) {
       toastManager.add({
         type: "error",
-        title: "Voice transcription is unavailable right now.",
+        title: "语音转写当前不可用。",
       });
       void cancelVoiceRecording();
       return;
@@ -5398,7 +5397,7 @@ export default function ChatView({
       if (!payload) {
         toastManager.add({
           type: "warning",
-          title: "No audio was captured.",
+          title: "没有录制到音频。",
         });
         return;
       }
@@ -5417,23 +5416,21 @@ export default function ChatView({
         return;
       }
       const description =
-        error instanceof Error
-          ? sanitizeVoiceErrorMessage(error.message)
-          : "The voice note could not be transcribed.";
+        error instanceof Error ? sanitizeVoiceErrorMessage(error.message) : "语音便签无法转写。";
       const authExpired = isVoiceAuthExpiredMessage(description);
       if (authExpired) {
         refreshVoiceStatus();
       }
       toastManager.add({
         type: "error",
-        title: authExpired ? "Sign in to ChatGPT again" : "Couldn't transcribe voice note",
+        title: authExpired ? "重新登录 ChatGPT" : "语音转写失败",
         description: authExpired
-          ? "Voice transcription uses your ChatGPT session in Codex. That session was rejected, so sign in again there and retry."
+          ? "语音转写使用你在 Codex 中的 ChatGPT 会话。该会话被拒绝，请重新登录后再试。"
           : description,
         ...(authExpired
           ? {
               actionProps: {
-                children: "Refresh status",
+                children: "刷新状态",
                 onClick: refreshVoiceStatus,
               },
             }
@@ -5504,7 +5501,7 @@ export default function ChatView({
       if (pendingUserInputs.length > 0) {
         toastManager.add({
           type: "error",
-          title: "Attach images after answering plan questions.",
+          title: "请先回答 plan 问题，再附加图片。",
         });
         return;
       }
@@ -5548,7 +5545,7 @@ export default function ChatView({
       if (pendingUserInputs.length > 0) {
         toastManager.add({
           type: "error",
-          title: "Attach files after answering plan questions.",
+          title: "请先回答 plan 问题，再附加文件。",
         });
         return;
       }
@@ -5601,14 +5598,14 @@ export default function ChatView({
       if (!api || !activeThread || isRevertingCheckpoint) return;
 
       if (hasLiveTurn || isSendBusy || isConnecting) {
-        setThreadError(activeThread.id, "Interrupt the current turn before reverting checkpoints.");
+        setThreadError(activeThread.id, "回滚检查点前请先中断当前轮次。");
         return;
       }
       const confirmed = await api.dialogs.confirm(
         [
-          `Revert this thread to checkpoint ${turnCount}?`,
-          "This will discard newer messages and turn diffs in this thread.",
-          "This action cannot be undone.",
+          `将此会话回滚到检查点 ${turnCount}？`,
+          "这将丢弃此会话中较新的消息和轮次 diff。",
+          "此操作无法撤销。",
         ].join("\n"),
       );
       if (!confirmed) {
@@ -5626,10 +5623,7 @@ export default function ChatView({
           createdAt: new Date().toISOString(),
         });
       } catch (err) {
-        setThreadError(
-          activeThread.id,
-          err instanceof Error ? err.message : "Failed to revert thread state.",
-        );
+        setThreadError(activeThread.id, err instanceof Error ? err.message : "回滚会话状态失败。");
       }
       setIsRevertingCheckpoint(false);
     },
@@ -5770,7 +5764,7 @@ export default function ChatView({
                   id: EventId.makeUnsafe(randomUUID()),
                   tone: "info",
                   kind: "automation.created",
-                  summary: `Created automation: ${definition.name} - ${formatCadence(definition.schedule)}`,
+                  summary: `已创建自动化：${definition.name} - ${formatCadence(definition.schedule)}`,
                   payload: {
                     source: "chat-composer",
                     automationId: definition.id,
@@ -5787,9 +5781,8 @@ export default function ChatView({
             } catch {
               toastManager.add({
                 type: "warning",
-                title: "Thread note not added",
-                description:
-                  "The automation was created, but Synara could not add the activity note.",
+                title: "会话备注未添加",
+                description: "自动化已创建，但 Synara 无法添加活动备注。",
               });
             }
           })();
@@ -5799,16 +5792,15 @@ export default function ChatView({
         resetAutomationDraftState();
         toastManager.add({
           type: "success",
-          title: "Automation created",
+          title: "自动化已创建",
           description: `${definition.name} - ${formatCadence(definition.schedule)}`,
         });
         return true;
       } catch (error) {
         toastManager.add({
           type: "error",
-          title: "Could not create automation",
-          description:
-            error instanceof Error ? error.message : "Synara could not save the automation.",
+          title: "无法创建自动化",
+          description: error instanceof Error ? error.message : "Synara 无法保存自动化。",
         });
         return false;
       } finally {
@@ -5839,8 +5831,8 @@ export default function ChatView({
       if (!api || !activeProject || !activeThread) {
         toastManager.add({
           type: "warning",
-          title: "Chat required",
-          description: "Open a chat before creating a chat-bound automation.",
+          title: "需要打开会话",
+          description: "创建绑定会话的自动化前，请先打开一个会话。",
         });
         return null;
       }
@@ -5875,8 +5867,8 @@ export default function ChatView({
         if (result === "unavailable") {
           toastManager.add({
             type: "error",
-            title: "Could not create chat",
-            description: "Synara could not promote this draft before saving the automation.",
+            title: "无法创建会话",
+            description: "Synara 无法在保存自动化前提升此草稿。",
           });
           return null;
         }
@@ -5895,11 +5887,9 @@ export default function ChatView({
       } catch (error) {
         toastManager.add({
           type: "error",
-          title: "Could not create chat",
+          title: "无法创建会话",
           description:
-            error instanceof Error
-              ? error.message
-              : "Synara could not promote this draft before saving the automation.",
+            error instanceof Error ? error.message : "Synara 无法在保存自动化前提升此草稿。",
         });
         return null;
       }
@@ -6007,7 +5997,7 @@ export default function ChatView({
         resetAutomationDraftState();
         toastManager.add({
           type: "success",
-          title: "Automation updated",
+          title: "自动化已更新",
           description: `${updated.name} - ${formatCadence(updated.schedule)}`,
         });
         return true;
@@ -6378,10 +6368,10 @@ export default function ChatView({
           if (!hasPromptOnlySendableContent || hasLiveTurn) {
             toastManager.add({
               type: "warning",
-              title: "Automation needs a bit more detail",
+              title: "自动化需要更多细节",
               description:
                 automationRequest.reason ??
-                'Add what it should do and how often, e.g. "every weekday at 9am, summarize my PRs".',
+                "请补充要执行的任务和频率，例如「每个工作日早上 9 点，汇总我的 PR」。",
             });
             return true;
           }
@@ -6512,23 +6502,22 @@ export default function ChatView({
       } else {
         toastManager.add({
           type: "warning",
-          title: `You can attach up to ${PROVIDER_SEND_TURN_MAX_ATTACHMENTS} references per message.`,
-          description:
-            "The current browser screenshot was skipped because this message is already at the attachment limit.",
+          title: `每条消息最多可附加 ${PROVIDER_SEND_TURN_MAX_ATTACHMENTS} 个引用。`,
+          description: "此消息已达附件上限，已跳过当前浏览器截图。",
         });
       }
     } else if (browserPromptAttachment.requested) {
       const description =
         browserPromptAttachment.reason === "no-open-browser"
-          ? "Open the in-app browser first, then try again."
+          ? "请先打开应用内浏览器，然后重试。"
           : browserPromptAttachment.reason === "no-active-tab"
-            ? "The in-app browser has no active tab to capture yet."
+            ? "应用内浏览器尚无活动标签页可捕获。"
             : browserPromptAttachment.reason === "attachment-too-large"
-              ? `The browser screenshot exceeded the ${IMAGE_SIZE_LIMIT_LABEL} attachment limit.`
-              : "The current browser context could not be attached.";
+              ? `浏览器截图超过了 ${IMAGE_SIZE_LIMIT_LABEL} 附件上限。`
+              : "无法附加当前浏览器上下文。";
       toastManager.add({
         type: "warning",
-        title: "Couldn’t attach the in-app browser context",
+        title: "无法附加应用内浏览器上下文",
         description,
       });
     }
@@ -6593,9 +6582,9 @@ export default function ChatView({
     let titleSeed = trimmedPromptForSend;
     if (!titleSeed) {
       if (firstComposerImageNameForTitle) {
-        titleSeed = `Image: ${firstComposerImageNameForTitle}`;
+        titleSeed = `图片：${firstComposerImageNameForTitle}`;
       } else if (composerFilesForSend.length > 0) {
-        titleSeed = `File: ${composerFilesForSend[0]?.name ?? "attachment"}`;
+        titleSeed = `文件：${composerFilesForSend[0]?.name ?? "附件"}`;
       } else if (composerAssistantSelectionsForSend.length > 0) {
         titleSeed = formatAssistantSelectionTitleSeed(composerAssistantSelectionsForSend.length);
       } else if (sendableComposerTerminalContexts.length > 0) {
@@ -6665,8 +6654,7 @@ export default function ChatView({
           targetProjectDefaultModelSelectionForSend =
             firstSendTarget.creation.defaultModelSelection;
         } catch (error) {
-          const description =
-            error instanceof Error ? error.message : "Failed to create the selected project.";
+          const description = error instanceof Error ? error.message : "创建所选项目失败。";
           if (!isDuplicateProjectCreateError(description)) {
             throw error;
           }
@@ -6718,10 +6706,7 @@ export default function ChatView({
     const shouldCreateWorktree =
       isFirstMessage && nextThreadEnvMode === "worktree" && !nextThreadWorktreePath;
     if (shouldCreateWorktree && !nextThreadBranch) {
-      setStoreThreadError(
-        threadIdForSend,
-        "Select a base branch before sending in New worktree mode.",
-      );
+      setStoreThreadError(threadIdForSend, "在新 worktree 模式下发送前，请先选择基线分支。");
       return false;
     }
 
@@ -7063,10 +7048,7 @@ export default function ChatView({
         updateSelectedComposerMentions(composerMentionsSnapshot);
         setComposerTrigger(detectComposerTrigger(promptForSend, promptForSend.length));
       }
-      setThreadError(
-        threadIdForSend,
-        err instanceof Error ? err.message : "Failed to send message.",
-      );
+      setThreadError(threadIdForSend, err instanceof Error ? err.message : "发送消息失败。");
     });
     sendInFlightRef.current = false;
     if (!turnStartSucceeded) {
@@ -7102,7 +7084,7 @@ export default function ChatView({
         .catch((err: unknown) => {
           setStoreThreadError(
             activeThreadId,
-            err instanceof Error ? err.message : "Failed to submit approval decision.",
+            err instanceof Error ? err.message : "提交审批决定失败。",
           );
         });
       setRespondingRequestIds((existing) => existing.filter((id) => id !== requestId));
@@ -7133,7 +7115,7 @@ export default function ChatView({
         .catch((err: unknown) => {
           setStoreThreadError(
             activeThreadId,
-            err instanceof Error ? err.message : "Failed to submit user input.",
+            err instanceof Error ? err.message : "提交用户输入失败。",
           );
         });
       setRespondingUserInputRequestIds((existing) => existing.filter((id) => id !== requestId));
@@ -7420,7 +7402,7 @@ export default function ChatView({
       );
       setThreadError(
         threadIdForSend,
-        err instanceof Error ? err.message : "Failed to send plan follow-up.",
+        err instanceof Error ? err.message : "发送计划后续消息失败。",
       );
       sendInFlightRef.current = false;
       resetLocalDispatch();
@@ -7443,16 +7425,16 @@ export default function ChatView({
             : null,
       });
       if (!editTarget.editable) {
-        setThreadError(activeThread.id, "Only the latest rollbackable user message can be edited.");
+        setThreadError(activeThread.id, "只能编辑最新一条可回滚的用户消息。");
         return false;
       }
       const originalMessage = activeThread.messages[editTarget.messageIndex];
       if (!originalMessage || originalMessage.role !== "user") {
-        setThreadError(activeThread.id, "Only the latest rollbackable user message can be edited.");
+        setThreadError(activeThread.id, "只能编辑最新一条可回滚的用户消息。");
         return false;
       }
       if (isSendBusy || isConnecting || sendInFlightRef.current) {
-        setThreadError(activeThread.id, "Wait for the current send to start before editing.");
+        setThreadError(activeThread.id, "请等待当前发送开始后再编辑。");
         return false;
       }
 
@@ -7492,10 +7474,7 @@ export default function ChatView({
         });
         return true;
       } catch (err) {
-        setThreadError(
-          activeThread.id,
-          err instanceof Error ? err.message : "Failed to edit message.",
-        );
+        setThreadError(activeThread.id, err instanceof Error ? err.message : "编辑消息失败。");
         return false;
       } finally {
         setIsRevertingCheckpoint(false);
@@ -7725,9 +7704,8 @@ export default function ChatView({
         }
         toastManager.add({
           type: "error",
-          title: "Could not start implementation thread",
-          description:
-            err instanceof Error ? err.message : "An error occurred while creating the new thread.",
+          title: "无法启动实现会话",
+          description: err instanceof Error ? err.message : "创建新会话时发生错误。",
         });
       })
       .then(finish, finish);
@@ -8352,8 +8330,8 @@ export default function ChatView({
       if (!activeProject) {
         toastManager.add({
           type: "warning",
-          title: "Clear is unavailable",
-          description: "Open a project before starting a fresh thread.",
+          title: "无法清空",
+          description: "开始新会话前，请先打开一个项目。",
         });
         return;
       }
@@ -8836,12 +8814,12 @@ export default function ChatView({
             )}
           >
             <SidebarHeaderNavigationControls />
-            <span className="text-xs text-muted-foreground/50">No active thread</span>
+            <span className="text-xs text-muted-foreground/50">无活动会话</span>
           </div>
         )}
         <div className="flex flex-1 items-center justify-center">
           <div className="text-center">
-            <p className="text-sm">Select a thread or create a new one to get started.</p>
+            <p className="text-sm">选择一个会话或新建会话以开始。</p>
           </div>
         </div>
       </div>
@@ -8883,8 +8861,8 @@ export default function ChatView({
     }).catch((error) => {
       toastManager.add({
         type: "error",
-        title: "Failed to rename thread",
-        description: error instanceof Error ? error.message : "An error occurred.",
+        title: "重命名会话失败",
+        description: error instanceof Error ? error.message : "发生错误。",
       });
       throw error;
     });
@@ -8892,7 +8870,7 @@ export default function ChatView({
     if (outcome === "empty") {
       toastManager.add({
         type: "warning",
-        title: "Thread title cannot be empty",
+        title: "会话标题不能为空",
       });
       return;
     }
@@ -9143,7 +9121,7 @@ export default function ChatView({
                       {isLocalFolderBrowserOpen ? (
                         <ComposerLocalDirectoryMenu
                           mentionQuery={mentionTriggerQuery}
-                          rootLabel={localFolderBrowseRootPath ?? "Local folders unavailable"}
+                          rootLabel={localFolderBrowseRootPath ?? "本地文件夹不可用"}
                           homeDir={serverConfigQuery.data?.homeDir ?? null}
                           onSelectEntry={(absolutePath) =>
                             handleSelectLocalDirectoryMention(absolutePath)
@@ -9216,18 +9194,18 @@ export default function ChatView({
                       : {})}
                     placeholder={
                       isComposerApprovalState
-                        ? "Resolve this approval request to continue"
+                        ? "处理此审批请求以继续"
                         : activePendingProgress
                           ? activePendingProgress.activeQuestion?.options.length === 0
-                            ? "Type your answer to continue"
-                            : "Type your own answer, or leave this blank to use the selected option"
+                            ? "输入你的回答以继续"
+                            : "输入你的回答，或留空以使用所选选项"
                           : showPlanFollowUpPrompt && activeProposedPlan
-                            ? "Add feedback to refine the plan, or leave this blank to implement it"
+                            ? "添加反馈以优化计划，或留空以直接实现"
                             : hasLiveTurn
-                              ? "Ask for follow-up changes"
+                              ? "请求后续修改"
                               : phase === "disconnected"
-                                ? "Ask for follow-up changes or attach images"
-                                : "Ask anything, @tag files/folders, or use / to show available commands"
+                                ? "请求后续修改或附加图片"
+                                : "随便问，用 @ 标记文件/文件夹，或用 / 查看可用命令"
                     }
                     disabled={isConnecting || isComposerApprovalState}
                   />
@@ -9276,10 +9254,10 @@ export default function ChatView({
                               size="sm"
                               type="button"
                               onClick={toggleInteractionMode}
-                              title="Plan mode — click to return to normal build mode"
+                              title="计划模式 — 点击返回普通构建模式"
                             >
                               <GoTasklist className="size-3.5" />
-                              <span className="sr-only sm:not-sr-only">Plan</span>
+                              <span className="sr-only sm:not-sr-only">计划</span>
                             </Button>
                           ) : null}
 
@@ -9312,7 +9290,7 @@ export default function ChatView({
                     >
                       {isPreparingWorktree ? (
                         <span className="text-[length:var(--app-font-size-ui-xs,10px)] text-[var(--color-text-foreground-secondary)]">
-                          Preparing worktree...
+                          正在准备 worktree…
                         </span>
                       ) : null}
                       {!isVoiceRecording &&
@@ -9367,7 +9345,7 @@ export default function ChatView({
                               onClick={onPreviousActivePendingUserInputQuestion}
                               disabled={activePendingIsResponding}
                             >
-                              Previous
+                              上一步
                             </Button>
                           ) : null}
                           <Button
@@ -9382,10 +9360,10 @@ export default function ChatView({
                             }
                           >
                             {activePendingIsResponding
-                              ? "Submitting..."
+                              ? "提交中…"
                               : activePendingProgress.isLastQuestion
-                                ? "Submit answers"
-                                : "Next question"}
+                                ? "提交回答"
+                                : "下一题"}
                           </Button>
                         </div>
                       ) : phase === "running" ? (
@@ -9395,8 +9373,8 @@ export default function ChatView({
                           size="icon-xs"
                           className="sm:size-[26px]"
                           onClick={() => void onInterrupt()}
-                          aria-label="Stop generation"
-                          title="Stop the current response. On Mac, press Ctrl+C to interrupt."
+                          aria-label="停止生成"
+                          title="停止当前回复。在 Mac 上可按 Ctrl+C 中断。"
                         >
                           <span
                             aria-hidden="true"
@@ -9414,7 +9392,7 @@ export default function ChatView({
                               className="h-9 rounded-full px-4 sm:h-8"
                               disabled={isSendBusy || isConnecting}
                             >
-                              {isConnecting || isSendBusy ? "Sending..." : "Refine"}
+                              {isConnecting || isSendBusy ? "发送中…" : "优化"}
                             </Button>
                           ) : (
                             <div className="flex items-center">
@@ -9424,7 +9402,7 @@ export default function ChatView({
                                 className="h-9 rounded-l-full rounded-r-none px-4 sm:h-8"
                                 disabled={isSendBusy || isConnecting}
                               >
-                                {isConnecting || isSendBusy ? "Sending..." : "Implement"}
+                                {isConnecting || isSendBusy ? "发送中…" : "实现"}
                               </Button>
                               <Menu>
                                 <MenuTrigger
@@ -9433,7 +9411,7 @@ export default function ChatView({
                                       size="sm"
                                       variant="default"
                                       className="h-9 rounded-l-none rounded-r-full border-l-white/12 px-2 sm:h-8"
-                                      aria-label="Implementation actions"
+                                      aria-label="实现操作"
                                       disabled={isSendBusy || isConnecting}
                                     />
                                   }
@@ -9445,7 +9423,7 @@ export default function ChatView({
                                     disabled={isSendBusy || isConnecting}
                                     onClick={() => void onImplementPlanInNewThread()}
                                   >
-                                    Implement in a new thread
+                                    在新会话中实现
                                   </MenuItem>
                                 </MenuPopup>
                               </Menu>
@@ -9475,14 +9453,14 @@ export default function ChatView({
                               }
                               aria-label={
                                 isConnecting
-                                  ? "Connecting"
+                                  ? "连接中"
                                   : isVoiceTranscribing
-                                    ? "Transcribing voice note"
+                                    ? "正在转写语音便签"
                                     : isPreparingWorktree
-                                      ? "Preparing worktree"
+                                      ? "正在准备 worktree"
                                       : isSendBusy
-                                        ? "Sending"
-                                        : "Send message"
+                                        ? "发送中"
+                                        : "发送消息"
                               }
                             >
                               {isConnecting || isSendBusy ? (
@@ -9606,14 +9584,14 @@ export default function ChatView({
             surfaceMode === "single" && onSplitSurface
               ? {
                   kind: "split",
-                  label: "Split chat",
+                  label: "分屏聊天",
                   shortcutLabel: chatSplitShortcutLabel,
                   onClick: onSplitSurface,
                 }
               : surfaceMode === "split" && isFocusedPane && onMaximizeSurface
                 ? {
                     kind: "maximize",
-                    label: "Expand this chat",
+                    label: "展开此聊天",
                     shortcutLabel: null,
                     onClick: onMaximizeSurface,
                   }
@@ -9637,7 +9615,7 @@ export default function ChatView({
           changeThreadAction={
             surfaceMode === "split" && isFocusedPane && onChangeThreadInSplitPane
               ? {
-                  label: "Change thread",
+                  label: "切换会话",
                   onClick: onChangeThreadInSplitPane,
                 }
               : null
@@ -9731,17 +9709,17 @@ export default function ChatView({
                       CHAT_COLUMN_FRAME_CLASS_NAME,
                     )}
                   >
-                    <SynaraLogo aria-label="Synara logo" className="size-10" />
+                    <SynaraLogo aria-label="Synara 标志" className="size-10" />
                     <h2 className="text-[26px] font-normal leading-[1.15] tracking-[-0.015em] text-foreground/95 sm:text-[30px]">
                       {isEmptyChatLanding ? (
-                        "What should we work on?"
+                        "我们今天要做什么？"
                       ) : (
                         <>
-                          What should we do in{" "}
+                          我们要在{" "}
                           <span className={COMPOSER_MUTED_ACCENT_TEXT_CLASS_NAME}>
-                            {activeProjectDisplayName ?? "this folder"}
-                          </span>
-                          ?
+                            {activeProjectDisplayName ?? "此文件夹"}
+                          </span>{" "}
+                          中做什么？
                         </>
                       )}
                     </h2>
@@ -10003,13 +9981,13 @@ export default function ChatView({
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 px-4 py-6 [-webkit-app-region:no-drag]"
           role="dialog"
           aria-modal="true"
-          aria-label="Expanded image preview"
+          aria-label="放大图片预览"
         >
           {/* Full-bleed backdrop click target — intentionally a raw <button> because it has no visible chrome. */}
           <button
             type="button"
             className="absolute inset-0 z-0 cursor-zoom-out"
-            aria-label="Close image preview"
+            aria-label="关闭图片预览"
             onClick={closeExpandedImage}
           />
           {expandedImage.images.length > 1 && (
@@ -10018,7 +9996,7 @@ export default function ChatView({
               size="icon"
               variant="ghost"
               className="absolute left-2 top-1/2 z-20 -translate-y-1/2 text-white/90 hover:bg-white/10 hover:text-white sm:left-6"
-              aria-label="Previous image"
+              aria-label="上一张图片"
               onClick={() => {
                 navigateExpandedImage(-1);
               }}
@@ -10033,7 +10011,7 @@ export default function ChatView({
               variant="ghost"
               className="absolute right-2 top-2"
               onClick={closeExpandedImage}
-              aria-label="Close image preview"
+              aria-label="关闭图片预览"
             >
               <XIcon />
             </Button>
@@ -10056,7 +10034,7 @@ export default function ChatView({
               size="icon"
               variant="ghost"
               className="absolute right-2 top-1/2 z-20 -translate-y-1/2 text-white/90 hover:bg-white/10 hover:text-white sm:right-6"
-              aria-label="Next image"
+              aria-label="下一张图片"
               onClick={() => {
                 navigateExpandedImage(1);
               }}

@@ -54,7 +54,7 @@ export function EnvironmentAutomationsSection({
                 {cadence}
               </span>
             }
-            aria-label={`Edit automation ${definition.name}`}
+            aria-label={`编辑自动化 ${definition.name}`}
             title={`${definition.name} - ${cadence}`}
             onClick={() => onOpenAutomation(definition)}
           />

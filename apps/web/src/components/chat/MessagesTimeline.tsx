@@ -975,7 +975,7 @@ export const MessagesTimeline = memo(function MessagesTimeline({
                       )}
                       {showEditUserMessage && (
                         <MessageActionButton
-                          label="Edit message"
+                          label="编辑消息"
                           tooltip="编辑并重新发送"
                           disabled={isRevertingCheckpoint}
                           className={cn(
@@ -989,8 +989,8 @@ export const MessagesTimeline = memo(function MessagesTimeline({
                       )}
                       {canRevertAgentWork ? (
                         <MessageActionButton
-                          label="Revert to this message"
-                          tooltip="Revert to this message"
+                          label="回退到此消息"
+                          tooltip="回退到此消息"
                           disabled={isRevertingCheckpoint || isWorking}
                           className={cn(
                             MESSAGE_HOVER_REVEAL_CLASS_NAME,
@@ -1825,7 +1825,7 @@ const UserMessageEditForm = memo(function UserMessageEditForm(props: {
         value={draft}
         disabled={props.disabled}
         rows={1}
-        aria-label="Edit message"
+        aria-label="编辑消息"
         className="max-h-60 min-h-0 w-full resize-none overflow-y-auto border-0 bg-transparent p-0 font-system-ui text-foreground outline-none placeholder:text-muted-foreground/45 disabled:opacity-70"
         style={props.chatTypographyStyle}
         onChange={(event) => setDraft(event.target.value)}

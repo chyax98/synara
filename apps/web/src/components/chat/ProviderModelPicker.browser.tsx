@@ -445,7 +445,7 @@ describe("ProviderModelPicker", () => {
     try {
       await page.getByRole("button").click();
 
-      await expect.element(page.getByLabelText("Loading models")).toBeInTheDocument();
+      await expect.element(page.getByLabelText("正在加载模型")).toBeInTheDocument();
       await expect
         .element(page.getByRole("menuitemradio", { name: "Auto" }))
         .not.toBeInTheDocument();

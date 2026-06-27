@@ -43,8 +43,8 @@ export const MessageCopyButton = memo(function MessageCopyButton({
   return (
     <MessageActionButton
       ref={ref}
-      label="Copy message"
-      tooltip="Copy to clipboard"
+      label="复制消息"
+      tooltip="复制到剪贴板"
       disabled={isCopied}
       className={className}
       onClick={() => copyToClipboard(text)}

@@ -212,7 +212,7 @@ export function useTranscriptAssistantSelectionAction(
       setPendingTranscriptSelectionAction(null);
       toastManager.add({
         type: "warning",
-        title: `You can attach up to ${PROVIDER_SEND_TURN_MAX_ATTACHMENTS} references per message.`,
+        title: `每条消息最多可附加 ${PROVIDER_SEND_TURN_MAX_ATTACHMENTS} 个引用。`,
       });
       return;
     }

@@ -347,9 +347,9 @@ describe("MessagesTimeline", () => {
       />,
     );
 
-    expect(markup).toContain('aria-label="Copy message"');
-    expect(markup).toContain('aria-label="Edit message"');
-    expect(markup).toContain('aria-label="Revert to this message"');
+    expect(markup).toContain('aria-label="复制消息"');
+    expect(markup).toContain('aria-label="编辑消息"');
+    expect(markup).toContain('aria-label="回退到此消息"');
     expect(markup).toContain("size-[1.125em]");
   });
 
@@ -405,10 +405,10 @@ describe("MessagesTimeline", () => {
       />,
     );
 
-    expect(markup).toContain('aria-label="Edit message"');
-    expect(markup).not.toContain('aria-label="Revert to this message"');
-    expect(markup).not.toContain('title="Edit message"');
-    expect(markup).not.toContain('title="Revert to this message"');
+    expect(markup).toContain('aria-label="编辑消息"');
+    expect(markup).not.toContain('aria-label="回退到此消息"');
+    expect(markup).not.toContain('title="编辑消息"');
+    expect(markup).not.toContain('title="回退到此消息"');
   });
 
   it("keeps edit available while an assistant turn is running", async () => {
@@ -453,11 +453,11 @@ describe("MessagesTimeline", () => {
       />,
     );
 
-    const editButtonMarkup = markup.match(/<button[^>]*aria-label="Edit message"[^>]*>/)?.[0] ?? "";
-    expect(markup).toContain('aria-label="Edit message"');
+    const editButtonMarkup = markup.match(/<button[^>]*aria-label="编辑消息"[^>]*>/)?.[0] ?? "";
+    expect(markup).toContain('aria-label="编辑消息"');
     expect(editButtonMarkup).not.toContain('disabled=""');
-    expect(markup).not.toContain('title="Edit message"');
-    expect(markup).toMatch(/<button[^>]*disabled=""[^>]*aria-label="Revert to this message"/);
+    expect(markup).not.toContain('title="编辑消息"');
+    expect(markup).toMatch(/<button[^>]*disabled=""[^>]*aria-label="回退到此消息"/);
   });
 
   it("renders a steering chip above steered user messages", async () => {

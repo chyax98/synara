@@ -219,7 +219,7 @@ describe("voice helpers", () => {
     const error = new Error("Permission denied");
     error.name = "NotAllowedError";
 
-    expect(describeVoiceRecordingStartError(error)).toContain("Microphone access was denied");
+    expect(describeVoiceRecordingStartError(error)).toContain("麦克风访问被拒绝");
   });
 
   it("derives voice-note availability from provider auth and runtime state", () => {
@@ -703,15 +703,15 @@ describe("deriveComposerSendState", () => {
 describe("buildExpiredTerminalContextToastCopy", () => {
   it("formats clear empty-state guidance", () => {
     expect(buildExpiredTerminalContextToastCopy(1, "empty")).toEqual({
-      title: "Expired terminal context won't be sent",
-      description: "Remove it or re-add it to include terminal output.",
+      title: "过期的终端上下文不会被发送",
+      description: "移除或重新添加以包含终端输出。",
     });
   });
 
   it("formats omission guidance for sent messages", () => {
     expect(buildExpiredTerminalContextToastCopy(2, "omitted")).toEqual({
-      title: "Expired terminal contexts omitted from message",
-      description: "Re-add it if you want that terminal output included.",
+      title: "已从消息中省略过期的终端上下文",
+      description: "如需包含该终端输出，请重新添加。",
     });
   });
 });

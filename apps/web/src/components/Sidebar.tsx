@@ -2618,10 +2618,10 @@ export default function Sidebar() {
         canDeleteWorktree &&
         (await api.dialogs.confirm(
           [
-            "此会话是唯一关联到此 worktree 的会话：",
+            "此会话是唯一关联到此工作树的会话：",
             displayWorktreePath ?? orphanedWorktreePath,
             "",
-            "是否同时删除该 worktree？",
+            "是否同时删除该工作树？",
           ].join("\n"),
         ));
 
@@ -3122,7 +3122,7 @@ export default function Sidebar() {
           { id: "mark-unread", label: "Mark unread" },
           { id: "copy-path", label: "Copy Path", separatorBefore: true },
           ...(threadWorkspacePath
-            ? [{ id: "open-path-in-terminal", label: "Open Path in Terminal" }]
+            ? [{ id: "open-path-in-terminal", label: "在终端中打开路径" }]
             : []),
           { id: "copy-thread-id", label: "复制会话 ID" },
           ...(options?.extraItems ?? []),
@@ -3449,7 +3449,7 @@ export default function Sidebar() {
         storeRemoveProjectRun(projectId);
         toastManager.add({
           type: "error",
-          title: `Failed to run "${project.name}"`,
+          title: `运行「${project.name}」失败`,
           description: error instanceof Error ? error.message : "无法启动运行命令。",
         });
       }
@@ -3579,10 +3579,10 @@ export default function Sidebar() {
       const confirmed = await api.dialogs.confirm(
         projectThreads.length > 0
           ? [
-              `Remove project "${project.name}"?`,
-              `This will delete ${projectThreads.length} ${pluralize(projectThreads.length, "thread")} in this folder and remove the project.`,
+              `移除项目「${project.name}」？`,
+              `将删除此文件夹中的 ${projectThreads.length} 个会话并移除该项目。`,
             ].join("\n")
-          : `Remove project "${project.name}"?`,
+          : `移除项目「${project.name}」？`,
       );
       if (!confirmed) return;
 
@@ -3600,8 +3600,8 @@ export default function Sidebar() {
         if (deletionResult.failureCount > 0) {
           toastManager.add({
             type: "error",
-            title: `Failed to remove "${project.name}"`,
-            description: `Could not delete ${deletionResult.failureCount} ${pluralize(deletionResult.failureCount, "thread")} in "${project.name}".`,
+            title: `移除「${project.name}」失败`,
+            description: `无法在「${project.name}」中删除 ${deletionResult.failureCount} 个会话。`,
           });
           return;
         }
@@ -3614,18 +3614,18 @@ export default function Sidebar() {
         clearProjectDraftThreads(projectId);
         toastManager.add({
           type: "success",
-          title: `Removed "${project.name}"`,
+          title: `已移除「${project.name}」`,
           description:
             deletionResult.deletedCount > 0
-              ? `Deleted ${deletionResult.deletedCount} ${pluralize(deletionResult.deletedCount, "thread")} and removed the project.`
-              : "Project removed.",
+              ? `已删除 ${deletionResult.deletedCount} 个会话并已移除项目。`
+              : "项目已移除。",
         });
       } catch (error) {
         const message = error instanceof Error ? error.message : "Unknown error removing project.";
         console.error("Failed to remove project", { projectId, error });
         toastManager.add({
           type: "error",
-          title: `Failed to remove "${project.name}"`,
+          title: `移除「${project.name}」失败`,
           description: message,
         });
       }
@@ -5111,7 +5111,7 @@ export default function Sidebar() {
           <SidebarSectionToolbar placement="overlay" revealOnHover>
             <SidebarIconButton
               icon={TerminalIcon}
-              label={`Create new terminal thread in ${project.name}`}
+              label={`在 ${project.name} 中新建终端会话`}
               tooltip={
                 newTerminalThreadShortcutLabel
                   ? `New terminal thread (${newTerminalThreadShortcutLabel})`
@@ -5132,7 +5132,7 @@ export default function Sidebar() {
             <SidebarIconButton
               icon={DisposableThreadIcon}
               glyph="chromeLu"
-              label={`Create disposable thread in ${project.name}`}
+              label={`在 ${project.name} 中新建临时会话`}
               tooltip="新建临时会话"
               tooltipSide="top"
               onClick={(event) => {
@@ -5148,8 +5148,8 @@ export default function Sidebar() {
             />
             <SidebarIconButton
               icon={NewThreadIcon}
-              label={`Create new thread in ${project.name}`}
-              tooltip={newThreadShortcutLabel ? `New thread (${newThreadShortcutLabel})` : "新会话"}
+              label={`在 ${project.name} 中新建会话`}
+              tooltip={newThreadShortcutLabel ? `新会话（${newThreadShortcutLabel}）` : "新会话"}
               tooltipSide="top"
               data-testid="new-thread-button"
               onClick={(event) => {
@@ -5200,7 +5200,7 @@ export default function Sidebar() {
                       expandThreadListForProject(project.cwd);
                     }}
                   >
-                    <span>Show more</span>
+                    <span>显示更多</span>
                   </SidebarMenuSubButton>
                 </SidebarMenuSubItem>
               )}
@@ -5215,7 +5215,7 @@ export default function Sidebar() {
                       collapseThreadListForProject(project.cwd);
                     }}
                   >
-                    <span>Show less</span>
+                    <span>收起</span>
                   </SidebarMenuSubButton>
                 </SidebarMenuSubItem>
               )}
@@ -6065,7 +6065,7 @@ export default function Sidebar() {
                         className="h-7 w-full justify-start rounded-lg pr-2 pl-8 text-left text-[length:var(--app-font-size-ui,12px)] font-normal text-muted-foreground/79 hover:bg-[var(--sidebar-accent)]"
                         onClick={() => setChatThreadListExpanded(true)}
                       >
-                        <span>Show more</span>
+                        <span>显示更多</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ) : null}
@@ -6076,7 +6076,7 @@ export default function Sidebar() {
                         className="h-7 w-full justify-start rounded-lg pr-2 pl-8 text-left text-[length:var(--app-font-size-ui,12px)] font-normal text-muted-foreground/79 hover:bg-[var(--sidebar-accent)]"
                         onClick={() => setChatThreadListExpanded(false)}
                       >
-                        <span>Show less</span>
+                        <span>收起</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ) : null}

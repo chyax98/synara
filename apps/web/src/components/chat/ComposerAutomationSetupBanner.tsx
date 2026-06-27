@@ -20,7 +20,7 @@ export const ComposerAutomationSetupBanner = memo(function ComposerAutomationSet
       </span>
       <button
         type="button"
-        aria-label="Cancel automation setup"
+        aria-label="取消自动化设置"
         onClick={onCancel}
         className="rounded-full border border-[color:var(--color-border-light)] px-3 py-1.5 text-xs font-medium text-[var(--color-text-foreground-secondary)] transition-colors duration-150 hover:bg-[var(--color-background-button-secondary-hover)] hover:text-[var(--color-text-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-border)]"
       >

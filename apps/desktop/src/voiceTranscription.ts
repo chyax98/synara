@@ -19,13 +19,7 @@ export const SERVER_TRANSCRIBE_VOICE_CHANNEL = "desktop:server-transcribe-voice"
 const CHATGPT_TRANSCRIPTIONS_URL = "https://chatgpt.com/backend-api/transcribe";
 const MAX_VOICE_AUDIO_BYTES = 10 * 1024 * 1024;
 const MAX_VOICE_DURATION_MS = 120_000;
-const CHATGPT_AUTH_PROVIDER_IDS = [
-  "chatgpt",
-  "chatgpt-codex",
-  "openai",
-  "openai-codex",
-  "openai-chatgpt",
-] as const;
+const CHATGPT_AUTH_PROVIDER_IDS = ["chatgpt", "openai", "openai-chatgpt"] as const;
 
 // --- Input validation ------------------------------------------------------
 

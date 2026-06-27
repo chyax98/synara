@@ -179,14 +179,7 @@ export const AppSettingsSchema = Schema.Struct({
     withDefaults(() => DEFAULT_SIDEBAR_THREAD_SORT_ORDER),
   ),
   timestampFormat: TimestampFormat.pipe(withDefaults(() => DEFAULT_TIMESTAMP_FORMAT)),
-  customCodexModels: Schema.Array(Schema.String).pipe(withDefaults(() => [])),
-  customClaudeModels: Schema.Array(Schema.String).pipe(withDefaults(() => [])),
-  customCursorModels: Schema.Array(Schema.String).pipe(withDefaults(() => [])),
-  customGeminiModels: Schema.Array(Schema.String).pipe(withDefaults(() => [])),
-  customGrokModels: Schema.Array(Schema.String).pipe(withDefaults(() => [])),
-  customKiloModels: Schema.Array(Schema.String).pipe(withDefaults(() => [])),
   customOpenCodeModels: Schema.Array(Schema.String).pipe(withDefaults(() => [])),
-  customPiModels: Schema.Array(Schema.String).pipe(withDefaults(() => [])),
   textGenerationProvider: ProviderKind.pipe(withDefaults(() => "opencode" as const)),
   textGenerationModel: Schema.optional(TrimmedNonEmptyString),
   uiFontFamily: Schema.String.check(Schema.isMaxLength(256)).pipe(withDefaults(() => "")),
@@ -464,16 +457,7 @@ function buildInitialServerSettingsMigrationPatch(settings: AppSettings): Server
     }
   }
 
-  for (const key of [
-    "customCodexModels",
-    "customClaudeModels",
-    "customCursorModels",
-    "customGeminiModels",
-    "customGrokModels",
-    "customKiloModels",
-    "customOpenCodeModels",
-    "customPiModels",
-  ] as const) {
+  for (const key of ["customOpenCodeModels"] as const) {
     if (normalizedSettings[key].length > 0) {
       patch[key] = normalizedSettings[key] as never;
     }
