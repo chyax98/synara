@@ -6,39 +6,13 @@
 import {
   PROVIDER_DISPLAY_NAMES,
   type ProviderKind,
-  type ServerProviderStatus,
   type ThreadId,
   DEFAULT_GIT_TEXT_GENERATION_MODEL,
 } from "@t3tools/contracts";
 import { createFileRoute, useSearch } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getModelOptions, normalizeModelSlug } from "@t3tools/shared/model";
-import { pluralize } from "@t3tools/shared/text";
-import {
-  type ReactNode,
-  type RefObject,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import {
-  closestCenter,
-  DndContext,
-  PointerSensor,
-  type DragEndEvent,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
-import { CSS } from "@dnd-kit/utilities";
+import { type RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   type AppSettings,
   DEFAULT_UI_DENSITY,
@@ -70,14 +44,14 @@ import {
   AutocompletePopup,
 } from "../components/ui/autocomplete";
 import { Button } from "../components/ui/button";
-import { Collapsible, CollapsibleContent } from "../components/ui/collapsible";
+
 import { Input } from "../components/ui/input";
 import {
   SettingResetButton,
   SettingsSegmentedControl,
   SettingsSelectControl,
 } from "../components/settings/SettingControls";
-import { Select, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
+import { SelectItem } from "../components/ui/select";
 import { Switch } from "../components/ui/switch";
 import { toastManager } from "../components/ui/toast";
 import { ThemePackEditor } from "../components/ThemePackEditor";
@@ -106,7 +80,6 @@ import { resolveAndPersistPreferredEditor } from "../editorPreferences";
 import { isElectron } from "../env";
 import { useTheme } from "../hooks/useTheme";
 import { isUiDensity } from "../lib/appDensity";
-import { CentralIcon } from "../lib/central-icons";
 import { gitRemoveWorktreeMutationOptions } from "../lib/gitReactQuery";
 import {
   deleteArchivedThreadFromClient,
@@ -116,9 +89,6 @@ import {
   ArchiveIcon,
   ChevronDownIcon,
   DeviceLaptopIcon,
-  DownloadIcon,
-  ExternalLinkIcon,
-  Loader2Icon,
   MoonIcon,
   PlusIcon,
   RotateCcwIcon,
@@ -158,11 +128,6 @@ import { useStore } from "../store";
 import { createAllThreadsMessagelessSelector, createThreadShellsSelector } from "../storeSelectors";
 import { formatRelativeTime } from "../lib/relativeTime";
 import { formatWorktreePathForDisplay } from "../worktreeCleanup";
-import { sameProviderOrder } from "../providerOrdering";
-import {
-  getVisibleProviderUpdateStatuses,
-  shouldShowProviderUpdateStatus,
-} from "../providerUpdates";
 
 // ── Settings taxonomy ──────────────────────────────────────────────────────
 
@@ -228,138 +193,7 @@ const SIDEBAR_THREAD_SORT_ORDER_LABELS = {
   created_at: "最新优先",
 } as const;
 
-type InstallBinarySettingsKey =
-  | "claudeBinaryPath"
-  | "codexBinaryPath"
-  | "cursorBinaryPath"
-  | "geminiBinaryPath"
-  | "grokBinaryPath"
-  | "kiloBinaryPath"
-  | "openCodeBinaryPath"
-  | "piBinaryPath";
-type InstallProviderSettings = {
-  provider: ProviderKind;
-  title: string;
-  docs: ReadonlyArray<{
-    label: string;
-    href: string;
-  }>;
-  binaryPathKey: InstallBinarySettingsKey;
-  binaryPlaceholder: string;
-  binaryDescription: ReactNode;
-  homePathKey?: "codexHomePath";
-  homePlaceholder?: string;
-  homeDescription?: ReactNode;
-  apiEndpointKey?: "cursorApiEndpoint";
-  apiEndpointPlaceholder?: string;
-  apiEndpointDescription?: ReactNode;
-  serverUrlKey?: "kiloServerUrl" | "openCodeServerUrl";
-  serverUrlPlaceholder?: string;
-  serverUrlDescription?: ReactNode;
-  serverPasswordKey?: "kiloServerPassword" | "openCodeServerPassword";
-  serverPasswordPlaceholder?: string;
-  serverPasswordDescription?: ReactNode;
-  experimentalWebSocketsKey?: "openCodeExperimentalWebSockets";
-  experimentalWebSocketsDescription?: ReactNode;
-  agentDirKey?: "piAgentDir";
-  agentDirPlaceholder?: string;
-  agentDirDescription?: ReactNode;
-};
-
-const PROVIDER_VISIBILITY_OPTIONS: ReadonlyArray<{ provider: ProviderKind; title: string }> = [
-  { provider: "opencode", title: PROVIDER_DISPLAY_NAMES.opencode },
-];
-
-// Pure helper kept at module scope so the toggle handler stays trivial and the
-// dedupe logic is shared between the toggle and the schema normalizer.
-function setProviderHidden(
-  current: ReadonlyArray<ProviderKind>,
-  provider: ProviderKind,
-  hidden: boolean,
-): ProviderKind[] {
-  const withoutTarget = current.filter((entry) => entry !== provider);
-  return hidden ? [...withoutTarget, provider] : withoutTarget;
-}
-
-function SortableProviderVisibilityRow(props: {
-  option: { provider: ProviderKind; title: string };
-  isHidden: boolean;
-  onHiddenChange: (hidden: boolean) => void;
-}) {
-  const {
-    attributes,
-    listeners,
-    setActivatorNodeRef,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: props.option.provider });
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={{
-        transform: CSS.Translate.toString(transform),
-        transition,
-      }}
-      className={cn(
-        `flex items-center justify-between gap-3 ${SETTINGS_RADIUS_CLASS_NAME} border border-[color:var(--color-border)] bg-transparent px-3 py-2.5`,
-        isDragging && "z-10 opacity-80 shadow-lg",
-      )}
-    >
-      <div className="flex min-w-0 items-center gap-2.5">
-        <button
-          type="button"
-          ref={setActivatorNodeRef}
-          className={cn(
-            "inline-flex size-6 shrink-0 cursor-grab touch-none items-center justify-center text-muted-foreground transition-colors hover:bg-[var(--color-background-elevated-secondary)] hover:text-foreground active:cursor-grabbing",
-            SETTINGS_RADIUS_CLASS_NAME,
-          )}
-          aria-label={`Reorder ${props.option.title}`}
-          {...attributes}
-          {...listeners}
-        >
-          <CentralIcon name="dot-grid-2x3" className="size-4" />
-        </button>
-        <span className="min-w-0 text-sm text-foreground">{props.option.title}</span>
-      </div>
-      <Switch
-        checked={!props.isHidden}
-        onCheckedChange={(checked) => props.onHiddenChange(!Boolean(checked))}
-        aria-label={`Show ${props.option.title} in the provider picker`}
-      />
-    </div>
-  );
-}
-
-const INSTALL_PROVIDER_SETTINGS: readonly InstallProviderSettings[] = [
-  {
-    provider: "opencode",
-    title: "OpenCode",
-    docs: [
-      { label: "安装", href: "https://opencode.ai/docs/" },
-      { label: "更新", href: "https://opencode.ai/docs/cli/" },
-      { label: "配置", href: "https://opencode.ai/docs/config/" },
-    ],
-    binaryPathKey: "openCodeBinaryPath",
-    binaryPlaceholder: "OpenCode 可执行文件路径",
-    binaryDescription: (
-      <>
-        留空则使用 PATH 中的 <code>opencode</code>。
-      </>
-    ),
-    serverUrlKey: "openCodeServerUrl",
-    serverUrlPlaceholder: "http://127.0.0.1:4096",
-    serverUrlDescription: "可选的已有 OpenCode 服务器 URL。留空则启动本地服务器。",
-    serverPasswordKey: "openCodeServerPassword",
-    serverPasswordPlaceholder: "OpenCode 服务器密码",
-    serverPasswordDescription: "外部托管 OpenCode 服务器的可选密码。",
-    experimentalWebSocketsKey: "openCodeExperimentalWebSockets",
-    experimentalWebSocketsDescription:
-      "对托管的本地服务器使用 OpenCode 实验性 OpenAI 响应 WebSocket 传输。",
-  },
-];
+const CUSTOM_MODEL_PROVIDER: ProviderKind = "opencode";
 
 // ── Settings UI primitives ────────────────────────────────────────────────
 
@@ -369,79 +203,9 @@ function isProviderSelectOption(value: string): value is ProviderKind {
   return PROVIDER_SELECT_OPTIONS.includes(value as ProviderKind);
 }
 
-function ProviderDocsLinks({ docs }: { docs: InstallProviderSettings["docs"] }) {
-  return (
-    <div className={cn(SETTINGS_INSET_LIST_CLASS_NAME, "px-3 py-2.5")}>
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <span className="text-xs font-medium text-foreground">CLI docs</span>
-        <div className="flex flex-wrap gap-2">
-          {docs.map((doc) => (
-            <a
-              key={`${doc.label}:${doc.href}`}
-              href={doc.href}
-              target="_blank"
-              rel="noreferrer"
-              className={cn(
-                "inline-flex h-7 items-center gap-1.5 border border-[color:var(--color-border)] bg-transparent px-2.5 text-xs text-muted-foreground transition-colors hover:bg-[var(--color-background-elevated-secondary)] hover:text-foreground",
-                SETTINGS_RADIUS_CLASS_NAME,
-              )}
-            >
-              <span>{doc.label}</span>
-              <ExternalLinkIcon className="size-3" />
-            </a>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function normalizeManagedWorktreePath(value: string | null | undefined): string | null {
   const trimmed = value?.trim();
   return trimmed && trimmed.length > 0 ? trimmed : null;
-}
-
-function formatProviderVersion(value: string | null | undefined): string | null {
-  const trimmed = value?.trim();
-  if (!trimmed) {
-    return null;
-  }
-  return trimmed.startsWith("v") ? trimmed : `v${trimmed}`;
-}
-
-function providerUpdateStatusLabel(provider: ServerProviderStatus): string | null {
-  const state = provider.updateState?.status;
-  if (state === "queued") {
-    return "Update queued";
-  }
-  if (state === "running") {
-    return "Updating";
-  }
-  if (state === "succeeded") {
-    return "Updated";
-  }
-  if (state === "failed") {
-    return "Update failed";
-  }
-  if (state === "unchanged") {
-    return "安装";
-  }
-  const advisory = provider.versionAdvisory;
-  if (advisory?.status === "behind_latest" && advisory.latestVersion) {
-    const currentVersion = formatProviderVersion(advisory.currentVersion);
-    const latestVersion = formatProviderVersion(advisory.latestVersion);
-    return currentVersion ? `${currentVersion} -> ${latestVersion}` : `Latest ${latestVersion}`;
-  }
-  const currentVersion = formatProviderVersion(provider.version);
-  return currentVersion ? `Current ${currentVersion}` : null;
-}
-
-function providerUpdateFailureMessage(provider: ServerProviderStatus | undefined): string | null {
-  const state = provider?.updateState;
-  if (!state || (state.status !== "failed" && state.status !== "unchanged")) {
-    return null;
-  }
-  return state.output?.trim() || state.message || "配置";
 }
 
 // Keys of AppSettings whose value is a plain boolean — the only ones that can be
@@ -512,27 +276,8 @@ function SettingsRouteView() {
   const [showRecoveryTools, setShowRecoveryTools] = useState(false);
   const [releaseHistoryOpen, setReleaseHistoryOpen] = useState(false);
   const [openKeybindingsError, setOpenKeybindingsError] = useState<string | null>(null);
-  const providerUpdatesRef = useRef<HTMLDivElement | null>(null);
-  const providerInstallsRef = useRef<HTMLDivElement | null>(null);
   const environmentPanelRef = useRef<HTMLDivElement | null>(null);
-  const [openInstallProviders, setOpenInstallProviders] = useState<Record<ProviderKind, boolean>>({
-    opencode: Boolean(
-      settings.openCodeBinaryPath ||
-      settings.openCodeExperimentalWebSockets ||
-      settings.openCodeServerUrl ||
-      settings.openCodeServerPassword,
-    ),
-  });
-  const [updatingProviders, setUpdatingProviders] = useState<ReadonlySet<ProviderKind>>(
-    () => new Set(),
-  );
-  const [selectedCustomModelProvider, setSelectedCustomModelProvider] =
-    useState<ProviderKind>("opencode");
-  const [customModelInputByProvider, setCustomModelInputByProvider] = useState<
-    Record<ProviderKind, string>
-  >({
-    opencode: "",
-  });
+  const [customModelInput, setCustomModelInput] = useState("");
   const [customModelErrorByProvider, setCustomModelErrorByProvider] = useState<
     Partial<Record<ProviderKind, string | null>>
   >({});
@@ -551,69 +296,8 @@ function SettingsRouteView() {
     );
   }, [settings.terminalFontFamily]);
 
-  const hiddenProviderSet = useMemo(
-    () => new Set<ProviderKind>(settings.hiddenProviders),
-    [settings.hiddenProviders],
-  );
-  const hiddenProviderCount = hiddenProviderSet.size;
-  const providerVisibilityOptionsByProvider = useMemo(
-    () => new Map(PROVIDER_VISIBILITY_OPTIONS.map((option) => [option.provider, option])),
-    [],
-  );
-  const orderedProviderVisibilityOptions = useMemo(
-    () =>
-      settings.providerOrder.flatMap((provider) => {
-        const option = providerVisibilityOptionsByProvider.get(provider);
-        return option ? [option] : [];
-      }),
-    [providerVisibilityOptionsByProvider, settings.providerOrder],
-  );
-  const providerVisibilitySensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 4,
-      },
-    }),
-  );
-  const isProviderOrderDirty = !sameProviderOrder(settings.providerOrder, defaults.providerOrder);
-  const codexBinaryPath = settings.codexBinaryPath;
-  const codexHomePath = settings.codexHomePath;
-  const claudeBinaryPath = settings.claudeBinaryPath;
-  const cursorBinaryPath = settings.cursorBinaryPath;
-  const cursorApiEndpoint = settings.cursorApiEndpoint;
-  const geminiBinaryPath = settings.geminiBinaryPath;
-  const grokBinaryPath = settings.grokBinaryPath;
-  const kiloBinaryPath = settings.kiloBinaryPath;
-  const kiloServerUrl = settings.kiloServerUrl;
-  const kiloServerPassword = settings.kiloServerPassword;
-  const openCodeBinaryPath = settings.openCodeBinaryPath;
-  const openCodeExperimentalWebSockets = settings.openCodeExperimentalWebSockets;
-  const openCodeServerUrl = settings.openCodeServerUrl;
-  const openCodeServerPassword = settings.openCodeServerPassword;
-  const piBinaryPath = settings.piBinaryPath;
-  const piAgentDir = settings.piAgentDir;
   const keybindingsConfigPath = serverConfigQuery.data?.keybindingsConfigPath ?? null;
   const availableEditors = serverConfigQuery.data?.availableEditors;
-  const providerStatusByProvider = useMemo(
-    () =>
-      new Map((serverConfigQuery.data?.providers ?? []).map((status) => [status.provider, status])),
-    [serverConfigQuery.data?.providers],
-  );
-  const outdatedProviderStatuses = useMemo(
-    () =>
-      getVisibleProviderUpdateStatuses({
-        providers: serverConfigQuery.data?.providers ?? [],
-        hiddenProviders: settings.hiddenProviders,
-        serverSettings: serverSettingsQuery.data ?? null,
-      }),
-    [serverConfigQuery.data?.providers, serverSettingsQuery.data, settings.hiddenProviders],
-  );
-  const outdatedProviderCount = outdatedProviderStatuses.length;
-  useSettingsTargetScroll(
-    activeSection === "providers" && settingsTarget === SETTINGS_TARGETS.providerUpdates,
-    providerUpdatesRef,
-    serverConfigQuery.data?.providers,
-  );
 
   // Deep-link target for the chat Environment panel's gear button (see EnvironmentPanel).
   useSettingsTargetScroll(
@@ -702,10 +386,9 @@ function SettingsRouteView() {
         option.slug === currentGitTextGenerationModel,
     )?.name ?? currentGitTextGenerationModel;
   const selectedCustomModelProviderSettings = MODEL_PROVIDER_SETTINGS.find(
-    (providerSettings) => providerSettings.provider === selectedCustomModelProvider,
+    (providerSettings) => providerSettings.provider === CUSTOM_MODEL_PROVIDER,
   )!;
-  const selectedCustomModelInput = customModelInputByProvider[selectedCustomModelProvider];
-  const selectedCustomModelError = customModelErrorByProvider[selectedCustomModelProvider] ?? null;
+  const selectedCustomModelError = customModelErrorByProvider[CUSTOM_MODEL_PROVIDER] ?? null;
   const totalCustomModels =
     settings.customCodexModels.length +
     settings.customClaudeModels.length +
@@ -730,23 +413,6 @@ function SettingsRouteView() {
   const visibleCustomModelRows = showAllCustomModels
     ? savedCustomModelRows
     : savedCustomModelRows.slice(0, 5);
-  const isInstallSettingsDirty =
-    settings.claudeBinaryPath !== defaults.claudeBinaryPath ||
-    settings.cursorBinaryPath !== defaults.cursorBinaryPath ||
-    settings.cursorApiEndpoint !== defaults.cursorApiEndpoint ||
-    settings.geminiBinaryPath !== defaults.geminiBinaryPath ||
-    settings.grokBinaryPath !== defaults.grokBinaryPath ||
-    settings.kiloBinaryPath !== defaults.kiloBinaryPath ||
-    settings.kiloServerUrl !== defaults.kiloServerUrl ||
-    settings.kiloServerPassword !== defaults.kiloServerPassword ||
-    settings.codexBinaryPath !== defaults.codexBinaryPath ||
-    settings.codexHomePath !== defaults.codexHomePath ||
-    settings.openCodeBinaryPath !== defaults.openCodeBinaryPath ||
-    settings.openCodeExperimentalWebSockets !== defaults.openCodeExperimentalWebSockets ||
-    settings.openCodeServerUrl !== defaults.openCodeServerUrl ||
-    settings.openCodeServerPassword !== defaults.openCodeServerPassword ||
-    settings.piBinaryPath !== defaults.piBinaryPath ||
-    settings.piAgentDir !== defaults.piAgentDir;
   const changedSettingLabels = [
     ...(theme !== "system" ? ["主题"] : []),
     ...(!isDefaultActiveTheme ? [`${resolvedTheme === "dark" ? "深色" : "浅色"} theme pack`] : []),
@@ -797,9 +463,6 @@ function SettingsRouteView() {
     settings.customPiModels.length > 0
       ? ["自定义模型"]
       : []),
-    ...(isInstallSettingsDirty ? ["Provider installs"] : []),
-    ...(hiddenProviderCount > 0 ? ["Provider visibility"] : []),
-    ...(isProviderOrderDirty ? ["Provider order"] : []),
   ];
 
   const openKeybindingsFile = useCallback(() => {
@@ -831,7 +494,6 @@ function SettingsRouteView() {
 
   const addCustomModel = useCallback(
     (provider: ProviderKind) => {
-      const customModelInput = customModelInputByProvider[provider];
       const customModels = getCustomModelsForProvider(settings, provider);
       const normalized = normalizeModelSlug(customModelInput, provider);
       if (!normalized) {
@@ -864,16 +526,13 @@ function SettingsRouteView() {
       }
 
       updateSettings(patchCustomModels(provider, [...customModels, normalized]));
-      setCustomModelInputByProvider((existing) => ({
-        ...existing,
-        [provider]: "",
-      }));
+      setCustomModelInput("");
       setCustomModelErrorByProvider((existing) => ({
         ...existing,
         [provider]: null,
       }));
     },
-    [customModelInputByProvider, settings, updateSettings],
+    [customModelInput, settings, updateSettings],
   );
 
   const removeCustomModel = useCallback(
@@ -893,71 +552,6 @@ function SettingsRouteView() {
     [settings, updateSettings],
   );
 
-  const handleProviderOrderDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      const { active, over } = event;
-      if (!over || active.id === over.id) {
-        return;
-      }
-      const fromIndex = settings.providerOrder.indexOf(active.id as ProviderKind);
-      const toIndex = settings.providerOrder.indexOf(over.id as ProviderKind);
-      if (fromIndex < 0 || toIndex < 0) {
-        return;
-      }
-      updateSettings({
-        providerOrder: arrayMove([...settings.providerOrder], fromIndex, toIndex),
-      });
-    },
-    [settings.providerOrder, updateSettings],
-  );
-
-  const runProviderUpdate = useCallback(
-    async (provider: ProviderKind) => {
-      if (updatingProviders.has(provider)) {
-        return;
-      }
-      setUpdatingProviders((current) => new Set(current).add(provider));
-      try {
-        const result = await ensureNativeApi().server.updateProvider({ provider });
-        const refreshedProvider = result.providers.find((status) => status.provider === provider);
-        const failureMessage = providerUpdateFailureMessage(refreshedProvider);
-        if (failureMessage) {
-          const manualCommand = refreshedProvider?.versionAdvisory?.updateCommand?.trim();
-          toastManager.add({
-            type: "error",
-            title: `Could not update ${PROVIDER_DISPLAY_NAMES[provider]}`,
-            description: manualCommand
-              ? `${failureMessage}\n\nCopy the command below to update manually in a terminal.`
-              : failureMessage,
-            ...(manualCommand ? { data: { copyText: manualCommand } } : {}),
-          });
-          return;
-        }
-        toastManager.add({
-          type: "success",
-          title: `${PROVIDER_DISPLAY_NAMES[provider]} update finished`,
-          description: "会话排序",
-        });
-      } catch (error) {
-        toastManager.add({
-          type: "error",
-          title: `Could not update ${PROVIDER_DISPLAY_NAMES[provider]}`,
-          description: error instanceof Error ? error.message : "工作区",
-        });
-      } finally {
-        await queryClient
-          .invalidateQueries({ queryKey: serverQueryKeys.config() })
-          .catch(() => undefined);
-        setUpdatingProviders((current) => {
-          const next = new Set(current);
-          next.delete(provider);
-          return next;
-        });
-      }
-    },
-    [queryClient, updatingProviders],
-  );
-
   async function restoreDefaults() {
     if (changedSettingLabels.length === 0) return;
 
@@ -970,13 +564,7 @@ function SettingsRouteView() {
     setTheme("system");
     resetAllThemes();
     resetSettings();
-    setOpenInstallProviders({
-      opencode: false,
-    });
-    setSelectedCustomModelProvider("opencode");
-    setCustomModelInputByProvider({
-      opencode: "",
-    });
+    setCustomModelInput("");
     setCustomModelErrorByProvider({});
     setShowAllCustomModels(false);
     setShowRecoveryTools(false);
@@ -1042,7 +630,7 @@ function SettingsRouteView() {
     toastManager.add({
       type: "success",
       title: "新会话将使用更新后的 provider。",
-      description: "Your browser should show the notification.",
+      description: "浏览器应会显示该通知。",
     });
   }
 
@@ -1071,12 +659,12 @@ function SettingsRouteView() {
       toastManager.add({
         type: "success",
         title: "Local state repaired",
-        description: "Project indexes were rebuilt without clearing existing chats.",
+        description: "已重建项目索引，现有会话均保留。",
       });
     } catch (error) {
       toastManager.add({
         type: "error",
-        title: "Repair failed",
+        title: "修复失败",
         description: error instanceof Error ? error.message : "桌面通知不可用",
       });
     } finally {
@@ -1092,8 +680,8 @@ function SettingsRouteView() {
       if (snapshot === null) {
         toastManager.add({
           type: "error",
-          title: "用于 chat 和 terminal agent 的通知测试。",
-          description: "Retry once the app reconnects to the server.",
+          title: "无法验证关联会话",
+          description: "请在应用重新连接服务器后重试。",
         });
         return;
       }
@@ -1115,16 +703,16 @@ function SettingsRouteView() {
       const confirmed = await api.dialogs.confirm(
         linkedConversationCount > 0
           ? [
-              `Delete worktree "${displayName}"?`,
+              `删除 worktree「${displayName}」？`,
               "",
-              `${linkedActiveThreadCount} active and ${linkedArchivedThreadIds.length} archived ${pluralize(linkedConversationCount, "conversation is", "测试通知已发送")} linked to this worktree.`,
-              linkedArchivedThreadIds.length > 0 ? "通知不可用" : "你的操作系统应会显示该通知。",
+              `有 ${linkedActiveThreadCount} 个活跃会话和 ${linkedArchivedThreadIds.length} 个已归档会话关联到此 worktree。`,
+              linkedArchivedThreadIds.length > 0
+                ? "已归档会话将先被删除。"
+                : "删除后可能影响在同一工作区重新打开这些对话。",
               "",
-              "此设备不支持桌面通知。",
-            ].join("Terminal 字号")
-          : [`Delete worktree "${displayName}"?`, "This removes the Git worktree from disk."].join(
-              "Terminal 字号",
-            ),
+              "仍要删除该 worktree 吗？",
+            ].join("\n")
+          : [`删除 worktree「${displayName}」？`, "这将从磁盘移除该 Git worktree。"].join("\n"),
       );
       if (!confirmed) {
         return;
@@ -1147,17 +735,17 @@ function SettingsRouteView() {
         });
         toastManager.add({
           type: "success",
-          title: "桌面通知不可用",
+          title: "Worktree 已删除",
           description:
             linkedArchivedThreadIds.length > 0
-              ? `${displayName} was removed and ${linkedArchivedThreadIds.length} archived ${pluralize(linkedArchivedThreadIds.length, "conversation")} were deleted.`
-              : `${displayName} was removed.`,
+              ? `已移除 ${displayName}，并删除了 ${linkedArchivedThreadIds.length} 个已归档会话。`
+              : `已移除 ${displayName}。`,
         });
       } catch (error) {
         toastManager.add({
           type: "error",
-          title: "Could not delete worktree",
-          description: error instanceof Error ? error.message : "测试通知已发送",
+          title: "无法删除 worktree",
+          description: error instanceof Error ? error.message : "删除 worktree 失败。",
         });
       }
     },
@@ -1181,7 +769,7 @@ function SettingsRouteView() {
     } catch (error) {
       toastManager.add({
         type: "error",
-        title: "Could not restore thread",
+        title: "无法恢复会话",
         description: error instanceof Error ? error.message : "本地状态已修复",
       });
     }
@@ -1205,13 +793,13 @@ function SettingsRouteView() {
         });
         toastManager.add({
           type: "success",
-          title: "Thread deleted",
+          title: "会话已删除",
           description: "修复失败",
         });
       } catch (error) {
         toastManager.add({
           type: "error",
-          title: "Could not delete thread",
+          title: "无法删除会话",
           description: error instanceof Error ? error.message : "无法验证已关联的会话",
         });
       }
@@ -1370,7 +958,7 @@ function SettingsRouteView() {
           resetAction={
             settings.sidebarProjectSortOrder !== defaults.sidebarProjectSortOrder ? (
               <SettingResetButton
-                label="project order"
+                label="项目排序"
                 onClick={() =>
                   updateSettings({
                     sidebarProjectSortOrder: defaults.sidebarProjectSortOrder,
@@ -1410,7 +998,7 @@ function SettingsRouteView() {
           resetAction={
             settings.sidebarThreadSortOrder !== defaults.sidebarThreadSortOrder ? (
               <SettingResetButton
-                label="thread order"
+                label="会话排序"
                 onClick={() =>
                   updateSettings({
                     sidebarThreadSortOrder: defaults.sidebarThreadSortOrder,
@@ -1527,7 +1115,7 @@ function SettingsRouteView() {
   const renderAppearancePanel = () => (
     <div className="space-y-6">
       <section className={SETTINGS_PANEL_SECTION_CLASS_NAME}>
-        <h2 className={SETTINGS_SECTION_LABEL_CLASS_NAME}>Theme and typography</h2>
+        <h2 className={SETTINGS_SECTION_LABEL_CLASS_NAME}>主题与字体</h2>
         <SettingsCard>
           <SettingsRow
             title="主题"
@@ -1916,7 +1504,7 @@ function SettingsRouteView() {
                 "px-4 py-6 text-sm text-muted-foreground",
               )}
             >
-              Loading managed worktrees...
+              正在加载托管 worktree…
             </div>
           ) : serverWorktreesQuery.isError ? (
             <div
@@ -1936,7 +1524,7 @@ function SettingsRouteView() {
                 "px-4 py-6 text-sm text-muted-foreground",
               )}
             >
-              No app-managed worktrees found yet.
+              尚未发现应用托管的 worktree。
             </div>
           ) : (
             worktreesByWorkspaceRoot.map((group) => (
@@ -2056,7 +1644,7 @@ function SettingsRouteView() {
               <div className="mx-auto mb-3 flex size-11 items-center justify-center rounded-full border border-border/70 bg-background/70 text-muted-foreground">
                 <ArchiveIcon className="size-5" />
               </div>
-              <div className="text-sm font-medium text-foreground">No archived threads</div>
+              <div className="text-sm font-medium text-foreground">暂无已归档会话</div>
               <div className="无法加载 worktree。">
                 Archived threads will appear here and can be restored to the sidebar.
               </div>
@@ -2197,56 +1785,25 @@ function SettingsRouteView() {
         >
           <div className={cn("mt-4 pt-4", SETTINGS_CARD_ROW_DIVIDER_CLASS_NAME)}>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <Select
-                value={selectedCustomModelProvider}
-                onValueChange={(value) => {
-                  if (value !== "opencode") {
-                    return;
-                  }
-                  setSelectedCustomModelProvider(value);
-                }}
-              >
-                <SelectTrigger
-                  size="sm"
-                  className="w-full sm:w-40"
-                  aria-label="Custom model provider"
-                >
-                  <SelectValue>{selectedCustomModelProviderSettings.title}</SelectValue>
-                </SelectTrigger>
-                <SettingsSelectPopup align="start">
-                  {MODEL_PROVIDER_SETTINGS.map((providerSettings) => (
-                    <SelectItem
-                      hideIndicator
-                      key={providerSettings.provider}
-                      value={providerSettings.provider}
-                    >
-                      {providerSettings.title}
-                    </SelectItem>
-                  ))}
-                </SettingsSelectPopup>
-              </Select>
               <Input
                 id="custom-model-slug"
                 size="sm"
                 variant="soft"
-                value={selectedCustomModelInput}
+                value={customModelInput}
                 onChange={(event) => {
                   const value = event.target.value;
-                  setCustomModelInputByProvider((existing) => ({
-                    ...existing,
-                    [selectedCustomModelProvider]: value,
-                  }));
+                  setCustomModelInput(value);
                   if (selectedCustomModelError) {
                     setCustomModelErrorByProvider((existing) => ({
                       ...existing,
-                      [selectedCustomModelProvider]: null,
+                      [CUSTOM_MODEL_PROVIDER]: null,
                     }));
                   }
                 }}
                 onKeyDown={(event) => {
                   if (event.key !== "Enter") return;
                   event.preventDefault();
-                  addCustomModel(selectedCustomModelProvider);
+                  addCustomModel(CUSTOM_MODEL_PROVIDER);
                 }}
                 placeholder={selectedCustomModelProviderSettings.example}
                 spellCheck={false}
@@ -2254,15 +1811,15 @@ function SettingsRouteView() {
               <Button
                 className="shrink-0"
                 variant="outline"
-                onClick={() => addCustomModel(selectedCustomModelProvider)}
+                onClick={() => addCustomModel(CUSTOM_MODEL_PROVIDER)}
               >
                 <PlusIcon className="size-3.5" />
-                Add
+                添加
               </Button>
             </div>
 
             {selectedCustomModelError ? (
-              <p className="可用模型">{selectedCustomModelError}</p>
+              <p className="mt-2 text-xs text-destructive">{selectedCustomModelError}</p>
             ) : null}
 
             {totalCustomModels > 0 ? (
@@ -2270,16 +1827,13 @@ function SettingsRouteView() {
                 {visibleCustomModelRows.map((row) => (
                   <div
                     key={row.key}
-                    className="group grid grid-cols-[minmax(5rem,6rem)_minmax(0,1fr)_auto] items-center gap-3 border-t border-[color:var(--color-border)] px-4 py-2 first:border-t-0"
+                    className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-t border-[color:var(--color-border)] px-4 py-2 first:border-t-0"
                   >
-                    <span className="truncate text-xs text-muted-foreground">
-                      {row.providerTitle}
-                    </span>
                     <code className="min-w-0 truncate text-sm text-foreground">{row.slug}</code>
                     <button
                       type="button"
                       className="shrink-0 opacity-0 transition-opacity group-hover:opacity-100 hover:opacity-100"
-                      aria-label={`Remove ${row.slug}`}
+                      aria-label={`移除 ${row.slug}`}
                       onClick={() => removeCustomModel(row.provider, row.slug)}
                     >
                       <XIcon className="size-3.5 text-muted-foreground hover:text-foreground" />
@@ -2294,8 +1848,8 @@ function SettingsRouteView() {
                     onClick={() => setShowAllCustomModels((value) => !value)}
                   >
                     {showAllCustomModels
-                      ? "Show less"
-                      : `Show more (${savedCustomModelRows.length - 5})`}
+                      ? "收起"
+                      : `展开更多（${savedCustomModelRows.length - 5}）`}
                   </button>
                 ) : null}
               </div>
@@ -2308,523 +1862,11 @@ function SettingsRouteView() {
 
   const renderProvidersPanel = () => (
     <div className="space-y-6">
-      {renderProviderUpdatesSection()}
-      <SettingsSection title="Provider 选择器">
+      <SettingsSection title="Provider">
         <SettingsRow
-          title="可见 provider"
-          description="将 provider 拖入你偏好的选择器顺序，并隐藏不用的项。当前会话正在使用的 provider 始终可见。"
-          status={
-            hiddenProviderCount > 0
-              ? `${hiddenProviderCount} ${pluralize(hiddenProviderCount, "provider")} hidden`
-              : isProviderOrderDirty
-                ? "为 Cline 添加额外的模型代号（例如实验模型或本地模型）。"
-                : "自定义模型"
-          }
-          resetAction={
-            hiddenProviderCount > 0 || isProviderOrderDirty ? (
-              <SettingResetButton
-                label="provider picker"
-                onClick={() =>
-                  updateSettings({
-                    hiddenProviders: defaults.hiddenProviders,
-                    providerOrder: defaults.providerOrder,
-                  })
-                }
-              />
-            ) : null
-          }
-        >
-          <DndContext
-            sensors={providerVisibilitySensors}
-            collisionDetection={closestCenter}
-            modifiers={[restrictToVerticalAxis]}
-            onDragEnd={handleProviderOrderDragEnd}
-          >
-            <SortableContext
-              items={orderedProviderVisibilityOptions.map((option) => option.provider)}
-              strategy={verticalListSortingStrategy}
-            >
-              <div className="mt-4 space-y-2">
-                {orderedProviderVisibilityOptions.map((option) => (
-                  <SortableProviderVisibilityRow
-                    key={option.provider}
-                    option={option}
-                    isHidden={hiddenProviderSet.has(option.provider)}
-                    onHiddenChange={(hidden) =>
-                      updateSettings({
-                        hiddenProviders: setProviderHidden(
-                          settings.hiddenProviders,
-                          option.provider,
-                          hidden,
-                        ),
-                      })
-                    }
-                  />
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
-        </SettingsRow>
-      </SettingsSection>
-      {renderProviderInstallsSection()}
-    </div>
-  );
-
-  const renderProviderUpdatesSection = () => (
-    <div ref={providerUpdatesRef} id={SETTINGS_TARGETS.providerUpdates}>
-      <SettingsSection title="更新">
-        <SettingsRow
-          title="Provider 更新"
-          description="更新 Synara 可安全更新的已安装 provider 工具。"
-          status={
-            outdatedProviderCount > 0
-              ? `${outdatedProviderCount} ${pluralize(outdatedProviderCount, "update")} available`
-              : "No provider updates detected"
-          }
-        >
-          {outdatedProviderStatuses.length > 0 ? (
-            <div className={cn("mt-4", SETTINGS_INSET_LIST_CLASS_NAME)}>
-              {outdatedProviderStatuses.map((providerStatus) => {
-                const updateAdvisory = providerStatus.versionAdvisory;
-                const updateState = providerStatus.updateState?.status;
-                const isProviderUpdateActive =
-                  updateState === "queued" ||
-                  updateState === "running" ||
-                  updatingProviders.has(providerStatus.provider);
-                const canUpdateProvider =
-                  updateAdvisory?.canUpdate === true && !isProviderUpdateActive;
-                const updateLabel = providerUpdateStatusLabel(providerStatus);
-
-                return (
-                  <div
-                    key={providerStatus.provider}
-                    className="flex min-h-11 items-center gap-3 border-t border-[color:var(--color-border)] px-3 py-2 first:border-t-0"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium text-foreground">
-                        {PROVIDER_DISPLAY_NAMES[providerStatus.provider]}
-                      </div>
-                      {updateLabel ? (
-                        <div className="mt-0.5 truncate text-[11px] text-muted-foreground">
-                          {updateLabel}
-                        </div>
-                      ) : null}
-                    </div>
-                    {updateAdvisory?.canUpdate ? (
-                      <Button
-                        type="button"
-                        size="xs"
-                        variant="outline"
-                        disabled={!canUpdateProvider}
-                        title={
-                          updateAdvisory.updateCommand
-                            ? `Run ${updateAdvisory.updateCommand}`
-                            : undefined
-                        }
-                        onClick={() => void runProviderUpdate(providerStatus.provider)}
-                      >
-                        {isProviderUpdateActive ? (
-                          <Loader2Icon className="size-3.5 animate-spin" />
-                        ) : (
-                          <DownloadIcon className="size-3.5" />
-                        )}
-                        {isProviderUpdateActive ? "Updating" : "更新"}
-                      </Button>
-                    ) : (
-                      <span className="Provider 更新">Manual update</span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          ) : null}
-        </SettingsRow>
-      </SettingsSection>
-    </div>
-  );
-
-  const renderProviderInstallsSection = () => (
-    <div ref={providerInstallsRef} id={SETTINGS_TARGETS.providerInstalls}>
-      <SettingsSection title="Provider 工具">
-        <SettingsRow
-          title="已安装 CLI"
-          description="查看 provider 版本与更新工具。仅在需要覆盖二进制路径时展开对应行。"
-          status={
-            outdatedProviderCount > 0
-              ? `${outdatedProviderCount} ${pluralize(outdatedProviderCount, "update")} available`
-              : "No provider updates detected"
-          }
-          resetAction={
-            isInstallSettingsDirty ? (
-              <SettingResetButton
-                label="provider tools"
-                onClick={() => {
-                  updateSettings({
-                    claudeBinaryPath: defaults.claudeBinaryPath,
-                    codexBinaryPath: defaults.codexBinaryPath,
-                    codexHomePath: defaults.codexHomePath,
-                    cursorBinaryPath: defaults.cursorBinaryPath,
-                    cursorApiEndpoint: defaults.cursorApiEndpoint,
-                    geminiBinaryPath: defaults.geminiBinaryPath,
-                    grokBinaryPath: defaults.grokBinaryPath,
-                    kiloBinaryPath: defaults.kiloBinaryPath,
-                    kiloServerUrl: defaults.kiloServerUrl,
-                    kiloServerPassword: defaults.kiloServerPassword,
-                    openCodeBinaryPath: defaults.openCodeBinaryPath,
-                    openCodeExperimentalWebSockets: defaults.openCodeExperimentalWebSockets,
-                    openCodeServerUrl: defaults.openCodeServerUrl,
-                    openCodeServerPassword: defaults.openCodeServerPassword,
-                    piAgentDir: defaults.piAgentDir,
-                    piBinaryPath: defaults.piBinaryPath,
-                  });
-                  setOpenInstallProviders({
-                    opencode: false,
-                  });
-                }}
-              />
-            ) : null
-          }
-        >
-          <div className="mt-4">
-            <div className={SETTINGS_INSET_LIST_CLASS_NAME}>
-              {INSTALL_PROVIDER_SETTINGS.map((providerSettings) => {
-                const isOpen = openInstallProviders[providerSettings.provider];
-                const isDirty =
-                  settings.openCodeBinaryPath !== defaults.openCodeBinaryPath ||
-                  settings.openCodeExperimentalWebSockets !==
-                    defaults.openCodeExperimentalWebSockets ||
-                  settings.openCodeServerUrl !== defaults.openCodeServerUrl ||
-                  settings.openCodeServerPassword !== defaults.openCodeServerPassword;
-                const binaryPathValue = openCodeBinaryPath;
-                const providerStatus = providerStatusByProvider.get(providerSettings.provider);
-                const showProviderUpdateStatus = providerStatus
-                  ? shouldShowProviderUpdateStatus({
-                      provider: providerStatus,
-                      hiddenProviderSet,
-                      serverSettings: serverSettingsQuery.data ?? null,
-                    })
-                  : false;
-                const providerUpdateSuppressed =
-                  providerStatus?.versionAdvisory?.status === "behind_latest" &&
-                  !showProviderUpdateStatus;
-                const providerUpdateLabel = providerStatus
-                  ? providerUpdateSuppressed
-                    ? null
-                    : providerUpdateStatusLabel(providerStatus)
-                  : null;
-                const updateAdvisory = providerStatus?.versionAdvisory;
-                const providerUpdateState = providerStatus?.updateState?.status;
-                const isProviderUpdateActive =
-                  providerUpdateState === "queued" ||
-                  providerUpdateState === "running" ||
-                  updatingProviders.has(providerSettings.provider);
-                const canUpdateProvider =
-                  showProviderUpdateStatus &&
-                  updateAdvisory?.status === "behind_latest" &&
-                  updateAdvisory.canUpdate &&
-                  !isProviderUpdateActive;
-                const shouldShowProviderUpdateButton =
-                  showProviderUpdateStatus &&
-                  updateAdvisory?.status === "behind_latest" &&
-                  updateAdvisory.canUpdate;
-
-                return (
-                  <Collapsible
-                    key={providerSettings.provider}
-                    open={isOpen}
-                    onOpenChange={(open) =>
-                      setOpenInstallProviders((existing) => ({
-                        ...existing,
-                        [providerSettings.provider]: open,
-                      }))
-                    }
-                  >
-                    <div className="border-t border-border/70 first:border-t-0">
-                      <div className="flex min-h-11 items-center gap-2 px-3 py-2">
-                        <button
-                          type="button"
-                          className="flex min-w-0 flex-1 items-center gap-2 text-left"
-                          onClick={() =>
-                            setOpenInstallProviders((existing) => ({
-                              ...existing,
-                              [providerSettings.provider]: !existing[providerSettings.provider],
-                            }))
-                          }
-                        >
-                          <span className="min-w-0 flex-1 text-sm font-medium text-foreground">
-                            {providerSettings.title}
-                          </span>
-                          {isDirty ? <span className="Provider 更新">Custom</span> : null}
-                          {providerUpdateLabel ? (
-                            <span
-                              className={cn(
-                                "更新 Synara 可以安全更新的已安装 provider 工具。",
-                                updateAdvisory?.status === "behind_latest"
-                                  ? "text-foreground"
-                                  : "text-muted-foreground",
-                              )}
-                            >
-                              {providerUpdateLabel}
-                            </span>
-                          ) : null}
-                          <ChevronDownIcon className={cn("版本", isOpen && "rotate-180")} />
-                        </button>
-                        {shouldShowProviderUpdateButton ? (
-                          <Button
-                            type="button"
-                            size="xs"
-                            variant="outline"
-                            disabled={!canUpdateProvider}
-                            title={
-                              updateAdvisory.updateCommand
-                                ? `Run ${updateAdvisory.updateCommand}`
-                                : undefined
-                            }
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              void runProviderUpdate(providerSettings.provider);
-                            }}
-                          >
-                            {isProviderUpdateActive ? (
-                              <Loader2Icon className="size-3.5 animate-spin" />
-                            ) : (
-                              <DownloadIcon className="size-3.5" />
-                            )}
-                            {isProviderUpdateActive ? "Updating" : "更新"}
-                          </Button>
-                        ) : null}
-                      </div>
-
-                      <CollapsibleContent>
-                        <div className="border-t border-border/70 bg-muted/20 px-3 py-3">
-                          <div className="space-y-3">
-                            <ProviderDocsLinks docs={providerSettings.docs} />
-                            {showProviderUpdateStatus &&
-                            updateAdvisory?.status === "behind_latest" ? (
-                              <div className="text-xs text-muted-foreground">
-                                {updateAdvisory.canUpdate && updateAdvisory.updateCommand ? (
-                                  <>
-                                    <span>Command: </span>
-                                    <code className="font-mono">
-                                      {updateAdvisory.updateCommand}
-                                    </code>
-                                  </>
-                                ) : (
-                                  "已安装 CLI"
-                                )}
-                              </div>
-                            ) : null}
-
-                            <label
-                              htmlFor={`provider-install-${providerSettings.binaryPathKey}`}
-                              className="block"
-                            >
-                              <span className="快捷键">{providerSettings.title} binary path</span>
-                              <DebouncedSettingTextInput
-                                id={`provider-install-${providerSettings.binaryPathKey}`}
-                                size="sm"
-                                variant="soft"
-                                className="mt-1"
-                                value={binaryPathValue}
-                                onCommit={(nextValue) =>
-                                  updateSettings({ openCodeBinaryPath: nextValue })
-                                }
-                                placeholder={providerSettings.binaryPlaceholder}
-                                spellCheck={false}
-                              />
-                              <span className="打开持久化的 keybindings.json 文件，直接编辑高级快捷键。">
-                                {providerSettings.binaryDescription}
-                              </span>
-                            </label>
-
-                            {providerSettings.homePathKey ? (
-                              <label
-                                htmlFor={`provider-install-${providerSettings.homePathKey}`}
-                                className="block"
-                              >
-                                <span className="快捷键">CODEX_HOME path</span>
-                                <DebouncedSettingTextInput
-                                  id={`provider-install-${providerSettings.homePathKey}`}
-                                  size="sm"
-                                  variant="soft"
-                                  className="mt-1"
-                                  value={codexHomePath}
-                                  onCommit={(nextValue) =>
-                                    updateSettings({
-                                      codexHomePath: nextValue,
-                                    })
-                                  }
-                                  placeholder={providerSettings.homePlaceholder}
-                                  spellCheck={false}
-                                />
-                                {providerSettings.homeDescription ? (
-                                  <span className="打开持久化的 keybindings.json 文件，直接编辑高级快捷键。">
-                                    {providerSettings.homeDescription}
-                                  </span>
-                                ) : null}
-                              </label>
-                            ) : null}
-
-                            {providerSettings.agentDirKey ? (
-                              <label
-                                htmlFor={`provider-install-${providerSettings.agentDirKey}`}
-                                className="block"
-                              >
-                                <span className="快捷键">Pi agent directory</span>
-                                <DebouncedSettingTextInput
-                                  id={`provider-install-${providerSettings.agentDirKey}`}
-                                  size="sm"
-                                  variant="soft"
-                                  className="mt-1"
-                                  value={piAgentDir}
-                                  onCommit={(nextValue) =>
-                                    updateSettings({
-                                      piAgentDir: nextValue,
-                                    })
-                                  }
-                                  placeholder={providerSettings.agentDirPlaceholder}
-                                  spellCheck={false}
-                                />
-                                {providerSettings.agentDirDescription ? (
-                                  <span className="打开持久化的 keybindings.json 文件，直接编辑高级快捷键。">
-                                    {providerSettings.agentDirDescription}
-                                  </span>
-                                ) : null}
-                              </label>
-                            ) : null}
-
-                            {providerSettings.apiEndpointKey ? (
-                              <label
-                                htmlFor={`provider-install-${providerSettings.apiEndpointKey}`}
-                                className="block"
-                              >
-                                <span className="快捷键">Cursor API endpoint</span>
-                                <DebouncedSettingTextInput
-                                  id={`provider-install-${providerSettings.apiEndpointKey}`}
-                                  size="sm"
-                                  variant="soft"
-                                  className="mt-1"
-                                  value={cursorApiEndpoint}
-                                  onCommit={(nextValue) =>
-                                    updateSettings({
-                                      cursorApiEndpoint: nextValue,
-                                    })
-                                  }
-                                  placeholder={providerSettings.apiEndpointPlaceholder}
-                                  spellCheck={false}
-                                />
-                                {providerSettings.apiEndpointDescription ? (
-                                  <span className="打开持久化的 keybindings.json 文件，直接编辑高级快捷键。">
-                                    {providerSettings.apiEndpointDescription}
-                                  </span>
-                                ) : null}
-                              </label>
-                            ) : null}
-
-                            {providerSettings.serverUrlKey ? (
-                              <label
-                                htmlFor={`provider-install-${providerSettings.serverUrlKey}`}
-                                className="block"
-                              >
-                                <span className="快捷键">{providerSettings.title} server URL</span>
-                                <DebouncedSettingTextInput
-                                  id={`provider-install-${providerSettings.serverUrlKey}`}
-                                  size="sm"
-                                  variant="soft"
-                                  className="mt-1"
-                                  value={
-                                    providerSettings.serverUrlKey === "kiloServerUrl"
-                                      ? kiloServerUrl
-                                      : openCodeServerUrl
-                                  }
-                                  onCommit={(nextValue) =>
-                                    updateSettings(
-                                      providerSettings.serverUrlKey === "kiloServerUrl"
-                                        ? { kiloServerUrl: nextValue }
-                                        : { openCodeServerUrl: nextValue },
-                                    )
-                                  }
-                                  placeholder={providerSettings.serverUrlPlaceholder}
-                                  spellCheck={false}
-                                />
-                                {providerSettings.serverUrlDescription ? (
-                                  <span className="打开持久化的 keybindings.json 文件，直接编辑高级快捷键。">
-                                    {providerSettings.serverUrlDescription}
-                                  </span>
-                                ) : null}
-                              </label>
-                            ) : null}
-
-                            {providerSettings.serverPasswordKey ? (
-                              <label
-                                htmlFor={`provider-install-${providerSettings.serverPasswordKey}`}
-                                className="block"
-                              >
-                                <span className="快捷键">
-                                  {providerSettings.title} server password
-                                </span>
-                                <DebouncedSettingTextInput
-                                  id={`provider-install-${providerSettings.serverPasswordKey}`}
-                                  size="sm"
-                                  variant="soft"
-                                  className="mt-1"
-                                  value={
-                                    providerSettings.serverPasswordKey === "kiloServerPassword"
-                                      ? kiloServerPassword
-                                      : openCodeServerPassword
-                                  }
-                                  onCommit={(nextValue) =>
-                                    updateSettings(
-                                      providerSettings.serverPasswordKey === "kiloServerPassword"
-                                        ? { kiloServerPassword: nextValue }
-                                        : { openCodeServerPassword: nextValue },
-                                    )
-                                  }
-                                  placeholder={providerSettings.serverPasswordPlaceholder}
-                                  spellCheck={false}
-                                />
-                                {providerSettings.serverPasswordDescription ? (
-                                  <span className="打开持久化的 keybindings.json 文件，直接编辑高级快捷键。">
-                                    {providerSettings.serverPasswordDescription}
-                                  </span>
-                                ) : null}
-                              </label>
-                            ) : null}
-
-                            {providerSettings.experimentalWebSocketsKey ? (
-                              <label
-                                htmlFor={`provider-install-${providerSettings.experimentalWebSocketsKey}`}
-                                className="flex items-start justify-between gap-3 rounded-md border border-border/70 bg-background/60 px-3 py-2"
-                              >
-                                <span className="min-w-0">
-                                  <span className="快捷键">OpenAI response WebSockets</span>
-                                  {providerSettings.experimentalWebSocketsDescription ? (
-                                    <span className="打开持久化的 keybindings.json 文件，直接编辑高级快捷键。">
-                                      {providerSettings.experimentalWebSocketsDescription}
-                                    </span>
-                                  ) : null}
-                                </span>
-                                <Switch
-                                  id={`provider-install-${providerSettings.experimentalWebSocketsKey}`}
-                                  checked={openCodeExperimentalWebSockets}
-                                  onCheckedChange={(checked) =>
-                                    updateSettings({
-                                      openCodeExperimentalWebSockets: Boolean(checked),
-                                    })
-                                  }
-                                />
-                              </label>
-                            ) : null}
-                          </div>
-                        </div>
-                      </CollapsibleContent>
-                    </div>
-                  </Collapsible>
-                );
-              })}
-            </div>
-          </div>
-        </SettingsRow>
+          title="OpenCode"
+          description="Synara 仅支持 OpenCode 作为唯一 Provider，无需额外配置。"
+        />
       </SettingsSection>
     </div>
   );

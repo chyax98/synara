@@ -64,8 +64,8 @@ describe("SettingsSidebarNav", () => {
       <SettingsSidebarNav activeSection="general" onBack={vi.fn()} onSelectSection={vi.fn()} />,
     );
 
-    expect(markup).toContain('aria-label="Search settings"');
-    expect(markup).toContain('aria-label="Settings sections"');
-    expect(markup).toContain("Back to app");
+    expect(markup).toContain('aria-label="搜索设置"');
+    expect(markup).toContain('aria-label="设置分区"');
+    expect(markup).toContain("返回应用");
   });
 });

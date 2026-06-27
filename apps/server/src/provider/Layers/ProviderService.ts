@@ -39,7 +39,6 @@ import {
   type ProviderSessionDirectoryWriteError,
 } from "../Services/ProviderSessionDirectory.ts";
 import { type EventNdjsonLogger, makeEventNdjsonLogger } from "./EventNdjsonLogger.ts";
-import { AnalyticsService } from "../../telemetry/Services/AnalyticsService.ts";
 
 export interface ProviderServiceLiveOptions {
   readonly canonicalEventLogPath?: string;
@@ -242,7 +241,6 @@ function runtimeLastErrorForEvent(event: ProviderRuntimeEvent): string | null | 
 
 const makeProviderService = (options?: ProviderServiceLiveOptions) =>
   Effect.gen(function* () {
-    const analytics = yield* Effect.service(AnalyticsService);
     const canonicalEventLogger =
       options?.canonicalEventLogger ??
       (options?.canonicalEventLogPath !== undefined
@@ -581,11 +579,6 @@ const makeProviderService = (options?: ProviderServiceLiveOptions) =>
           );
           if (existing) {
             yield* upsertSessionBinding(existing, input.binding.threadId);
-            yield* analytics.record("provider.session.recovered", {
-              provider: existing.provider,
-              strategy: "adopt-existing",
-              hasResumeCursor: hasResumeCursor(existing.resumeCursor),
-            });
             return { adapter, session: existing } as const;
           }
         }
@@ -618,11 +611,6 @@ const makeProviderService = (options?: ProviderServiceLiveOptions) =>
         }
 
         yield* upsertSessionBinding(resumed, input.binding.threadId);
-        yield* analytics.record("provider.session.recovered", {
-          provider: resumed.provider,
-          strategy: "resume-thread",
-          hasResumeCursor: hasResumeCursor(resumed.resumeCursor),
-        });
         return { adapter, session: resumed } as const;
       });
 
@@ -712,15 +700,6 @@ const makeProviderService = (options?: ProviderServiceLiveOptions) =>
         yield* upsertSessionBinding(session, threadId, {
           modelSelection: input.modelSelection,
           providerOptions: effectiveProviderOptions,
-        });
-        yield* analytics.record("provider.session.started", {
-          provider: session.provider,
-          runtimeMode: input.runtimeMode,
-          hasResumeCursor: hasResumeCursor(session.resumeCursor),
-          hasCwd: typeof input.cwd === "string" && input.cwd.trim().length > 0,
-          hasModel:
-            typeof input.modelSelection?.model === "string" &&
-            input.modelSelection.model.trim().length > 0,
         });
 
         return session;
@@ -826,9 +805,6 @@ const makeProviderService = (options?: ProviderServiceLiveOptions) =>
             },
           });
         }
-        yield* analytics.record("provider.thread.forked", {
-          provider: adapter.provider,
-        });
         return forked;
       });
 
@@ -872,13 +848,6 @@ const makeProviderService = (options?: ProviderServiceLiveOptions) =>
                 lastRuntimeEvent: "provider.sendTurn",
                 lastRuntimeEventAt: new Date().toISOString(),
               },
-            });
-            yield* analytics.record("provider.turn.sent", {
-              provider: routed.adapter.provider,
-              model: input.modelSelection?.model,
-              interactionMode: input.interactionMode,
-              attachmentCount: input.attachments.length,
-              hasInput: typeof input.input === "string" && input.input.trim().length > 0,
             });
             return turn;
           }),
@@ -935,13 +904,6 @@ const makeProviderService = (options?: ProviderServiceLiveOptions) =>
                 lastRuntimeEventAt: new Date().toISOString(),
               },
             });
-            yield* analytics.record("provider.turn.steered", {
-              provider: routed.adapter.provider,
-              model: input.modelSelection?.model,
-              interactionMode: input.interactionMode,
-              attachmentCount: input.attachments.length,
-              hasInput: typeof input.input === "string" && input.input.trim().length > 0,
-            });
             return turn;
           }),
         );
@@ -982,10 +944,6 @@ const makeProviderService = (options?: ProviderServiceLiveOptions) =>
                 lastRuntimeEventAt: new Date().toISOString(),
               },
             });
-            yield* analytics.record("provider.review.started", {
-              provider: routed.adapter.provider,
-              target: input.target.type,
-            });
             return turn;
           }),
         );
@@ -1004,9 +962,6 @@ const makeProviderService = (options?: ProviderServiceLiveOptions) =>
           allowRecovery: true,
         });
         yield* routed.adapter.interruptTurn(routed.threadId, input.turnId, input.providerThreadId);
-        yield* analytics.record("provider.turn.interrupted", {
-          provider: routed.adapter.provider,
-        });
       });
 
     const respondToRequest: ProviderServiceShape["respondToRequest"] = (rawInput) =>
@@ -1022,10 +977,6 @@ const makeProviderService = (options?: ProviderServiceLiveOptions) =>
           allowRecovery: true,
         });
         yield* routed.adapter.respondToRequest(routed.threadId, input.requestId, input.decision);
-        yield* analytics.record("provider.request.responded", {
-          provider: routed.adapter.provider,
-          decision: input.decision,
-        });
       });
 
     const respondToUserInput: ProviderServiceShape["respondToUserInput"] = (rawInput) =>
@@ -1063,9 +1014,6 @@ const makeProviderService = (options?: ProviderServiceLiveOptions) =>
         yield* waitForRuntimeIdleStop(input.threadId);
         yield* directory.remove(input.threadId);
         retireRuntimeIdleGeneration(input.threadId);
-        yield* analytics.record("provider.session.stopped", {
-          provider: routed.adapter.provider,
-        });
       });
 
     const stopRuntimeSessionInternal = (
@@ -1120,9 +1068,6 @@ const makeProviderService = (options?: ProviderServiceLiveOptions) =>
             lastRuntimeEvent: "provider.stopRuntimeSession",
             lastRuntimeEventAt: new Date().toISOString(),
           },
-        });
-        yield* analytics.record("provider.session.runtime_stopped", {
-          provider: binding.provider,
         });
         retireRuntimeIdleGeneration(input.threadId, expectedIdleGeneration);
       });
@@ -1211,9 +1156,6 @@ const makeProviderService = (options?: ProviderServiceLiveOptions) =>
           resumeCursor: null,
           runtimePayload: binding.runtimePayload,
         });
-        yield* analytics.record("provider.session.resume_cursor_cleared", {
-          provider: binding.provider,
-        });
         retireRuntimeIdleGeneration(input.threadId);
       });
 
@@ -1286,10 +1228,6 @@ const makeProviderService = (options?: ProviderServiceLiveOptions) =>
               allowRecovery: true,
             });
             yield* routed.adapter.rollbackThread(routed.threadId, input.numTurns);
-            yield* analytics.record("provider.conversation.rolled_back", {
-              provider: routed.adapter.provider,
-              turns: input.numTurns,
-            });
           }),
           { scheduleIdleStopOnSuccess: true },
         );
@@ -1334,9 +1272,6 @@ const makeProviderService = (options?: ProviderServiceLiveOptions) =>
                 },
               });
             }
-            yield* analytics.record("provider.thread.compacted", {
-              provider: routed.adapter.provider,
-            });
           }),
           { scheduleIdleStopOnSuccess: true },
         );
@@ -1358,10 +1293,6 @@ const makeProviderService = (options?: ProviderServiceLiveOptions) =>
           markPersistedThreadStopped(threadId, stoppedAt),
         ).pipe(Effect.asVoid);
         yield* Effect.forEach(adapters, (adapter) => adapter.stopAll()).pipe(Effect.asVoid);
-        yield* analytics.record("provider.sessions.stopped_all", {
-          sessionCount: threadIds.length,
-        });
-        yield* analytics.flush;
       });
 
     yield* Effect.addFinalizer(() =>

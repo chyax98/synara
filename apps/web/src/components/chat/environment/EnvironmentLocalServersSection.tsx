@@ -26,7 +26,7 @@ import {
 } from "./EnvironmentRow";
 
 function describeServerCount(count: number): string {
-  if (count === 0) return "No servers running";
+  if (count === 0) return "无运行中的服务器";
   return `${count} server${count === 1 ? "" : "s"} running`;
 }
 
@@ -179,7 +179,7 @@ export function EnvironmentLocalServersSection({ enabled }: { enabled: boolean }
         {localServersQuery.isLoading ? (
           <LocalServersPlaceholder
             icon={<RefreshCwIcon className="size-4 animate-spin" />}
-            title="Scanning local ports"
+            title="正在扫描本地端口"
           />
         ) : localServersQuery.isError ? (
           <LocalServersPlaceholder
@@ -194,7 +194,7 @@ export function EnvironmentLocalServersSection({ enabled }: { enabled: boolean }
         ) : serverCount === 0 ? (
           <LocalServersPlaceholder
             icon={<GlobeIcon className="size-4" />}
-            title="No servers running"
+            title="无运行中的服务器"
             subtitle="Local dev servers will appear here."
           />
         ) : (

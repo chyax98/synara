@@ -154,7 +154,7 @@ function ProfileContent({
           <h3 className="text-sm font-medium">Activity insights</h3>
           <dl className="flex flex-col gap-2.5">
             <InsightRow
-              label="Most used provider"
+              label="最常用 Provider"
               value={
                 stats.insights.topProvider
                   ? `${formatProviderLabel(stats.insights.topProvider)}${
@@ -177,14 +177,11 @@ function ProfileContent({
                   : "—"
               }
             />
-            <InsightRow label="Most active hour" value={peakHourLabel} />
-            <InsightRow label="Most worked project" value={mostWorkedProjectLabel} />
+            <InsightRow label="最活跃时段" value={peakHourLabel} />
+            <InsightRow label="最常工作项目" value={mostWorkedProjectLabel} />
+            <InsightRow label="已探索 Skill" value={formatNumber(stats.insights.skillsExplored)} />
             <InsightRow
-              label="Skills explored"
-              value={formatNumber(stats.insights.skillsExplored)}
-            />
-            <InsightRow
-              label="Total skills used"
+              label="Skill 使用总数"
               value={formatNumber(stats.insights.totalSkillsUsed)}
             />
             <InsightRow label="Total threads" value={formatNumber(stats.activity.totalThreads)} />
@@ -216,7 +213,7 @@ function ProfileContent({
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-muted-foreground">No skills or agents used yet.</p>
+            <p className="text-sm text-muted-foreground">尚未使用任何 Skill 或 Agent。</p>
           )}
         </section>
       </div>

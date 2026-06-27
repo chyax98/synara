@@ -499,7 +499,7 @@ describe("MessagesTimeline", () => {
       />,
     );
 
-    expect(markup).toContain("Steering conversation");
+    expect(markup).toContain("正在引导对话");
     expect(markup).toContain("mb-1.5");
   });
 
@@ -557,7 +557,7 @@ describe("MessagesTimeline", () => {
       />,
     );
 
-    expect(markup).toContain("Steering conversation");
+    expect(markup).toContain("正在引导对话");
     expect(markup).toContain("mb-3");
   });
 

@@ -198,7 +198,7 @@ export const ProjectPicker = memo(function ProjectPicker({
       ) : null}
     </span>
   ) : (
-    "Work in a project"
+    "在项目中工作"
   );
 
   const handleOpenChange = useCallback((nextOpen: boolean) => {
@@ -312,7 +312,7 @@ export const ProjectPicker = memo(function ProjectPicker({
                   }}
                 >
                   <XIcon className="size-3.5 shrink-0 text-muted-foreground/70" />
-                  <span className="truncate">Don&apos;t work in a project</span>
+                  <span className="truncate">不在项目中工作</span>
                 </button>
               ) : null}
               {errorMessage ? (
@@ -331,7 +331,7 @@ export const ProjectPicker = memo(function ProjectPicker({
           <ComboboxList className="max-h-64">
             {filteredActiveFolderOptions.length > 0 ? (
               <ComboboxGroup>
-                <ComboboxGroupLabel>Active folders</ComboboxGroupLabel>
+                <ComboboxGroupLabel>活跃文件夹</ComboboxGroupLabel>
                 {filteredActiveFolderOptions.map((folder, index) => (
                   <ComboboxItem
                     hideIndicator={folder.cwd !== selectedWorkspaceRoot}

@@ -26,7 +26,7 @@ export const DockFilePane = memo(function DockFilePane(props: {
       markdownPreviewDefault
       emptyState={
         <PanelStateMessage density="compact" fill="flex">
-          <p>Click a file in the chat to preview it here.</p>
+          <p>点击对话中的文件即可在此预览。</p>
         </PanelStateMessage>
       }
       onReferenceInChat={props.onReferenceInChat}

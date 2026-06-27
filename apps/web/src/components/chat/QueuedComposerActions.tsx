@@ -36,7 +36,7 @@ function QueuedComposerActions({
       <IconButton
         variant="ghost"
         size="icon-chip"
-        label="Delete queued follow-up"
+        label="删除排队中的后续消息"
         onClick={() => onRemove(queuedTurn.id)}
       >
         <Trash2 />
@@ -56,7 +56,7 @@ function QueuedComposerActions({
         </MenuTrigger>
         <ComposerPickerMenuPopup align="end" side="top" sideOffset={6}>
           <MenuItem onClick={() => onEdit(queuedTurn)}>Edit queued prompt</MenuItem>
-          <MenuItem onClick={() => onRemove(queuedTurn.id)}>Delete queued prompt</MenuItem>
+          <MenuItem onClick={() => onRemove(queuedTurn.id)}>删除排队中的提示词</MenuItem>
         </ComposerPickerMenuPopup>
       </Menu>
     </div>

@@ -514,7 +514,7 @@ export const ComposerLocalDirectoryMenu = memo(function ComposerLocalDirectoryMe
             Waiting for home directory from server…
           </p>
         ) : isLoading && visibleCount === 0 ? (
-          <p className="px-2 py-1.5 text-muted-foreground/50 text-[11px]">Loading local files…</p>
+          <p className="px-2 py-1.5 text-muted-foreground/50 text-[11px]">正在加载本地文件…</p>
         ) : errorMessage ? (
           <p className="px-2 py-1.5 text-destructive/80 text-[11px]">{errorMessage}</p>
         ) : isSearchPending ? (

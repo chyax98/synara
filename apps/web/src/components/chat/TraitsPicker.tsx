@@ -501,7 +501,7 @@ export const TraitsPicker = memo(function TraitsPicker({
       size="sm"
       variant="chrome"
       className={`min-w-0 shrink-0 justify-start overflow-hidden whitespace-nowrap px-2 sm:px-2.5 [&_svg]:mx-0 ${COMPOSER_PICKER_TRIGGER_TEXT_CLASS_NAME}`}
-      aria-label="Change effort, context, and speed"
+      aria-label="更改推理强度、上下文与速度"
       {...(hideLabel && hiddenLabelTitle.length > 0 ? { title: hiddenLabelTitle } : {})}
     />
   );
@@ -554,7 +554,7 @@ export const TraitsPicker = memo(function TraitsPicker({
           {!isMenuOpen ? (
             <ComposerPickerTooltipPopup side="top" sideOffset={6}>
               <span className="inline-flex items-center gap-2 px-1 py-0.5">
-                <span>Change effort, context, and speed</span>
+                <span>更改推理强度、上下文与速度</span>
                 <ShortcutKbd
                   shortcutLabel={shortcutLabel}
                   className="h-4 min-w-4 px-1 text-[length:var(--app-font-size-ui-2xs,9px)] text-muted-foreground"

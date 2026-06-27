@@ -27,7 +27,7 @@ export const ThreadErrorBanner = memo(function ThreadErrorBanner({
         {onDismiss && (
           <AlertAction>
             <IconButton
-              label="Dismiss error"
+              label="关闭错误提示"
               className="size-6 text-destructive/60 hover:text-destructive sm:size-6"
               onClick={onDismiss}
             >

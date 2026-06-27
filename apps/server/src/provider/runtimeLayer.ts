@@ -4,7 +4,6 @@ import * as SqlClient from "effect/unstable/sql/SqlClient";
 
 import { ServerConfig } from "../config";
 import { ServerSettingsLive } from "../serverSettings";
-import { AnalyticsService } from "../telemetry/Services/AnalyticsService";
 import { makeEventNdjsonLogger } from "./Layers/EventNdjsonLogger";
 import { makeOpenCodeAdapterLive } from "./Layers/OpenCodeAdapter";
 import { ProviderDiscoveryServiceLive } from "./Layers/ProviderDiscoveryService";
@@ -22,7 +21,6 @@ export function makeServerProviderLayer(): Layer.Layer<
   | ServerConfig
   | FileSystem.FileSystem
   | Path.Path
-  | AnalyticsService
   | ChildProcessSpawner.ChildProcessSpawner
 > {
   return Effect.gen(function* () {

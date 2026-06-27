@@ -110,7 +110,7 @@ export const OpenInPicker = memo(function OpenInPicker({
           <ChevronDownIcon aria-hidden="true" className="size-3.5" />
         </MenuTrigger>
         <ComposerPickerMenuPopup align="end" side="bottom" className="w-44 min-w-44">
-          {options.length === 0 && <MenuItem disabled>No installed editors found</MenuItem>}
+          {options.length === 0 && <MenuItem disabled>未找到已安装的编辑器</MenuItem>}
           <MenuRadioGroup
             value={preferredEditor ?? ""}
             onValueChange={(value) => setDefaultEditor(value as EditorId)}

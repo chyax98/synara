@@ -155,7 +155,7 @@ export function EnvironmentProjectInstructionsSection({
   const copyLabel = threadNotes.trim().length === 0 ? "Copy to notepad" : "Append to notepad";
 
   return (
-    <EnvironmentCollapsibleSection label="Project instructions" defaultOpen={hasInstructions}>
+    <EnvironmentCollapsibleSection label="项目说明" defaultOpen={hasInstructions}>
       <div className="flex flex-col gap-2 px-2 pb-1">
         <Textarea
           unstyled

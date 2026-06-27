@@ -67,7 +67,7 @@ export function usePinnedMessageActions({
   const handlePinnedMessageDispatchError = useCallback((error: unknown) => {
     toastManager.add({
       type: "error",
-      title: "Failed to update pinned message",
+      title: "更新置顶消息失败",
       description:
         error instanceof Error ? error.message : "The pinned message change could not be saved.",
     });
@@ -76,7 +76,7 @@ export function usePinnedMessageActions({
   const handleThreadNotesDispatchError = useCallback((error: unknown) => {
     toastManager.add({
       type: "error",
-      title: "Failed to save notes",
+      title: "保存笔记失败",
       description: error instanceof Error ? error.message : "The note change could not be saved.",
     });
   }, []);
@@ -108,7 +108,7 @@ export function usePinnedMessageActions({
         toastManager.add({
           type: "warning",
           title: "Pinned message limit reached",
-          description: `You can keep up to ${PINNED_MESSAGES_MAX_COUNT} pinned messages in a thread.`,
+          description: `每个会话最多可置顶 ${PINNED_MESSAGES_MAX_COUNT} 条消息。`,
         });
         return;
       }

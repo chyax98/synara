@@ -31,7 +31,7 @@ export const ProviderHealthBanner = memo(function ProviderHealthBanner({
     status.status === "error"
       ? `${providerLabel} provider is unavailable.`
       : `${providerLabel} provider has limited availability.`;
-  const title = `${providerLabel} provider status`;
+  const title = `${providerLabel} 状态`;
   const Icon = status.status === "error" ? CircleAlertIcon : TriangleAlertIcon;
 
   return (

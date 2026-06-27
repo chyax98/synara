@@ -95,9 +95,7 @@ function ApprovalBody({ parsed }: { parsed: ParsedApproval }) {
     );
   }
 
-  return (
-    <p className="mt-1 text-[12px] text-muted-foreground/65">Review the request to continue.</p>
-  );
+  return <p className="mt-1 text-[12px] text-muted-foreground/65">请审核请求后继续。</p>;
 }
 
 /**

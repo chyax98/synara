@@ -933,14 +933,7 @@ function hasConfiguredUpdateFeed(): boolean {
 }
 
 function resolveAutoUpdateDisabledReason(): string | null {
-  return getAutoUpdateDisabledReason({
-    isDevelopment,
-    isPackaged: app.isPackaged,
-    platform: process.platform,
-    appImage: process.env.APPIMAGE,
-    disabledByEnv: process.env.T3CODE_DISABLE_AUTO_UPDATE === "1",
-    hasUpdateFeedConfig: hasConfiguredUpdateFeed(),
-  });
+  return "Automatic updates are disabled in this personal fork.";
 }
 
 function handleCheckForUpdatesMenuClick(): void {

@@ -180,7 +180,7 @@ function UserDispatchModeChip({
       )}
     >
       <SteerIcon className="size-3 shrink-0 text-muted-foreground/75" />
-      <span>Steering conversation</span>
+      <span>正在引导对话</span>
     </div>
   );
 }
@@ -976,7 +976,7 @@ export const MessagesTimeline = memo(function MessagesTimeline({
                       {showEditUserMessage && (
                         <MessageActionButton
                           label="Edit message"
-                          tooltip="Edit and resend"
+                          tooltip="编辑并重新发送"
                           disabled={isRevertingCheckpoint}
                           className={cn(
                             MESSAGE_HOVER_REVEAL_CLASS_NAME,

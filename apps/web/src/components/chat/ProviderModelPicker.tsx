@@ -266,7 +266,7 @@ export const ProviderModelMenuItems = memo(function ProviderModelMenuItems(
   const renderModelRadioGroup = (provider: ProviderKind) => {
     if (props.loadingModelProviders?.[provider]) {
       return (
-        <div className="space-y-2 px-2 py-2" aria-label="Loading models">
+        <div className="space-y-2 px-2 py-2" aria-label="正在加载模型">
           {Array.from({ length: 6 }, (_, index) => (
             <div key={index} className="flex items-center gap-2 rounded-md px-2 py-1.5">
               <Skeleton className="size-3.5 rounded-full" />

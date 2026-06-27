@@ -25,7 +25,6 @@ import {
   StopFilledIcon,
   TerminalIcon,
   Trash2,
-  TriangleAlertIcon,
   WorktreeIcon,
   XIcon,
 } from "~/lib/icons";
@@ -68,7 +67,6 @@ import {
   type AutomationDefinition,
   type AutomationListResult,
   MAX_PINNED_PROJECTS,
-  type DesktopUpdateState,
   type OrchestrationShellSnapshot,
   PROVIDER_DISPLAY_NAMES,
   ProjectId,
@@ -185,21 +183,6 @@ import {
   persistSidebarUiState,
   readSidebarUiState,
 } from "./Sidebar.uiState";
-import {
-  getArm64IntelBuildWarningDescription,
-  getDesktopUpdateActionError,
-  getDesktopUpdateAlreadyCurrentNotice,
-  getDesktopUpdateButtonPresentation,
-  getDesktopUpdateButtonTooltip,
-  getDesktopUpdateButtonVariant,
-  getDesktopUpdateErrorSignature,
-  isDesktopUpdateButtonDisabled,
-  resolveDesktopUpdateButtonAction,
-  shouldShowArm64IntelBuildWarning,
-  shouldShowDesktopUpdateButton,
-  shouldToastDesktopUpdateActionResult,
-} from "./desktopUpdate.logic";
-import { Alert, AlertAction, AlertDescription, AlertTitle } from "./ui/alert";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import {
@@ -902,9 +885,7 @@ function ProjectSortMenu({
         className="min-w-44 rounded-lg border-[color:var(--color-border)] bg-[var(--color-background-elevated-primary-opaque)] shadow-lg"
       >
         <MenuGroup>
-          <div className="px-2 py-1 sm:text-xs font-medium text-muted-foreground">
-            排序项目
-          </div>
+          <div className="px-2 py-1 sm:text-xs font-medium text-muted-foreground">排序项目</div>
           <MenuRadioGroup
             value={projectSortOrder}
             onValueChange={(value) => {
@@ -971,8 +952,8 @@ function ChatSortMenu({
       <SidebarIconButton
         render={<MenuTrigger />}
         icon={IoFilter}
-        label="Sort chats"
-        tooltip="Sort chats"
+        label="排序对话"
+        tooltip="排序对话"
         tooltipSide="top"
       />
       <MenuPopup
@@ -981,7 +962,7 @@ function ChatSortMenu({
         className="min-w-44 rounded-lg border-[color:var(--color-border)] bg-[var(--color-background-elevated-primary-opaque)] shadow-lg"
       >
         <MenuGroup>
-          <div className="px-2 py-1 sm:text-xs font-medium text-muted-foreground">Sort chats</div>
+          <div className="px-2 py-1 sm:text-xs font-medium text-muted-foreground">排序对话</div>
           <ThreadSortMenuItems
             threadSortOrder={threadSortOrder}
             onThreadSortOrderChange={onThreadSortOrderChange}
@@ -1120,7 +1101,7 @@ function SidebarSegmentedPicker({
               )}
               onClick={() => onSelectView(view)}
             >
-              {view === "threads" ? "会话" : "Workspace"}
+              {view === "threads" ? "会话" : "工作区"}
             </button>
           );
         })}
@@ -1406,19 +1387,14 @@ export default function Sidebar() {
   const latestPinnedMutationVersionByProjectIdRef = useRef(new Map<ProjectId, number>());
   const optimisticPinnedStateByThreadIdRef = useRef(new Map<ThreadId, boolean>());
   const latestPinnedMutationVersionByThreadIdRef = useRef(new Map<ThreadId, number>());
-  const [desktopUpdateState, setDesktopUpdateState] = useState<DesktopUpdateState | null>(null);
   const [renamingWorkspaceId, setRenamingWorkspaceId] = useState<string | null>(null);
   const [renamingWorkspaceTitle, setRenamingWorkspaceTitle] = useState("");
-  const [installingDesktopUpdate, setInstallingDesktopUpdate] = useState(false);
   const [optimisticPinnedStateByThreadId, setOptimisticPinnedStateByThreadId] = useState<
     ReadonlyMap<ThreadId, boolean>
   >(() => new Map());
   const [optimisticPinnedStateByProjectId, setOptimisticPinnedStateByProjectId] = useState<
     ReadonlyMap<ProjectId, boolean>
   >(() => new Map());
-  // Dedupes the manual-download fallback toast so a single failure surfaced by
-  // both the click handler and the install-watchdog push only notifies once.
-  const lastDesktopUpdateErrorToastSignatureRef = useRef<string | null>(null);
   const selectedThreadIds = useThreadSelectionStore((s) => s.selectedThreadIds);
   const toggleThreadSelection = useThreadSelectionStore((s) => s.toggleThread);
   const rangeSelectTo = useThreadSelectionStore((s) => s.rangeSelectTo);
@@ -1755,8 +1731,8 @@ export default function Sidebar() {
           clearOptimisticProjectPinned(projectId);
           toastManager.add({
             type: "warning",
-            title: "Project pin limit reached",
-            description: `You can pin up to ${MAX_PINNED_PROJECTS} projects.`,
+            title: "项目固定数量已达上限",
+            description: `最多可固定 ${MAX_PINNED_PROJECTS} 个项目。`,
           });
           return;
         }
@@ -2541,7 +2517,7 @@ export default function Sidebar() {
       }).catch((error) => {
         toastManager.add({
           type: "error",
-          title: "Failed to rename thread",
+          title: "重命名会话失败",
           description: error instanceof Error ? error.message : "An error occurred.",
         });
         return null;
@@ -2550,7 +2526,7 @@ export default function Sidebar() {
       if (outcome === "empty") {
         toastManager.add({
           type: "warning",
-          title: "Thread title cannot be empty",
+          title: "会话标题不能为空",
         });
       }
     },
@@ -2642,10 +2618,10 @@ export default function Sidebar() {
         canDeleteWorktree &&
         (await api.dialogs.confirm(
           [
-            "This thread is the only one linked to this worktree:",
+            "此会话是唯一关联到此 worktree 的会话：",
             displayWorktreePath ?? orphanedWorktreePath,
             "",
-            "Delete the worktree too?",
+            "是否同时删除该 worktree？",
           ].join("\n"),
         ));
 
@@ -2752,8 +2728,8 @@ export default function Sidebar() {
         });
         toastManager.add({
           type: "error",
-          title: "Thread deleted, but worktree removal failed",
-          description: `Could not remove ${displayWorktreePath ?? orphanedWorktreePath}. ${message}`,
+          title: "会话已删除，但 worktree 移除失败",
+          description: `无法移除 ${displayWorktreePath ?? orphanedWorktreePath}。${message}`,
         });
       }
     },
@@ -3140,17 +3116,15 @@ export default function Sidebar() {
       });
       const clicked = await api.contextMenu.show(
         [
-          { id: "rename", label: "Rename thread" },
+          { id: "rename", label: "重命名会话" },
           { id: "toggle-pin", label: isPinned ? "取消置顶会话" : "置顶会话" },
-          ...(threadStatus?.dismissible
-            ? [{ id: "clear-notification", label: "Clear notification" }]
-            : []),
+          ...(threadStatus?.dismissible ? [{ id: "clear-notification", label: "清除通知" }] : []),
           { id: "mark-unread", label: "Mark unread" },
           { id: "copy-path", label: "Copy Path", separatorBefore: true },
           ...(threadWorkspacePath
             ? [{ id: "open-path-in-terminal", label: "Open Path in Terminal" }]
             : []),
-          { id: "copy-thread-id", label: "Copy Thread ID" },
+          { id: "copy-thread-id", label: "复制会话 ID" },
           ...(options?.extraItems ?? []),
           { id: "archive", label: "归档", separatorBefore: true },
           { id: "delete", label: "删除", destructive: true },
@@ -3181,7 +3155,7 @@ export default function Sidebar() {
           toastManager.add({
             type: "error",
             title: "Path unavailable",
-            description: "This thread does not have a workspace path to copy.",
+            description: "此会话没有可复制的工作区路径。",
           });
           return;
         }
@@ -3193,7 +3167,7 @@ export default function Sidebar() {
           toastManager.add({
             type: "error",
             title: "Path unavailable",
-            description: "This thread does not have a workspace path to open.",
+            description: "此会话没有可打开的工作区路径。",
           });
           return;
         }
@@ -3512,7 +3486,7 @@ export default function Sidebar() {
         }
         toastManager.add({
           type: "error",
-          title: "Failed to stop run",
+          title: "停止运行失败",
           description: error instanceof Error ? error.message : "无法停止开发服务器。",
         });
       } finally {
@@ -5159,7 +5133,7 @@ export default function Sidebar() {
               icon={DisposableThreadIcon}
               glyph="chromeLu"
               label={`Create disposable thread in ${project.name}`}
-              tooltip="New disposable thread"
+              tooltip="新建临时会话"
               tooltipSide="top"
               onClick={(event) => {
                 event.preventDefault();
@@ -5464,141 +5438,6 @@ export default function Sidebar() {
     visibleSidebarThreadIds,
   ]);
 
-  useEffect(() => {
-    if (!isElectron) return;
-    const bridge = window.desktopBridge;
-    if (
-      !bridge ||
-      typeof bridge.getUpdateState !== "function" ||
-      typeof bridge.onUpdateState !== "function"
-    ) {
-      return;
-    }
-
-    let disposed = false;
-    let receivedSubscriptionUpdate = false;
-    const unsubscribe = bridge.onUpdateState((nextState) => {
-      if (disposed) return;
-      receivedSubscriptionUpdate = true;
-      setDesktopUpdateState(nextState);
-    });
-
-    void bridge
-      .getUpdateState()
-      .then((nextState) => {
-        if (disposed || receivedSubscriptionUpdate) return;
-        setDesktopUpdateState(nextState);
-      })
-      .catch(() => undefined);
-
-    return () => {
-      disposed = true;
-      unsubscribe();
-    };
-  }, []);
-
-  // Single entry point for update error toasts. Attaches the manual-download
-  // fallback (copy link + "Download manually") whenever a release URL is known,
-  // and dedupes by error signature so the same failure is not toasted twice.
-  const surfaceDesktopUpdateError = useCallback(
-    (input: { title: string; description: string; state: DesktopUpdateState | null }) => {
-      const signature = getDesktopUpdateErrorSignature(input.state) ?? `adhoc:${input.description}`;
-      if (lastDesktopUpdateErrorToastSignatureRef.current === signature) {
-        return;
-      }
-      lastDesktopUpdateErrorToastSignatureRef.current = signature;
-      const releaseUrl = input.state?.releaseUrl ?? null;
-      const fallbackProps = releaseUrl
-        ? {
-            data: { copyText: releaseUrl },
-            actionProps: {
-              children: "Download manually",
-              onClick: () => {
-                void window.desktopBridge?.openExternal(releaseUrl);
-              },
-            },
-          }
-        : {};
-      toastManager.add({
-        type: "error",
-        title: input.title,
-        description: input.description,
-        ...fallbackProps,
-      });
-    },
-    [],
-  );
-
-  // The install watchdog (and any background-pushed failure) flips the update
-  // state to a download/install error without going through a click handler, so
-  // the fallback must also be surfaced reactively here. Dedup keeps it from
-  // doubling up with the click-handler toast for user-initiated failures.
-  useEffect(() => {
-    if (!getDesktopUpdateErrorSignature(desktopUpdateState)) {
-      // Returning to any non-error state (new download, success, up-to-date)
-      // clears the dedup key so the next distinct failure notifies again.
-      lastDesktopUpdateErrorToastSignatureRef.current = null;
-      return;
-    }
-    if (!desktopUpdateState?.releaseUrl) {
-      return;
-    }
-    surfaceDesktopUpdateError({
-      title:
-        desktopUpdateState.errorContext === "install"
-          ? "Couldn’t finish updating"
-          : "Couldn’t download the update",
-      description:
-        desktopUpdateState.message ??
-        "The in-app update could not complete. You can download it manually.",
-      state: desktopUpdateState,
-    });
-  }, [desktopUpdateState, surfaceDesktopUpdateError]);
-
-  const showDesktopUpdateButton = isElectron && shouldShowDesktopUpdateButton(desktopUpdateState);
-
-  const desktopUpdateTooltip = desktopUpdateState
-    ? getDesktopUpdateButtonTooltip(desktopUpdateState, {
-        installing: installingDesktopUpdate,
-      })
-    : "Update available";
-
-  const desktopUpdateButtonDisabled =
-    isDesktopUpdateButtonDisabled(desktopUpdateState) || installingDesktopUpdate;
-  const desktopUpdateButtonAction = desktopUpdateState
-    ? resolveDesktopUpdateButtonAction(desktopUpdateState)
-    : "none";
-  const desktopUpdateButtonPresentation = getDesktopUpdateButtonPresentation(desktopUpdateState, {
-    installing: installingDesktopUpdate,
-  });
-  const showArm64IntelBuildWarning =
-    isElectron && shouldShowArm64IntelBuildWarning(desktopUpdateState);
-  const arm64IntelBuildWarningDescription =
-    desktopUpdateState && showArm64IntelBuildWarning
-      ? getArm64IntelBuildWarningDescription(desktopUpdateState)
-      : null;
-  const desktopUpdateButtonInteractivityClasses = desktopUpdateButtonDisabled
-    ? "cursor-not-allowed opacity-60"
-    : "hover:brightness-110";
-  const desktopUpdateButtonVariant = getDesktopUpdateButtonVariant(desktopUpdateState, {
-    installing: installingDesktopUpdate,
-  });
-  const desktopUpdateButtonClasses =
-    desktopUpdateButtonVariant === "installing" || desktopUpdateButtonVariant === "progress"
-      ? "bg-sky-500 hover:bg-sky-600"
-      : desktopUpdateButtonVariant === "ready"
-        ? "bg-emerald-500 hover:bg-emerald-600"
-        : desktopUpdateButtonVariant === "error"
-          ? "bg-rose-500 hover:bg-rose-600"
-          : "bg-[var(--info)] hover:brightness-110";
-  const desktopUpdateButtonHasSecondaryLabel =
-    desktopUpdateButtonPresentation.secondaryLabel !== null;
-  const desktopUpdateRowButtonClasses = cn(
-    "inline-flex h-7 shrink-0 items-center justify-center gap-1.5 rounded-full px-3 font-system-ui text-[length:var(--app-font-size-ui-sm,11px)] font-medium leading-none text-white transition-colors",
-    desktopUpdateButtonHasSecondaryLabel && "min-h-7 py-1",
-    desktopUpdateButtonInteractivityClasses,
-    desktopUpdateButtonClasses,
-  );
   const newThreadShortcutLabel =
     shortcutLabelForCommand(keybindings, "chat.new") ??
     shortcutLabelForCommand(keybindings, "chat.newLatestProject");
@@ -5634,28 +5473,28 @@ export default function Sidebar() {
       {
         id: "new-chat",
         label: "New chat",
-        description: "Open the new chat landing screen.",
+        description: "打开新对话起始页。",
         keywords: ["chat", "new", "home"],
         shortcutLabel: newChatShortcutLabel,
       },
       {
         id: "new-thread",
         label: "新会话",
-        description: "Start a fresh thread in the current project.",
+        description: "在当前项目中开始新会话。",
         keywords: ["thread", "new", "project"],
         shortcutLabel: newThreadShortcutLabel,
       },
       {
         id: "add-project",
         label: "添加项目",
-        description: "Open a repository or folder in the sidebar.",
+        description: "在侧边栏中打开仓库或文件夹。",
         keywords: ["folder", "repo", "repository", "open"],
         shortcutLabel: addProjectShortcutLabel,
       },
       {
         id: "import-thread",
-        label: "Import thread from...",
-        description: "Attach a local thread to an existing provider session.",
+        label: "从…导入会话",
+        description: "将本地会话关联到已有的 Provider 会话。",
         keywords: ["import", "resume", "thread", "session", "opencode", "opencode"],
         shortcutLabel: importThreadShortcutLabel,
       },
@@ -5673,155 +5512,6 @@ export default function Sidebar() {
       newThreadShortcutLabel,
     ],
   );
-
-  const handleDesktopUpdateButtonClick = useCallback(() => {
-    const bridge = window.desktopBridge;
-    if (!bridge || !desktopUpdateState) return;
-    if (desktopUpdateButtonDisabled || desktopUpdateButtonAction === "none") return;
-
-    // Keep the sidebar action as the single visible entry point for manual checks.
-    if (desktopUpdateButtonAction === "check") {
-      void bridge
-        .checkForUpdates()
-        .then((nextState) => {
-          setInstallingDesktopUpdate(false);
-          setDesktopUpdateState(nextState);
-          if (nextState.status === "available") {
-            toastManager.add({
-              type: "info",
-              title: "正在准备更新",
-              description: `Synara 正在后台准备版本 ${nextState.availableVersion ?? "可用"}。`,
-            });
-            return;
-          }
-
-          if (nextState.status === "downloading") {
-            toastManager.add({
-              type: "info",
-              title: "正在准备更新",
-              description: "Synara 正在后台下载更新。",
-            });
-            return;
-          }
-
-          if (nextState.status === "downloaded") {
-            toastManager.add({
-              type: "success",
-              title: "Update ready",
-              description: "Click Update when you’re ready to restart and install it.",
-            });
-            return;
-          }
-
-          if (nextState.status === "up-to-date") {
-            toastManager.add({
-              type: "info",
-              title: "You're up to date",
-              description: `Synara ${nextState.currentVersion} is already the newest version.`,
-            });
-            return;
-          }
-
-          if (nextState.status === "error") {
-            surfaceDesktopUpdateError({
-              title: "Could not check for updates",
-              description: nextState.message ?? "An unexpected error occurred.",
-              state: nextState,
-            });
-          }
-        })
-        .catch((error) => {
-          surfaceDesktopUpdateError({
-            title: "Could not check for updates",
-            description: error instanceof Error ? error.message : "An unexpected error occurred.",
-            state: desktopUpdateState,
-          });
-        });
-      return;
-    }
-
-    if (desktopUpdateButtonAction === "download") {
-      void bridge
-        .downloadUpdate()
-        .then((result) => {
-          setInstallingDesktopUpdate(false);
-          setDesktopUpdateState(result.state);
-          if (result.completed) {
-            toastManager.add({
-              type: "success",
-              title: "Update ready",
-              description: "Click Update when you’re ready to restart and install it.",
-            });
-          }
-          const alreadyCurrentNotice = getDesktopUpdateAlreadyCurrentNotice(result);
-          if (alreadyCurrentNotice) {
-            toastManager.add({
-              type: "info",
-              title: "Already up to date",
-              description: alreadyCurrentNotice,
-            });
-            return;
-          }
-          if (!shouldToastDesktopUpdateActionResult(result)) return;
-          const actionError = getDesktopUpdateActionError(result);
-          if (!actionError) return;
-          surfaceDesktopUpdateError({
-            title: "Could not download update",
-            description: actionError,
-            state: result.state,
-          });
-        })
-        .catch((error) => {
-          surfaceDesktopUpdateError({
-            title: "Could not start update download",
-            description: error instanceof Error ? error.message : "An unexpected error occurred.",
-            state: desktopUpdateState,
-          });
-        });
-      return;
-    }
-
-    if (desktopUpdateButtonAction === "install") {
-      setInstallingDesktopUpdate(true);
-      persistAppStateNow();
-      void bridge
-        .installUpdate()
-        .then((result) => {
-          setDesktopUpdateState(result.state);
-          setInstallingDesktopUpdate(false);
-          const alreadyCurrentNotice = getDesktopUpdateAlreadyCurrentNotice(result);
-          if (alreadyCurrentNotice) {
-            toastManager.add({
-              type: "info",
-              title: "Already up to date",
-              description: alreadyCurrentNotice,
-            });
-            return;
-          }
-          if (!shouldToastDesktopUpdateActionResult(result)) return;
-          const actionError = getDesktopUpdateActionError(result);
-          if (!actionError) return;
-          surfaceDesktopUpdateError({
-            title: "Could not install update",
-            description: actionError,
-            state: result.state,
-          });
-        })
-        .catch((error) => {
-          setInstallingDesktopUpdate(false);
-          surfaceDesktopUpdateError({
-            title: "Could not install update",
-            description: error instanceof Error ? error.message : "An unexpected error occurred.",
-            state: desktopUpdateState,
-          });
-        });
-    }
-  }, [
-    desktopUpdateButtonAction,
-    desktopUpdateButtonDisabled,
-    desktopUpdateState,
-    surfaceDesktopUpdateError,
-  ]);
 
   const expandThreadListForProject = useCallback((projectCwd: string) => {
     const cwdKey = normalizeSidebarProjectThreadListCwd(projectCwd);
@@ -5929,31 +5619,6 @@ export default function Sidebar() {
       )}
 
       <SidebarContent className="gap-0 font-system-ui">
-        {showArm64IntelBuildWarning && arm64IntelBuildWarningDescription ? (
-          <SidebarGroup className="px-2 pt-2 pb-0">
-            <Alert variant="warning" className="rounded-2xl border-warning/40 bg-warning/8">
-              <TriangleAlertIcon />
-              <AlertTitle>Intel build on Apple Silicon</AlertTitle>
-              <AlertDescription>{arm64IntelBuildWarningDescription}</AlertDescription>
-              {desktopUpdateButtonAction !== "none" ? (
-                <AlertAction>
-                  <Button
-                    size="xs"
-                    variant="outline"
-                    disabled={desktopUpdateButtonDisabled}
-                    onClick={handleDesktopUpdateButtonClick}
-                  >
-                    {desktopUpdateButtonAction === "download"
-                      ? "正在准备 ARM 版本"
-                      : desktopUpdateButtonAction === "install"
-                        ? "Update ARM build"
-                        : "检查 ARM 版本更新"}
-                  </Button>
-                </AlertAction>
-              ) : null}
-            </Alert>
-          </SidebarGroup>
-        ) : null}
         {isOnSettings ? (
           <SidebarGroup className="p-0">
             <SettingsSidebarNav
@@ -6029,7 +5694,7 @@ export default function Sidebar() {
               <SidebarGroup className="px-1.5 pt-1 pb-1.5">
                 <div className="my-2 h-px w-full bg-border" />
                 <div className="mb-1.5 flex items-center px-2">
-                  <span className={SIDEBAR_SECTION_LABEL_CLASS_NAME}>Workspace</span>
+                  <span className={SIDEBAR_SECTION_LABEL_CLASS_NAME}>工作区</span>
                 </div>
 
                 <DndContext
@@ -6119,7 +5784,7 @@ export default function Sidebar() {
                                   </SidebarMenuButton>
                                   <SidebarIconButton
                                     icon={Trash2}
-                                    label="Delete workspace"
+                                    label="删除工作区"
                                     glyph="meta"
                                     className="absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground/50 opacity-0 transition-opacity group-hover/menu-item:opacity-100 group-focus-within/menu-item:opacity-100"
                                     onClick={(event) => {
@@ -6309,11 +5974,7 @@ export default function Sidebar() {
                 )}
 
                 {projectEmptyState === "loading" && (
-                  <div
-                    className="space-y-2 px-2 pt-4"
-                    aria-live="polite"
-                    aria-label="Loading projects"
-                  >
+                  <div className="space-y-2 px-2 pt-4" aria-live="polite" aria-label="正在加载项目">
                     <div className="text-center text-[length:var(--app-font-size-ui,12px)] text-muted-foreground/58">
                       Loading projects...
                     </div>
@@ -6450,39 +6111,6 @@ export default function Sidebar() {
                     <span>设置</span>
                   </SidebarMenuButton>
                 )}
-                {showDesktopUpdateButton ? (
-                  <Tooltip>
-                    <TooltipTrigger
-                      render={
-                        <button
-                          type="button"
-                          aria-label={desktopUpdateTooltip}
-                          aria-disabled={desktopUpdateButtonDisabled || undefined}
-                          disabled={desktopUpdateButtonDisabled}
-                          className={desktopUpdateRowButtonClasses}
-                          onClick={handleDesktopUpdateButtonClick}
-                        >
-                          <span className="flex min-w-0 flex-1 items-center justify-between gap-1.5 leading-tight">
-                            <span className="min-w-0 truncate text-center">
-                              {desktopUpdateButtonPresentation.label}
-                            </span>
-                            {desktopUpdateButtonPresentation.secondaryLabel ? (
-                              <span className="min-w-0 truncate text-center text-[length:var(--app-font-size-ui-xs,10px)] text-white/80">
-                                {desktopUpdateButtonPresentation.secondaryLabel}
-                              </span>
-                            ) : null}
-                          </span>
-                          {desktopUpdateButtonPresentation.progressPercent !== null ? (
-                            <span className="rounded-full bg-white/20 px-1.5 py-0.5 text-[9px] font-semibold tabular-nums text-white/95">
-                              {desktopUpdateButtonPresentation.progressPercent}%
-                            </span>
-                          ) : null}
-                        </button>
-                      }
-                    />
-                    <TooltipPopup side="top">{desktopUpdateTooltip}</TooltipPopup>
-                  </Tooltip>
-                ) : null}
               </div>
             </div>
           </SidebarMenuItem>
@@ -6581,7 +6209,7 @@ export default function Sidebar() {
                   }
                 >
                   <ProjectContextMenuIcon icon={ExternalLinkIcon} />
-                  <span>Open dev server</span>
+                  <span>打开开发服务器</span>
                 </MenuItem>
               ) : null}
               <MenuSeparator />
@@ -6735,8 +6363,8 @@ export default function Sidebar() {
 
       <RenameDialog
         open={renameProjectDialogId !== null && renameProjectDialogProject !== null}
-        title="Rename project"
-        description="Keep it short and recognizable."
+        title="重命名项目"
+        description="保持简短且易于识别。"
         initialValue={
           renameProjectDialogProject?.localName ?? renameProjectDialogProject?.name ?? ""
         }

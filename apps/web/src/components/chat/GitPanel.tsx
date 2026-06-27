@@ -301,7 +301,7 @@ export function GitPanel(props: {
   const hasChanges = stagedFiles.length > 0 || unstagedFiles.length > 0;
 
   if (!cwd) {
-    return <PanelStateMessage>Source control is unavailable for this thread.</PanelStateMessage>;
+    return <PanelStateMessage>此会话无法使用源代码管理。</PanelStateMessage>;
   }
 
   return (
@@ -331,7 +331,7 @@ export function GitPanel(props: {
           </Alert>
         ) : null}
         {!error && isLoading && !hasChanges ? (
-          <p className="px-1.5 py-1 text-[11px] text-muted-foreground/70">Loading changes...</p>
+          <p className="px-1.5 py-1 text-[11px] text-muted-foreground/70">正在加载变更…</p>
         ) : null}
         {!error && !isLoading && !hasChanges ? (
           <p className="px-1.5 py-2 text-center text-[12px] text-muted-foreground/70">

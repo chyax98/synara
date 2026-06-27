@@ -145,7 +145,7 @@ export function SettingsSidebarNav(props: {
           <SidebarLeadingIcon size="sm" className={SETTINGS_SIDEBAR_ICON_HOVER_TONE_CLASS_NAME}>
             <CentralIcon name="arrow-left" className={SETTINGS_SIDEBAR_ICON_CLASS_NAME} />
           </SidebarLeadingIcon>
-          <span className={SETTINGS_SIDEBAR_ITEM_LABEL_CLASS_NAME}>Back to app</span>
+          <span className={SETTINGS_SIDEBAR_ITEM_LABEL_CLASS_NAME}>返回应用</span>
         </button>
       </div>
 
@@ -155,8 +155,8 @@ export function SettingsSidebarNav(props: {
           spellCheck={false}
           autoCorrect="off"
           autoCapitalize="off"
-          placeholder="Search settings..."
-          aria-label="Search settings"
+          placeholder="搜索设置…"
+          aria-label="搜索设置"
           onChange={(event) => setQuery(event.target.value)}
           onKeyDown={handleSearchKeyDown}
         />
@@ -164,10 +164,10 @@ export function SettingsSidebarNav(props: {
 
       {isSearching ? (
         results.length === 0 ? (
-          <p className={SETTINGS_SIDEBAR_SECTION_LABEL_CLASS_NAME}>No matching settings.</p>
+          <p className={SETTINGS_SIDEBAR_SECTION_LABEL_CLASS_NAME}>没有匹配的设置项。</p>
         ) : (
           <ul
-            aria-label="Settings search results"
+            aria-label="设置搜索结果"
             className={cn("flex flex-col", SETTINGS_SIDEBAR_LIST_GAP_CLASS_NAME)}
           >
             {results.map((entry) => (
@@ -176,7 +176,7 @@ export function SettingsSidebarNav(props: {
           </ul>
         )
       ) : (
-        <nav aria-label="Settings sections" className="flex flex-col">
+        <nav aria-label="设置分区" className="flex flex-col">
           {SETTINGS_NAV_GROUPS.map((group) => {
             const items = SETTINGS_NAV_ITEMS.filter((item) => item.group === group.id);
             if (items.length === 0) {

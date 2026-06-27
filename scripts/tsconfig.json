@@ -13,5 +13,5 @@
     ]
   },
   "include": ["**/*.ts"],
-  "exclude": ["probe-orchestration-snapshot.ts"]
+  "exclude": ["probe-orchestration-snapshot.ts", "opencode-launch-smoke.ts"]
 }

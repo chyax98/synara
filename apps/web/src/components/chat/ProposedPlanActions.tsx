@@ -78,7 +78,7 @@ export const ProposedPlanActions = memo(function ProposedPlanActions({
       .catch((error) => {
         toastManager.add({
           type: "error",
-          title: "Could not download plan",
+          title: "无法下载计划",
           description: error instanceof Error ? error.message : "An error occurred.",
         });
       })
@@ -92,8 +92,8 @@ export const ProposedPlanActions = memo(function ProposedPlanActions({
     if (!api.dialogs.saveFile) {
       toastManager.add({
         type: "error",
-        title: "Export is unavailable",
-        description: "Exporting plans requires the desktop app.",
+        title: "无法导出",
+        description: "导出计划需要桌面应用。",
       });
       return;
     }
@@ -116,7 +116,7 @@ export const ProposedPlanActions = memo(function ProposedPlanActions({
       .catch((error) => {
         toastManager.add({
           type: "error",
-          title: "Could not export plan",
+          title: "无法导出计划",
           description: error instanceof Error ? error.message : "An error occurred.",
         });
       })
@@ -126,7 +126,7 @@ export const ProposedPlanActions = memo(function ProposedPlanActions({
   return (
     <div className={cn("flex items-center gap-1", className)}>
       <PlanActionButton
-        label="Download to .plan folder"
+        label="下载到 .plan 文件夹"
         onClick={handleDownload}
         variant={variant}
         className={buttonClassName}
@@ -135,7 +135,7 @@ export const ProposedPlanActions = memo(function ProposedPlanActions({
         <ArrowDownIcon className={cn("size-3.5", iconClassName)} />
       </PlanActionButton>
       <PlanActionButton
-        label="Export markdown file"
+        label="导出 Markdown 文件"
         onClick={handleExport}
         variant={variant}
         className={buttonClassName}

@@ -31,8 +31,6 @@ import { ProviderSessionReaperLive } from "./provider/Layers/ProviderSessionReap
 import { Server } from "./effectServer";
 import { ServerLoggerLive } from "./serverLogger";
 import { formatHostForUrl, isWildcardHost } from "./startupAccess";
-import { AnalyticsServiceLayerLive } from "./telemetry/Layers/AnalyticsService";
-import { AnalyticsService } from "./telemetry/Services/AnalyticsService";
 import { OrchestrationEngineService } from "./orchestration/Services/OrchestrationEngine";
 import { startThreadRetentionJob } from "./threadRetention";
 
@@ -254,31 +252,9 @@ const LayerLive = (input: CliInput) => {
     Layer.provideMerge(providerSessionReaperLayer),
     Layer.provideMerge(SqlitePersistence.layerConfig),
     Layer.provideMerge(ServerLoggerLive),
-    Layer.provideMerge(AnalyticsServiceLayerLive),
     Layer.provideMerge(ServerConfigLive(input)),
   );
 };
-
-export const recordStartupHeartbeat = Effect.gen(function* () {
-  const analytics = yield* AnalyticsService;
-  const projectionSnapshotQuery = yield* ProjectionSnapshotQuery;
-
-  const { threadCount, projectCount } = yield* projectionSnapshotQuery.getCounts().pipe(
-    Effect.catch((cause) =>
-      Effect.logWarning("failed to gather startup projection counts for telemetry", { cause }).pipe(
-        Effect.as({
-          threadCount: 0,
-          projectCount: 0,
-        }),
-      ),
-    ),
-  );
-
-  yield* analytics.record("server.boot.heartbeat", {
-    threadCount,
-    projectCount,
-  });
-});
 
 const makeServerProgram = (input: CliInput) =>
   Effect.gen(function* () {
@@ -305,7 +281,6 @@ const makeServerProgram = (input: CliInput) =>
     // Start the retention loop after the server is live so startup can serve
     // existing history first, then hide inactive threads from the app in the background.
     yield* startThreadRetentionJob(orchestrationEngine, projectionSnapshotQuery);
-    yield* Effect.forkChild(recordStartupHeartbeat);
 
     const localUrl = `http://localhost:${config.port}`;
     const bindUrl =
