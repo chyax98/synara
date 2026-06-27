@@ -7,50 +7,13 @@ import { ProviderModelPicker } from "./ProviderModelPicker";
 import type { ProviderModelOption } from "../../providerModelOptions";
 
 const MODEL_OPTIONS_BY_PROVIDER = {
-  claudeAgent: [
-    { slug: "claude-opus-4-6", name: "Claude Opus 4.6" },
-    { slug: "claude-sonnet-4-6", name: "Claude Sonnet 4.6" },
-    { slug: "claude-haiku-4-5", name: "Claude Haiku 4.5" },
-  ],
-  codex: [
-    { slug: "gpt-5-codex", name: "GPT-5 Codex" },
-    { slug: "gpt-5.3-codex", name: "GPT-5.3 Codex" },
-  ],
-  cursor: [
-    { slug: "auto", name: "Auto" },
-    { slug: "composer-2", name: "Composer 2" },
-  ],
-  gemini: [
-    { slug: "auto-gemini-3", name: "Auto Gemini 3" },
-    { slug: "gemini-2.5-pro", name: "Gemini 2.5 Pro" },
-  ],
-  grok: [
-    { slug: "grok-build-0.1", name: "Grok Build 0.1" },
-    { slug: "grok-build", name: "Grok 4.3" },
-  ],
-  kilo: [
-    {
-      slug: "kilo/kilo-auto/free",
-      name: "Kilo Auto Free",
-      upstreamProviderId: "kilo",
-      upstreamProviderName: "Kilo",
-    },
-  ],
   opencode: [
-    {
-      slug: "opencode/nemotron-3-super-free",
-      name: "Nemotron 3 Super Free",
-      upstreamProviderId: "opencode",
-      upstreamProviderName: "OpenCode",
-    },
     {
       slug: "openai/gpt-5",
       name: "GPT-5",
       upstreamProviderId: "openai",
       upstreamProviderName: "OpenAI",
     },
-  ],
-  pi: [
     {
       slug: "anthropic/claude-sonnet-4-5",
       name: "Claude Sonnet 4.5",
@@ -167,7 +130,7 @@ describe("ProviderModelPicker", () => {
 
   it("shows provider submenus when provider switching is allowed", async () => {
     const mounted = await mountPicker({
-      provider: "claudeAgent",
+      provider: "opencode",
       model: "claude-opus-4-6",
       lockedProvider: null,
     });
@@ -188,9 +151,9 @@ describe("ProviderModelPicker", () => {
 
   it("shows models directly when the provider is locked mid-thread", async () => {
     const mounted = await mountPicker({
-      provider: "claudeAgent",
+      provider: "opencode",
       model: "claude-opus-4-6",
-      lockedProvider: "claudeAgent",
+      lockedProvider: "opencode",
     });
 
     try {
@@ -209,9 +172,9 @@ describe("ProviderModelPicker", () => {
 
   it("dispatches the canonical slug when a model is selected", async () => {
     const mounted = await mountPicker({
-      provider: "claudeAgent",
+      provider: "opencode",
       model: "claude-opus-4-6",
-      lockedProvider: "claudeAgent",
+      lockedProvider: "opencode",
     });
 
     try {
@@ -219,7 +182,7 @@ describe("ProviderModelPicker", () => {
       await page.getByRole("menuitemradio", { name: "Claude Sonnet 4.6" }).click();
 
       expect(mounted.onProviderModelChange).toHaveBeenCalledWith(
-        "claudeAgent",
+        "opencode",
         "claude-sonnet-4-6",
       );
     } finally {
@@ -230,9 +193,9 @@ describe("ProviderModelPicker", () => {
   it("notifies after a model selection commits so the composer can refocus", async () => {
     const onSelectionCommitted = vi.fn();
     const mounted = await mountPicker({
-      provider: "grok",
+      provider: "opencode",
       model: "grok-build",
-      lockedProvider: "grok",
+      lockedProvider: "opencode",
       onSelectionCommitted,
     });
 
@@ -362,12 +325,12 @@ describe("ProviderModelPicker", () => {
 
   it("filters Cursor models by upstream provider name", async () => {
     const mounted = await mountPicker({
-      provider: "cursor",
+      provider: "opencode",
       model: MANY_CURSOR_MODELS[0]!.slug,
-      lockedProvider: "cursor",
+      lockedProvider: "opencode",
       modelOptionsByProvider: {
         ...MODEL_OPTIONS_BY_PROVIDER,
-        cursor: MANY_CURSOR_MODELS,
+        opencode: MANY_CURSOR_MODELS,
       },
     });
 
@@ -392,12 +355,12 @@ describe("ProviderModelPicker", () => {
 
   it("shows favourited Cursor models in their own top category", async () => {
     const mounted = await mountPicker({
-      provider: "cursor",
+      provider: "opencode",
       model: "cursor-claude-favorite-sort",
-      lockedProvider: "cursor",
+      lockedProvider: "opencode",
       modelOptionsByProvider: {
         ...MODEL_OPTIONS_BY_PROVIDER,
-        cursor: CURSOR_FAVORITE_SORT_MODELS,
+        opencode: CURSOR_FAVORITE_SORT_MODELS,
       },
     });
 
@@ -436,12 +399,12 @@ describe("ProviderModelPicker", () => {
 
   it("shows favourited Pi models in their own top category", async () => {
     const mounted = await mountPicker({
-      provider: "pi",
+      provider: "opencode",
       model: "anthropic/claude-pi-favorite-sort",
-      lockedProvider: "pi",
+      lockedProvider: "opencode",
       modelOptionsByProvider: {
         ...MODEL_OPTIONS_BY_PROVIDER,
-        pi: PI_FAVORITE_SORT_MODELS,
+        opencode: PI_FAVORITE_SORT_MODELS,
       },
     });
 
@@ -476,10 +439,10 @@ describe("ProviderModelPicker", () => {
 
   it("shows a loading skeleton instead of fallback models for loading providers", async () => {
     const mounted = await mountPicker({
-      provider: "cursor",
+      provider: "opencode",
       model: "auto",
-      lockedProvider: "cursor",
-      loadingModelProviders: { cursor: true },
+      lockedProvider: "opencode",
+      loadingModelProviders: { opencode: true },
     });
 
     try {
@@ -499,19 +462,19 @@ describe("ProviderModelPicker", () => {
 
   it("shows unavailable providers as disabled rows", async () => {
     const mounted = await mountPicker({
-      provider: "codex",
+      provider: "opencode",
       model: "gpt-5-codex",
       lockedProvider: null,
       providers: [
         {
-          provider: "codex",
+          provider: "opencode",
           status: "ready",
           available: true,
           authStatus: "authenticated",
           checkedAt: "2026-04-10T10:00:00.000Z",
         },
         {
-          provider: "claudeAgent",
+          provider: "opencode",
           status: "error",
           available: false,
           authStatus: "unauthenticated",
@@ -536,12 +499,12 @@ describe("ProviderModelPicker", () => {
 
   it("does not make providers selectable before live status is known", async () => {
     const mounted = await mountPicker({
-      provider: "codex",
+      provider: "opencode",
       model: "gpt-5-codex",
       lockedProvider: null,
       providers: [
         {
-          provider: "codex",
+          provider: "opencode",
           status: "ready",
           available: true,
           authStatus: "authenticated",
@@ -565,19 +528,19 @@ describe("ProviderModelPicker", () => {
 
   it("keeps warning providers selectable when they are still available", async () => {
     const mounted = await mountPicker({
-      provider: "codex",
+      provider: "opencode",
       model: "gpt-5-codex",
       lockedProvider: null,
       providers: [
         {
-          provider: "codex",
+          provider: "opencode",
           status: "ready",
           available: true,
           authStatus: "authenticated",
           checkedAt: "2026-04-10T10:00:00.000Z",
         },
         {
-          provider: "claudeAgent",
+          provider: "opencode",
           status: "warning",
           available: true,
           authStatus: "unknown",

@@ -467,7 +467,7 @@ describe("shouldShowComposerModelBootstrapSkeleton", () => {
   it("shows a skeleton while a provider requires runtime-discovered models", () => {
     expect(
       shouldShowComposerModelBootstrapSkeleton({
-        selectedProvider: "cursor",
+        selectedProvider: "opencode",
         selectedModel: "auto",
         persistedModelSelection: null,
         draftModelSelection: null,
@@ -480,7 +480,7 @@ describe("shouldShowComposerModelBootstrapSkeleton", () => {
   it("hides the skeleton for a provider requiring discovered models after loading completes", () => {
     expect(
       shouldShowComposerModelBootstrapSkeleton({
-        selectedProvider: "cursor",
+        selectedProvider: "opencode",
         selectedModel: "auto",
         persistedModelSelection: null,
         draftModelSelection: null,
@@ -541,7 +541,7 @@ describe("shouldShowComposerModelBootstrapSkeleton", () => {
   it("shows a skeleton when the provisional provider does not match the persisted thread provider", () => {
     expect(
       shouldShowComposerModelBootstrapSkeleton({
-        selectedProvider: "codex",
+        selectedProvider: "opencode",
         selectedModel: "gpt-5.4",
         persistedModelSelection: {
           provider: "opencode",
@@ -899,7 +899,7 @@ describe("hasServerAcknowledgedLocalDispatch", () => {
         phase: "ready",
         latestTurn: null,
         session: {
-          provider: "codex",
+          provider: "opencode",
           status: "ready",
           orchestrationStatus: "ready",
           createdAt: "2026-04-13T00:00:00.000Z",
@@ -927,7 +927,7 @@ describe("hasServerAcknowledgedLocalDispatch", () => {
           sourceProposedPlan: undefined,
         },
         session: {
-          provider: "codex",
+          provider: "opencode",
           status: "ready",
           orchestrationStatus: "ready",
           createdAt: "2026-04-13T00:00:00.000Z",
@@ -947,7 +947,7 @@ describe("hasServerAcknowledgedLocalDispatch", () => {
         phase: "ready",
         latestTurn: null,
         session: {
-          provider: "claudeAgent",
+          provider: "opencode",
           status: "ready",
           orchestrationStatus: "ready",
           createdAt: "2026-04-13T00:00:00.000Z",

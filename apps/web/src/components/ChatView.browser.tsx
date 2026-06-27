@@ -135,13 +135,13 @@ function isoAt(offsetSeconds: number): string {
 function createBaseServerConfig(): ServerConfig {
   return {
     cwd: "/repo/project",
-    worktreesDir: "/repo/.codex/worktrees",
+    worktreesDir: "/repo/.opencode/worktrees",
     keybindingsConfigPath: "/repo/project/.t3code-keybindings.json",
     keybindings: [],
     issues: [],
     providers: [
       {
-        provider: "codex",
+        provider: "opencode",
         status: "ready",
         available: true,
         authStatus: "authenticated",
@@ -283,7 +283,7 @@ function createSnapshotForTargetUser(options: {
         title: "Project",
         workspaceRoot: "/repo/project",
         defaultModelSelection: {
-          provider: "codex",
+          provider: "opencode",
           model: "gpt-5",
         },
         scripts: [],
@@ -298,7 +298,7 @@ function createSnapshotForTargetUser(options: {
         projectId: PROJECT_ID,
         title: THREAD_TITLE,
         modelSelection: {
-          provider: "codex",
+          provider: "opencode",
           model: "gpt-5",
         },
         interactionMode: "default",
@@ -310,7 +310,6 @@ function createSnapshotForTargetUser(options: {
         createdAt: NOW_ISO,
         updatedAt: NOW_ISO,
         deletedAt: null,
-        handoff: null,
         messages,
         activities: [],
         proposedPlans: [],
@@ -318,7 +317,7 @@ function createSnapshotForTargetUser(options: {
         session: {
           threadId: THREAD_ID,
           status: options.sessionStatus ?? "ready",
-          providerName: "codex",
+          providerName: "opencode",
           runtimeMode: "full-access",
           activeTurnId: null,
           lastError: null,
@@ -462,7 +461,7 @@ function addThreadToSnapshot(
         projectId: PROJECT_ID,
         title: "New thread",
         modelSelection: {
-          provider: "codex",
+          provider: "opencode",
           model: "gpt-5",
         },
         interactionMode: "default",
@@ -474,7 +473,6 @@ function addThreadToSnapshot(
         createdAt: NOW_ISO,
         updatedAt: NOW_ISO,
         deletedAt: null,
-        handoff: null,
         messages: [],
         activities: [],
         proposedPlans: [],
@@ -482,7 +480,7 @@ function addThreadToSnapshot(
         session: {
           threadId,
           status: "ready",
-          providerName: "codex",
+          providerName: "opencode",
           runtimeMode: "full-access",
           activeTurnId: null,
           lastError: null,
@@ -894,7 +892,7 @@ function resolveWsRpc(body: WsRequestEnvelope["body"]): unknown {
           : "main";
     return {
       worktree: {
-        path: `/repo/.codex/worktrees/project/${requestedBranch.replaceAll("/", "-")}`,
+        path: `/repo/.opencode/worktrees/project/${requestedBranch.replaceAll("/", "-")}`,
         branch: requestedBranch,
       },
     };
@@ -1949,10 +1947,10 @@ describe("ChatView timeline estimator parity (full app)", () => {
       },
     });
     useComposerDraftStore.getState().setModelSelection(THREAD_ID, {
-      provider: "codex",
+      provider: "opencode",
       model: "gpt-5.4",
       options: {
-        reasoningEffort: "low",
+        variant: "low",
       },
     });
 
@@ -2001,10 +1999,10 @@ describe("ChatView timeline estimator parity (full app)", () => {
             associatedWorktreeBranch: "feature/draft-automation",
             associatedWorktreeRef: "feature/draft-automation",
             modelSelection: {
-              provider: "codex",
+              provider: "opencode",
               model: "gpt-5.4",
               options: {
-                reasoningEffort: "low",
+                variant: "low",
               },
             },
             runtimeMode: "full-access",
@@ -2850,11 +2848,11 @@ describe("ChatView timeline estimator parity (full app)", () => {
         pastedTexts: [],
         skills: [],
         mentions: [],
-        selectedProvider: "codex",
+        selectedProvider: "opencode",
         selectedModel: "gpt-5",
         selectedPromptEffort: null,
         modelSelection: {
-          provider: "codex",
+          provider: "opencode",
           model: "gpt-5",
         },
         runtimeMode: "full-access",
@@ -2875,11 +2873,11 @@ describe("ChatView timeline estimator parity (full app)", () => {
         pastedTexts: [],
         skills: [],
         mentions: [],
-        selectedProvider: "codex",
+        selectedProvider: "opencode",
         selectedModel: "gpt-5",
         selectedPromptEffort: null,
         modelSelection: {
-          provider: "codex",
+          provider: "opencode",
           model: "gpt-5",
         },
         runtimeMode: "full-access",
@@ -2966,11 +2964,11 @@ describe("ChatView timeline estimator parity (full app)", () => {
         pastedTexts: [],
         skills: [],
         mentions: [],
-        selectedProvider: "codex",
+        selectedProvider: "opencode",
         selectedModel: "gpt-5",
         selectedPromptEffort: null,
         modelSelection: {
-          provider: "codex",
+          provider: "opencode",
           model: "gpt-5",
         },
         runtimeMode: "full-access",
@@ -3046,11 +3044,11 @@ describe("ChatView timeline estimator parity (full app)", () => {
         pastedTexts: [],
         skills: [],
         mentions: [],
-        selectedProvider: "codex",
+        selectedProvider: "opencode",
         selectedModel: "gpt-5",
         selectedPromptEffort: null,
         modelSelection: {
-          provider: "codex",
+          provider: "opencode",
           model: "gpt-5",
         },
         runtimeMode: "full-access",
@@ -3154,16 +3152,15 @@ describe("ChatView timeline estimator parity (full app)", () => {
   it("snapshots sticky codex settings into a new draft thread", async () => {
     useComposerDraftStore.setState({
       stickyModelSelectionByProvider: {
-        codex: {
-          provider: "codex",
+        opencode: {
+          provider: "opencode",
           model: "gpt-5.3-codex",
           options: {
-            reasoningEffort: "medium",
-            fastMode: true,
-          },
+            variant: "medium",
+                      },
         },
       },
-      stickyActiveProvider: "codex",
+      stickyActiveProvider: "opencode",
     });
 
     const mounted = await mountChatView({
@@ -3189,15 +3186,14 @@ describe("ChatView timeline estimator parity (full app)", () => {
 
       expect(useComposerDraftStore.getState().draftsByThreadId[newThreadId]).toMatchObject({
         modelSelectionByProvider: {
-          codex: {
-            provider: "codex",
+          opencode: {
+            provider: "opencode",
             model: "gpt-5.3-codex",
             options: {
-              fastMode: true,
-            },
+                          },
           },
         },
-        activeProvider: "codex",
+        activeProvider: "opencode",
       });
     } finally {
       await mounted.cleanup();
@@ -3317,7 +3313,7 @@ describe("ChatView timeline estimator parity (full app)", () => {
           expect(createThreadRequest?.command).toMatchObject({
             envMode: "worktree",
             branch: createWorktreeRequest?.newBranch,
-            worktreePath: `/repo/.codex/worktrees/project/${String(createWorktreeRequest?.newBranch).replaceAll("/", "-")}`,
+            worktreePath: `/repo/.opencode/worktrees/project/${String(createWorktreeRequest?.newBranch).replaceAll("/", "-")}`,
           });
         },
         { timeout: 8_000, interval: 16 },
@@ -3330,16 +3326,15 @@ describe("ChatView timeline estimator parity (full app)", () => {
   it("hydrates the provider alongside a sticky claude model", async () => {
     useComposerDraftStore.setState({
       stickyModelSelectionByProvider: {
-        claudeAgent: {
-          provider: "claudeAgent",
+        opencode: {
+          provider: "opencode",
           model: "claude-opus-4-6",
           options: {
-            effort: "max",
-            fastMode: true,
-          },
+            variant: "max",
+                      },
         },
       },
-      stickyActiveProvider: "claudeAgent",
+      stickyActiveProvider: "opencode",
     });
 
     const mounted = await mountChatView({
@@ -3365,16 +3360,15 @@ describe("ChatView timeline estimator parity (full app)", () => {
 
       expect(useComposerDraftStore.getState().draftsByThreadId[newThreadId]).toMatchObject({
         modelSelectionByProvider: {
-          claudeAgent: {
-            provider: "claudeAgent",
+          opencode: {
+            provider: "opencode",
             model: "claude-opus-4-6",
             options: {
-              effort: "max",
-              fastMode: true,
-            },
+              variant: "max",
+                          },
           },
         },
-        activeProvider: "claudeAgent",
+        activeProvider: "opencode",
       });
     } finally {
       await mounted.cleanup();
@@ -3412,16 +3406,15 @@ describe("ChatView timeline estimator parity (full app)", () => {
   it("reuses the existing draft thread when the user clicks new thread again", async () => {
     useComposerDraftStore.setState({
       stickyModelSelectionByProvider: {
-        codex: {
-          provider: "codex",
+        opencode: {
+          provider: "opencode",
           model: "gpt-5.3-codex",
           options: {
-            reasoningEffort: "medium",
-            fastMode: true,
-          },
+            variant: "medium",
+                      },
         },
       },
-      stickyActiveProvider: "codex",
+      stickyActiveProvider: "opencode",
     });
 
     const mounted = await mountChatView({
@@ -3447,39 +3440,36 @@ describe("ChatView timeline estimator parity (full app)", () => {
 
       expect(useComposerDraftStore.getState().draftsByThreadId[threadId]).toMatchObject({
         modelSelectionByProvider: {
-          codex: {
-            provider: "codex",
+          opencode: {
+            provider: "opencode",
             model: "gpt-5.3-codex",
             options: {
-              fastMode: true,
-            },
+                          },
           },
         },
-        activeProvider: "codex",
+        activeProvider: "opencode",
       });
 
       useComposerDraftStore.getState().setModelSelection(threadId, {
-        provider: "codex",
+        provider: "opencode",
         model: "gpt-5.4",
         options: {
-          reasoningEffort: "low",
-          fastMode: true,
-        },
+          variant: "low",
+                  },
       });
       await vi.waitFor(
         () => {
           expect(useComposerDraftStore.getState().draftsByThreadId[threadId]).toMatchObject({
             modelSelectionByProvider: {
-              codex: {
-                provider: "codex",
+              opencode: {
+                provider: "opencode",
                 model: "gpt-5.4",
                 options: {
-                  reasoningEffort: "low",
-                  fastMode: true,
-                },
+                  variant: "low",
+                                  },
               },
             },
-            activeProvider: "codex",
+            activeProvider: "opencode",
           });
         },
         { timeout: 8_000, interval: 16 },
@@ -3643,15 +3633,15 @@ describe("ChatView timeline estimator parity (full app)", () => {
           mentions: [],
           queuedTurns: [],
           modelSelectionByProvider: {
-            claudeAgent: {
-              provider: "claudeAgent",
+            opencode: {
+              provider: "opencode",
               model: "claude-opus-4-6",
               options: {
-                effort: "max",
+                variant: "max",
               },
             },
           },
-          activeProvider: "claudeAgent",
+          activeProvider: "opencode",
           runtimeMode: null,
           interactionMode: null,
         },
@@ -3737,10 +3727,10 @@ describe("ChatView timeline estimator parity (full app)", () => {
             worktreePath: "/repo/project/.worktrees/terminal-title",
             runtimeMode: "approval-required",
             modelSelection: {
-              provider: "claudeAgent",
+              provider: "opencode",
               model: "claude-opus-4-6",
               options: {
-                effort: "max",
+                variant: "max",
               },
             },
           });

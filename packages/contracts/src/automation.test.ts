@@ -32,8 +32,8 @@ it.effect("defaults automation runtime mode to approval-required", () =>
       prompt: "Check for stale dependencies.",
       schedule: { type: "manual" },
       modelSelection: {
-        provider: "codex",
-        model: "gpt-5-codex",
+        provider: "opencode",
+        model: "openai/gpt-5",
       },
     });
 
@@ -60,8 +60,8 @@ it.effect("decodes legacy automation definitions without completion policies", (
       enabled: true,
       nextRunAt: null,
       modelSelection: {
-        provider: "codex",
-        model: "gpt-5-codex",
+        provider: "opencode",
+        model: "openai/gpt-5",
       },
       runtimeMode: "approval-required",
       interactionMode: "default",
@@ -124,10 +124,10 @@ it.effect("accepts automation runs with immutable permission snapshots", () =>
       error: null,
       result: null,
       permissionSnapshot: {
-        provider: "codex",
+        provider: "opencode",
         modelSelection: {
-          provider: "codex",
-          model: "gpt-5-codex",
+          provider: "opencode",
+          model: "openai/gpt-5",
         },
         completionPolicyVersion: 7,
         runtimeMode: "approval-required",
@@ -272,10 +272,10 @@ it.effect("accepts automation stream run updates", () =>
         error: null,
         result: null,
         permissionSnapshot: {
-          provider: "codex",
+          provider: "opencode",
           modelSelection: {
-            provider: "codex",
-            model: "gpt-5-codex",
+            provider: "opencode",
+            model: "openai/gpt-5",
           },
           runtimeMode: "approval-required",
           interactionMode: "default",

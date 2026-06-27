@@ -9,11 +9,9 @@ import {
   PROVIDER_SEND_TURN_MAX_ATTACHMENTS,
   PROVIDER_SEND_TURN_MAX_FILE_BYTES,
   PROVIDER_SEND_TURN_MAX_IMAGE_BYTES,
-  type ClaudeCodeEffort,
   type ProviderKind,
   type UploadChatAttachment,
 } from "@t3tools/contracts";
-import { applyClaudePromptEffortPrefix, getModelCapabilities } from "@t3tools/shared/model";
 
 import type {
   ComposerAssistantSelectionAttachment,
@@ -159,46 +157,23 @@ export function cloneComposerImageAttachment(
   }
 }
 
-// Provider-specific prompt massaging. Claude prompt-injected efforts must be
-// applied before filtering skill/mention references and before dispatch.
+// OpenCode does not inject effort prefixes into outgoing prompts.
 export function formatOutgoingComposerPrompt(params: {
   provider: ProviderKind;
   model: string | null;
   effort: string | null;
   text: string;
 }): string {
-  const caps = getModelCapabilities(params.provider, params.model);
-  if (params.effort && caps.promptInjectedEffortLevels.includes(params.effort)) {
-    return applyClaudePromptEffortPrefix(params.text, params.effort as ClaudeCodeEffort | null);
-  }
   return params.text;
 }
 
 export function resolvePromptEffortFromModelSelection(
   modelSelection: ModelSelection,
 ): string | null {
-  switch (modelSelection.provider) {
-    case "codex":
-      return modelSelection.options?.reasoningEffort ?? null;
-    case "claudeAgent":
-      return modelSelection.options?.effort ?? null;
-    case "cursor":
-      return modelSelection.options?.reasoningEffort ?? null;
-    case "gemini":
-      return (
-        modelSelection.options?.thinkingLevel ??
-        (modelSelection.options?.thinkingBudget !== undefined
-          ? String(modelSelection.options.thinkingBudget)
-          : null)
-      );
-    case "grok":
-      return modelSelection.options?.reasoningEffort ?? null;
-    case "pi":
-      return modelSelection.options?.thinkingLevel ?? null;
-    case "kilo":
-    case "opencode":
-      return null;
+  if (modelSelection.provider !== "opencode") {
+    return null;
   }
+  return modelSelection.options?.variant ?? null;
 }
 
 export async function buildUploadComposerAttachments(input: {

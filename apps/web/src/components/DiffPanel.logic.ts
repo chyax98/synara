@@ -60,8 +60,8 @@ export function resolveDiffPanelThread(input: {
     input.threadId,
     input.draftThread,
     input.fallbackModelSelection ?? {
-      provider: "codex",
-      model: DEFAULT_MODEL_BY_PROVIDER.codex,
+      provider: "opencode",
+      model: DEFAULT_MODEL_BY_PROVIDER.opencode,
     },
     null,
   );

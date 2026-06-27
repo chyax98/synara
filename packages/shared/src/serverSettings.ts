@@ -9,7 +9,7 @@ import { deepMerge, type DeepPartial } from "./Struct";
 function shouldReplaceTextGenerationModelSelection(
   patch: ServerSettingsPatch["textGenerationModelSelection"] | undefined,
 ): boolean {
-  return Boolean(patch && (patch.provider !== undefined || patch.model !== undefined));
+  return Boolean(patch && patch.model !== undefined);
 }
 
 export function applyServerSettingsPatch(
@@ -22,13 +22,10 @@ export function applyServerSettingsPatch(
     return next;
   }
 
-  const provider = selectionPatch.provider ?? current.textGenerationModelSelection.provider;
   const model =
     selectionPatch.model ??
-    (selectionPatch.provider &&
-    selectionPatch.provider !== "pi" &&
-    selectionPatch.provider !== current.textGenerationModelSelection.provider
-      ? DEFAULT_MODEL_BY_PROVIDER[selectionPatch.provider]
+    (shouldReplaceTextGenerationModelSelection(selectionPatch)
+      ? DEFAULT_MODEL_BY_PROVIDER.opencode
       : current.textGenerationModelSelection.model);
   const options = shouldReplaceTextGenerationModelSelection(selectionPatch)
     ? selectionPatch.options
@@ -37,7 +34,7 @@ export function applyServerSettingsPatch(
   return {
     ...next,
     textGenerationModelSelection: {
-      provider,
+      provider: "opencode",
       model,
       ...(options !== undefined ? { options } : {}),
     } as ModelSelection,

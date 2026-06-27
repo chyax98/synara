@@ -37,7 +37,7 @@ function makeLatestTurn(
 
 function makeSession(overrides: Partial<ThreadSession> = {}): ThreadSession {
   return {
-    provider: "codex",
+    provider: "opencode",
     status: "ready",
     createdAt: "2026-03-09T10:00:00.000Z",
     updatedAt: "2026-03-09T10:00:00.000Z",
@@ -54,7 +54,7 @@ function makeSidebarThreadSummary(
     projectId: ProjectId.makeUnsafe("project-1"),
     title: "Thread",
     modelSelection: {
-      provider: "codex",
+      provider: "opencode",
       model: "gpt-5.4",
     },
     interactionMode: DEFAULT_INTERACTION_MODE,
@@ -260,7 +260,7 @@ describe("buildKanbanBoard", () => {
           [localId]: {
             prompt: "  Fix the flaky reconnect test  ",
             hasAttachments: false,
-            provider: "claudeAgent",
+            provider: "opencode",
           },
         },
       }),
@@ -275,7 +275,7 @@ describe("buildKanbanBoard", () => {
     expect(localCard.thread).toBeNull();
     expect(localCard.draftPrompt).toBe("Fix the flaky reconnect test");
     expect(localCard.title).toContain("Fix the flaky");
-    expect(localCard.provider).toBe("claudeAgent");
+    expect(localCard.provider).toBe("opencode");
   });
 
   it("surfaces an unsent prompt on a settled thread as an extra draft card", () => {
@@ -292,7 +292,7 @@ describe("buildKanbanBoard", () => {
           [threadId]: {
             prompt: "Follow up on the review notes",
             hasAttachments: false,
-            provider: "cursor",
+            provider: "opencode",
           },
         },
       }),
@@ -304,7 +304,7 @@ describe("buildKanbanBoard", () => {
     const draftCard = project.draft[0]!;
     expect(draftCard.threadId).toBe(threadId);
     expect(draftCard.thread).not.toBeNull();
-    expect(draftCard.provider).toBe("cursor");
+    expect(draftCard.provider).toBe("opencode");
     expect(resolveDraftDropAction(draftCard)).toBe("dispatch");
   });
 
@@ -386,7 +386,7 @@ describe("buildKanbanBoard", () => {
           },
         ],
         composerDraftByThreadId: {
-          [threadId]: { prompt: "", hasAttachments: true, provider: "cursor" },
+          [threadId]: { prompt: "", hasAttachments: true, provider: "opencode" },
         },
       }),
     );
@@ -394,7 +394,7 @@ describe("buildKanbanBoard", () => {
     const draftCard = board.projects[0]!.draft[0]!;
     expect(draftCard.title).toBe("Attached references");
     expect(draftCard.draftHasAttachments).toBe(true);
-    expect(draftCard.provider).toBe("cursor");
+    expect(draftCard.provider).toBe("opencode");
     expect(resolveDraftDropAction(draftCard)).toBe("dispatch");
   });
 
@@ -449,7 +449,7 @@ describe("buildKanbanBoard optimistic dispatch", () => {
   ): KanbanOptimisticDispatchSnapshot => ({
     projectId: ProjectId.makeUnsafe("project-1"),
     title: "Fix the flaky reconnect test",
-    provider: "cursor",
+    provider: "opencode",
     baselineTurnId: null,
     droppedAtMs: Date.parse("2026-03-09T12:00:00.000Z"),
     ...overrides,
@@ -547,7 +547,7 @@ describe("buildKanbanBoard optimistic dispatch", () => {
     const card = project.inProgress[0]!;
     expect(card.isOptimisticDispatch).toBe(true);
     expect(card.title).toBe("Fix the flaky reconnect test");
-    expect(card.provider).toBe("cursor");
+    expect(card.provider).toBe("opencode");
     expect(card.thread).toBeNull();
   });
 
@@ -828,7 +828,7 @@ describe("areKanbanComposerDraftSnapshotsEqual", () => {
     expect(
       areKanbanComposerDraftSnapshotsEqual(
         { "thread-1": snapshot("hello") },
-        { "thread-1": { ...snapshot("hello"), provider: "cursor" } },
+        { "thread-1": { ...snapshot("hello"), provider: "opencode" } },
       ),
     ).toBe(false);
     expect(

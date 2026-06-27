@@ -16,7 +16,7 @@ import { Effect, Layer, Schema, SchemaIssue } from "effect";
 import { ServerConfig } from "../../config.ts";
 import { ServerSettingsService } from "../../serverSettings.ts";
 import { ProviderValidationError } from "../Errors.ts";
-import { ProviderAdapterRegistry } from "../Services/ProviderAdapterRegistry.ts";
+import { OpenCodeAdapter } from "../Services/OpenCodeAdapter.ts";
 import {
   ProviderDiscoveryService,
   type ProviderDiscoveryServiceShape,
@@ -58,9 +58,21 @@ const disabledCapabilitiesForProvider = (
 });
 
 const make = Effect.gen(function* () {
-  const registry = yield* ProviderAdapterRegistry;
+  const adapter = yield* OpenCodeAdapter;
   const serverConfig = yield* ServerConfig;
   const serverSettings = yield* ServerSettingsService;
+
+  const requireOpenCodeProvider = (provider: string) => {
+    if (provider !== adapter.provider) {
+      return Effect.fail(
+        new ProviderValidationError({
+          operation: "ProviderDiscoveryService",
+          issue: `Provider '${provider}' is not supported. Only 'opencode' is available.`,
+        }),
+      );
+    }
+    return Effect.void;
+  };
 
   const getComposerCapabilities: ProviderDiscoveryServiceShape["getComposerCapabilities"] = (
     input,
@@ -71,12 +83,10 @@ const make = Effect.gen(function* () {
         schema: ProviderGetComposerCapabilitiesInput,
         payload: input,
       });
-      const adapter = yield* registry.getByProvider(parsed.provider);
+      yield* requireOpenCodeProvider(parsed.provider);
       const capabilities = adapter.getComposerCapabilities
         ? yield* adapter.getComposerCapabilities()
         : disabledCapabilitiesForProvider(parsed.provider);
-      // The unified Synara skills catalog backs skill discovery for every
-      // provider, including ones without native skill support.
       return {
         ...capabilities,
         supportsSkillMentions: true,
@@ -91,7 +101,7 @@ const make = Effect.gen(function* () {
         schema: ProviderListSkillsInput,
         payload: input,
       });
-      const adapter = yield* registry.getByProvider(parsed.provider);
+      yield* requireOpenCodeProvider(parsed.provider);
       const nativeResult: ProviderListSkillsResult | null = adapter.listSkills
         ? yield* adapter
             .listSkills(parsed)
@@ -141,7 +151,7 @@ const make = Effect.gen(function* () {
         schema: ProviderListCommandsInput,
         payload: input,
       });
-      const adapter = yield* registry.getByProvider(parsed.provider);
+      yield* requireOpenCodeProvider(parsed.provider);
       if (!adapter.listCommands) {
         return {
           commands: [],
@@ -159,7 +169,7 @@ const make = Effect.gen(function* () {
         schema: ProviderListPluginsInput,
         payload: input,
       });
-      const adapter = yield* registry.getByProvider(parsed.provider);
+      yield* requireOpenCodeProvider(parsed.provider);
       if (!adapter.listPlugins) {
         return {
           marketplaces: [],
@@ -180,7 +190,7 @@ const make = Effect.gen(function* () {
         schema: ProviderReadPluginInput,
         payload: input,
       });
-      const adapter = yield* registry.getByProvider(parsed.provider);
+      yield* requireOpenCodeProvider(parsed.provider);
       if (!adapter.readPlugin) {
         return yield* new ProviderValidationError({
           operation: "ProviderDiscoveryService.readPlugin",
@@ -197,7 +207,7 @@ const make = Effect.gen(function* () {
         schema: ProviderListModelsInput,
         payload: input,
       });
-      const adapter = yield* registry.getByProvider(parsed.provider);
+      yield* requireOpenCodeProvider(parsed.provider);
       if (!adapter.listModels) {
         return {
           models: [],
@@ -215,7 +225,7 @@ const make = Effect.gen(function* () {
         schema: ProviderListAgentsInput,
         payload: input,
       });
-      const adapter = yield* registry.getByProvider(parsed.provider);
+      yield* requireOpenCodeProvider(parsed.provider);
       if (!adapter.listAgents) {
         return {
           agents: [],

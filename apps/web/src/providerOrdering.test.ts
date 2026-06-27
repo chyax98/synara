@@ -22,8 +22,8 @@ describe("providerOrdering", () => {
   });
 
   it("keeps Pi as a valid provider for persisted order and visibility settings", () => {
-    expect(isProviderKind("pi")).toBe(true);
-    expect(normalizeProviderOrder(["pi", "codex"])[0]).toBe("pi");
-    expect(normalizeHiddenProviders(["bogus", "pi", "pi"])).toEqual(["pi"]);
+    expect(isProviderKind("opencode")).toBe(true);
+    expect(normalizeProviderOrder(["opencode", "codex"])[0]).toBe("opencode");
+    expect(normalizeHiddenProviders(["bogus", "opencode", "opencode"])).toEqual(["opencode"]);
   });
 });

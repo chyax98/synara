@@ -44,7 +44,7 @@ function getProviderNativeSlashCommandAliases(
   command: string,
 ): readonly string[] {
   const normalizedCommand = normalizeComposerSlashCommandName(command);
-  if (provider !== "claudeAgent") {
+  if (provider !== "opencode") {
     return [];
   }
   return CLAUDE_NATIVE_COMMAND_ALIASES[normalizedCommand] ?? [];
@@ -69,20 +69,18 @@ function expandProviderNativeSlashCommandNames(
 }
 
 function shouldKeepBuiltInSlashCommandDespiteNativeCollision(
-  provider: ProviderKind,
+  _provider: ProviderKind,
   command: ComposerSlashCommand,
 ): boolean {
-  return command === "automation" || (provider === "codex" && command === "review");
+  return command === "automation";
 }
 
 export function shouldHideProviderNativeCommandFromComposerMenu(
-  provider: ProviderKind,
+  _provider: ProviderKind,
   command: string,
 ): boolean {
   const normalizedCommand = normalizeComposerSlashCommandName(command);
-  return (
-    normalizedCommand === "automation" || (provider === "codex" && normalizedCommand === "review")
-  );
+  return normalizedCommand === "automation";
 }
 
 export function getProviderNativeSlashCommandSearchTerms(
@@ -354,7 +352,7 @@ export function getAvailableComposerSlashCommands(input: {
   );
 
   const availableCommands: ComposerSlashCommand[] =
-    input.provider !== "claudeAgent"
+    input.provider !== "opencode"
       ? [
           "clear",
           ...(input.canOfferCompactCommand ? (["compact"] as const) : []),

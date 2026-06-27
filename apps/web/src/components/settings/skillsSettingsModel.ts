@@ -48,44 +48,28 @@ export const ORIGIN_SECTION_ORDER = [
   "agents",
   "project",
 ] as const;
-export const PROVIDER_STACK_ORDER: readonly ProviderKind[] = [
-  "codex",
-  "claudeAgent",
-  "cursor",
-  "gemini",
-  "grok",
-  "kilo",
-  "opencode",
-  "pi",
-] as const;
+export const PROVIDER_STACK_ORDER: readonly ProviderKind[] = ["opencode"] as const;
+
+const SKILL_ORIGIN_LABELS: Record<string, string> = {
+  synara: "Synara",
+  codex: "Codex",
+  claude: "Claude",
+  cursor: "Cursor",
+  gemini: "Gemini",
+  grok: "Grok",
+  kilo: "Kilo",
+  opencode: PROVIDER_DISPLAY_NAMES.opencode,
+  pi: "Pi",
+  agents: "Shared (.agents)",
+  project: "Project",
+};
 
 export function skillOriginInfo(scope: string | undefined): SkillOriginInfo {
-  switch (scope) {
-    case "synara":
-      return { label: "Synara", provider: null };
-    case "codex":
-      return { label: PROVIDER_DISPLAY_NAMES.codex, provider: "codex" };
-    case "claude":
-      return { label: PROVIDER_DISPLAY_NAMES.claudeAgent, provider: "claudeAgent" };
-    case "cursor":
-      return { label: PROVIDER_DISPLAY_NAMES.cursor, provider: "cursor" };
-    case "gemini":
-      return { label: PROVIDER_DISPLAY_NAMES.gemini, provider: "gemini" };
-    case "grok":
-      return { label: PROVIDER_DISPLAY_NAMES.grok, provider: "grok" };
-    case "kilo":
-      return { label: PROVIDER_DISPLAY_NAMES.kilo, provider: "kilo" };
-    case "opencode":
-      return { label: PROVIDER_DISPLAY_NAMES.opencode, provider: "opencode" };
-    case "pi":
-      return { label: PROVIDER_DISPLAY_NAMES.pi, provider: "pi" };
-    case "agents":
-      return { label: "Shared (.agents)", provider: null };
-    case "project":
-      return { label: "Project", provider: null };
-    default:
-      return { label: scope ?? "Personal", provider: null };
-  }
+  const origin = scope ?? PERSONAL_ORIGIN;
+  const label = SKILL_ORIGIN_LABELS[origin] ?? origin;
+  const provider =
+    origin === "synara" || origin === "agents" || origin === "project" ? null : "opencode";
+  return { label, provider };
 }
 
 export function providersForSkillOrigin(origin: string): ProviderKind[] {

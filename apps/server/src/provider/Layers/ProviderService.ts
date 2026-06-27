@@ -1,8 +1,8 @@
 /**
  * ProviderServiceLive - Cross-provider orchestration layer.
  *
- * Routes validated transport/API calls to provider adapters through
- * `ProviderAdapterRegistry` and `ProviderSessionDirectory`, and exposes a
+ * Routes validated transport/API calls to the OpenCode adapter through
+ * `ProviderSessionDirectory`, and exposes a
  * unified provider event stream for subscribers.
  *
  * It does not implement provider protocol details (adapter concern).
@@ -14,6 +14,7 @@ import {
   ProviderForkThreadInput,
   ModelSelection,
   NonNegativeInt,
+  type ProviderKind,
   ThreadId,
   ProviderInterruptTurnInput,
   ProviderRespondToRequestInput,
@@ -30,7 +31,7 @@ import {
 import { Cause, Effect, Exit, Layer, Option, PubSub, Schema, SchemaIssue, Stream } from "effect";
 
 import { ProviderValidationError } from "../Errors.ts";
-import { ProviderAdapterRegistry } from "../Services/ProviderAdapterRegistry.ts";
+import { OpenCodeAdapter, type OpenCodeAdapterShape } from "../Services/OpenCodeAdapter.ts";
 import { ProviderService, type ProviderServiceShape } from "../Services/ProviderService.ts";
 import {
   ProviderSessionDirectory,
@@ -250,8 +251,22 @@ const makeProviderService = (options?: ProviderServiceLiveOptions) =>
           })
         : undefined);
 
-    const registry = yield* ProviderAdapterRegistry;
+    const openCodeAdapter = yield* OpenCodeAdapter;
     const directory = yield* ProviderSessionDirectory;
+
+    const getAdapter = (
+      provider: ProviderKind,
+    ): Effect.Effect<OpenCodeAdapterShape, ProviderValidationError> => {
+      if (provider !== openCodeAdapter.provider) {
+        return Effect.fail(
+          toValidationError(
+            "ProviderService.getAdapter",
+            `Provider '${provider}' is not supported. Only 'opencode' is available.`,
+          ),
+        );
+      }
+      return Effect.succeed(openCodeAdapter);
+    };
     const runtimeEventPubSub = yield* PubSub.unbounded<ProviderRuntimeEvent>();
     const runtimeIdleTimers = new Map<ThreadId, ReturnType<typeof setTimeout>>();
     // Fired idle callbacks outlive their timer map entry, so use generations to
@@ -438,7 +453,7 @@ const makeProviderService = (options?: ProviderServiceLiveOptions) =>
       }
 
       return Effect.gen(function* () {
-        const adapter = yield* registry.getByProvider(binding.provider);
+        const adapter = yield* getAdapter(binding.provider);
         const sessions = yield* adapter.listSessions();
         const activeSession = sessions.find((session) => session.threadId === event.threadId);
         return activeSession?.resumeCursor ?? binding.resumeCursor;
@@ -527,10 +542,7 @@ const makeProviderService = (options?: ProviderServiceLiveOptions) =>
       );
     };
 
-    const providers = yield* registry.listProviders();
-    const adapters = yield* Effect.forEach(providers, (provider) =>
-      registry.getByProvider(provider),
-    );
+    const adapters = [openCodeAdapter] as const;
     const processRuntimeEvent = (event: ProviderRuntimeEvent): Effect.Effect<void> =>
       Effect.sync(() => {
         if (event.type === "turn.started") {
@@ -559,7 +571,7 @@ const makeProviderService = (options?: ProviderServiceLiveOptions) =>
       readonly operation: string;
     }) =>
       Effect.gen(function* () {
-        const adapter = yield* registry.getByProvider(input.binding.provider);
+        const adapter = yield* getAdapter(input.binding.provider);
         const hasPersistedResumeCursor = hasResumeCursor(input.binding.resumeCursor);
         const hasActiveSession = yield* adapter.hasSession(input.binding.threadId);
         if (hasActiveSession) {
@@ -615,18 +627,10 @@ const makeProviderService = (options?: ProviderServiceLiveOptions) =>
       });
 
     const findLiveSessionAdapter = (threadId: ThreadId) =>
-      Effect.gen(function* () {
-        const matches = yield* Effect.forEach(
-          adapters,
-          (adapter) =>
-            adapter.hasSession(threadId).pipe(
-              Effect.map((hasSession) => (hasSession ? adapter : null)),
-              Effect.orElseSucceed(() => null),
-            ),
-          { concurrency: "unbounded" },
-        );
-        return matches.find((adapter) => adapter !== null) ?? null;
-      });
+      openCodeAdapter.hasSession(threadId).pipe(
+        Effect.map((hasSession) => (hasSession ? openCodeAdapter : null)),
+        Effect.orElseSucceed(() => null),
+      );
 
     const resolveRoutableSession = (input: {
       readonly threadId: ThreadId;
@@ -648,7 +652,7 @@ const makeProviderService = (options?: ProviderServiceLiveOptions) =>
             `Cannot route thread '${input.threadId}' because no persisted provider binding exists.`,
           );
         }
-        const adapter = yield* registry.getByProvider(binding.provider);
+        const adapter = yield* getAdapter(binding.provider);
 
         const hasRequestedSession = yield* adapter.hasSession(input.threadId);
         if (hasRequestedSession) {
@@ -674,7 +678,7 @@ const makeProviderService = (options?: ProviderServiceLiveOptions) =>
         const input = {
           ...parsed,
           threadId,
-          provider: parsed.provider ?? "codex",
+          provider: parsed.provider ?? "opencode",
         };
         clearRuntimeIdleTimer(threadId);
         yield* waitForRuntimeIdleStop(threadId);
@@ -689,7 +693,7 @@ const makeProviderService = (options?: ProviderServiceLiveOptions) =>
           (persistedBinding?.provider === input.provider
             ? readPersistedProviderOptions(persistedBinding.runtimePayload)
             : undefined);
-        const adapter = yield* registry.getByProvider(input.provider);
+        const adapter = yield* getAdapter(input.provider);
         const session = yield* adapter.startSession({
           ...input,
           ...(effectiveProviderOptions !== undefined
@@ -748,7 +752,7 @@ const makeProviderService = (options?: ProviderServiceLiveOptions) =>
           input.providerOptions ?? readPersistedProviderOptions(sourceBinding.runtimePayload);
         const sourceCwd = readPersistedCwd(sourceBinding.runtimePayload);
 
-        const adapter = yield* registry.getByProvider(sourceBinding.provider);
+        const adapter = yield* getAdapter(sourceBinding.provider);
         if (!adapter.forkThread) {
           return null;
         }
@@ -1088,7 +1092,7 @@ const makeProviderService = (options?: ProviderServiceLiveOptions) =>
         if (!binding || !isExpectedIdleStopCurrent()) {
           return;
         }
-        const adapter = yield* registry.getByProvider(binding.provider);
+        const adapter = yield* getAdapter(binding.provider);
         const hasActiveSession = yield* adapter.hasSession(input.threadId);
         if (!isExpectedIdleStopCurrent()) {
           return;
@@ -1134,7 +1138,7 @@ const makeProviderService = (options?: ProviderServiceLiveOptions) =>
           return;
         }
 
-        const adapter = yield* registry.getByProvider(binding.provider);
+        const adapter = yield* getAdapter(binding.provider);
         const sessions = yield* adapter.listSessions();
         const session = sessions.find((entry) => entry.threadId === threadId);
         const bindingRuntimePayload = runtimePayloadRecord(binding.runtimePayload);
@@ -1192,7 +1196,7 @@ const makeProviderService = (options?: ProviderServiceLiveOptions) =>
         if (!binding) {
           return;
         }
-        const adapter = yield* registry.getByProvider(binding.provider);
+        const adapter = yield* getAdapter(binding.provider);
         const hasActiveSession = yield* adapter.hasSession(input.threadId);
         if (hasActiveSession) {
           yield* adapter.stopSession(input.threadId);
@@ -1261,7 +1265,7 @@ const makeProviderService = (options?: ProviderServiceLiveOptions) =>
       });
 
     const getCapabilities: ProviderServiceShape["getCapabilities"] = (provider) =>
-      registry.getByProvider(provider).pipe(Effect.map((adapter) => adapter.capabilities));
+      getAdapter(provider).pipe(Effect.map((adapter) => adapter.capabilities));
 
     const rollbackConversation: ProviderServiceShape["rollbackConversation"] = (rawInput) =>
       Effect.gen(function* () {

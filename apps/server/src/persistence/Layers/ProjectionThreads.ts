@@ -17,7 +17,6 @@ import {
   OrchestrationThreadPullRequest,
   ThreadPinnedMessages,
   ThreadMarkers,
-  ThreadHandoff,
 } from "@t3tools/contracts";
 
 const SqliteBoolean = Schema.Number.pipe(
@@ -31,7 +30,6 @@ const ProjectionThreadDbRow = ProjectionThread.mapFields(
   Struct.assign({
     createBranchFlowCompleted: SqliteBoolean,
     isPinned: SqliteBoolean,
-    handoff: Schema.NullOr(Schema.fromJsonString(ThreadHandoff)),
     lastKnownPr: Schema.NullOr(Schema.fromJsonString(OrchestrationThreadPullRequest)),
     pinnedMessages: Schema.NullOr(Schema.fromJsonString(ThreadPinnedMessages)),
     threadMarkers: Schema.NullOr(Schema.fromJsonString(ThreadMarkers)),
@@ -106,7 +104,7 @@ const makeProjectionThreadRepository = Effect.gen(function* () {
           ${row.sidechatSourceThreadId ?? null},
           ${row.lastKnownPr === null ? null : JSON.stringify(row.lastKnownPr)},
           ${row.latestTurnId},
-          ${row.handoff === null ? null : JSON.stringify(row.handoff)},
+          ${null},
           ${row.pinnedMessages === null ? null : JSON.stringify(row.pinnedMessages)},
           ${row.threadMarkers === null ? null : JSON.stringify(row.threadMarkers)},
           ${row.notes},
@@ -185,7 +183,7 @@ const makeProjectionThreadRepository = Effect.gen(function* () {
           sidechat_source_thread_id AS "sidechatSourceThreadId",
           last_known_pr_json AS "lastKnownPr",
           latest_turn_id AS "latestTurnId",
-          handoff_json AS "handoff",
+
           pinned_messages_json AS "pinnedMessages",
           thread_markers_json AS "threadMarkers",
           notes,
@@ -230,7 +228,7 @@ const makeProjectionThreadRepository = Effect.gen(function* () {
           sidechat_source_thread_id AS "sidechatSourceThreadId",
           last_known_pr_json AS "lastKnownPr",
           latest_turn_id AS "latestTurnId",
-          handoff_json AS "handoff",
+
           pinned_messages_json AS "pinnedMessages",
           thread_markers_json AS "threadMarkers",
           notes,

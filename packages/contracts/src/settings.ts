@@ -1,7 +1,7 @@
 import { Schema } from "effect";
 import { TrimmedString } from "./baseSchemas";
 import { DEFAULT_GIT_TEXT_GENERATION_MODEL } from "./model";
-import { ModelSelection, ProviderKind, ThreadEnvironmentMode } from "./orchestration";
+import { ModelSelection, ThreadEnvironmentMode } from "./orchestration";
 
 const StringSetting = TrimmedString.check(Schema.isMaxLength(4096));
 const CustomModels = Schema.Array(Schema.String.check(Schema.isMaxLength(256))).pipe(
@@ -14,41 +14,6 @@ const ProviderSettingsBase = {
   customModels: CustomModels,
 };
 
-export const CodexServerProviderSettings = Schema.Struct({
-  ...ProviderSettingsBase,
-  binaryPath: StringSetting.pipe(Schema.withDecodingDefault(() => "codex")),
-  homePath: StringSetting.pipe(Schema.withDecodingDefault(() => "")),
-});
-export type CodexServerProviderSettings = typeof CodexServerProviderSettings.Type;
-
-export const ClaudeServerProviderSettings = Schema.Struct({
-  ...ProviderSettingsBase,
-  binaryPath: StringSetting.pipe(Schema.withDecodingDefault(() => "claude")),
-  launchArgs: Schema.String.check(Schema.isMaxLength(4096)).pipe(
-    Schema.withDecodingDefault(() => ""),
-  ),
-});
-export type ClaudeServerProviderSettings = typeof ClaudeServerProviderSettings.Type;
-
-export const GeminiServerProviderSettings = Schema.Struct({
-  ...ProviderSettingsBase,
-  binaryPath: StringSetting.pipe(Schema.withDecodingDefault(() => "gemini")),
-});
-export type GeminiServerProviderSettings = typeof GeminiServerProviderSettings.Type;
-
-export const GrokServerProviderSettings = Schema.Struct({
-  ...ProviderSettingsBase,
-  binaryPath: StringSetting.pipe(Schema.withDecodingDefault(() => "grok")),
-});
-export type GrokServerProviderSettings = typeof GrokServerProviderSettings.Type;
-
-export const CursorServerProviderSettings = Schema.Struct({
-  ...ProviderSettingsBase,
-  binaryPath: StringSetting.pipe(Schema.withDecodingDefault(() => "cursor-agent")),
-  apiEndpoint: StringSetting.pipe(Schema.withDecodingDefault(() => "")),
-});
-export type CursorServerProviderSettings = typeof CursorServerProviderSettings.Type;
-
 export const OpenCodeServerProviderSettings = Schema.Struct({
   ...ProviderSettingsBase,
   binaryPath: StringSetting.pipe(Schema.withDecodingDefault(() => "opencode")),
@@ -58,27 +23,10 @@ export const OpenCodeServerProviderSettings = Schema.Struct({
 });
 export type OpenCodeServerProviderSettings = typeof OpenCodeServerProviderSettings.Type;
 
-export const KiloServerProviderSettings = Schema.Struct({
-  ...ProviderSettingsBase,
-  binaryPath: StringSetting.pipe(Schema.withDecodingDefault(() => "kilo")),
-  serverUrl: StringSetting.pipe(Schema.withDecodingDefault(() => "")),
-  serverPassword: StringSetting.pipe(Schema.withDecodingDefault(() => "")),
-});
-export type KiloServerProviderSettings = typeof KiloServerProviderSettings.Type;
-
-export const PiServerProviderSettings = Schema.Struct({
-  ...ProviderSettingsBase,
-  binaryPath: StringSetting.pipe(Schema.withDecodingDefault(() => "pi")),
-  agentDir: StringSetting.pipe(Schema.withDecodingDefault(() => "")),
-});
-export type PiServerProviderSettings = typeof PiServerProviderSettings.Type;
-
 const DisabledSkillNames = Schema.Array(Schema.String.check(Schema.isMaxLength(256))).pipe(
   Schema.withDecodingDefault(() => []),
 );
 
-// User-level skill toggles. Skills are keyed by lowercased name because the
-// unified catalog dedupes provider copies of the same skill by name.
 export const SkillsServerSettings = Schema.Struct({
   disabled: DisabledSkillNames,
 });
@@ -90,19 +38,12 @@ export const ServerSettings = Schema.Struct({
   addProjectBaseDirectory: StringSetting.pipe(Schema.withDecodingDefault(() => "")),
   textGenerationModelSelection: ModelSelection.pipe(
     Schema.withDecodingDefault(() => ({
-      provider: "codex" as const,
+      provider: "opencode" as const,
       model: DEFAULT_GIT_TEXT_GENERATION_MODEL,
     })),
   ),
   providers: Schema.Struct({
-    codex: CodexServerProviderSettings.pipe(Schema.withDecodingDefault(() => ({}))),
-    claudeAgent: ClaudeServerProviderSettings.pipe(Schema.withDecodingDefault(() => ({}))),
-    cursor: CursorServerProviderSettings.pipe(Schema.withDecodingDefault(() => ({}))),
-    gemini: GeminiServerProviderSettings.pipe(Schema.withDecodingDefault(() => ({}))),
-    grok: GrokServerProviderSettings.pipe(Schema.withDecodingDefault(() => ({}))),
-    kilo: KiloServerProviderSettings.pipe(Schema.withDecodingDefault(() => ({}))),
     opencode: OpenCodeServerProviderSettings.pipe(Schema.withDecodingDefault(() => ({}))),
-    pi: PiServerProviderSettings.pipe(Schema.withDecodingDefault(() => ({}))),
   }).pipe(Schema.withDecodingDefault(() => ({}))),
   skills: SkillsServerSettings.pipe(Schema.withDecodingDefault(() => ({}))),
 });
@@ -111,7 +52,6 @@ export type ServerSettings = typeof ServerSettings.Type;
 export const DEFAULT_SERVER_SETTINGS: ServerSettings = Schema.decodeSync(ServerSettings)({});
 
 const ModelSelectionPatch = Schema.Struct({
-  provider: Schema.optionalKey(ProviderKind),
   model: Schema.optionalKey(Schema.String.check(Schema.isMaxLength(256))),
   options: Schema.optionalKey(Schema.Unknown),
 });
@@ -129,46 +69,12 @@ export const ServerSettingsPatch = Schema.Struct({
   textGenerationModelSelection: Schema.optionalKey(ModelSelectionPatch),
   providers: Schema.optionalKey(
     Schema.Struct({
-      codex: Schema.optionalKey(
-        Schema.Struct({
-          ...ProviderSettingsBasePatch,
-          homePath: Schema.optionalKey(StringSetting),
-        }),
-      ),
-      claudeAgent: Schema.optionalKey(
-        Schema.Struct({
-          ...ProviderSettingsBasePatch,
-          launchArgs: Schema.optionalKey(Schema.String.check(Schema.isMaxLength(4096))),
-        }),
-      ),
-      cursor: Schema.optionalKey(
-        Schema.Struct({
-          ...ProviderSettingsBasePatch,
-          apiEndpoint: Schema.optionalKey(StringSetting),
-        }),
-      ),
-      gemini: Schema.optionalKey(Schema.Struct(ProviderSettingsBasePatch)),
-      grok: Schema.optionalKey(Schema.Struct(ProviderSettingsBasePatch)),
-      kilo: Schema.optionalKey(
-        Schema.Struct({
-          ...ProviderSettingsBasePatch,
-          serverUrl: Schema.optionalKey(StringSetting),
-          serverPassword: Schema.optionalKey(StringSetting),
-        }),
-      ),
       opencode: Schema.optionalKey(
         Schema.Struct({
           ...ProviderSettingsBasePatch,
           serverUrl: Schema.optionalKey(StringSetting),
           serverPassword: Schema.optionalKey(StringSetting),
           experimentalWebSockets: Schema.optionalKey(Schema.Boolean),
-        }),
-      ),
-      pi: Schema.optionalKey(
-        Schema.Struct({
-          ...ProviderSettingsBasePatch,
-          binaryPath: Schema.optionalKey(StringSetting),
-          agentDir: Schema.optionalKey(StringSetting),
         }),
       ),
     }),

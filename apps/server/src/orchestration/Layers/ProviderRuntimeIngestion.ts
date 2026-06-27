@@ -25,11 +25,17 @@ import {
   resolveSubagentIdentityFromDirectory,
 } from "@t3tools/shared/subagents";
 
-import {
-  generatedImageMarkdown,
-  generatedImagePathFromRuntimeEvent,
-  isGeneratedImageOnlyMarkdown,
-} from "../../codexGeneratedImages.ts";
+function generatedImagePathFromRuntimeEvent(_event: ProviderRuntimeEvent): string | undefined {
+  return undefined;
+}
+
+function generatedImageMarkdown(imagePath: string): string {
+  return `![generated image](${imagePath})`;
+}
+
+function isGeneratedImageOnlyMarkdown(_text: string): boolean {
+  return false;
+}
 import { parseCheckpointFilesFromUnifiedDiff } from "../../checkpointing/Diffs.ts";
 import { ProviderService } from "../../provider/Services/ProviderService.ts";
 import { ProjectionTurnRepository } from "../../persistence/Services/ProjectionTurns.ts";
@@ -2603,7 +2609,7 @@ const make = Effect.gen(function* () {
       const flushEvent: ProviderRuntimeEvent = {
         type: "turn.started",
         eventId: event.eventId,
-        provider: thread?.session?.providerName === "claudeAgent" ? "claudeAgent" : "codex",
+        provider: "opencode",
         createdAt: event.payload.createdAt,
         threadId: event.payload.threadId,
         turnId: activeTurnId,

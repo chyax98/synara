@@ -57,7 +57,7 @@ describe("orchestration projector", () => {
             projectId: "project-1",
             title: "demo",
             modelSelection: {
-              provider: "codex",
+              provider: "opencode",
               model: "gpt-5-codex",
             },
             runtimeMode: "full-access",
@@ -77,7 +77,7 @@ describe("orchestration projector", () => {
         projectId: "project-1",
         title: "demo",
         modelSelection: {
-          provider: "codex",
+          provider: "opencode",
           model: "gpt-5-codex",
         },
         runtimeMode: "full-access",
@@ -102,7 +102,6 @@ describe("orchestration projector", () => {
         updatedAt: now,
         archivedAt: null,
         deletedAt: null,
-        handoff: null,
         messages: [],
         proposedPlans: [],
         activities: [],
@@ -132,7 +131,7 @@ describe("orchestration projector", () => {
             projectId: "project-1",
             title: "demo",
             modelSelection: {
-              provider: "pi",
+              provider: "opencode",
               model: "openai/gpt-5.1",
             },
             runtimeMode: "full-access",
@@ -159,7 +158,7 @@ describe("orchestration projector", () => {
             threadId: "thread-1",
             messageId: "message-1",
             modelSelection: {
-              provider: "pi",
+              provider: "opencode",
               model: "openai/gpt-5.5",
             },
             runtimeMode: "approval-required",
@@ -171,7 +170,7 @@ describe("orchestration projector", () => {
     );
 
     expect(next.threads[0]?.modelSelection).toEqual({
-      provider: "pi",
+      provider: "opencode",
       model: "openai/gpt-5.5",
     });
     expect(next.threads[0]?.runtimeMode).toBe("approval-required");
@@ -199,7 +198,7 @@ describe("orchestration projector", () => {
             projectId: "project-1",
             title: "demo",
             modelSelection: {
-              provider: "codex",
+              provider: "opencode",
               model: "gpt-5-codex",
             },
             runtimeMode: "full-access",
@@ -263,7 +262,7 @@ describe("orchestration projector", () => {
               projectId: "project-1",
               title: "demo",
               modelSelection: {
-                provider: "codex",
+                provider: "opencode",
                 model: "gpt-5-codex",
               },
               branch: null,
@@ -326,7 +325,7 @@ describe("orchestration projector", () => {
             projectId: "project-1",
             title: "demo",
             modelSelection: {
-              provider: "codex",
+              provider: "opencode",
               model: "gpt-5.3-codex",
             },
             runtimeMode: "full-access",
@@ -354,7 +353,7 @@ describe("orchestration projector", () => {
             session: {
               threadId: "thread-1",
               status: "running",
-              providerName: "codex",
+              providerName: "opencode",
               providerSessionId: "session-1",
               providerThreadId: "provider-thread-1",
               runtimeMode: "approval-required",
@@ -393,7 +392,7 @@ describe("orchestration projector", () => {
             projectId: "project-1",
             title: "demo",
             modelSelection: {
-              provider: "codex",
+              provider: "opencode",
               model: "gpt-5.3-codex",
             },
             runtimeMode: "full-access",
@@ -421,7 +420,7 @@ describe("orchestration projector", () => {
             session: {
               threadId: "thread-1",
               status: "running",
-              providerName: "codex",
+              providerName: "opencode",
               providerSessionId: "session-1",
               providerThreadId: "provider-thread-1",
               runtimeMode: "approval-required",
@@ -487,7 +486,7 @@ describe("orchestration projector", () => {
             projectId: "project-1",
             title: "demo",
             modelSelection: {
-              provider: "codex",
+              provider: "opencode",
               model: "gpt-5.3-codex",
             },
             runtimeMode: "full-access",
@@ -539,7 +538,7 @@ describe("orchestration projector", () => {
             session: {
               threadId: "thread-1",
               status: "running",
-              providerName: "codex",
+              providerName: "opencode",
               providerSessionId: "session-1",
               providerThreadId: "provider-thread-1",
               runtimeMode: "full-access",
@@ -582,7 +581,7 @@ describe("orchestration projector", () => {
             projectId: "project-1",
             title: "demo",
             modelSelection: {
-              provider: "codex",
+              provider: "opencode",
               model: "gpt-5.3-codex",
             },
             runtimeMode: "full-access",
@@ -639,7 +638,7 @@ describe("orchestration projector", () => {
             projectId: "project-1",
             title: "demo",
             modelSelection: {
-              provider: "codex",
+              provider: "opencode",
               model: "gpt-5.3-codex",
             },
             runtimeMode: "full-access",
@@ -726,7 +725,7 @@ describe("orchestration projector", () => {
             projectId: "project-1",
             title: "demo",
             modelSelection: {
-              provider: "codex",
+              provider: "opencode",
               model: "gpt-5.3-codex",
             },
             runtimeMode: "full-access",
@@ -941,7 +940,7 @@ describe("orchestration projector", () => {
             projectId: "project-1",
             title: "demo",
             modelSelection: {
-              provider: "codex",
+              provider: "opencode",
               model: "gpt-5.3-codex",
             },
             runtimeMode: "full-access",
@@ -1094,7 +1093,7 @@ describe("orchestration projector", () => {
             projectId: "project-1",
             title: "capped",
             modelSelection: {
-              provider: "codex",
+              provider: "opencode",
               model: "gpt-5-codex",
             },
             runtimeMode: "full-access",

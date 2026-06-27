@@ -256,36 +256,12 @@ export interface TextGenerationShape {
 }
 
 /**
- * CodexTextGeneration - Provider-specific Codex implementation for git text generation.
- */
-export class CodexTextGeneration extends ServiceMap.Service<
-  CodexTextGeneration,
-  TextGenerationShape
->()("t3/git/Services/TextGeneration/CodexTextGeneration") {}
-
-/**
  * OpenCodeTextGeneration - Provider-specific OpenCode implementation for git text generation.
  */
 export class OpenCodeTextGeneration extends ServiceMap.Service<
   OpenCodeTextGeneration,
   TextGenerationShape
 >()("t3/git/Services/TextGeneration/OpenCodeTextGeneration") {}
-
-/**
- * KiloTextGeneration - Provider-specific Kilo implementation for git text generation.
- */
-export class KiloTextGeneration extends ServiceMap.Service<
-  KiloTextGeneration,
-  TextGenerationShape
->()("t3/git/Services/TextGeneration/KiloTextGeneration") {}
-
-/**
- * CursorTextGeneration - Provider-specific Cursor implementation for git text generation.
- */
-export class CursorTextGeneration extends ServiceMap.Service<
-  CursorTextGeneration,
-  TextGenerationShape
->()("t3/git/Services/TextGeneration/CursorTextGeneration") {}
 
 /**
  * TextGeneration - Service tag for commit and PR text generation.

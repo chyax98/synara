@@ -3,15 +3,7 @@
 // Layer: Persistence compatibility helper
 // Exports: normalizeLegacyModelSelection, normalizePersistedModelSelection
 
-type ModelProviderKind =
-  | "codex"
-  | "claudeAgent"
-  | "cursor"
-  | "gemini"
-  | "grok"
-  | "kilo"
-  | "opencode"
-  | "pi";
+type ModelProviderKind = "opencode";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -26,73 +18,11 @@ function readTrimmedString(record: Record<string, unknown>, key: string): string
   return trimmed.length > 0 ? trimmed : undefined;
 }
 
-// Imported instance ids may be runtime names rather than Synara provider literals.
-function inferProviderFromLabel(label: string): ModelProviderKind | undefined {
-  const lowerLabel = label.toLowerCase();
-  if (/(^|[^a-z0-9])pi([^a-z0-9]|$)/u.test(lowerLabel)) {
-    return "pi";
-  }
-  if (lowerLabel.includes("opencode")) {
-    return "opencode";
-  }
-  if (lowerLabel.includes("kilo")) {
-    return "kilo";
-  }
-  if (lowerLabel.includes("cursor")) {
-    return "cursor";
-  }
-  if (lowerLabel.includes("claude") || lowerLabel.includes("anthropic")) {
-    return "claudeAgent";
-  }
-  if (lowerLabel.includes("gemini") || lowerLabel.includes("google")) {
-    return "gemini";
-  }
-  if (lowerLabel.includes("grok") || lowerLabel.includes("xai") || lowerLabel.includes("x.ai")) {
-    return "grok";
-  }
-  if (lowerLabel.includes("codex")) {
-    return "codex";
-  }
-  return undefined;
-}
-
-function inferLegacyModelProvider(provider: unknown, model: string): ModelProviderKind {
-  if (
-    provider === "codex" ||
-    provider === "claudeAgent" ||
-    provider === "cursor" ||
-    provider === "gemini" ||
-    provider === "grok" ||
-    provider === "kilo" ||
-    provider === "opencode" ||
-    provider === "pi"
-  ) {
-    return provider;
-  }
-  if (typeof provider === "string") {
-    const providerFromLabel = inferProviderFromLabel(provider);
-    if (providerFromLabel !== undefined) {
-      return providerFromLabel;
-    }
-  }
-  const lowerModel = model.toLowerCase();
-  if (lowerModel.includes("claude")) {
-    return "claudeAgent";
-  }
-  if (lowerModel.includes("gemini")) {
-    return "gemini";
-  }
-  if (lowerModel.includes("grok")) {
-    return "grok";
-  }
-  return "codex";
-}
-
-function readLegacyProviderOptions(options: unknown, provider: ModelProviderKind): unknown {
+function readLegacyProviderOptions(options: unknown): unknown {
   if (!isRecord(options)) {
     return options;
   }
-  const providerScopedOptions = options[provider];
+  const providerScopedOptions = options.opencode;
   return providerScopedOptions === undefined ? options : providerScopedOptions;
 }
 
@@ -120,10 +50,9 @@ export function normalizeLegacyModelSelection(input: {
   readonly model: string;
   readonly options: unknown;
 }): Record<string, unknown> {
-  const provider = inferLegacyModelProvider(input.provider, input.model);
-  const options = normalizeModelOptions(readLegacyProviderOptions(input.options, provider));
+  const options = normalizeModelOptions(readLegacyProviderOptions(input.options));
   return {
-    provider,
+    provider: "opencode" satisfies ModelProviderKind,
     model: input.model,
     ...(options === undefined ? {} : { options }),
   };

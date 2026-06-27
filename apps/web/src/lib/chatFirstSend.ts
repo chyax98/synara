@@ -91,8 +91,8 @@ export function resolveFirstSendTarget(input: {
         kind: "chat",
         createWorkspaceRootIfMissing: true,
         defaultModelSelection: {
-          provider: "codex",
-          model: DEFAULT_MODEL_BY_PROVIDER.codex,
+          provider: "opencode",
+          model: DEFAULT_MODEL_BY_PROVIDER.opencode,
         },
       },
     };
@@ -117,8 +117,8 @@ export function resolveFirstSendTarget(input: {
       kind: "project",
       createWorkspaceRootIfMissing: false,
       defaultModelSelection: {
-        provider: "codex",
-        model: DEFAULT_MODEL_BY_PROVIDER.codex,
+        provider: "opencode",
+        model: DEFAULT_MODEL_BY_PROVIDER.opencode,
       },
     },
   };

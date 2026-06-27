@@ -8,7 +8,7 @@ import { describe, expect, it } from "vitest";
 import { providerModelDiscoveryInvalidationFingerprint } from "./providerDiscoveryInvalidation";
 
 const BASE_PROVIDER_STATUS = {
-  provider: "cursor",
+  provider: "opencode",
   status: "ready",
   available: true,
   authStatus: "unknown",
@@ -71,7 +71,7 @@ describe("providerModelDiscoveryInvalidationFingerprint", () => {
   it("is stable across provider ordering", () => {
     const codexStatus = {
       ...BASE_PROVIDER_STATUS,
-      provider: "codex",
+      provider: "opencode",
       version: "1.2.3",
     } satisfies ServerProviderStatus;
 

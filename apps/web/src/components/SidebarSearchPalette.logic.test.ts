@@ -102,7 +102,7 @@ const threads: SidebarSearchThread[] = [
     projectId: "project-alpha",
     projectName: "Alpha Repo",
     projectRemoteName: "Alpha Repo",
-    provider: "claudeAgent",
+    provider: "opencode",
     createdAt: "2026-04-09T09:00:00.000Z",
     updatedAt: "2026-04-09T11:30:00.000Z",
     messages: [
@@ -117,7 +117,7 @@ const threads: SidebarSearchThread[] = [
     projectId: "project-alpha",
     projectName: "Alpha Repo",
     projectRemoteName: "Alpha Repo",
-    provider: "codex",
+    provider: "opencode",
     createdAt: "2026-04-09T08:00:00.000Z",
     updatedAt: "2026-04-09T10:30:00.000Z",
     messages: [
@@ -135,7 +135,7 @@ const threads: SidebarSearchThread[] = [
     projectId: "project-beta",
     projectName: "Docs",
     projectRemoteName: "Beta Repo",
-    provider: "claudeAgent",
+    provider: "opencode",
     createdAt: "2026-04-09T07:00:00.000Z",
     updatedAt: "2026-04-09T09:00:00.000Z",
     messages: [

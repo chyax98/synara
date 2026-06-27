@@ -33,7 +33,7 @@ describe("openUsageRateLimits", () => {
         ],
       }),
     ).toEqual({
-      provider: "codex",
+      provider: "opencode",
       updatedAt: "2099-04-08T18:00:00.000Z",
       limits: [
         {
@@ -57,7 +57,7 @@ describe("openUsageRateLimits", () => {
       mergeProviderRateLimits(
         [
           {
-            provider: "codex",
+            provider: "opencode",
             updatedAt: "2099-04-08T18:05:00.000Z",
             limits: [
               {
@@ -71,7 +71,7 @@ describe("openUsageRateLimits", () => {
         ],
         [
           {
-            provider: "codex",
+            provider: "opencode",
             updatedAt: "2099-04-08T18:00:00.000Z",
             limits: [
               {
@@ -86,7 +86,7 @@ describe("openUsageRateLimits", () => {
       ),
     ).toEqual([
       {
-        provider: "codex",
+        provider: "opencode",
         updatedAt: "2099-04-08T18:05:00.000Z",
         limits: [
           {
@@ -111,7 +111,7 @@ describe("openUsageRateLimits", () => {
       mergeProviderRateLimits(
         [
           {
-            provider: "codex",
+            provider: "opencode",
             updatedAt: "2099-04-08T18:00:00.000Z",
             limits: [
               {
@@ -125,7 +125,7 @@ describe("openUsageRateLimits", () => {
         ],
         [
           {
-            provider: "codex",
+            provider: "opencode",
             updatedAt: "2099-04-08T18:05:00.000Z",
             limits: [
               {
@@ -140,7 +140,7 @@ describe("openUsageRateLimits", () => {
       ),
     ).toEqual([
       {
-        provider: "codex",
+        provider: "opencode",
         updatedAt: "2099-04-08T18:05:00.000Z",
         limits: [
           {
@@ -159,7 +159,7 @@ describe("openUsageRateLimits", () => {
       mergeProviderRateLimits(
         [
           {
-            provider: "codex",
+            provider: "opencode",
             updatedAt: "2099-04-08T18:00:00.000Z",
             limits: [
               {
@@ -173,7 +173,7 @@ describe("openUsageRateLimits", () => {
         ],
         [
           {
-            provider: "codex",
+            provider: "opencode",
             updatedAt: "2099-04-08T18:05:00.000Z",
             limits: [
               {
@@ -186,7 +186,7 @@ describe("openUsageRateLimits", () => {
       ),
     ).toEqual([
       {
-        provider: "codex",
+        provider: "opencode",
         updatedAt: "2099-04-08T18:05:00.000Z",
         limits: [
           {
@@ -239,15 +239,15 @@ describe("openUsageRateLimits", () => {
   });
 
   it("maps Gemini provider ids in both directions", () => {
-    expect(openUsageProviderIdForProvider("gemini")).toBe("gemini");
+    expect(openUsageProviderIdForProvider("opencode")).toBe("opencode");
     expect(
       normalizeOpenUsageSnapshot({
-        providerId: "gemini",
+        providerId: "opencode",
         fetchedAt: "2099-04-08T18:00:00.000Z",
         lines: [{ type: "progress", label: "Daily", used: 5, limit: 10 }],
       }),
     ).toEqual({
-      provider: "gemini",
+      provider: "opencode",
       updatedAt: "2099-04-08T18:00:00.000Z",
       limits: [{ window: "Daily", usedPercent: 50 }],
     });

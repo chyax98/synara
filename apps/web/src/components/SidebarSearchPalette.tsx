@@ -93,10 +93,7 @@ interface SidebarSearchPaletteProps {
   onImportThread: (provider: ImportProviderKind, externalId: string) => Promise<void>;
 }
 
-export type ImportProviderKind = Extract<
-  ProviderKind,
-  "codex" | "claudeAgent" | "cursor" | "kilo" | "opencode"
->;
+export type ImportProviderKind = Extract<ProviderKind, "opencode">;
 
 function actionHandler(
   actionId: string,
@@ -351,7 +348,7 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
   const [query, setQuery] = useState(props.initialBrowseQuery ?? "");
   const [highlightedItemValue, setHighlightedItemValue] = useState<string | null>(null);
   const [importProvider, setImportProvider] = useState<ImportProviderKind>(
-    props.importProviders[0] ?? "codex",
+    props.importProviders[0] ?? "opencode",
   );
   const [importId, setImportId] = useState("");
   const [importError, setImportError] = useState<string | null>(null);
@@ -363,7 +360,7 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
     if (!props.open) {
       setQuery("");
       setHighlightedItemValue(null);
-      setImportProvider(props.importProviders[0] ?? "codex");
+      setImportProvider(props.importProviders[0] ?? "opencode");
       setImportId("");
       setImportError(null);
       setIsImporting(false);
@@ -376,7 +373,7 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
     if (props.importProviders.includes(importProvider)) {
       return;
     }
-    setImportProvider(props.importProviders[0] ?? "codex");
+    setImportProvider(props.importProviders[0] ?? "opencode");
   }, [importProvider, props.importProviders]);
 
   useEffect(() => {
@@ -477,17 +474,8 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
     matchedCurrentThemes.length > 0 ||
     matchedProjects.length > 0 ||
     matchedThreads.length > 0;
-  const importFieldLabel = importProvider === "codex" ? "Thread ID" : "Session ID";
-  const importPlaceholder =
-    importProvider === "claudeAgent"
-      ? "Paste a Claude session id"
-      : importProvider === "cursor"
-        ? "Paste a Cursor session id"
-        : importProvider === "kilo"
-          ? "Paste a Kilo session id"
-          : importProvider === "opencode"
-            ? "Paste an OpenCode session id"
-            : "Paste a Codex thread id";
+  const importFieldLabel = "Session ID";
+  const importPlaceholder = "Paste an OpenCode session id";
 
   const hasHighlightedFolderItem =
     highlightedItemValue !== null && highlightedItemValue.startsWith("folder:");
@@ -635,11 +623,11 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
                       onClick={() => setImportProvider(provider)}
                     >
                       <ProviderIcon provider={provider} />
-                      {provider === "claudeAgent"
+                      {provider === "opencode"
                         ? "Claude"
-                        : provider === "cursor"
+                        : provider === "opencode"
                           ? "Cursor"
-                          : provider === "kilo"
+                          : provider === "opencode"
                             ? "Kilo"
                             : provider === "opencode"
                               ? "OpenCode"
@@ -672,11 +660,11 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
                   }}
                 />
                 <p className="text-xs text-muted-foreground">
-                  {importProvider === "claudeAgent"
+                  {importProvider === "opencode"
                     ? "Claude resumes a persisted session by session id."
-                    : importProvider === "cursor"
+                    : importProvider === "opencode"
                       ? "Cursor resumes a persisted session by session id."
-                      : importProvider === "kilo"
+                      : importProvider === "opencode"
                         ? "Kilo resumes a persisted session by session id."
                         : importProvider === "opencode"
                           ? "OpenCode resumes a persisted session by session id."
@@ -859,7 +847,7 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
                               if (action.id === "import-thread") {
                                 setImportError(null);
                                 setImportId("");
-                                setImportProvider(props.importProviders[0] ?? "codex");
+                                setImportProvider(props.importProviders[0] ?? "opencode");
                                 props.onModeChange("import");
                                 return;
                               }

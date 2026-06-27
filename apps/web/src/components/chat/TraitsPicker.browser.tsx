@@ -2,11 +2,8 @@ import "../../index.css";
 
 import {
   type ModelSelection,
-  ClaudeModelOptions,
-  CodexModelOptions,
-  type CursorModelOptions,
-  DEFAULT_MODEL_BY_PROVIDER,
   type OpenCodeModelOptions,
+  DEFAULT_MODEL_BY_PROVIDER,
   type ProviderModelDescriptor,
   ProjectId,
   ThreadId,
@@ -37,19 +34,10 @@ function ClaudeTraitsPickerHarness(props: {
   const setPrompt = useComposerDraftStore((store) => store.setPrompt);
   const { modelOptions, selectedModel } = useEffectiveComposerModelState({
     threadId: CLAUDE_THREAD_ID,
-    selectedProvider: "claudeAgent",
+    selectedProvider: "opencode",
     threadModelSelection: props.fallbackModelSelection,
     projectModelSelection: null,
-    customModelsByProvider: {
-      codex: [],
-      claudeAgent: [],
-      cursor: [],
-      gemini: [],
-      grok: [],
-      kilo: [],
-      opencode: [],
-      pi: [],
-    },
+    customModelsByProvider: { opencode: [] },
   });
   const handlePromptChange = useCallback(
     (nextPrompt: string) => {
@@ -60,11 +48,11 @@ function ClaudeTraitsPickerHarness(props: {
 
   return (
     <TraitsPicker
-      provider="claudeAgent"
+      provider="opencode"
       threadId={CLAUDE_THREAD_ID}
       model={selectedModel ?? props.model}
       prompt={prompt}
-      modelOptions={modelOptions?.claudeAgent}
+      modelOptions={modelOptions?.opencode}
       onPromptChange={handlePromptChange}
     />
   );
@@ -73,9 +61,9 @@ function ClaudeTraitsPickerHarness(props: {
 async function mountClaudePicker(props?: {
   model?: string;
   prompt?: string;
-  options?: ClaudeModelOptions;
+  options?: OpenCodeModelOptions;
   fallbackModelOptions?: {
-    effort?: "low" | "medium" | "high" | "xhigh" | "max" | "ultrathink";
+    variant?: "low" | "medium" | "high" | "xhigh" | "max" | "ultrathink";
     thinking?: boolean;
     fastMode?: boolean;
     contextWindow?: string;
@@ -101,15 +89,15 @@ async function mountClaudePicker(props?: {
       modelSelectionByProvider: props?.skipDraftModelOptions
         ? {}
         : {
-            claudeAgent: {
-              provider: "claudeAgent",
+            opencode: {
+              provider: "opencode",
               model,
               ...(claudeOptions && Object.keys(claudeOptions).length > 0
                 ? { options: claudeOptions }
                 : {}),
             },
           },
-      activeProvider: "claudeAgent",
+      activeProvider: "opencode",
       runtimeMode: null,
       interactionMode: null,
     },
@@ -124,7 +112,7 @@ async function mountClaudePicker(props?: {
   const fallbackModelSelection =
     props?.fallbackModelOptions !== undefined
       ? ({
-          provider: "claudeAgent",
+          provider: "opencode",
           model,
           options: props.fallbackModelOptions ?? undefined,
         } satisfies ModelSelection)
@@ -226,7 +214,7 @@ describe("TraitsPicker (Claude)", () => {
   it("shows a th  inking on/off dropdown for Haiku", async () => {
     await using _ = await mountClaudePicker({
       model: "claude-haiku-4-5",
-      options: { thinking: true },
+      options: { agent: "build" },
     });
 
     await vi.waitFor(() => {
@@ -245,7 +233,7 @@ describe("TraitsPicker (Claude)", () => {
   it("shows prompt-controlled Ultrathink state with disabled effort controls", async () => {
     await using _ = await mountClaudePicker({
       model: "claude-opus-4-6",
-      options: { effort: "high" },
+      options: { variant: "high" },
       prompt: "Ultrathink:\nInvestigate this",
     });
 
@@ -266,18 +254,18 @@ describe("TraitsPicker (Claude)", () => {
   it("persists sticky claude model options when traits change", async () => {
     await using _ = await mountClaudePicker({
       model: "claude-opus-4-6",
-      options: { effort: "medium", fastMode: false },
+      options: { variant: "medium", },
     });
 
     await page.getByRole("button").click();
     await page.getByRole("menuitemradio", { name: "Max" }).click();
 
     expect(
-      useComposerDraftStore.getState().stickyModelSelectionByProvider.claudeAgent,
+      useComposerDraftStore.getState().stickyModelSelectionByProvider.opencode,
     ).toMatchObject({
-      provider: "claudeAgent",
+      provider: "opencode",
       options: {
-        effort: "max",
+        variant: "max",
       },
     });
   });
@@ -285,7 +273,7 @@ describe("TraitsPicker (Claude)", () => {
   it("shows the non-default context window in the trigger label", async () => {
     await using _ = await mountClaudePicker({
       model: "claude-opus-4-6",
-      options: { contextWindow: "1m" },
+      options: { },
     });
 
     await vi.waitFor(() => {
@@ -296,28 +284,27 @@ describe("TraitsPicker (Claude)", () => {
   it("persists sticky claude context window when changed", async () => {
     await using _ = await mountClaudePicker({
       model: "claude-opus-4-6",
-      options: { contextWindow: "200k" },
+      options: { },
     });
 
     await page.getByRole("button").click();
     await page.getByRole("menuitemradio", { name: "1M" }).click();
 
     expect(
-      useComposerDraftStore.getState().stickyModelSelectionByProvider.claudeAgent,
+      useComposerDraftStore.getState().stickyModelSelectionByProvider.opencode,
     ).toMatchObject({
-      provider: "claudeAgent",
+      provider: "opencode",
       options: {
-        contextWindow: "1m",
-      },
+        },
     });
   });
 });
 
 // ── Codex TraitsPicker tests ──────────────────────────────────────────
 
-async function mountCodexPicker(props: { model?: string; options?: CodexModelOptions }) {
+async function mountCodexPicker(props: { model?: string; options?: OpenCodeModelOptions }) {
   const threadId = ThreadId.makeUnsafe("thread-codex-traits");
-  const model = props.model ?? DEFAULT_MODEL_BY_PROVIDER.codex;
+  const model = props.model ?? DEFAULT_MODEL_BY_PROVIDER.opencode;
   const draftsByThreadId: Record<ThreadId, ComposerThreadDraftState> = {
     [threadId]: {
       prompt: "",
@@ -333,13 +320,13 @@ async function mountCodexPicker(props: { model?: string; options?: CodexModelOpt
       mentions: [],
       queuedTurns: [],
       modelSelectionByProvider: {
-        codex: {
-          provider: "codex",
+        opencode: {
+          provider: "opencode",
           model,
           ...(props.options ? { options: props.options } : {}),
         },
       },
-      activeProvider: "codex",
+      activeProvider: "opencode",
       runtimeMode: null,
       interactionMode: null,
     },
@@ -356,9 +343,9 @@ async function mountCodexPicker(props: { model?: string; options?: CodexModelOpt
   document.body.append(host);
   const screen = await render(
     <TraitsPicker
-      provider="codex"
+      provider="opencode"
       threadId={threadId}
-      model={props.model ?? DEFAULT_MODEL_BY_PROVIDER.codex}
+      model={props.model ?? DEFAULT_MODEL_BY_PROVIDER.opencode}
       prompt=""
       modelOptions={props.options}
       onPromptChange={() => {}}
@@ -391,7 +378,7 @@ describe("TraitsPicker (Codex)", () => {
 
   it("shows fast mode controls", async () => {
     await using _ = await mountCodexPicker({
-      options: { fastMode: false },
+      options: { },
     });
 
     await page.getByRole("button").click();
@@ -406,7 +393,7 @@ describe("TraitsPicker (Codex)", () => {
 
   it("shows Fast in the trigger label when fast mode is active", async () => {
     await using _ = await mountCodexPicker({
-      options: { fastMode: true },
+      options: { },
     });
 
     await vi.waitFor(() => {
@@ -416,7 +403,7 @@ describe("TraitsPicker (Codex)", () => {
 
   it("shows only the provided effort options", async () => {
     await using _ = await mountCodexPicker({
-      options: { fastMode: false },
+      options: { },
     });
 
     await page.getByRole("button").click();
@@ -432,7 +419,7 @@ describe("TraitsPicker (Codex)", () => {
 
   it("closes after clicking the already-selected effort", async () => {
     await using _ = await mountCodexPicker({
-      options: { reasoningEffort: "medium", fastMode: false },
+      options: { variant: "medium", },
     });
 
     await page.getByRole("button").click();
@@ -450,15 +437,15 @@ describe("TraitsPicker (Codex)", () => {
 
   it("persists sticky codex model options when traits change", async () => {
     await using _ = await mountCodexPicker({
-      options: { fastMode: false },
+      options: { },
     });
 
     await page.getByRole("button").click();
     await page.getByRole("menuitemradio", { name: "Fast" }).click();
 
-    expect(useComposerDraftStore.getState().stickyModelSelectionByProvider.codex).toMatchObject({
-      provider: "codex",
-      options: { fastMode: true },
+    expect(useComposerDraftStore.getState().stickyModelSelectionByProvider.opencode).toMatchObject({
+      provider: "opencode",
+      options: { },
     });
   });
 });
@@ -467,14 +454,14 @@ describe("TraitsPicker (Codex)", () => {
 
 async function mountCursorPicker(props: {
   runtimeModel: ProviderModelDescriptor;
-  options?: CursorModelOptions;
+  options?: OpenCodeModelOptions;
 }) {
   const threadId = ThreadId.makeUnsafe("thread-cursor-traits");
   const host = document.createElement("div");
   document.body.append(host);
   const screen = await render(
     <TraitsPicker
-      provider="cursor"
+      provider="opencode"
       threadId={threadId}
       model={props.runtimeModel.slug}
       runtimeModel={props.runtimeModel}
@@ -510,7 +497,7 @@ describe("TraitsPicker (Cursor)", () => {
   it("shows Default instead of an empty trigger for fast-only models", async () => {
     await using _ = await mountCursorPicker({
       runtimeModel: fastOnlyComposerRuntimeModel,
-      options: { fastMode: false },
+      options: { },
     });
 
     await vi.waitFor(() => {
@@ -521,7 +508,7 @@ describe("TraitsPicker (Cursor)", () => {
   it("shows only fast mode labels for fast-only models", async () => {
     await using _ = await mountCursorPicker({
       runtimeModel: fastOnlyComposerRuntimeModel,
-      options: { fastMode: false },
+      options: { },
     });
 
     await page.getByRole("button").click();
@@ -556,7 +543,7 @@ describe("TraitsPicker (Cursor)", () => {
         ],
         defaultContextWindow: "300k",
       },
-      options: { thinking: true, reasoningEffort: "high", contextWindow: "300k" },
+      options: { agent: "build", variant: "high", },
     });
 
     await page.getByRole("button").click();
@@ -617,16 +604,7 @@ function OpenCodeTraitsPickerHarness(props: {
     selectedProvider: "opencode",
     threadModelSelection: props.fallbackModelSelection,
     projectModelSelection: null,
-    customModelsByProvider: {
-      codex: [],
-      claudeAgent: [],
-      cursor: [],
-      gemini: [],
-      grok: [],
-      kilo: [],
-      opencode: [],
-      pi: [],
-    },
+    customModelsByProvider: { opencode: [] },
   });
   const handlePromptChange = useCallback(
     (nextPrompt: string) => {

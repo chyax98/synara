@@ -65,14 +65,14 @@ const PI_RUNTIME_MODEL_WITH_REASONING: ProviderModelDescriptor = {
 describe("getComposerProviderState", () => {
   it("returns codex defaults when no codex draft options exist", () => {
     const state = getComposerProviderState({
-      provider: "codex",
+      provider: "opencode",
       model: "gpt-5.4",
       prompt: "",
       modelOptions: undefined,
     });
 
     expect(state).toEqual({
-      provider: "codex",
+      provider: "opencode",
       promptEffort: "high",
       modelOptionsForDispatch: undefined,
     });
@@ -80,51 +80,47 @@ describe("getComposerProviderState", () => {
 
   it("normalizes codex dispatch options while preserving the selected effort", () => {
     const state = getComposerProviderState({
-      provider: "codex",
+      provider: "opencode",
       model: "gpt-5.4",
       prompt: "",
       modelOptions: {
-        codex: {
-          reasoningEffort: "low",
-          fastMode: true,
-        },
+        opencode: {
+          variant: "low",
+                  },
       },
     });
 
     expect(state).toEqual({
-      provider: "codex",
+      provider: "opencode",
       promptEffort: "low",
       modelOptionsForDispatch: {
-        reasoningEffort: "low",
-        fastMode: true,
-      },
+        variant: "low",
+              },
     });
   });
 
   it("preserves codex fast mode when it is the only active option", () => {
     const state = getComposerProviderState({
-      provider: "codex",
+      provider: "opencode",
       model: "gpt-5.4",
       prompt: "",
       modelOptions: {
-        codex: {
-          fastMode: true,
-        },
+        opencode: {
+                  },
       },
     });
 
     expect(state).toEqual({
-      provider: "codex",
+      provider: "opencode",
       promptEffort: "high",
       modelOptionsForDispatch: {
-        fastMode: true,
-      },
+              },
     });
   });
 
   it("preserves codex fast mode for runtime-discovered models that advertise support", () => {
     const state = getComposerProviderState({
-      provider: "codex",
+      provider: "opencode",
       model: "gpt-5.6-preview",
       runtimeModel: {
         slug: "gpt-5.6-preview",
@@ -135,24 +131,22 @@ describe("getComposerProviderState", () => {
       },
       prompt: "",
       modelOptions: {
-        codex: {
-          fastMode: true,
-        },
+        opencode: {
+                  },
       },
     });
 
     expect(state).toEqual({
-      provider: "codex",
+      provider: "opencode",
       promptEffort: "medium",
       modelOptionsForDispatch: {
-        fastMode: true,
-      },
+              },
     });
   });
 
   it("drops codex fast mode when runtime discovery does not advertise support", () => {
     const state = getComposerProviderState({
-      provider: "codex",
+      provider: "opencode",
       model: "gpt-5.4-mini",
       runtimeModel: {
         slug: "gpt-5.4-mini",
@@ -162,14 +156,13 @@ describe("getComposerProviderState", () => {
       },
       prompt: "",
       modelOptions: {
-        codex: {
-          fastMode: true,
-        },
+        opencode: {
+                  },
       },
     });
 
     expect(state).toEqual({
-      provider: "codex",
+      provider: "opencode",
       promptEffort: "medium",
       modelOptionsForDispatch: undefined,
     });
@@ -177,19 +170,18 @@ describe("getComposerProviderState", () => {
 
   it("drops explicit codex default/off overrides from dispatch while keeping the selected effort label", () => {
     const state = getComposerProviderState({
-      provider: "codex",
+      provider: "opencode",
       model: "gpt-5.4",
       prompt: "",
       modelOptions: {
-        codex: {
-          reasoningEffort: "high",
-          fastMode: false,
-        },
+        opencode: {
+          variant: "high",
+                  },
       },
     });
 
     expect(state).toEqual({
-      provider: "codex",
+      provider: "opencode",
       promptEffort: "high",
       modelOptionsForDispatch: undefined,
     });
@@ -197,14 +189,14 @@ describe("getComposerProviderState", () => {
 
   it("returns Claude defaults for effort-capable models", () => {
     const state = getComposerProviderState({
-      provider: "claudeAgent",
+      provider: "opencode",
       model: "claude-sonnet-4-6",
       prompt: "",
       modelOptions: undefined,
     });
 
     expect(state).toEqual({
-      provider: "claudeAgent",
+      provider: "opencode",
       promptEffort: "high",
       modelOptionsForDispatch: undefined,
     });
@@ -212,21 +204,21 @@ describe("getComposerProviderState", () => {
 
   it("tracks Claude ultrathink from the prompt without changing dispatch effort", () => {
     const state = getComposerProviderState({
-      provider: "claudeAgent",
+      provider: "opencode",
       model: "claude-sonnet-4-6",
       prompt: "Ultrathink:\nInvestigate this failure",
       modelOptions: {
-        claudeAgent: {
-          effort: "medium",
+        opencode: {
+          variant: "medium",
         },
       },
     });
 
     expect(state).toEqual({
-      provider: "claudeAgent",
+      provider: "opencode",
       promptEffort: "medium",
       modelOptionsForDispatch: {
-        effort: "medium",
+        variant: "medium",
       },
       composerFrameClassName: "ultrathink-frame",
       modelPickerIconClassName: "ultrathink-chroma",
@@ -235,10 +227,10 @@ describe("getComposerProviderState", () => {
 
   it("treats descriptor prompt-injected choices like legacy prompt-controlled efforts", () => {
     const selection = getComposerTraitSelection(
-      "claudeAgent",
+      "opencode",
       "claude-sonnet-4-6",
       "Ultrathink:\nInvestigate this",
-      { effort: "ultrathink" },
+      { variant: "ultrathink" },
       {
         slug: "claude-sonnet-4-6",
         name: "Claude Sonnet 4.6",
@@ -264,62 +256,56 @@ describe("getComposerProviderState", () => {
 
   it("drops unsupported Claude effort options for models without effort controls", () => {
     const state = getComposerProviderState({
-      provider: "claudeAgent",
+      provider: "opencode",
       model: "claude-haiku-4-5",
       prompt: "",
       modelOptions: {
-        claudeAgent: {
-          effort: "max",
-          thinking: false,
+        opencode: {
+          variant: "max",
         },
       },
     });
 
     expect(state).toEqual({
-      provider: "claudeAgent",
+      provider: "opencode",
       promptEffort: null,
-      modelOptionsForDispatch: {
-        thinking: false,
-      },
+      modelOptionsForDispatch: undefined,
     });
   });
 
   it("preserves Claude fast mode when it is the only active option", () => {
     const state = getComposerProviderState({
-      provider: "claudeAgent",
+      provider: "opencode",
       model: "claude-opus-4-6",
       prompt: "",
       modelOptions: {
-        claudeAgent: {
-          fastMode: true,
-        },
+        opencode: {
+                  },
       },
     });
 
     expect(state).toEqual({
-      provider: "claudeAgent",
+      provider: "opencode",
       promptEffort: "high",
       modelOptionsForDispatch: {
-        fastMode: true,
-      },
+              },
     });
   });
 
   it("drops explicit Claude default/off overrides from dispatch while keeping the selected effort label", () => {
     const state = getComposerProviderState({
-      provider: "claudeAgent",
+      provider: "opencode",
       model: "claude-opus-4-6",
       prompt: "",
       modelOptions: {
-        claudeAgent: {
-          effort: "high",
-          fastMode: false,
-        },
+        opencode: {
+          variant: "high",
+                  },
       },
     });
 
     expect(state).toEqual({
-      provider: "claudeAgent",
+      provider: "opencode",
       promptEffort: "high",
       modelOptionsForDispatch: undefined,
     });
@@ -327,39 +313,39 @@ describe("getComposerProviderState", () => {
 
   it("derives Gemini effort selections from the active model family", () => {
     const state = getComposerProviderState({
-      provider: "gemini",
+      provider: "opencode",
       model: "gemini-2.5-pro",
       prompt: "",
       modelOptions: {
-        gemini: {
-          thinkingBudget: 512,
+        opencode: {
+          
         },
       },
     });
 
     expect(state).toEqual({
-      provider: "gemini",
+      provider: "opencode",
       promptEffort: "512",
       modelOptionsForDispatch: {
-        thinkingBudget: 512,
+        
       },
     });
   });
 
   it("drops unsupported Gemini off overrides for auto 2.5 routing", () => {
     const state = getComposerProviderState({
-      provider: "gemini",
+      provider: "opencode",
       model: "auto-gemini-2.5",
       prompt: "",
       modelOptions: {
-        gemini: {
-          thinkingBudget: 0,
+        opencode: {
+          
         },
       },
     });
 
     expect(state).toEqual({
-      provider: "gemini",
+      provider: "opencode",
       promptEffort: "-1",
       modelOptionsForDispatch: undefined,
     });
@@ -367,18 +353,18 @@ describe("getComposerProviderState", () => {
 
   it("drops unsupported Gemini off overrides for 2.5 Flash", () => {
     const state = getComposerProviderState({
-      provider: "gemini",
+      provider: "opencode",
       model: "gemini-2.5-flash",
       prompt: "",
       modelOptions: {
-        gemini: {
-          thinkingBudget: 0,
+        opencode: {
+          
         },
       },
     });
 
     expect(state).toEqual({
-      provider: "gemini",
+      provider: "opencode",
       promptEffort: "-1",
       modelOptionsForDispatch: undefined,
     });
@@ -386,18 +372,18 @@ describe("getComposerProviderState", () => {
 
   it("drops explicit Gemini default thinking overrides from dispatch", () => {
     const state = getComposerProviderState({
-      provider: "gemini",
+      provider: "opencode",
       model: "gemini-3.1-pro-preview",
       prompt: "",
       modelOptions: {
-        gemini: {
-          thinkingLevel: "HIGH",
+        opencode: {
+          
         },
       },
     });
 
     expect(state).toEqual({
-      provider: "gemini",
+      provider: "opencode",
       promptEffort: "HIGH",
       modelOptionsForDispatch: undefined,
     });
@@ -405,39 +391,39 @@ describe("getComposerProviderState", () => {
 
   it("normalizes Grok reasoning effort options for dispatch", () => {
     const state = getComposerProviderState({
-      provider: "grok",
+      provider: "opencode",
       model: "grok-build",
       prompt: "",
       modelOptions: {
-        grok: {
-          reasoningEffort: "high",
+        opencode: {
+          variant: "high",
         },
       },
     });
 
     expect(state).toEqual({
-      provider: "grok",
+      provider: "opencode",
       promptEffort: "high",
       modelOptionsForDispatch: {
-        reasoningEffort: "high",
+        variant: "high",
       },
     });
   });
 
   it("drops explicit Grok default reasoning effort from dispatch", () => {
     const state = getComposerProviderState({
-      provider: "grok",
+      provider: "opencode",
       model: "grok-build",
       prompt: "",
       modelOptions: {
-        grok: {
-          reasoningEffort: "low",
+        opencode: {
+          variant: "low",
         },
       },
     });
 
     expect(state).toEqual({
-      provider: "grok",
+      provider: "opencode",
       promptEffort: "low",
       modelOptionsForDispatch: undefined,
     });
@@ -445,44 +431,43 @@ describe("getComposerProviderState", () => {
 
   it("drops stale Cursor context options once runtime metadata is authoritative", () => {
     const state = getComposerProviderState({
-      provider: "cursor",
+      provider: "opencode",
       model: "claude-opus-4-7",
       runtimeModel: CURSOR_RUNTIME_MODEL_300K,
       prompt: "",
       modelOptions: {
-        cursor: {
-          reasoningEffort: "xhigh",
-          contextWindow: "1m",
-          fastMode: true,
-        },
+        opencode: {
+          variant: "xhigh",
+          
+                  },
       },
     });
 
     expect(state).toEqual({
-      provider: "cursor",
+      provider: "opencode",
       promptEffort: "xhigh",
       modelOptionsForDispatch: {
-        reasoningEffort: "xhigh",
+        variant: "xhigh",
       },
     });
   });
 
   it("keeps Pi runtime thinking selections on the thinkingLevel field", () => {
     const selection = getComposerTraitSelection(
-      "pi",
+      "opencode",
       "openai/gpt-5.5",
       "",
-      { thinkingLevel: "xhigh" },
+      {  },
       PI_RUNTIME_MODEL_WITH_REASONING,
     );
     const state = getComposerProviderState({
-      provider: "pi",
+      provider: "opencode",
       model: "openai/gpt-5.5",
       runtimeModel: PI_RUNTIME_MODEL_WITH_REASONING,
       prompt: "",
       modelOptions: {
-        pi: {
-          thinkingLevel: "xhigh",
+        opencode: {
+          
         },
       },
     });
@@ -490,10 +475,10 @@ describe("getComposerProviderState", () => {
     expect(selection.primarySelectDescriptor?.id).toBe("thinkingLevel");
     expect(selection.effort).toBe("xhigh");
     expect(state).toEqual({
-      provider: "pi",
+      provider: "opencode",
       promptEffort: "xhigh",
       modelOptionsForDispatch: {
-        thinkingLevel: "xhigh",
+        
       },
     });
   });

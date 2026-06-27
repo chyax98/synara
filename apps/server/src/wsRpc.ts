@@ -43,11 +43,9 @@ import { OrchestrationEngineService } from "./orchestration/Services/Orchestrati
 import { ProjectionSnapshotQuery } from "./orchestration/Services/ProjectionSnapshotQuery";
 import { ProviderDiscoveryService } from "./provider/Services/ProviderDiscoveryService";
 import { discoverSkillsCatalog, synaraSkillsDir } from "./provider/skillsCatalog";
-import { ProviderAdapterRegistry } from "./provider/Services/ProviderAdapterRegistry";
+import { OpenCodeAdapter } from "./provider/Services/OpenCodeAdapter";
 import { ProviderHealth } from "./provider/Services/ProviderHealth";
 import { ProviderService } from "./provider/Services/ProviderService";
-import { listProviderUsage } from "./providerUsage";
-import { getProviderUsageSnapshot } from "./providerUsageSnapshot";
 import { ProfileStatsQuery } from "./profileStats";
 import { ServerEnvironment } from "./environment/Services/ServerEnvironment";
 import { ServerLifecycleEvents } from "./serverLifecycleEvents";
@@ -339,7 +337,7 @@ export const makeWsRpcLayer = () =>
       const path = yield* Path.Path;
       const profileStatsQuery = yield* ProfileStatsQuery;
       const projectionReadModelQuery = yield* ProjectionSnapshotQuery;
-      const providerAdapterRegistry = yield* ProviderAdapterRegistry;
+      const openCodeAdapter = yield* OpenCodeAdapter;
       const providerDiscoveryService = yield* ProviderDiscoveryService;
       const providerHealth = yield* ProviderHealth;
       const providerService = yield* ProviderService;
@@ -432,7 +430,7 @@ export const makeWsRpcLayer = () =>
         path,
         platform: process.platform,
         projectionSnapshotQuery: projectionReadModelQuery,
-        providerAdapterRegistry,
+        openCodeAdapter,
         providerService,
       });
 
@@ -921,10 +919,10 @@ export const makeWsRpcLayer = () =>
             profileStatsQuery.getProfileTokenStats(input),
             "Failed to load profile token stats",
           ),
-        [WS_METHODS.serverGetProviderUsageSnapshot]: (input) =>
-          rpcEffect(getProviderUsageSnapshot(input), "Failed to load provider usage"),
-        [WS_METHODS.serverListProviderUsage]: (input) =>
-          rpcEffect(listProviderUsage(input), "Failed to load provider usage"),
+        [WS_METHODS.serverGetProviderUsageSnapshot]: () =>
+          rpcEffect(Effect.succeed(null), "Failed to load provider usage"),
+        [WS_METHODS.serverListProviderUsage]: () =>
+          rpcEffect(Effect.succeed([]), "Failed to load provider usage"),
         [WS_METHODS.serverGetDiagnostics]: () =>
           rpcEffect(
             Effect.gen(function* () {
@@ -961,19 +959,13 @@ export const makeWsRpcLayer = () =>
           ),
         [WS_METHODS.serverTranscribeVoice]: (input) =>
           rpcEffect(
-            providerAdapterRegistry
-              .getByProvider(input.provider)
-              .pipe(
-                Effect.flatMap((adapter) =>
-                  adapter.transcribeVoice
-                    ? adapter.transcribeVoice(input)
-                    : Effect.fail(
-                        new Error(
-                          `Voice transcription is unavailable for provider '${input.provider}'.`,
-                        ),
-                      ),
+            input.provider === "opencode" && openCodeAdapter.transcribeVoice
+              ? openCodeAdapter.transcribeVoice(input)
+              : Effect.fail(
+                  new Error(
+                    `Voice transcription is unavailable for provider '${input.provider}'.`,
+                  ),
                 ),
-              ),
             "Voice transcription failed",
           ),
         [WS_METHODS.serverGenerateThreadRecap]: (input) =>
@@ -987,7 +979,6 @@ export const makeWsRpcLayer = () =>
                 newMaterial: input.newMaterial,
                 ...(input.previousRecap ? { previousRecap: input.previousRecap } : {}),
                 ...(input.currentState ? { currentState: input.currentState } : {}),
-                ...(input.codexHomePath ? { codexHomePath: input.codexHomePath } : {}),
                 model: input.textGenerationModel ?? modelSelection.model,
                 modelSelection,
                 ...(input.providerOptions ? { providerOptions: input.providerOptions } : {}),
@@ -1006,7 +997,6 @@ export const makeWsRpcLayer = () =>
                 message: input.message,
                 ...(input.defaultMode ? { defaultMode: input.defaultMode } : {}),
                 nowIso: input.nowIso,
-                ...(input.codexHomePath ? { codexHomePath: input.codexHomePath } : {}),
                 model: input.textGenerationModel ?? modelSelection.model,
                 modelSelection,
                 ...(input.providerOptions ? { providerOptions: input.providerOptions } : {}),

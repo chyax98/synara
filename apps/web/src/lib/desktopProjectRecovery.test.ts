@@ -20,7 +20,7 @@ function makeProject(
     title: "Project",
     workspaceRoot: "/tmp/project",
     defaultModelSelection: {
-      provider: "codex",
+      provider: "opencode",
       model: "gpt-5.3-codex",
     },
     scripts: [],
@@ -39,7 +39,7 @@ function makeThread(
     projectId: ProjectId.makeUnsafe("project-1"),
     title: "Thread",
     modelSelection: {
-      provider: "codex",
+      provider: "opencode",
       model: "gpt-5.3-codex",
     },
     runtimeMode: "approval-required",
@@ -58,7 +58,6 @@ function makeThread(
     sidechatSourceThreadId: null,
     lastKnownPr: null,
     latestTurn: null,
-    handoff: null,
     latestUserMessageAt: null,
     hasPendingApprovals: false,
     hasPendingUserInput: false,
@@ -136,7 +135,6 @@ function makeShellSnapshot(
         createdAt: thread.createdAt,
         updatedAt: thread.updatedAt,
         archivedAt: thread.archivedAt,
-        handoff: thread.handoff,
         session: thread.session,
       },
     ],

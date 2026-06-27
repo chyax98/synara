@@ -39,11 +39,9 @@ import {
   ProviderAdapterSessionNotFoundError,
   ProviderAdapterValidationError,
 } from "../Errors.ts";
-import { KiloAdapter, type KiloAdapterShape } from "../Services/KiloAdapter.ts";
 import { OpenCodeAdapter, type OpenCodeAdapterShape } from "../Services/OpenCodeAdapter.ts";
 import {
   buildOpenCodePermissionRules,
-  KILO_CLI_SPEC,
   type OpenCodeCliModelDescriptor,
   type OpenCodeCompatibleCliSpec,
   type OpenCodeInventory,
@@ -63,14 +61,14 @@ import {
 } from "../opencodeRuntime.ts";
 import { extractProposedPlanMarkdown, withProviderPlanModePrompt } from "../planMode.ts";
 
-type OpenCodeCompatibleProvider = Extract<ProviderKind, "opencode" | "kilo">;
+type OpenCodeCompatibleProvider = Extract<ProviderKind, "opencode">;
 
 interface OpenCodeCompatibleAdapterConfig {
   readonly provider: OpenCodeCompatibleProvider;
   readonly displayName: string;
   readonly defaultBinaryPath: string;
   readonly providerOptionsKey: OpenCodeCompatibleProvider;
-  readonly runtimeEventSource: "opencode.sdk.event" | "kilo.sdk.event";
+  readonly runtimeEventSource: "opencode.sdk.event";
   readonly turnIdPrefix: string;
   readonly cliModelSource: string;
   readonly fallbackModelSource: string;
@@ -91,20 +89,6 @@ const OPENCODE_ADAPTER_CONFIG: OpenCodeCompatibleAdapterConfig = {
   defaultAgent: "build",
   planAgent: "plan",
   cliSpec: OPENCODE_CLI_SPEC,
-};
-
-const KILO_ADAPTER_CONFIG: OpenCodeCompatibleAdapterConfig = {
-  provider: "kilo",
-  displayName: "Kilo",
-  defaultBinaryPath: "kilo",
-  providerOptionsKey: "kilo",
-  runtimeEventSource: "kilo.sdk.event",
-  turnIdPrefix: "kilo-turn",
-  cliModelSource: "kilo-cli",
-  fallbackModelSource: "kilo",
-  defaultAgent: "code",
-  planAgent: "plan",
-  cliSpec: KILO_CLI_SPEC,
 };
 
 const OPENCODE_PROMPT_ACCEPTED_ACTIVITY_TIMEOUT_MS = 60_000;
@@ -215,7 +199,7 @@ function asRuntimeItemId(value: string) {
 
 function buildProviderEventBase(input: {
   readonly provider: OpenCodeCompatibleProvider;
-  readonly runtimeEventSource: "opencode.sdk.event" | "kilo.sdk.event";
+  readonly runtimeEventSource: "opencode.sdk.event";
   readonly threadId: ThreadId;
   readonly turnId?: TurnId | undefined;
   readonly itemId?: string | undefined;
@@ -3858,54 +3842,21 @@ export function makeOpenCodeAdapterLive(options?: OpenCodeAdapterLiveOptions) {
           },
         });
 
-        if (provider === "kilo") {
-          const snapshotWatchdogBaseline = yield* captureTurnSnapshotWatchdogBaseline(context);
-          const recoveryBaselineMessageIds = yield* captureOpenCodeRecoveryBaseline(context);
-          const providerActivitySerial = context.activeTurnProviderActivitySerial;
-          yield* schedulePromptAcceptedWatchdog(context, {
-            turnId,
-            providerActivitySerial,
-            excludedMessageIds: recoveryBaselineMessageIds,
+        const snapshotWatchdogBaseline = yield* captureTurnSnapshotWatchdogBaseline(context);
+        yield* submitOpenCodePromptAsync(context, {
+          turnId,
+          promptInput: {
+            sessionID: context.openCodeSessionId,
+            model: parsedModel,
+            ...(context.activeAgent ? { agent: context.activeAgent } : {}),
+            ...(context.activeVariant ? { variant: context.activeVariant } : {}),
+            parts: [...(text ? [{ type: "text" as const, text }] : []), ...fileParts],
+          },
+        });
+        if (snapshotWatchdogBaseline.canStartWatchdog) {
+          yield* startTurnSnapshotWatchdog(context, turnId, snapshotWatchdogBaseline.messageIds, {
+            pollMessagesWhileBusy: false,
           });
-          yield* submitOpenCodePrompt(context, {
-            turnId,
-            promptInput: {
-              sessionID: context.openCodeSessionId,
-              messageID: `msg_${randomUUID()}`,
-              model: parsedModel,
-              ...(context.activeAgent ? { agent: context.activeAgent } : {}),
-              ...(context.activeVariant ? { variant: context.activeVariant } : {}),
-              noReply: false,
-              parts: [...(text ? [{ type: "text" as const, text }] : []), ...fileParts],
-            },
-          });
-          if (snapshotWatchdogBaseline.canStartWatchdog) {
-            yield* startTurnSnapshotWatchdog(context, turnId, snapshotWatchdogBaseline.messageIds, {
-              pollMessagesWhileBusy: true,
-            });
-          }
-        } else {
-          // Capture the pre-turn message ids before submitting so the watchdog can
-          // distinguish this turn's final assistant message from prior ones.
-          const snapshotWatchdogBaseline = yield* captureTurnSnapshotWatchdogBaseline(context);
-          yield* submitOpenCodePromptAsync(context, {
-            turnId,
-            promptInput: {
-              sessionID: context.openCodeSessionId,
-              model: parsedModel,
-              ...(context.activeAgent ? { agent: context.activeAgent } : {}),
-              ...(context.activeVariant ? { variant: context.activeVariant } : {}),
-              parts: [...(text ? [{ type: "text" as const, text }] : []), ...fileParts],
-            },
-          });
-          // OpenCode lacks Kilo's prompt-accepted hard-fail watchdog, but it still
-          // needs a completion backstop for dropped/delayed idle events. Keep the
-          // poll cheap (status-first) so large turns are not penalized.
-          if (snapshotWatchdogBaseline.canStartWatchdog) {
-            yield* startTurnSnapshotWatchdog(context, turnId, snapshotWatchdogBaseline.messageIds, {
-              pollMessagesWhileBusy: false,
-            });
-          }
         }
 
         return {
@@ -4312,7 +4263,7 @@ export function makeOpenCodeAdapterLive(options?: OpenCodeAdapterLiveOptions) {
 
       const listModels: NonNullable<OpenCodeAdapterShape["listModels"]> = (input) => {
         const binaryPath = input.binaryPath?.trim() || adapterConfig.defaultBinaryPath;
-        const freeOnlyProviderID = adapterConfig.provider === "kilo" ? "kilo" : undefined;
+        const freeOnlyProviderID = undefined;
         return Effect.gen(function* () {
           const cliModelsEffect = openCodeRuntime
             .listOpenCodeCliModels({
@@ -4530,18 +4481,4 @@ export function makeOpenCodeAdapterLive(options?: OpenCodeAdapterLiveOptions) {
 
 export const OpenCodeAdapterLive = makeOpenCodeAdapterLive();
 
-export function makeKiloAdapterLive(options?: Omit<OpenCodeAdapterLiveOptions, "adapterConfig">) {
-  const kiloOpenCodeCompatibleLayer = makeOpenCodeAdapterLive({
-    ...options,
-    adapterConfig: KILO_ADAPTER_CONFIG,
-  });
-  return Layer.effect(
-    KiloAdapter,
-    Effect.gen(function* () {
-      const adapter = yield* OpenCodeAdapter;
-      return adapter as unknown as KiloAdapterShape;
-    }),
-  ).pipe(Layer.provide(kiloOpenCodeCompatibleLayer));
-}
 
-export const KiloAdapterLive = makeKiloAdapterLive();

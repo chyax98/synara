@@ -17,12 +17,12 @@ async function mountMenu(props?: {
   prompt?: string;
 }) {
   const threadId = ThreadId.makeUnsafe("thread-compact-menu");
-  const provider = props?.modelSelection?.provider ?? "claudeAgent";
+  const provider = props?.modelSelection?.provider ?? "opencode";
   const draftsByThreadId = {} as ReturnType<
     typeof useComposerDraftStore.getState
   >["draftsByThreadId"];
   const model =
-    props?.modelSelection?.model ?? getDefaultModel(provider) ?? getDefaultModel("codex");
+    props?.modelSelection?.model ?? getDefaultModel(provider) ?? getDefaultModel("opencode");
 
   draftsByThreadId[threadId] = {
     prompt: props?.prompt ?? "",
@@ -104,7 +104,7 @@ describe("CompactComposerControlsMenu", () => {
 
   it("shows fast mode controls for Opus", async () => {
     await using _ = await mountMenu({
-      modelSelection: { provider: "claudeAgent", model: "claude-opus-4-6" },
+      modelSelection: { provider: "opencode", model: "claude-opus-4-6" },
     });
 
     await page.getByLabelText("More composer controls").click();
@@ -119,7 +119,7 @@ describe("CompactComposerControlsMenu", () => {
 
   it("hides fast mode controls for non-Opus Claude models", async () => {
     await using _ = await mountMenu({
-      modelSelection: { provider: "claudeAgent", model: "claude-sonnet-4-6" },
+      modelSelection: { provider: "opencode", model: "claude-sonnet-4-6" },
     });
 
     await page.getByLabelText("More composer controls").click();
@@ -131,7 +131,7 @@ describe("CompactComposerControlsMenu", () => {
 
   it("shows only the provided effort options", async () => {
     await using _ = await mountMenu({
-      modelSelection: { provider: "claudeAgent", model: "claude-sonnet-4-6" },
+      modelSelection: { provider: "opencode", model: "claude-sonnet-4-6" },
     });
 
     await page.getByLabelText("More composer controls").click();
@@ -149,9 +149,9 @@ describe("CompactComposerControlsMenu", () => {
   it("shows a Claude thinking on/off section for Haiku", async () => {
     await using _ = await mountMenu({
       modelSelection: {
-        provider: "claudeAgent",
+        provider: "opencode",
         model: "claude-haiku-4-5",
-        options: { thinking: true },
+        options: { agent: "build" },
       },
     });
 
@@ -168,9 +168,9 @@ describe("CompactComposerControlsMenu", () => {
   it("shows prompt-controlled Ultrathink messaging with disabled effort controls", async () => {
     await using _ = await mountMenu({
       modelSelection: {
-        provider: "claudeAgent",
+        provider: "opencode",
         model: "claude-opus-4-6",
-        options: { effort: "high" },
+        options: { variant: "high" },
       },
       prompt: "Ultrathink:\nInvestigate this",
     });

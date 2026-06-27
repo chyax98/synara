@@ -135,7 +135,7 @@ export const ComposerModelEffortPicker = memo(function ComposerModelEffortPicker
     ultrathinkPromptControlled,
   } = traitSelection;
 
-  const supportsFastModeControl = fastModeDescriptor !== null || caps.supportsFastMode;
+  const supportsFastModeControl = fastModeDescriptor !== null;
   const hasTraitsTopSection = hasVisibleComposerTraitControls(traitSelection, {
     includeFastMode: false,
   });

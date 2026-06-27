@@ -25,7 +25,7 @@ const makeSession = (
 ): NonNullable<ReconcilableThread["session"]> => ({
   threadId: ThreadId.makeUnsafe(threadId),
   status: "running",
-  providerName: "grok",
+  providerName: "opencode",
   runtimeMode: "approval-required",
   activeTurnId: TurnId.makeUnsafe(`${threadId}-turn`),
   lastError: null,
@@ -106,7 +106,7 @@ describe("planRestartTurnReconciliation", () => {
       session: {
         threadId: "stuck",
         status: "interrupted",
-        providerName: "grok",
+        providerName: "opencode",
         runtimeMode: "approval-required",
         activeTurnId: null,
         lastError: null,

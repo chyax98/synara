@@ -83,18 +83,8 @@ type PluginBrandArtwork = {
 
 const PROVIDER_ICON: Record<ProviderKind, React.FC<React.SVGProps<SVGSVGElement>>> = {
   ...PROVIDER_ICON_COMPONENT_BY_PROVIDER,
-  codex: HammerIcon,
 };
-const PROVIDER_DISCOVERY_ORDER: ReadonlyArray<ProviderKind> = [
-  "codex",
-  "claudeAgent",
-  "cursor",
-  "gemini",
-  "grok",
-  "kilo",
-  "opencode",
-  "pi",
-];
+const PROVIDER_DISCOVERY_ORDER: ReadonlyArray<ProviderKind> = ["opencode"];
 const KNOWN_PLUGIN_BRANDS: Record<string, PluginBrandArtwork> = {
   canva: { icon: SiCanva, color: "#00C4CC" },
   figma: { icon: SiFigma, color: "#F24E1E" },
@@ -379,12 +369,12 @@ export function PluginLibrary() {
   const { activeProject: focusedProject, activeThread, focusedThreadId } = useFocusedChatContext();
   const activeProject = focusedProject ?? firstProject ?? null;
 
-  const preferredProvider =
+  const preferredProvider: ProviderKind =
     activeThread?.modelSelection.provider ??
     activeProject?.defaultModelSelection?.provider ??
-    "codex";
+    "opencode";
 
-  const [selectedProvider, setSelectedProvider] = useState<ProviderKind>(preferredProvider);
+  const [selectedProvider, setSelectedProvider] = useState<ProviderKind>("opencode");
   const [selectedTab, setSelectedTab] = useState<DiscoveryTab>("plugins");
   const [pluginSearch, setPluginSearch] = useState("");
   const [skillSearch, setSkillSearch] = useState("");
@@ -393,60 +383,16 @@ export function PluginLibrary() {
   const providerThreadId = focusedThreadId;
 
   const serverConfigQuery = useQuery(serverConfigQueryOptions());
-  const codexCapabilitiesQuery = useQuery(providerComposerCapabilitiesQueryOptions("codex"));
-  const claudeCapabilitiesQuery = useQuery(providerComposerCapabilitiesQueryOptions("claudeAgent"));
-  const cursorCapabilitiesQuery = useQuery(providerComposerCapabilitiesQueryOptions("cursor"));
-  const geminiCapabilitiesQuery = useQuery(providerComposerCapabilitiesQueryOptions("gemini"));
-  const grokCapabilitiesQuery = useQuery(providerComposerCapabilitiesQueryOptions("grok"));
-  const kiloCapabilitiesQuery = useQuery(providerComposerCapabilitiesQueryOptions("kilo"));
   const openCodeCapabilitiesQuery = useQuery(providerComposerCapabilitiesQueryOptions("opencode"));
-  const piCapabilitiesQuery = useQuery(providerComposerCapabilitiesQueryOptions("pi"));
 
   const providerCapabilities = useMemo<Record<ProviderKind, ProviderCapabilities>>(
     () => ({
-      codex: {
-        plugins: supportsPluginDiscovery(codexCapabilitiesQuery.data),
-        skills: supportsSkillDiscovery(codexCapabilitiesQuery.data),
-      },
-      claudeAgent: {
-        plugins: supportsPluginDiscovery(claudeCapabilitiesQuery.data),
-        skills: supportsSkillDiscovery(claudeCapabilitiesQuery.data),
-      },
-      cursor: {
-        plugins: supportsPluginDiscovery(cursorCapabilitiesQuery.data),
-        skills: supportsSkillDiscovery(cursorCapabilitiesQuery.data),
-      },
-      gemini: {
-        plugins: supportsPluginDiscovery(geminiCapabilitiesQuery.data),
-        skills: supportsSkillDiscovery(geminiCapabilitiesQuery.data),
-      },
-      grok: {
-        plugins: supportsPluginDiscovery(grokCapabilitiesQuery.data),
-        skills: supportsSkillDiscovery(grokCapabilitiesQuery.data),
-      },
-      kilo: {
-        plugins: supportsPluginDiscovery(kiloCapabilitiesQuery.data),
-        skills: supportsSkillDiscovery(kiloCapabilitiesQuery.data),
-      },
       opencode: {
         plugins: supportsPluginDiscovery(openCodeCapabilitiesQuery.data),
         skills: supportsSkillDiscovery(openCodeCapabilitiesQuery.data),
       },
-      pi: {
-        plugins: supportsPluginDiscovery(piCapabilitiesQuery.data),
-        skills: supportsSkillDiscovery(piCapabilitiesQuery.data),
-      },
     }),
-    [
-      claudeCapabilitiesQuery.data,
-      codexCapabilitiesQuery.data,
-      cursorCapabilitiesQuery.data,
-      geminiCapabilitiesQuery.data,
-      grokCapabilitiesQuery.data,
-      kiloCapabilitiesQuery.data,
-      openCodeCapabilitiesQuery.data,
-      piCapabilitiesQuery.data,
-    ],
+    [openCodeCapabilitiesQuery.data],
   );
 
   // Auto-fallback: switch provider when current tab/provider combo is unsupported

@@ -29,7 +29,7 @@ projectionRepositoriesLayer("Projection repositories", (it) => {
         title: "Null options project",
         workspaceRoot: "/tmp/project-null-options",
         defaultModelSelection: {
-          provider: "codex",
+          provider: "opencode",
           model: "gpt-5.4",
         },
         scripts: [],
@@ -54,7 +54,7 @@ projectionRepositoriesLayer("Projection repositories", (it) => {
       assert.strictEqual(
         row.defaultModelSelection,
         JSON.stringify({
-          provider: "codex",
+          provider: "opencode",
           model: "gpt-5.4",
         }),
       );
@@ -63,7 +63,7 @@ projectionRepositoriesLayer("Projection repositories", (it) => {
         projectId: ProjectId.makeUnsafe("project-null-options"),
       });
       assert.deepStrictEqual(Option.getOrNull(persisted)?.defaultModelSelection, {
-        provider: "codex",
+        provider: "opencode",
         model: "gpt-5.4",
       });
     }),
@@ -79,7 +79,7 @@ projectionRepositoriesLayer("Projection repositories", (it) => {
         projectId: ProjectId.makeUnsafe("project-null-options"),
         title: "Null options thread",
         modelSelection: {
-          provider: "claudeAgent",
+          provider: "opencode",
           model: "claude-opus-4-6",
         },
         runtimeMode: "full-access",
@@ -93,7 +93,6 @@ projectionRepositoriesLayer("Projection repositories", (it) => {
         createBranchFlowCompleted: false,
         lastKnownPr: null,
         latestTurnId: null,
-        handoff: null,
         pinnedMessages: null,
         threadMarkers: null,
         notes: null,
@@ -121,7 +120,7 @@ projectionRepositoriesLayer("Projection repositories", (it) => {
       assert.strictEqual(
         row.modelSelection,
         JSON.stringify({
-          provider: "claudeAgent",
+          provider: "opencode",
           model: "claude-opus-4-6",
         }),
       );
@@ -130,7 +129,7 @@ projectionRepositoriesLayer("Projection repositories", (it) => {
         threadId: ThreadId.makeUnsafe("thread-null-options"),
       });
       assert.deepStrictEqual(Option.getOrNull(persisted)?.modelSelection, {
-        provider: "claudeAgent",
+        provider: "opencode",
         model: "claude-opus-4-6",
       });
     }),

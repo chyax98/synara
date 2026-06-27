@@ -132,29 +132,11 @@ export function useKanbanTaskComposerDiscovery(input: UseKanbanTaskComposerDisco
       provider: selectedProvider,
       cwd: composerSkillCwd,
       threadId: scratchThreadId,
-      binaryPath:
-        (selectedProvider === "opencode"
-          ? providerOptionsForDispatch?.opencode?.binaryPath
-          : selectedProvider === "kilo"
-            ? providerOptionsForDispatch?.kilo?.binaryPath
-            : null) ?? null,
-      serverUrl:
-        (selectedProvider === "opencode"
-          ? providerOptionsForDispatch?.opencode?.serverUrl
-          : selectedProvider === "kilo"
-            ? providerOptionsForDispatch?.kilo?.serverUrl
-            : null) ?? null,
-      serverPassword:
-        (selectedProvider === "opencode"
-          ? providerOptionsForDispatch?.opencode?.serverPassword
-          : selectedProvider === "kilo"
-            ? providerOptionsForDispatch?.kilo?.serverPassword
-            : null) ?? null,
-      experimentalWebSockets:
-        selectedProvider === "opencode"
-          ? providerOptionsForDispatch?.opencode?.experimentalWebSockets
-          : undefined,
-      agentDir: selectedProvider === "pi" ? piAgentDir : null,
+      binaryPath: providerOptionsForDispatch?.opencode?.binaryPath ?? null,
+      serverUrl: providerOptionsForDispatch?.opencode?.serverUrl ?? null,
+      serverPassword: providerOptionsForDispatch?.opencode?.serverPassword ?? null,
+      experimentalWebSockets: providerOptionsForDispatch?.opencode?.experimentalWebSockets,
+      agentDir: null,
       enabled:
         (composerTriggerKind === "slash-command" || composerTriggerKind === "slash-model") &&
         supportsNativeSlashCommandDiscovery(providerComposerCapabilitiesQuery.data) &&
@@ -162,15 +144,15 @@ export function useKanbanTaskComposerDiscovery(input: UseKanbanTaskComposerDisco
     }),
   );
   const canDiscoverProviderSkills =
-    selectedProvider === "pi" || supportsSkillDiscovery(providerComposerCapabilitiesQuery.data);
+    selectedProvider === "opencode" || supportsSkillDiscovery(providerComposerCapabilitiesQuery.data);
   const providerSkillsQuery = useQuery(
     providerSkillsQueryOptions({
       provider: selectedProvider,
       cwd: composerSkillCwd,
       threadId: scratchThreadId,
-      agentDir: selectedProvider === "pi" ? piAgentDir : null,
+      agentDir: selectedProvider === "opencode" ? piAgentDir : null,
       enabled:
-        (isSkillTrigger || composerTriggerKind === "slash-command" || selectedProvider === "pi") &&
+        (isSkillTrigger || composerTriggerKind === "slash-command" || selectedProvider === "opencode") &&
         canDiscoverProviderSkills &&
         composerSkillCwd !== null,
     }),

@@ -3,7 +3,6 @@ import * as Semaphore from "effect/Semaphore";
 
 import type {
   ChatAttachment,
-  KiloModelSelection,
   OpenCodeModelSelection,
   OpenCodeModelOptions,
   ProviderStartOptions,
@@ -16,7 +15,6 @@ import { resolveAttachmentPath } from "../../attachmentStore.ts";
 import { ServerConfig } from "../../config.ts";
 import {
   OpenCodeRuntime,
-  KILO_CLI_SPEC,
   OPENCODE_CLI_SPEC,
   type OpenCodeCompatibleCliSpec,
   type OpenCodeServerConnection,
@@ -29,7 +27,6 @@ import { TextGenerationError } from "../Errors.ts";
 import {
   type TextGenerationOperation,
   type TextGenerationShape,
-  KiloTextGeneration,
   OpenCodeTextGeneration,
 } from "../Services/TextGeneration.ts";
 import {
@@ -109,8 +106,8 @@ interface AcquiredOpenCodeTextGenerationServer {
   serverScope: Scope.Closeable | null;
 }
 
-type OpenCodeCompatibleTextGenerationProvider = "opencode" | "kilo";
-type OpenCodeCompatibleModelSelection = OpenCodeModelSelection | KiloModelSelection;
+type OpenCodeCompatibleTextGenerationProvider = "opencode";
+type OpenCodeCompatibleModelSelection = OpenCodeModelSelection;
 
 interface OpenCodeCompatibleTextGenerationConfig {
   readonly provider: OpenCodeCompatibleTextGenerationProvider;
@@ -711,12 +708,4 @@ export const OpenCodeTextGenerationServiceLive = Layer.effect(
   }),
 );
 
-export const KiloTextGenerationServiceLive = Layer.effect(
-  KiloTextGeneration,
-  makeOpenCodeCompatibleTextGeneration({
-    provider: "kilo",
-    displayName: "Kilo",
-    serviceName: "KiloTextGeneration",
-    cliSpec: KILO_CLI_SPEC,
-  }),
-);
+

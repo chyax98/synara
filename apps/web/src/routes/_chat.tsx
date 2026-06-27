@@ -376,14 +376,7 @@ function ChatRouteGlobalShortcuts() {
         command === "chat.newCursor" ||
         command === "chat.newGemini"
       ) {
-        const provider =
-          command === "chat.newClaude"
-            ? "claudeAgent"
-            : command === "chat.newCodex"
-              ? "codex"
-              : command === "chat.newCursor"
-                ? "cursor"
-                : "gemini";
+        const provider = "opencode";
         const providerAvailability = resolveProviderSendAvailability({
           provider,
           statuses: providerStatuses,

@@ -193,7 +193,7 @@ describe("composerSlashCommands", () => {
 
   it("filters app slash commands when a provider exposes the same command natively", () => {
     const availableCommands = getAvailableComposerSlashCommands({
-      provider: "codex",
+      provider: "opencode",
       supportsFastSlashCommand: true,
       canOfferCompactCommand: true,
       canOfferReviewCommand: true,
@@ -205,13 +205,13 @@ describe("composerSlashCommands", () => {
     expect(availableCommands).not.toContain("fast");
     expect(availableCommands).not.toContain("model");
     expect(availableCommands).not.toContain("status");
-    expect(hasProviderNativeSlashCommand("codex", ["/fast", "model"], "fast")).toBe(true);
-    expect(hasProviderNativeSlashCommand("codex", ["/fast", "model"], "/model")).toBe(true);
+    expect(hasProviderNativeSlashCommand("opencode", ["/fast", "model"], "fast")).toBe(true);
+    expect(hasProviderNativeSlashCommand("opencode", ["/fast", "model"], "/model")).toBe(true);
   });
 
   it("keeps app-level /review available for codex even when native review exists", () => {
     const availableCommands = getAvailableComposerSlashCommands({
-      provider: "codex",
+      provider: "opencode",
       supportsFastSlashCommand: true,
       canOfferCompactCommand: true,
       canOfferReviewCommand: true,
@@ -221,13 +221,13 @@ describe("composerSlashCommands", () => {
     });
 
     expect(availableCommands).toContain("review");
-    expect(shouldHideProviderNativeCommandFromComposerMenu("codex", "review")).toBe(true);
-    expect(shouldHideProviderNativeCommandFromComposerMenu("codex", "status")).toBe(false);
+    expect(shouldHideProviderNativeCommandFromComposerMenu("opencode", "review")).toBe(true);
+    expect(shouldHideProviderNativeCommandFromComposerMenu("opencode", "status")).toBe(false);
   });
 
   it("keeps app-level /automation available even if a provider exposes a native collision", () => {
     const availableCommands = getAvailableComposerSlashCommands({
-      provider: "gemini",
+      provider: "opencode",
       supportsFastSlashCommand: false,
       canOfferCompactCommand: false,
       canOfferReviewCommand: true,
@@ -237,13 +237,13 @@ describe("composerSlashCommands", () => {
     });
 
     expect(availableCommands).toContain("automation");
-    expect(shouldHideProviderNativeCommandFromComposerMenu("gemini", "automation")).toBe(true);
+    expect(shouldHideProviderNativeCommandFromComposerMenu("opencode", "automation")).toBe(true);
   });
 
   it("only exposes the app-level /side command for claude", () => {
     expect(
       getAvailableComposerSlashCommands({
-        provider: "claudeAgent",
+        provider: "opencode",
         supportsFastSlashCommand: true,
         canOfferCompactCommand: true,
         canOfferReviewCommand: true,
@@ -256,7 +256,7 @@ describe("composerSlashCommands", () => {
   it("only offers /compact when Codex compaction is available", () => {
     expect(
       getAvailableComposerSlashCommands({
-        provider: "codex",
+        provider: "opencode",
         supportsFastSlashCommand: true,
         canOfferCompactCommand: true,
         canOfferReviewCommand: true,
@@ -267,7 +267,7 @@ describe("composerSlashCommands", () => {
 
     expect(
       getAvailableComposerSlashCommands({
-        provider: "codex",
+        provider: "opencode",
         supportsFastSlashCommand: true,
         canOfferCompactCommand: false,
         canOfferReviewCommand: true,
@@ -280,7 +280,7 @@ describe("composerSlashCommands", () => {
   it("exposes shared app slash commands for gemini", () => {
     expect(
       getAvailableComposerSlashCommands({
-        provider: "gemini",
+        provider: "opencode",
         supportsFastSlashCommand: false,
         canOfferCompactCommand: false,
         canOfferReviewCommand: true,
@@ -302,7 +302,7 @@ describe("composerSlashCommands", () => {
   });
 
   it("treats claude aliases like /fork as provider-native collisions", () => {
-    expect(hasProviderNativeSlashCommand("claudeAgent", ["branch", "model"], "fork")).toBe(true);
-    expect(hasProviderNativeSlashCommand("claudeAgent", ["clear"], "reset")).toBe(true);
+    expect(hasProviderNativeSlashCommand("opencode", ["branch", "model"], "fork")).toBe(true);
+    expect(hasProviderNativeSlashCommand("opencode", ["clear"], "reset")).toBe(true);
   });
 });

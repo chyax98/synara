@@ -55,9 +55,8 @@ import { clearWorkspaceIndexCache } from "../../workspaceEntries.ts";
 import {
   buildPriorTranscriptBootstrapText,
   buildForkBootstrapText,
-  buildHandoffBootstrapText,
   hasNativeAssistantMessagesBefore,
-} from "../handoff.ts";
+} from "../threadBootstrap.ts";
 import { OrchestrationEngineService } from "../Services/OrchestrationEngine.ts";
 import { ProjectionSnapshotQuery } from "../Services/ProjectionSnapshotQuery.ts";
 import {
@@ -98,25 +97,12 @@ function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-// Codex app-server still expects `$skill` text next to the structured skill item.
 export function normalizeSkillMentionTextForProvider(input: {
   readonly provider: ProviderKind;
   readonly messageText: string;
   readonly skills?: ReadonlyArray<ProviderSkillReference>;
 }): string {
-  if (input.provider !== "codex" || !input.skills || input.skills.length === 0) {
-    return input.messageText;
-  }
-
-  let nextText = input.messageText;
-  for (const skill of input.skills) {
-    const escapedName = escapeRegExp(skill.name);
-    nextText = nextText.replace(
-      new RegExp(`(^|\\s)/${escapedName}(?=\\s|$)`, "gi"),
-      `$1$${skill.name}`,
-    );
-  }
-  return nextText;
+  return input.messageText;
 }
 
 function attachmentTitleSeed(attachment: ChatAttachment | undefined): string {
@@ -156,9 +142,6 @@ const serverCommandId = (tag: string): CommandId =>
 const HANDLED_TURN_START_KEY_MAX = 10_000;
 const HANDLED_TURN_START_KEY_TTL = Duration.minutes(30);
 const DEFAULT_RUNTIME_MODE: RuntimeMode = "full-access";
-const HANDOFF_CONTEXT_WRAPPER_OVERHEAD =
-  "<handoff_context>\n\n</handoff_context>\n\n<latest_user_message>\n\n</latest_user_message>"
-    .length;
 const SIDECHAT_BOUNDARY_INSTRUCTION =
   "You are in a sidechat. Treat all prior conversation as reference-only context. Do not continue any prior task automatically. Do not mutate files, git, or the workspace and do not run workspace-changing commands unless the latest user message explicitly asks you to do so after this boundary. Use this sidechat for focused explanation, safety checks, summaries, and alternatives.";
 
@@ -203,12 +186,6 @@ function isStaleCodexResumeError(error: unknown): boolean {
 }
 
 function isStaleClaudeResumeError(error: unknown): boolean {
-  if (Schema.is(ProviderAdapterRequestError)(error)) {
-    return (
-      error.provider === "claudeAgent" &&
-      error.detail.toLowerCase().includes("no conversation found with session id")
-    );
-  }
   return String(error).toLowerCase().includes("no conversation found with session id");
 }
 
@@ -735,7 +712,7 @@ const make = Effect.gen(function* () {
       const shouldRestartForModelChange = modelChanged && sessionModelSwitch === "restart-session";
       const previousModelSelection = threadModelSelections.get(threadId);
       const shouldRestartForModelSelectionChange =
-        (currentProvider === "claudeAgent" || currentProvider === "grok") &&
+        currentProvider === "opencode" &&
         requestedModelSelection !== undefined &&
         !Equal.equals(previousModelSelection, requestedModelSelection);
 
@@ -854,19 +831,10 @@ const make = Effect.gen(function* () {
     if (input.modelSelection !== undefined) {
       threadModelSelections.set(input.threadId, input.modelSelection);
     }
-    const shouldBootstrapHandoff =
-      thread.handoff?.bootstrapStatus === "pending" &&
-      !hasNativeAssistantMessagesBefore(thread, input.messageId);
     const availableBootstrapChars = Math.max(
       0,
-      PROVIDER_SEND_TURN_MAX_INPUT_CHARS -
-        input.messageText.length -
-        HANDOFF_CONTEXT_WRAPPER_OVERHEAD,
+      PROVIDER_SEND_TURN_MAX_INPUT_CHARS - input.messageText.length,
     );
-    const handoffBootstrapText =
-      shouldBootstrapHandoff && availableBootstrapChars > 0
-        ? buildHandoffBootstrapText(thread, availableBootstrapChars)
-        : null;
     const shouldBootstrapSidechatContext =
       thread.sidechatSourceThreadId !== null &&
       sidechatContextBootstrapThreadIds.has(input.threadId) &&
@@ -881,9 +849,8 @@ const make = Effect.gen(function* () {
       thread.session?.providerName ??
       thread.modelSelection.provider;
     const shouldBootstrapPriorTranscriptContext =
-      (selectedProvider === "kilo" || selectedProvider === "opencode") &&
+      selectedProvider === "opencode" &&
       activeSessionBeforeEnsure === undefined &&
-      !handoffBootstrapText &&
       !sidechatBootstrapText;
     const priorTranscriptBootstrapText =
       shouldBootstrapPriorTranscriptContext && availableBootstrapChars > 0
@@ -892,13 +859,11 @@ const make = Effect.gen(function* () {
     const boundaryMessageText = thread.sidechatSourceThreadId
       ? wrapSidechatInput(input.messageText)
       : input.messageText;
-    const providerInput = handoffBootstrapText
-      ? `<handoff_context>\n${handoffBootstrapText}\n</handoff_context>\n\n<latest_user_message>\n${boundaryMessageText}\n</latest_user_message>`
-      : sidechatBootstrapText
-        ? `<sidechat_context>\n${sidechatBootstrapText}\n</sidechat_context>\n\n${boundaryMessageText}`
-        : priorTranscriptBootstrapText
-          ? `<thread_context>\n${priorTranscriptBootstrapText}\n</thread_context>\n\n<latest_user_message>\n${boundaryMessageText}\n</latest_user_message>`
-          : boundaryMessageText;
+    const providerInput = sidechatBootstrapText
+      ? `<sidechat_context>\n${sidechatBootstrapText}\n</sidechat_context>\n\n${boundaryMessageText}`
+      : priorTranscriptBootstrapText
+        ? `<thread_context>\n${priorTranscriptBootstrapText}\n</thread_context>\n\n<latest_user_message>\n${boundaryMessageText}\n</latest_user_message>`
+        : boundaryMessageText;
     // Portable skills fallback: providers that cannot load the referenced skill
     // file natively get the skill instructions inlined into the prompt.
     const skillInlineText =
@@ -1014,74 +979,7 @@ const make = Effect.gen(function* () {
       });
     } else {
       yield* captureMessageStartCheckpoint;
-      yield* sendQueuedProviderTurn(normalizedInput).pipe(
-        Effect.catch((error) =>
-          Effect.gen(function* () {
-            if (selectedProvider !== "claudeAgent" || !isStaleClaudeResumeError(error)) {
-              return yield* Effect.fail(error);
-            }
-
-            // Claude cannot continue from a missing native session; clear the
-            // dead cursor and replay once with Synara transcript context.
-            yield* clearStaleProviderResumeState({
-              threadId: input.threadId,
-              cause: error,
-            });
-            yield* ensureSessionForThread(input.threadId, input.createdAt, {
-              ...(input.modelSelection !== undefined
-                ? { modelSelection: input.modelSelection }
-                : {}),
-              ...(input.providerOptions !== undefined
-                ? { providerOptions: input.providerOptions }
-                : {}),
-              ...(input.runtimeMode !== undefined ? { runtimeMode: input.runtimeMode } : {}),
-            });
-
-            const retryBootstrapText =
-              availableBootstrapChars > 0
-                ? buildPriorTranscriptBootstrapText(
-                    thread,
-                    input.messageId,
-                    availableBootstrapChars,
-                  )
-                : null;
-            const retryProviderInput = retryBootstrapText
-              ? `<thread_context>\n${retryBootstrapText}\n</thread_context>\n\n<latest_user_message>\n${boundaryMessageText}\n</latest_user_message>`
-              : boundaryMessageText;
-            const retryProviderInputWithSkills = skillInlineText
-              ? `${retryProviderInput}\n\n${skillInlineText}`
-              : retryProviderInput;
-            const retryNormalizedInput = toNonEmptyProviderInput(
-              normalizeSkillMentionTextForProvider({
-                provider: selectedProvider as ProviderKind,
-                messageText: retryProviderInputWithSkills,
-                ...(input.skills !== undefined ? { skills: input.skills } : {}),
-              }),
-            );
-
-            yield* Effect.logWarning(
-              "provider command reactor retrying claude turn after stale resume",
-              {
-                threadId: input.threadId,
-                messageId: input.messageId,
-                bootstrappedPriorTranscript: retryBootstrapText !== null,
-              },
-            );
-            return yield* sendQueuedProviderTurn(retryNormalizedInput);
-          }),
-        ),
-      );
-    }
-    if (handoffBootstrapText && thread.handoff !== null) {
-      yield* orchestrationEngine.dispatch({
-        type: "thread.meta.update",
-        commandId: serverCommandId("handoff-bootstrap-complete"),
-        threadId: input.threadId,
-        handoff: {
-          ...thread.handoff,
-          bootstrapStatus: "completed",
-        },
-      });
+      yield* sendQueuedProviderTurn(normalizedInput);
     }
     if (sidechatBootstrapText) {
       sidechatContextBootstrapThreadIds.delete(input.threadId);
@@ -1411,10 +1309,7 @@ const make = Effect.gen(function* () {
         : {}),
     }).pipe(Effect.forkScoped);
     const immediateDispatchMode =
-      event.payload.dispatchMode === "steer" &&
-      (thread.session?.providerName ?? thread.modelSelection.provider) !== "codex"
-        ? "queue"
-        : event.payload.dispatchMode;
+      event.payload.dispatchMode === "steer" ? "queue" : event.payload.dispatchMode;
     const editResendKey = editResendTurnStartKey(event.payload.threadId, event.payload.messageId);
 
     yield* dispatchTurnForThread({

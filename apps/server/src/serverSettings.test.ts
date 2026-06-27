@@ -25,8 +25,7 @@ describe("ServerSettingsService", () => {
       }),
     );
 
-    expect(settings.providers.codex.binaryPath).toBe("codex");
-    expect(settings.providers.grok.binaryPath).toBe("grok");
+    expect(settings.providers.opencode.binaryPath).toBe("opencode");
     expect(settings.defaultThreadEnvMode).toBe("local");
   });
 
@@ -41,8 +40,8 @@ describe("ServerSettingsService", () => {
         const updated = yield* service.updateSettings({
           enableAssistantStreaming: true,
           providers: {
-            codex: {
-              binaryPath: "/usr/local/bin/codex",
+            opencode: {
+              binaryPath: "/usr/local/bin/opencode",
               customModels: ["gpt-custom"],
             },
           },
@@ -53,19 +52,19 @@ describe("ServerSettingsService", () => {
     );
 
     expect(result.updated.enableAssistantStreaming).toBe(true);
-    expect(result.updated.providers.codex.binaryPath).toBe("/usr/local/bin/codex");
+    expect(result.updated.providers.opencode.binaryPath).toBe("/usr/local/bin/opencode");
     expect(result.parsed).toMatchObject({
       enableAssistantStreaming: true,
       providers: {
-        codex: {
-          binaryPath: "/usr/local/bin/codex",
+        opencode: {
+          binaryPath: "/usr/local/bin/opencode",
           customModels: ["gpt-custom"],
         },
       },
     });
   });
 
-  it("resolves text generation selection away from disabled providers", async () => {
+  it("keeps opencode as the text generation provider when enabled", async () => {
     const settings = await Effect.runPromise(
       Effect.gen(function* () {
         const service = yield* ServerSettingsService;
@@ -74,18 +73,15 @@ describe("ServerSettingsService", () => {
         Effect.provide(
           ServerSettingsService.layerTest({
             textGenerationModelSelection: {
-              provider: "gemini",
-              model: DEFAULT_MODEL_BY_PROVIDER.gemini,
-            },
-            providers: {
-              gemini: { enabled: false },
+              provider: "opencode",
+              model: DEFAULT_MODEL_BY_PROVIDER.opencode,
             },
           }),
         ),
       ),
     );
 
-    expect(settings.textGenerationModelSelection.provider).toBe("codex");
-    expect(settings.textGenerationModelSelection.model).toBe(DEFAULT_MODEL_BY_PROVIDER.codex);
+    expect(settings.textGenerationModelSelection.provider).toBe("opencode");
+    expect(settings.textGenerationModelSelection.model).toBe(DEFAULT_MODEL_BY_PROVIDER.opencode);
   });
 });

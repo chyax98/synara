@@ -105,8 +105,8 @@ it.effect("accepts automation create requests", () =>
         prompt: "Check stale dependencies.",
         schedule: { type: "manual" },
         modelSelection: {
-          provider: "codex",
-          model: "gpt-5-codex",
+          provider: "opencode",
+          model: "openai/gpt-5",
         },
       },
     });

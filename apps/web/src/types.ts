@@ -13,7 +13,7 @@ import type {
   ThreadMarker,
   OrchestrationSessionStatus,
   OrchestrationThreadActivity,
-  ThreadHandoff,
+
   ProjectScript as ContractProjectScript,
   ThreadId,
   ProjectId,
@@ -203,7 +203,7 @@ export interface Thread extends ThreadWorkspaceState {
   subagentRole?: string | null;
   forkSourceThreadId?: ThreadId | null;
   sidechatSourceThreadId?: ThreadId | null;
-  handoff?: ThreadHandoff | null;
+
   lastKnownPr?: OrchestrationThreadPullRequest | null;
   latestUserMessageAt?: string | null;
   hasPendingApprovals?: boolean;
@@ -239,7 +239,7 @@ export interface ThreadShell extends ThreadWorkspaceState {
   subagentRole?: string | null;
   forkSourceThreadId?: ThreadId | null;
   sidechatSourceThreadId?: ThreadId | null;
-  handoff?: ThreadHandoff | null;
+
   lastKnownPr?: OrchestrationThreadPullRequest | null;
   latestUserMessageAt?: string | null;
   hasPendingApprovals?: boolean;
@@ -280,7 +280,7 @@ export interface SidebarThreadSummary {
   hasLiveTailWork: boolean;
   forkSourceThreadId?: ThreadId | null;
   sidechatSourceThreadId?: ThreadId | null;
-  handoff?: ThreadHandoff | null;
+
   lastKnownPr?: OrchestrationThreadPullRequest | null;
 }
 

@@ -22,16 +22,7 @@ import { ServerConfig } from "./config";
 const HEATMAP_WINDOW_DAYS = 274; // ~9 months, GitHub-style contribution grid.
 const SKILL_RESULT_LIMIT = 12;
 const THREAD_RETENTION_COMMAND_ID_PATTERN = "thread-retention:%";
-const PROVIDER_KINDS = new Set<ProviderKind>([
-  "codex",
-  "claudeAgent",
-  "cursor",
-  "gemini",
-  "grok",
-  "kilo",
-  "opencode",
-  "pi",
-]);
+const PROVIDER_KINDS = new Set<ProviderKind>(["opencode"]);
 
 type HeatmapCell = ProfileStats["activity"]["heatmap"][number];
 type ProviderModelUsage = ProfileStats["providerModels"][number];

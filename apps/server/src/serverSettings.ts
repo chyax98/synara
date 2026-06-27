@@ -79,13 +79,7 @@ export class ServerSettingsService extends ServiceMap.Service<
     );
 }
 
-const PROVIDER_ORDER: readonly ProviderWithDefaultModel[] = [
-  "codex",
-  "claudeAgent",
-  "gemini",
-  "kilo",
-  "opencode",
-];
+const PROVIDER_ORDER: readonly ProviderWithDefaultModel[] = ["opencode"];
 
 function resolveTextGenerationProvider(settings: ServerSettings): ServerSettings {
   const selection = settings.textGenerationModelSelection;

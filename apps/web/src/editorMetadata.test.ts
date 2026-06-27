@@ -19,7 +19,7 @@ describe("resolveAvailableEditorOptions", () => {
   it("surfaces every supported available editor from the shared contracts catalog", () => {
     expect(
       resolveAvailableEditorOptions("MacIntel", [
-        "cursor",
+        "vscode",
         "trae",
         "vscode-insiders",
         "vscodium",
@@ -44,7 +44,7 @@ describe("resolveAvailableEditorOptions", () => {
         "file-manager",
       ]).map((option) => option.value),
     ).toEqual([
-      "cursor",
+      "opencode",
       "trae",
       "vscode-insiders",
       "vscodium",

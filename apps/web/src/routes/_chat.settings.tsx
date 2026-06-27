@@ -88,7 +88,7 @@ import {
   SettingsSection,
   SettingsSelectPopup,
 } from "../components/settings/SettingsPanelPrimitives";
-import { ProviderUsageSettingsPanel } from "../components/settings/ProviderUsageSettingsPanel";
+
 import { ProfileSettingsPanel } from "../components/settings/ProfileSettingsPanel";
 import { SkillsSettingsPanel } from "../components/settings/SkillsSettingsPanel";
 import {
@@ -154,7 +154,7 @@ import {
   SETTINGS_SECTION_LABEL_CLASS_NAME,
 } from "../settingsPanelStyles";
 import { useStore } from "../store";
-import ReleaseHistoryDialog from "../components/ReleaseHistoryDialog";
+
 import { createAllThreadsMessagelessSelector, createThreadShellsSelector } from "../storeSelectors";
 import { formatRelativeTime } from "../lib/relativeTime";
 import { formatWorktreePathForDisplay } from "../worktreeCleanup";
@@ -209,16 +209,7 @@ const THEME_OPTIONS = [
   },
 ] as const;
 
-const PROVIDER_SELECT_OPTIONS = [
-  "codex",
-  "claudeAgent",
-  "cursor",
-  "gemini",
-  "grok",
-  "opencode",
-  "kilo",
-  "pi",
-] as const satisfies readonly ProviderKind[];
+const PROVIDER_SELECT_OPTIONS = ["opencode"] as const satisfies readonly ProviderKind[];
 
 const TIMESTAMP_FORMAT_LABELS = {
   locale: "System default",
@@ -276,14 +267,7 @@ type InstallProviderSettings = {
 };
 
 const PROVIDER_VISIBILITY_OPTIONS: ReadonlyArray<{ provider: ProviderKind; title: string }> = [
-  { provider: "codex", title: PROVIDER_DISPLAY_NAMES.codex },
-  { provider: "claudeAgent", title: PROVIDER_DISPLAY_NAMES.claudeAgent },
-  { provider: "cursor", title: PROVIDER_DISPLAY_NAMES.cursor },
-  { provider: "gemini", title: PROVIDER_DISPLAY_NAMES.gemini },
-  { provider: "grok", title: PROVIDER_DISPLAY_NAMES.grok },
-  { provider: "kilo", title: PROVIDER_DISPLAY_NAMES.kilo },
   { provider: "opencode", title: PROVIDER_DISPLAY_NAMES.opencode },
-  { provider: "pi", title: PROVIDER_DISPLAY_NAMES.pi },
 ];
 
 // Pure helper kept at module scope so the toggle handler stays trivial and the
@@ -351,117 +335,6 @@ function SortableProviderVisibilityRow(props: {
 
 const INSTALL_PROVIDER_SETTINGS: readonly InstallProviderSettings[] = [
   {
-    provider: "codex",
-    title: "Codex",
-    docs: [
-      { label: "Install", href: "https://help.openai.com/en/articles/11096431" },
-      { label: "Update", href: "https://help.openai.com/en/articles/11096431" },
-      { label: "Config", href: "https://github.com/openai/codex/blob/main/docs/config.md" },
-    ],
-    binaryPathKey: "codexBinaryPath",
-    binaryPlaceholder: "Codex binary path",
-    binaryDescription: (
-      <>
-        Leave blank to use <code>codex</code> from your PATH.
-      </>
-    ),
-    homePathKey: "codexHomePath",
-    homePlaceholder: "CODEX_HOME",
-    homeDescription: "Optional custom Codex home and config directory.",
-  },
-  {
-    provider: "claudeAgent",
-    title: "Claude",
-    docs: [
-      { label: "Install", href: "https://code.claude.com/docs/en/installation" },
-      { label: "Update", href: "https://code.claude.com/docs/en/installation#update-claude-code" },
-      { label: "Config", href: "https://code.claude.com/docs/en/settings" },
-    ],
-    binaryPathKey: "claudeBinaryPath",
-    binaryPlaceholder: "Claude binary path",
-    binaryDescription: (
-      <>
-        Leave blank to use <code>claude</code> from your PATH.
-      </>
-    ),
-  },
-  {
-    provider: "cursor",
-    title: "Cursor",
-    docs: [
-      { label: "Install", href: "https://docs.cursor.com/en/cli/installation" },
-      { label: "Update", href: "https://docs.cursor.com/en/cli/installation#updates" },
-      { label: "Config", href: "https://docs.cursor.com/en/cli/overview" },
-    ],
-    binaryPathKey: "cursorBinaryPath",
-    binaryPlaceholder: "Cursor Agent binary path",
-    binaryDescription: (
-      <>
-        Leave blank to use <code>cursor-agent</code> from your PATH.
-      </>
-    ),
-    apiEndpointKey: "cursorApiEndpoint",
-    apiEndpointPlaceholder: "https://api2.cursor.sh",
-    apiEndpointDescription: "Optional Cursor API endpoint override passed to `cursor-agent -e`.",
-  },
-  {
-    provider: "gemini",
-    title: "Gemini",
-    docs: [
-      { label: "Install", href: "https://google-gemini.github.io/gemini-cli/docs/get-started/" },
-      { label: "Update", href: "https://github.com/google-gemini/gemini-cli" },
-      {
-        label: "Config",
-        href: "https://google-gemini.github.io/gemini-cli/docs/get-started/configuration.html",
-      },
-    ],
-    binaryPathKey: "geminiBinaryPath",
-    binaryPlaceholder: "Gemini binary path",
-    binaryDescription: (
-      <>
-        Leave blank to use <code>gemini</code> from your PATH.
-      </>
-    ),
-  },
-  {
-    provider: "grok",
-    title: "Grok",
-    docs: [
-      { label: "Install", href: "https://docs.x.ai/build/overview" },
-      { label: "Headless", href: "https://docs.x.ai/build/cli/headless-scripting" },
-      { label: "Config", href: "https://docs.x.ai/build/overview" },
-    ],
-    binaryPathKey: "grokBinaryPath",
-    binaryPlaceholder: "Grok binary path",
-    binaryDescription: (
-      <>
-        Leave blank to use <code>grok</code> from your PATH.
-      </>
-    ),
-  },
-  {
-    provider: "kilo",
-    title: "Kilo",
-    docs: [
-      { label: "Install", href: "https://kilo.ai/docs/cli" },
-      { label: "Update", href: "https://kilo.ai/docs/cli" },
-      { label: "Config", href: "https://kilo.ai/docs/cli#configuration" },
-    ],
-    binaryPathKey: "kiloBinaryPath",
-    binaryPlaceholder: "Kilo binary path",
-    binaryDescription: (
-      <>
-        Leave blank to use <code>kilo</code> from your PATH.
-      </>
-    ),
-    serverUrlKey: "kiloServerUrl",
-    serverUrlPlaceholder: "http://127.0.0.1:4096",
-    serverUrlDescription: "Optional existing Kilo server URL. Leave blank to spawn a local server.",
-    serverPasswordKey: "kiloServerPassword",
-    serverPasswordPlaceholder: "Kilo server password",
-    serverPasswordDescription: "Optional password for an externally managed Kilo server.",
-  },
-  {
     provider: "opencode",
     title: "OpenCode",
     docs: [
@@ -486,26 +359,6 @@ const INSTALL_PROVIDER_SETTINGS: readonly InstallProviderSettings[] = [
     experimentalWebSocketsKey: "openCodeExperimentalWebSockets",
     experimentalWebSocketsDescription:
       "Use Opencode's experimental OpenAI response WebSocket transport for managed local servers.",
-  },
-  {
-    provider: "pi",
-    title: "Pi",
-    docs: [
-      { label: "Install", href: "https://pi.dev/docs/latest" },
-      { label: "Update", href: "https://pi.dev/docs/latest/settings" },
-      { label: "Config", href: "https://pi.dev/docs/latest/settings" },
-    ],
-    binaryPathKey: "piBinaryPath",
-    binaryPlaceholder: "Pi binary path",
-    binaryDescription: (
-      <>
-        Leave blank to use <code>pi</code> from your PATH.
-      </>
-    ),
-    agentDirKey: "piAgentDir",
-    agentDirPlaceholder: "Pi agent directory",
-    agentDirDescription:
-      "Optional custom Pi agent directory for auth, models, skills, and commands.",
   },
 ];
 
@@ -664,36 +517,22 @@ function SettingsRouteView() {
   const providerInstallsRef = useRef<HTMLDivElement | null>(null);
   const environmentPanelRef = useRef<HTMLDivElement | null>(null);
   const [openInstallProviders, setOpenInstallProviders] = useState<Record<ProviderKind, boolean>>({
-    codex: Boolean(settings.codexBinaryPath || settings.codexHomePath),
-    claudeAgent: Boolean(settings.claudeBinaryPath),
-    cursor: Boolean(settings.cursorBinaryPath || settings.cursorApiEndpoint),
-    gemini: Boolean(settings.geminiBinaryPath),
-    grok: Boolean(settings.grokBinaryPath),
-    kilo: Boolean(settings.kiloBinaryPath || settings.kiloServerUrl || settings.kiloServerPassword),
     opencode: Boolean(
       settings.openCodeBinaryPath ||
       settings.openCodeExperimentalWebSockets ||
       settings.openCodeServerUrl ||
       settings.openCodeServerPassword,
     ),
-    pi: Boolean(settings.piBinaryPath || settings.piAgentDir),
   });
   const [updatingProviders, setUpdatingProviders] = useState<ReadonlySet<ProviderKind>>(
     () => new Set(),
   );
   const [selectedCustomModelProvider, setSelectedCustomModelProvider] =
-    useState<ProviderKind>("codex");
+    useState<ProviderKind>("opencode");
   const [customModelInputByProvider, setCustomModelInputByProvider] = useState<
     Record<ProviderKind, string>
   >({
-    codex: "",
-    claudeAgent: "",
-    cursor: "",
-    gemini: "",
-    grok: "",
-    kilo: "",
     opencode: "",
-    pi: "",
   });
   const [customModelErrorByProvider, setCustomModelErrorByProvider] = useState<
     Partial<Record<ProviderKind, string | null>>
@@ -837,35 +676,21 @@ function SettingsRouteView() {
   // narrow inputs the helper actually uses (destructured so exhaustive-deps stays exact) so
   // typing in any other settings field — every keystroke re-renders this monolithic route —
   // doesn't rebuild these lists.
-  const {
-    customCodexModels,
-    customKiloModels,
-    customOpenCodeModels,
-    textGenerationModel,
-    textGenerationProvider,
-  } = settings;
+  const { customOpenCodeModels, textGenerationModel, textGenerationProvider } = settings;
   const gitTextGenerationModelOptions = useMemo(
     () =>
       getGitTextGenerationModelOptions({
-        customCodexModels,
-        customKiloModels,
         customOpenCodeModels,
         textGenerationModel,
         textGenerationProvider,
       }),
-    [
-      customCodexModels,
-      customKiloModels,
-      customOpenCodeModels,
-      textGenerationModel,
-      textGenerationProvider,
-    ],
+    [customOpenCodeModels, textGenerationModel, textGenerationProvider],
   );
-  const currentGitTextGenerationProvider = settings.textGenerationProvider ?? "codex";
+  const currentGitTextGenerationProvider = settings.textGenerationProvider ?? "opencode";
   const currentGitTextGenerationModel =
     settings.textGenerationModel ?? DEFAULT_GIT_TEXT_GENERATION_MODEL;
   const currentGitTextGenerationValue = `${currentGitTextGenerationProvider}:${currentGitTextGenerationModel}`;
-  const defaultGitTextGenerationProvider = defaults.textGenerationProvider ?? "codex";
+  const defaultGitTextGenerationProvider = defaults.textGenerationProvider ?? "opencode";
   const defaultGitTextGenerationModel =
     defaults.textGenerationModel ?? DEFAULT_GIT_TEXT_GENERATION_MODEL;
   const isGitTextGenerationModelDirty =
@@ -1157,25 +982,11 @@ function SettingsRouteView() {
     resetAllThemes();
     resetSettings();
     setOpenInstallProviders({
-      codex: false,
-      claudeAgent: false,
-      cursor: false,
-      gemini: false,
-      grok: false,
-      kilo: false,
       opencode: false,
-      pi: false,
     });
-    setSelectedCustomModelProvider("codex");
+    setSelectedCustomModelProvider("opencode");
     setCustomModelInputByProvider({
-      codex: "",
-      claudeAgent: "",
-      cursor: "",
-      gemini: "",
-      grok: "",
-      kilo: "",
       opencode: "",
-      pi: "",
     });
     setCustomModelErrorByProvider({});
     setShowAllCustomModels(false);
@@ -2417,16 +2228,7 @@ function SettingsRouteView() {
               <Select
                 value={selectedCustomModelProvider}
                 onValueChange={(value) => {
-                  if (
-                    value !== "codex" &&
-                    value !== "claudeAgent" &&
-                    value !== "cursor" &&
-                    value !== "gemini" &&
-                    value !== "grok" &&
-                    value !== "kilo" &&
-                    value !== "opencode" &&
-                    value !== "pi"
-                  ) {
+                  if (value !== "opencode") {
                     return;
                   }
                   setSelectedCustomModelProvider(value);
@@ -2706,14 +2508,7 @@ function SettingsRouteView() {
                     piBinaryPath: defaults.piBinaryPath,
                   });
                   setOpenInstallProviders({
-                    codex: false,
-                    claudeAgent: false,
-                    cursor: false,
-                    gemini: false,
-                    grok: false,
-                    kilo: false,
                     opencode: false,
-                    pi: false,
                   });
                 }}
               />
@@ -2725,47 +2520,12 @@ function SettingsRouteView() {
               {INSTALL_PROVIDER_SETTINGS.map((providerSettings) => {
                 const isOpen = openInstallProviders[providerSettings.provider];
                 const isDirty =
-                  providerSettings.provider === "codex"
-                    ? settings.codexBinaryPath !== defaults.codexBinaryPath ||
-                      settings.codexHomePath !== defaults.codexHomePath
-                    : providerSettings.provider === "claudeAgent"
-                      ? settings.claudeBinaryPath !== defaults.claudeBinaryPath
-                      : providerSettings.provider === "cursor"
-                        ? settings.cursorBinaryPath !== defaults.cursorBinaryPath ||
-                          settings.cursorApiEndpoint !== defaults.cursorApiEndpoint
-                        : providerSettings.provider === "gemini"
-                          ? settings.geminiBinaryPath !== defaults.geminiBinaryPath
-                          : providerSettings.provider === "grok"
-                            ? settings.grokBinaryPath !== defaults.grokBinaryPath
-                            : providerSettings.provider === "kilo"
-                              ? settings.kiloBinaryPath !== defaults.kiloBinaryPath ||
-                                settings.kiloServerUrl !== defaults.kiloServerUrl ||
-                                settings.kiloServerPassword !== defaults.kiloServerPassword
-                              : providerSettings.provider === "pi"
-                                ? settings.piBinaryPath !== defaults.piBinaryPath ||
-                                  settings.piAgentDir !== defaults.piAgentDir
-                                : settings.openCodeBinaryPath !== defaults.openCodeBinaryPath ||
-                                  settings.openCodeExperimentalWebSockets !==
-                                    defaults.openCodeExperimentalWebSockets ||
-                                  settings.openCodeServerUrl !== defaults.openCodeServerUrl ||
-                                  settings.openCodeServerPassword !==
-                                    defaults.openCodeServerPassword;
-                const binaryPathValue =
-                  providerSettings.binaryPathKey === "claudeBinaryPath"
-                    ? claudeBinaryPath
-                    : providerSettings.binaryPathKey === "cursorBinaryPath"
-                      ? cursorBinaryPath
-                      : providerSettings.binaryPathKey === "geminiBinaryPath"
-                        ? geminiBinaryPath
-                        : providerSettings.binaryPathKey === "grokBinaryPath"
-                          ? grokBinaryPath
-                          : providerSettings.binaryPathKey === "kiloBinaryPath"
-                            ? kiloBinaryPath
-                            : providerSettings.binaryPathKey === "openCodeBinaryPath"
-                              ? openCodeBinaryPath
-                              : providerSettings.binaryPathKey === "piBinaryPath"
-                                ? piBinaryPath
-                                : codexBinaryPath;
+                  settings.openCodeBinaryPath !== defaults.openCodeBinaryPath ||
+                  settings.openCodeExperimentalWebSockets !==
+                    defaults.openCodeExperimentalWebSockets ||
+                  settings.openCodeServerUrl !== defaults.openCodeServerUrl ||
+                  settings.openCodeServerPassword !== defaults.openCodeServerPassword;
+                const binaryPathValue = openCodeBinaryPath;
                 const providerStatus = providerStatusByProvider.get(providerSettings.provider);
                 const showProviderUpdateStatus = providerStatus
                   ? shouldShowProviderUpdateStatus({
@@ -2908,24 +2668,7 @@ function SettingsRouteView() {
                                 className="mt-1"
                                 value={binaryPathValue}
                                 onCommit={(nextValue) =>
-                                  updateSettings(
-                                    providerSettings.binaryPathKey === "claudeBinaryPath"
-                                      ? { claudeBinaryPath: nextValue }
-                                      : providerSettings.binaryPathKey === "cursorBinaryPath"
-                                        ? { cursorBinaryPath: nextValue }
-                                        : providerSettings.binaryPathKey === "geminiBinaryPath"
-                                          ? { geminiBinaryPath: nextValue }
-                                          : providerSettings.binaryPathKey === "grokBinaryPath"
-                                            ? { grokBinaryPath: nextValue }
-                                            : providerSettings.binaryPathKey === "kiloBinaryPath"
-                                              ? { kiloBinaryPath: nextValue }
-                                              : providerSettings.binaryPathKey ===
-                                                  "openCodeBinaryPath"
-                                                ? { openCodeBinaryPath: nextValue }
-                                                : providerSettings.binaryPathKey === "piBinaryPath"
-                                                  ? { piBinaryPath: nextValue }
-                                                  : { codexBinaryPath: nextValue },
-                                  )
+                                  updateSettings({ openCodeBinaryPath: nextValue })
                                 }
                                 placeholder={providerSettings.binaryPlaceholder}
                                 spellCheck={false}
@@ -3259,7 +3002,7 @@ function SettingsRouteView() {
       case "skills":
         return <SkillsSettingsPanel />;
       case "usage":
-        return <ProviderUsageSettingsPanel />;
+        return null;
       case "advanced":
         return renderAdvancedPanel();
       default:
@@ -3339,11 +3082,7 @@ function SettingsRouteView() {
         {/* Mounted at the route level (outside the scrollable panel) so the
           dialog portal can overlay the entire settings view without being
           clipped by the content wrapper's overflow. */}
-        <ReleaseHistoryDialog
-          open={releaseHistoryOpen}
-          onOpenChange={setReleaseHistoryOpen}
-          defaultExpandedVersion={APP_VERSION}
-        />
+
       </SidebarInset>
     </div>
   );

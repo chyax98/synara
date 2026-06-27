@@ -339,7 +339,7 @@ export function projectEvent(
             updatedAt: payload.updatedAt,
             archivedAt: null,
             deletedAt: null,
-            handoff: payload.handoff,
+
             messages: [],
             activities: [],
             checkpoints: [],
@@ -443,7 +443,7 @@ export function projectEvent(
                 : {}),
               ...(payload.subagentRole !== undefined ? { subagentRole: payload.subagentRole } : {}),
               ...(payload.lastKnownPr !== undefined ? { lastKnownPr: payload.lastKnownPr } : {}),
-              ...(payload.handoff !== undefined ? { handoff: payload.handoff } : {}),
+
               ...(payload.pinnedMessages !== undefined
                 ? { pinnedMessages: payload.pinnedMessages }
                 : {}),

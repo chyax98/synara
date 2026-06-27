@@ -92,7 +92,7 @@ it.layer(BaseTestLayer)("OrchestrationProjectionPipeline", (it) => {
           projectId: ProjectId.makeUnsafe("project-1"),
           title: "Thread 1",
           modelSelection: {
-            provider: "codex",
+            provider: "opencode",
             model: "gpt-5-codex",
           },
           runtimeMode: "full-access",
@@ -214,7 +214,7 @@ it.layer(BaseTestLayer)("OrchestrationProjectionPipeline", (it) => {
           projectId: ProjectId.makeUnsafe("project-turn-settings"),
           title: "Thread",
           modelSelection: {
-            provider: "pi",
+            provider: "opencode",
             model: "openai/gpt-5.1",
           },
           runtimeMode: "full-access",
@@ -239,7 +239,7 @@ it.layer(BaseTestLayer)("OrchestrationProjectionPipeline", (it) => {
           threadId: ThreadId.makeUnsafe("thread-turn-settings"),
           messageId: MessageId.makeUnsafe("message-turn-settings"),
           modelSelection: {
-            provider: "pi",
+            provider: "opencode",
             model: "openai/gpt-5.5",
           },
           runtimeMode: "approval-required",
@@ -267,7 +267,7 @@ it.layer(BaseTestLayer)("OrchestrationProjectionPipeline", (it) => {
 
       assert.equal(rows.length, 1);
       assert.deepEqual(JSON.parse(rows[0]!.modelSelectionJson), {
-        provider: "pi",
+        provider: "opencode",
         model: "openai/gpt-5.5",
       });
       assert.equal(rows[0]!.runtimeMode, "approval-required");
@@ -394,7 +394,7 @@ it.layer(Layer.fresh(makeProjectionPipelinePrefixedTestLayer("t3-projection-pipe
             projectId,
             title: "Approvals Thread",
             modelSelection: {
-              provider: "codex",
+              provider: "opencode",
               model: "gpt-5-codex",
             },
             runtimeMode: "full-access",
@@ -529,7 +529,7 @@ it.layer(Layer.fresh(makeProjectionPipelinePrefixedTestLayer("t3-projection-pipe
             projectId,
             title: "Streaming Shell Thread",
             modelSelection: {
-              provider: "codex",
+              provider: "opencode",
               model: "gpt-5-codex",
             },
             runtimeMode: "full-access",
@@ -633,7 +633,7 @@ it.layer(Layer.fresh(makeProjectionPipelinePrefixedTestLayer("t3-projection-pipe
               projectId,
               title: "User Input Thread",
               modelSelection: {
-                provider: "codex",
+                provider: "opencode",
                 model: "gpt-5-codex",
               },
               runtimeMode: "full-access",
@@ -894,7 +894,7 @@ it.layer(BaseTestLayer)("OrchestrationProjectionPipeline", (it) => {
             projectId: ProjectId.makeUnsafe("project-clear-attachments"),
             title: "Thread Clear Attachments",
             modelSelection: {
-              provider: "codex",
+              provider: "opencode",
               model: "gpt-5-codex",
             },
             runtimeMode: "full-access",
@@ -1022,7 +1022,7 @@ it.layer(
           projectId: ProjectId.makeUnsafe("project-overwrite"),
           title: "Thread Overwrite",
           modelSelection: {
-            provider: "codex",
+            provider: "opencode",
             model: "gpt-5-codex",
           },
           runtimeMode: "full-access",
@@ -1170,7 +1170,7 @@ it.layer(
           projectId: ProjectId.makeUnsafe("project-rollback"),
           title: "Thread Rollback",
           modelSelection: {
-            provider: "codex",
+            provider: "opencode",
             model: "gpt-5-codex",
           },
           runtimeMode: "full-access",
@@ -1300,7 +1300,7 @@ it.layer(
           projectId: ProjectId.makeUnsafe("project-revert-files"),
           title: "Thread Revert Files",
           modelSelection: {
-            provider: "codex",
+            provider: "opencode",
             model: "gpt-5-codex",
           },
           runtimeMode: "full-access",
@@ -1519,7 +1519,7 @@ it.layer(Layer.fresh(makeProjectionPipelinePrefixedTestLayer("t3-projection-atta
             projectId: ProjectId.makeUnsafe("project-delete-files"),
             title: "Thread Delete Files",
             modelSelection: {
-              provider: "codex",
+              provider: "opencode",
               model: "gpt-5-codex",
             },
             runtimeMode: "full-access",
@@ -1682,7 +1682,7 @@ it.layer(BaseTestLayer)("OrchestrationProjectionPipeline", (it) => {
           projectId: ProjectId.makeUnsafe("project-a"),
           title: "Thread A",
           modelSelection: {
-            provider: "codex",
+            provider: "opencode",
             model: "gpt-5-codex",
           },
           runtimeMode: "full-access",
@@ -1809,7 +1809,7 @@ it.layer(BaseTestLayer)("OrchestrationProjectionPipeline", (it) => {
           projectId: ProjectId.makeUnsafe("project-empty"),
           title: "Thread Empty",
           modelSelection: {
-            provider: "codex",
+            provider: "opencode",
             model: "gpt-5-codex",
           },
           runtimeMode: "full-access",
@@ -1949,7 +1949,7 @@ it.layer(BaseTestLayer)("OrchestrationProjectionPipeline", (it) => {
             projectId: ProjectId.makeUnsafe("project-conflict"),
             title: "Thread Conflict",
             modelSelection: {
-              provider: "codex",
+              provider: "opencode",
               model: "gpt-5-codex",
             },
             runtimeMode: "full-access",
@@ -2092,7 +2092,7 @@ it.layer(BaseTestLayer)("OrchestrationProjectionPipeline", (it) => {
           projectId: ProjectId.makeUnsafe("project-revert"),
           title: "Thread Revert",
           modelSelection: {
-            provider: "codex",
+            provider: "opencode",
             model: "gpt-5-codex",
           },
           runtimeMode: "full-access",
@@ -2323,7 +2323,7 @@ it.effect("restores pending turn-start metadata across projection pipeline resta
           session: {
             threadId,
             status: "running",
-            providerName: "codex",
+            providerName: "opencode",
             runtimeMode: "approval-required",
             activeTurnId: turnId,
             lastError: null,
@@ -2415,7 +2415,7 @@ engineLayer("OrchestrationProjectionPipeline via engine dispatch", (it) => {
         title: "Live Project",
         workspaceRoot: "/tmp/project-live",
         defaultModelSelection: {
-          provider: "codex",
+          provider: "opencode",
           model: "gpt-5-codex",
         },
         createdAt,
@@ -2482,7 +2482,7 @@ engineLayer("OrchestrationProjectionPipeline via engine dispatch", (it) => {
         title: "Scripts Project",
         workspaceRoot: "/tmp/project-scripts",
         defaultModelSelection: {
-          provider: "codex",
+          provider: "opencode",
           model: "gpt-5-codex",
         },
         createdAt,
@@ -2503,7 +2503,7 @@ engineLayer("OrchestrationProjectionPipeline via engine dispatch", (it) => {
         ],
         isPinned: true,
         defaultModelSelection: {
-          provider: "codex",
+          provider: "opencode",
           model: "gpt-5",
         },
       });
@@ -2579,7 +2579,7 @@ it.layer(
           session: {
             threadId,
             status: "running",
-            providerName: "codex",
+            providerName: "opencode",
             runtimeMode: "full-access",
             activeTurnId: turnId,
             lastError: null,
@@ -2648,7 +2648,7 @@ it.layer(
           session: {
             threadId,
             status: "ready",
-            providerName: "codex",
+            providerName: "opencode",
             runtimeMode: "full-access",
             activeTurnId: null,
             lastError: null,

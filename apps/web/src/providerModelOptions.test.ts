@@ -37,7 +37,7 @@ describe("formatProviderModelOptionName", () => {
   it("leaves non-OpenCode unknown slugs unchanged", () => {
     expect(
       formatProviderModelOptionName({
-        provider: "codex",
+        provider: "opencode",
         slug: "custom/internal-model",
       }),
     ).toBe("custom/internal-model");
@@ -46,22 +46,22 @@ describe("formatProviderModelOptionName", () => {
 
 describe("buildProviderOptionPatch", () => {
   it("maps generic Gemini thinking selections back to the provider-specific option shape", () => {
-    expect(buildProviderOptionPatch("gemini", "thinkingBudget", "512")).toEqual({
+    expect(buildProviderOptionPatch("opencode", "thinkingBudget", "512")).toEqual({
       thinkingBudget: 512,
     });
-    expect(buildProviderOptionPatch("gemini", "thinkingLevel", "HIGH")).toEqual({
+    expect(buildProviderOptionPatch("opencode", "thinkingLevel", "HIGH")).toEqual({
       thinkingLevel: "HIGH",
     });
   });
 
   it("passes through non-Gemini option ids unchanged", () => {
-    expect(buildProviderOptionPatch("codex", "reasoningEffort", "xhigh")).toEqual({
-      reasoningEffort: "xhigh",
+    expect(buildProviderOptionPatch("opencode", "reasoningEffort", "xhigh")).toEqual({
+      variant: "xhigh",
     });
-    expect(buildProviderOptionPatch("grok", "reasoningEffort", "high")).toEqual({
-      reasoningEffort: "high",
+    expect(buildProviderOptionPatch("opencode", "reasoningEffort", "high")).toEqual({
+      variant: "high",
     });
-    expect(buildProviderOptionPatch("cursor", "fastMode", true)).toEqual({ fastMode: true });
+    expect(buildProviderOptionPatch("opencode", "fastMode", true)).toEqual({ fastMode: true });
   });
 });
 

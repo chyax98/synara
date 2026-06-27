@@ -171,7 +171,7 @@ import {
 } from "./SidebarSearchPalette";
 import { useHandleNewChat } from "../hooks/useHandleNewChat";
 import { useHandleNewThread } from "../hooks/useHandleNewThread";
-import { useThreadHandoff } from "../hooks/useThreadHandoff";
+
 import { selectThreadTerminalState, useTerminalStateStore } from "../terminalStateStore";
 import { useProjectRunStore, type ProjectRunState } from "../projectRunStore";
 import {
@@ -288,11 +288,7 @@ import {
   DISCLOSURE_INNER_CLASS,
 } from "~/lib/disclosureMotion";
 import { getInitialBrowseQuery } from "~/lib/projectPaths";
-import {
-  canCreateThreadHandoff,
-  resolveAvailableHandoffTargetProviders,
-  resolveThreadHandoffBadgeLabel,
-} from "../lib/threadHandoff";
+
 import { isTerminalFocused } from "../lib/terminalFocus";
 import { useDiffRouteSearch } from "../hooks/useDiffRouteSearch";
 import { normalizeSettingsSection } from "../settingsNavigation";
@@ -566,7 +562,7 @@ function resolveWorktreeBadgeLabel(
 }
 
 type ThreadMetaChip = {
-  id: "automation" | "handoff" | "fork" | "worktree";
+  id: "automation" | "fork" | "worktree";
   tooltip: string;
   icon: ReactNode;
 };
@@ -579,14 +575,8 @@ type ThreadMetaChip = {
 function resolveThreadRowMetaChips(input: {
   thread: Pick<
     Thread,
-    "forkSourceThreadId" | "sidechatSourceThreadId" | "envMode" | "worktreePath" | "handoff"
+    "forkSourceThreadId" | "sidechatSourceThreadId" | "envMode" | "worktreePath"
   >;
-  includeHandoffBadge: boolean;
-  /**
-   * When the leading provider avatar already renders the source → target handoff
-   * pair, the trailing handoff chip is a redundant double icon and is dropped.
-   */
-  handoffShownInAvatar?: boolean;
   /** Heartbeat automations targeting this thread; surfaced as an at-a-glance clock chip. */
   threadAutomations?: readonly AutomationDefinition[] | undefined;
 }): ThreadMetaChip[] {
@@ -613,15 +603,6 @@ function resolveThreadRowMetaChips(input: {
           className={anyEnabled ? "text-muted-foreground/55" : "text-muted-foreground/40"}
         />
       ),
-    });
-  }
-
-  const handoffBadgeLabel = resolveThreadHandoffBadgeLabel(input.thread);
-  if (input.includeHandoffBadge && !input.handoffShownInAvatar && handoffBadgeLabel) {
-    chips.push({
-      id: "handoff",
-      tooltip: handoffBadgeLabel,
-      icon: <SidebarGlyph icon={FiGitBranch} variant="meta" className="text-muted-foreground/55" />,
     });
   }
 
@@ -653,14 +634,10 @@ function resolveThreadRowMetaChips(input: {
 
 function ProviderAvatarWithTerminal({
   provider,
-  handoffSourceProvider,
-  handoffTooltip,
   terminalStatus,
   terminalCount,
 }: {
   provider: ProviderKind;
-  handoffSourceProvider?: ProviderKind | null;
-  handoffTooltip?: string | null;
   terminalStatus: TerminalStatusIndicator | null;
   terminalCount: number;
 }) {
@@ -671,35 +648,11 @@ function ProviderAvatarWithTerminal({
       : (terminalStatus?.label ?? "Terminal open");
   const badgeColorClass = terminalStatus?.colorClass ?? "text-muted-foreground/55";
 
-  const hasHandoff = Boolean(handoffSourceProvider);
-  const containerClass = hasHandoff
-    ? "relative inline-flex h-3 w-4.5 shrink-0 items-center"
-    : "relative inline-flex size-3 shrink-0 items-center justify-center";
-
-  const avatarNode = hasHandoff ? (
-    <span className={containerClass}>
-      <span className="sidebar-icon-chip absolute left-0 top-1/2 inline-flex size-3 -translate-y-1/2 items-center justify-center rounded-full">
-        <ProviderIcon provider={handoffSourceProvider!} className="size-2" />
-      </span>
-      <span className="sidebar-icon-chip absolute right-0 top-1/2 z-10 inline-flex size-3 -translate-y-1/2 items-center justify-center rounded-full">
-        <ProviderIcon provider={provider} className="size-2" />
-      </span>
-    </span>
-  ) : (
-    <span className={containerClass}>
+  const wrappedAvatar = (
+    <span className="relative inline-flex size-3 shrink-0 items-center justify-center">
       <ProviderIcon provider={provider} className="size-3" />
     </span>
   );
-
-  const wrappedAvatar =
-    hasHandoff && handoffTooltip ? (
-      <Tooltip>
-        <TooltipTrigger render={avatarNode} />
-        <TooltipPopup side="top">{handoffTooltip}</TooltipPopup>
-      </Tooltip>
-    ) : (
-      avatarNode
-    );
 
   return (
     <span className="relative inline-flex shrink-0 items-center">
@@ -1301,7 +1254,7 @@ export default function Sidebar() {
   const workspaceSectionVisible = appSettings.showWorkspaceSection;
   const { handleNewThread } = useHandleNewThread();
   const { handleNewChat } = useHandleNewChat();
-  const { createThreadHandoff } = useThreadHandoff();
+
   const routeThreadId = useParams({
     strict: false,
     select: (params) => (params.threadId ? ThreadId.makeUnsafe(params.threadId) : null),
@@ -2345,8 +2298,8 @@ export default function Sidebar() {
           workspaceRoot: cwd,
           createWorkspaceRootIfMissing: options.createIfMissing === true,
           defaultModelSelection: {
-            provider: "codex",
-            model: getDefaultModel("codex"),
+            provider: "opencode",
+            model: getDefaultModel("opencode"),
           },
           createdAt,
         });
@@ -2535,11 +2488,11 @@ export default function Sidebar() {
       const trimmedExternalId = externalId.trim();
       const suffix = trimmedExternalId.slice(-8);
       const title =
-        provider === "claudeAgent"
+        provider === "opencode"
           ? `Imported Claude session${suffix ? ` ${suffix}` : ""}`
-          : provider === "cursor"
+          : provider === "opencode"
             ? `Imported Cursor session${suffix ? ` ${suffix}` : ""}`
-            : provider === "kilo"
+            : provider === "opencode"
               ? `Imported Kilo session${suffix ? ` ${suffix}` : ""}`
               : provider === "opencode"
                 ? `Imported OpenCode session${suffix ? ` ${suffix}` : ""}`
@@ -2837,23 +2790,7 @@ export default function Sidebar() {
 
   const copyThreadIdToClipboard = useCopyThreadIdToClipboard();
   const copyPathToClipboard = useCopyPathToClipboard();
-  const handoffThread = useCallback(
-    async (thread: Thread, targetProvider: ProviderKind) => {
-      try {
-        await createThreadHandoff(thread, targetProvider);
-      } catch (error) {
-        toastManager.add({
-          type: "error",
-          title: "Could not create handoff thread",
-          description:
-            error instanceof Error
-              ? error.message
-              : "An error occurred while creating the handoff thread.",
-        });
-      }
-    },
-    [createThreadHandoff],
-  );
+
   const confirmAndDeleteThread = useCallback(
     async (threadId: ThreadId) => {
       const thread = sidebarThreadSummaryById[threadId];
@@ -3211,20 +3148,7 @@ export default function Sidebar() {
         threadSummary?.hasPendingApprovals ?? derivePendingApprovals(thread.activities).length > 0;
       const hasPendingUserInput =
         threadSummary?.hasPendingUserInput ?? derivePendingUserInputs(thread.activities).length > 0;
-      const canHandoff = canCreateThreadHandoff({
-        thread,
-        hasPendingApprovals,
-        hasPendingUserInput,
-      });
       const threadStatus = threadSummary ? resolveThreadStatusForSidebar(threadSummary) : null;
-      const handoffTargets = canHandoff
-        ? resolveAvailableHandoffTargetProviders(thread.modelSelection.provider)
-        : [];
-      const handoffItems = handoffTargets.map((provider, index) => ({
-        id: `handoff:${provider}`,
-        label: `Handoff to ${PROVIDER_DISPLAY_NAMES[provider]}`,
-        separatorBefore: index === 0,
-      }));
       const threadWorkspacePath = resolveThreadWorkspaceCwd({
         projectCwd: projectCwdById.get(thread.projectId) ?? null,
         envMode: thread.envMode,
@@ -3238,7 +3162,6 @@ export default function Sidebar() {
             ? [{ id: "clear-notification", label: "Clear notification" }]
             : []),
           { id: "mark-unread", label: "Mark unread" },
-          ...handoffItems,
           { id: "copy-path", label: "Copy Path", separatorBefore: true },
           ...(threadWorkspacePath
             ? [{ id: "open-path-in-terminal", label: "Open Path in Terminal" }]
@@ -3267,13 +3190,6 @@ export default function Sidebar() {
       }
       if (clicked === "clear-notification") {
         clearThreadNotification(threadId);
-        return;
-      }
-      if (typeof clicked === "string" && clicked.startsWith("handoff:")) {
-        const targetProvider = clicked.slice("handoff:".length);
-        if (handoffTargets.includes(targetProvider as ProviderKind)) {
-          await handoffThread(thread, targetProvider as ProviderKind);
-        }
         return;
       }
       if (clicked === "copy-path") {
@@ -3395,7 +3311,6 @@ export default function Sidebar() {
       copyThreadIdToClipboard,
       clearDismissedThreadStatus,
       clearThreadNotification,
-      handoffThread,
       markThreadUnread,
       navigate,
       openRenameThreadDialog,
@@ -4707,11 +4622,6 @@ export default function Sidebar() {
     const projectLabel = resolvePinnedThreadProjectLabel(thread.projectId);
     const rightMetaChips = resolveThreadRowMetaChips({
       thread,
-      includeHandoffBadge: true,
-      handoffShownInAvatar:
-        threadEntryPoint !== "terminal" &&
-        !isGenericChatThreadTitle(thread.title) &&
-        Boolean(thread.handoff?.sourceProvider),
       threadAutomations: automationsByThreadId.get(thread.id),
     });
     const threadStatus = resolveThreadStatusForSidebar(thread);
@@ -4721,7 +4631,7 @@ export default function Sidebar() {
       isSubagentThread || thread.forkSourceThreadId || thread.sidechatSourceThreadId
         ? null
         : prStatus;
-    const handoffBadgeLabel = resolveThreadHandoffBadgeLabel(thread);
+
     const threadJumpLabel = visibleThreadJumpLabelByThreadId.get(thread.id) ?? null;
     const threadJumpLabelParts =
       visibleThreadJumpLabelPartsByThreadId.get(thread.id) ?? EMPTY_SHORTCUT_PARTS;
@@ -4786,8 +4696,6 @@ export default function Sidebar() {
           ) : showThreadProviderAvatar ? (
             <ProviderAvatarWithTerminal
               provider={thread.session?.provider ?? thread.modelSelection.provider}
-              handoffSourceProvider={thread.handoff?.sourceProvider ?? null}
-              handoffTooltip={handoffBadgeLabel}
               terminalStatus={terminalStatus}
               terminalCount={terminalCount}
             />
@@ -4889,11 +4797,6 @@ export default function Sidebar() {
       : "text-muted-foreground/34";
     const rightMetaChips = resolveThreadRowMetaChips({
       thread,
-      includeHandoffBadge: !isDisposableThread,
-      handoffShownInAvatar:
-        threadEntryPoint !== "terminal" &&
-        !isGenericChatThreadTitle(thread.title) &&
-        Boolean(thread.handoff?.sourceProvider),
       threadAutomations: automationsByThreadId.get(thread.id),
     });
     const isSubagentThread = Boolean(thread.parentThreadId);
@@ -4901,7 +4804,7 @@ export default function Sidebar() {
       isSubagentThread || thread.forkSourceThreadId || thread.sidechatSourceThreadId
         ? null
         : prStatus;
-    const handoffBadgeLabel = resolveThreadHandoffBadgeLabel(thread);
+
     const subagentPresentation = isSubagentThread
       ? resolveSubagentPresentationForThread({
           thread: {
@@ -5028,8 +4931,6 @@ export default function Sidebar() {
           ) : showThreadProviderAvatar ? (
             <ProviderAvatarWithTerminal
               provider={thread.session?.provider ?? thread.modelSelection.provider}
-              handoffSourceProvider={thread.handoff?.sourceProvider ?? null}
-              handoffTooltip={handoffBadgeLabel}
               terminalStatus={terminalStatus}
               terminalCount={terminalCount}
             />
@@ -5796,7 +5697,7 @@ export default function Sidebar() {
           "session",
           "codex",
           "claude",
-          "cursor",
+          "opencode",
           "opencode",
         ],
         shortcutLabel: importThreadShortcutLabel,
@@ -6972,15 +6873,15 @@ function SidebarSearchPaletteController(props: {
   const selectAllThreads = useMemo(() => createAllThreadsSelector(), []);
   const selectSidebarDisplayThreads = useMemo(() => createSidebarDisplayThreadsSelector(), []);
   const importProviderCapabilityQueries = useQueries({
-    queries: (["codex", "claudeAgent", "cursor", "kilo", "opencode"] as const).map((provider) =>
+    queries: (["opencode"] as const).map((provider) =>
       providerComposerCapabilitiesQueryOptions(provider),
     ),
   });
   const threads = useStore(selectAllThreads);
   const sidebarDisplayThreads = useStore(selectSidebarDisplayThreads);
-  const importProviders: ReadonlyArray<ImportProviderKind> = (
-    ["codex", "claudeAgent", "cursor", "kilo", "opencode"] as const
-  ).filter((provider, index) => supportsThreadImport(importProviderCapabilityQueries[index]?.data));
+  const importProviders: ReadonlyArray<ImportProviderKind> = (["opencode"] as const).filter(
+    (provider, index) => supportsThreadImport(importProviderCapabilityQueries[index]?.data),
+  );
   const searchPaletteThreads = useMemo<SidebarSearchThread[]>(() => {
     const threadById = new Map(threads.map((thread) => [thread.id, thread] as const));
     return sidebarDisplayThreads.flatMap((threadSummary) => {

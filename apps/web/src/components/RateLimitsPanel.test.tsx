@@ -30,7 +30,7 @@ describe("RateLimitsPanel helpers", () => {
       {
         activities: [
           makeActivity("activity-1", "account.rate-limits.updated", {
-            provider: "codex",
+            provider: "opencode",
             rateLimitsByLimitId: {
               short: {
                 primary: {
@@ -76,7 +76,7 @@ describe("RateLimitsPanel helpers", () => {
   it("keeps the most constrained row when multiple providers report the same window", () => {
     const rows = deriveVisibleRateLimitRows([
       {
-        provider: "codex",
+        provider: "opencode",
         updatedAt: "2099-04-08T18:00:00.000Z",
         limits: [
           {
@@ -88,7 +88,7 @@ describe("RateLimitsPanel helpers", () => {
         ],
       },
       {
-        provider: "claudeAgent",
+        provider: "opencode",
         updatedAt: "2099-04-08T18:05:00.000Z",
         limits: [
           {
@@ -117,7 +117,7 @@ describe("RateLimitsPanel helpers", () => {
       {
         activities: [
           makeActivity("activity-1", "account.rate-limits.updated", {
-            provider: "codex",
+            provider: "opencode",
             rateLimits: {
               limitId: "codex",
               primary: {
@@ -161,7 +161,7 @@ describe("RateLimitsPanel helpers", () => {
       {
         activities: [
           makeActivity("activity-1", "account.rate-limits.updated", {
-            provider: "codex",
+            provider: "opencode",
             rateLimits: {
               rateLimits: {
                 primary: {
@@ -204,7 +204,7 @@ describe("RateLimitsPanel helpers", () => {
       {
         activities: [
           makeActivity("activity-1", "account.rate-limits.updated", {
-            provider: "claudeAgent",
+            provider: "opencode",
             rate_limit_info: {
               status: "allowed_warning",
               rateLimitType: "five_hour",

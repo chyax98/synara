@@ -35,19 +35,19 @@ describe("buildSettingsSkillGroups", () => {
         name: "check-code",
         description: "Gemini copy",
         path: "/Users/test/.gemini/skills/check-code/SKILL.md",
-        scope: "gemini",
+        scope: "opencode",
       }),
       skill({
         name: "cursor-only",
         path: "/Users/test/.cursor/skills/cursor-only/SKILL.md",
-        scope: "cursor",
+        scope: "opencode",
       }),
     ]);
 
     const shared = groups.find((group) => group.key === "check-code");
     expect(shared?.section).toBe("shared");
-    expect(shared?.providers).toEqual(["codex", "claudeAgent", "gemini"]);
-    expect(shared?.sources.map((source) => source.origin)).toEqual(["codex", "claude", "gemini"]);
+    expect(shared?.providers).toEqual(["codex", "opencode", "opencode"]);
+    expect(shared?.sources.map((source) => source.origin)).toEqual(["codex", "claude", "opencode"]);
     expect(shared?.sources.map((source) => source.skill.path)).toEqual([
       "/Users/test/.codex/skills/check-code/SKILL.md",
       "/Users/test/.claude/skills/check-code/SKILL.md",
@@ -55,8 +55,8 @@ describe("buildSettingsSkillGroups", () => {
     ]);
 
     const cursorOnly = groups.find((group) => group.key === "cursor-only");
-    expect(cursorOnly?.section).toBe("cursor");
-    expect(cursorOnly?.providers).toEqual(["cursor"]);
+    expect(cursorOnly?.section).toBe("opencode");
+    expect(cursorOnly?.providers).toEqual(["opencode"]);
   });
 
   it("does not show provider icons for shared alias-only skills", () => {
@@ -90,7 +90,7 @@ describe("buildSettingsSkillSections", () => {
       skill({
         name: "cursor-only",
         path: "/Users/test/.cursor/skills/cursor-only/SKILL.md",
-        scope: "cursor",
+        scope: "opencode",
       }),
     ]);
 

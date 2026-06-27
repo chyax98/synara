@@ -30,7 +30,6 @@ import {
   OrchestrationThread,
   type OrchestrationThreadShell,
   type OrchestrationThreadActivity,
-  ThreadHandoff,
   ModelSelection,
 } from "@t3tools/contracts";
 import { Effect, Layer, Option, Schema, Struct } from "effect";
@@ -92,7 +91,6 @@ const ProjectionThreadDbRowSchema = ProjectionThread.mapFields(
   Struct.assign({
     createBranchFlowCompleted: Schema.Number,
     isPinned: Schema.Number,
-    handoff: Schema.NullOr(Schema.fromJsonString(ThreadHandoff)),
     lastKnownPr: Schema.NullOr(Schema.fromJsonString(OrchestrationThreadPullRequest)),
     pinnedMessages: Schema.NullOr(Schema.fromJsonString(ThreadPinnedMessages)),
     threadMarkers: Schema.NullOr(Schema.fromJsonString(ThreadMarkers)),
@@ -109,7 +107,6 @@ const ProjectionThreadShellDbRowSchema = Schema.Struct(ProjectionThreadShellFiel
   Struct.assign({
     createBranchFlowCompleted: Schema.Number,
     isPinned: Schema.Number,
-    handoff: Schema.NullOr(Schema.fromJsonString(ThreadHandoff)),
     lastKnownPr: Schema.NullOr(Schema.fromJsonString(OrchestrationThreadPullRequest)),
     modelSelection: ModelSelectionJsonUnknown,
   }),
@@ -580,7 +577,7 @@ function toProjectedThreadShell(input: {
     createdAt: threadRow.createdAt,
     updatedAt: threadRow.updatedAt,
     archivedAt: threadRow.archivedAt ?? null,
-    handoff: threadRow.handoff,
+
     session: input.session,
   };
 }
@@ -621,7 +618,7 @@ function toProjectedThreadShellFromStoredSummary(input: {
     createdAt: threadRow.createdAt,
     updatedAt: threadRow.updatedAt,
     archivedAt: threadRow.archivedAt ?? null,
-    handoff: threadRow.handoff,
+
     session: input.session,
   };
 }
@@ -664,7 +661,7 @@ function toProjectedThread(input: {
     updatedAt: threadRow.updatedAt,
     archivedAt: threadRow.archivedAt ?? null,
     deletedAt: threadRow.deletedAt,
-    handoff: threadRow.handoff,
+
     latestUserMessageAt: summary.latestUserMessageAt,
     hasPendingApprovals: summary.hasPendingApprovals,
     hasPendingUserInput: summary.hasPendingUserInput,
@@ -766,7 +763,7 @@ const makeProjectionSnapshotQuery = Effect.gen(function* () {
           sidechat_source_thread_id AS "sidechatSourceThreadId",
           last_known_pr_json AS "lastKnownPr",
           latest_turn_id AS "latestTurnId",
-          handoff_json AS "handoff",
+
           latest_user_message_at AS "latestUserMessageAt",
           pending_approval_count AS "pendingApprovalCount",
           pending_user_input_count AS "pendingUserInputCount",
@@ -808,7 +805,7 @@ const makeProjectionSnapshotQuery = Effect.gen(function* () {
           sidechat_source_thread_id AS "sidechatSourceThreadId",
           last_known_pr_json AS "lastKnownPr",
           latest_turn_id AS "latestTurnId",
-          handoff_json AS "handoff",
+
           latest_user_message_at AS "latestUserMessageAt",
           pending_approval_count AS "pendingApprovalCount",
           pending_user_input_count AS "pendingUserInputCount",
@@ -1153,7 +1150,7 @@ const makeProjectionSnapshotQuery = Effect.gen(function* () {
           sidechat_source_thread_id AS "sidechatSourceThreadId",
           last_known_pr_json AS "lastKnownPr",
           latest_turn_id AS "latestTurnId",
-          handoff_json AS "handoff",
+
           latest_user_message_at AS "latestUserMessageAt",
           pending_approval_count AS "pendingApprovalCount",
           pending_user_input_count AS "pendingUserInputCount",
@@ -1200,7 +1197,7 @@ const makeProjectionSnapshotQuery = Effect.gen(function* () {
           sidechat_source_thread_id AS "sidechatSourceThreadId",
           last_known_pr_json AS "lastKnownPr",
           latest_turn_id AS "latestTurnId",
-          handoff_json AS "handoff",
+
           latest_user_message_at AS "latestUserMessageAt",
           pending_approval_count AS "pendingApprovalCount",
           pending_user_input_count AS "pendingUserInputCount",

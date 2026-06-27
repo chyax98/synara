@@ -7,7 +7,7 @@ describe("groupCommandItems", () => {
       {
         id: "agent:codex:mini",
         type: "agent",
-        provider: "codex",
+        provider: "opencode",
         alias: "mini",
         color: "violet",
         label: "@mini",
@@ -87,7 +87,7 @@ describe("groupCommandItems", () => {
       {
         id: "provider-command:codex:help",
         type: "provider-native-command",
-        provider: "codex",
+        provider: "opencode",
         command: "help",
         label: "/help",
         description: "Show help",

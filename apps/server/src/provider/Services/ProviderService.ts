@@ -2,7 +2,7 @@
  * ProviderService - Service interface for provider sessions, turns, and checkpoints.
  *
  * Acts as the cross-provider facade used by transports (WebSocket/RPC). It
- * resolves provider adapters through `ProviderAdapterRegistry`, routes
+ * routes calls through the OpenCode adapter and
  * session-scoped calls via `ProviderSessionDirectory`, and exposes one unified
  * provider event stream to callers.
  *

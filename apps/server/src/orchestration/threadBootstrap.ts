@@ -7,7 +7,7 @@ import {
 const RECENT_MESSAGE_COUNT = 6;
 const EARLIER_MESSAGE_CHAR_LIMIT = 320;
 const RECENT_MESSAGE_CHAR_LIMIT = 2_400;
-const HANDOFF_BOOTSTRAP_CHAR_BUDGET = Math.floor(PROVIDER_SEND_TURN_MAX_INPUT_CHARS * 0.75);
+const BOOTSTRAP_CHAR_BUDGET = Math.floor(PROVIDER_SEND_TURN_MAX_INPUT_CHARS * 0.75);
 
 function normalizeMessageText(value: string): string {
   return value
@@ -27,17 +27,6 @@ function roleLabel(message: Pick<OrchestrationMessage, "role">): "User" | "Assis
   return message.role === "assistant" ? "Assistant" : "User";
 }
 
-export function listImportedHandoffMessages(
-  thread: Pick<OrchestrationThread, "messages">,
-): ReadonlyArray<OrchestrationMessage> {
-  return thread.messages.filter(
-    (message) =>
-      message.source === "handoff-import" &&
-      (message.role === "user" || message.role === "assistant") &&
-      message.streaming === false,
-  );
-}
-
 export function listImportedForkMessages(
   thread: Pick<OrchestrationThread, "messages">,
 ): ReadonlyArray<OrchestrationMessage> {
@@ -45,15 +34,6 @@ export function listImportedForkMessages(
     (message) =>
       message.source === "fork-import" &&
       (message.role === "user" || message.role === "assistant") &&
-      message.streaming === false,
-  );
-}
-
-export function hasNativeHandoffMessages(thread: Pick<OrchestrationThread, "messages">): boolean {
-  return thread.messages.some(
-    (message) =>
-      (message.role === "user" || message.role === "assistant") &&
-      message.source === "native" &&
       message.streaming === false,
   );
 }
@@ -144,27 +124,10 @@ function buildImportedMessagesBootstrapText(input: {
   return truncateText(joined, Math.max(0, input.maxChars));
 }
 
-export function buildHandoffBootstrapText(
-  thread: Pick<OrchestrationThread, "title" | "branch" | "worktreePath" | "handoff" | "messages">,
-  maxChars = HANDOFF_BOOTSTRAP_CHAR_BUDGET,
-): string | null {
-  const importedMessages = listImportedHandoffMessages(thread);
-  if (importedMessages.length === 0 || thread.handoff === null) {
-    return null;
-  }
-
-  return buildImportedMessagesBootstrapText({
-    thread,
-    importedMessages,
-    intro: `This conversation was handed off from ${thread.handoff.sourceProvider}.`,
-    maxChars,
-  });
-}
-
 export function buildPriorTranscriptBootstrapText(
   thread: Pick<OrchestrationThread, "title" | "branch" | "worktreePath" | "messages">,
   currentMessageId: string,
-  maxChars = HANDOFF_BOOTSTRAP_CHAR_BUDGET,
+  maxChars = BOOTSTRAP_CHAR_BUDGET,
 ): string | null {
   const priorMessages = listPriorTranscriptMessages(thread, currentMessageId);
   if (priorMessages.length === 0) {
@@ -182,7 +145,7 @@ export function buildPriorTranscriptBootstrapText(
 
 export function buildForkBootstrapText(
   thread: Pick<OrchestrationThread, "title" | "branch" | "worktreePath" | "messages">,
-  maxChars = HANDOFF_BOOTSTRAP_CHAR_BUDGET,
+  maxChars = BOOTSTRAP_CHAR_BUDGET,
 ): string | null {
   const importedMessages = listImportedForkMessages(thread);
   if (importedMessages.length === 0) {

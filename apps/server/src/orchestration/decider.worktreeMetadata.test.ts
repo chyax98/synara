@@ -66,7 +66,7 @@ async function createWorktreeThreadReadModel(now: string) {
         projectId: PROJECT_ID,
         title: "Worktree thread",
         modelSelection: {
-          provider: "codex",
+          provider: "opencode",
           model: "gpt-5-codex",
         },
         interactionMode: DEFAULT_PROVIDER_INTERACTION_MODE,
@@ -83,7 +83,6 @@ async function createWorktreeThreadReadModel(now: string) {
         subagentRole: null,
         forkSourceThreadId: null,
         sidechatSourceThreadId: null,
-        handoff: null,
         createdAt: now,
         updatedAt: now,
       },
@@ -105,7 +104,7 @@ describe("decider worktree metadata", () => {
           projectId: PROJECT_ID,
           title: "Worktree thread",
           modelSelection: {
-            provider: "codex",
+            provider: "opencode",
             model: "gpt-5-codex",
           },
           interactionMode: DEFAULT_PROVIDER_INTERACTION_MODE,
@@ -146,7 +145,7 @@ describe("decider worktree metadata", () => {
           projectId: PROJECT_ID,
           title: "Forked thread",
           modelSelection: {
-            provider: "codex",
+            provider: "opencode",
             model: "gpt-5-codex",
           },
           interactionMode: DEFAULT_PROVIDER_INTERACTION_MODE,

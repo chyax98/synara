@@ -32,7 +32,7 @@ function makeThread(overrides: Partial<Thread> = {}): Thread {
     codexThreadId: null,
     projectId: PROJECT_ID,
     title: "Thread 1",
-    modelSelection: { provider: "codex", model: "gpt-5.4-mini" },
+    modelSelection: { provider: "opencode", model: "gpt-5.4-mini" },
     runtimeMode: "full-access",
     interactionMode: "default",
     session: null,
@@ -82,7 +82,7 @@ describe("resolveDiffPanelThread", () => {
         threadId: THREAD_ID,
         serverThread,
         draftThread: makeDraftThread({ branch: "feature/draft" }),
-        fallbackModelSelection: { provider: "codex", model: "gpt-5.4-mini" },
+        fallbackModelSelection: { provider: "opencode", model: "gpt-5.4-mini" },
       }),
     ).toBe(serverThread);
   });
@@ -96,7 +96,7 @@ describe("resolveDiffPanelThread", () => {
         worktreePath: "/tmp/worktree",
         envMode: "worktree",
       }),
-      fallbackModelSelection: { provider: "codex", model: "gpt-5.4-mini" },
+      fallbackModelSelection: { provider: "opencode", model: "gpt-5.4-mini" },
     });
 
     expect(resolved).toMatchObject({
@@ -225,7 +225,7 @@ describe("diff panel view source helpers", () => {
           sourceProposedPlan: undefined,
         },
         session: {
-          provider: "codex",
+          provider: "opencode",
           status: "running",
           orchestrationStatus: "running",
           activeTurnId: TurnId.makeUnsafe("turn-1"),

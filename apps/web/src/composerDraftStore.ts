@@ -4,17 +4,10 @@
 // Depends on: contracts schemas, app model resolution helpers, and zustand persistence.
 
 import {
-  type ClaudeCodeEffort,
-  type CodexReasoningEffort,
-  type CursorModelOptions,
-  type GeminiThinkingBudget,
-  type GeminiThinkingLevel,
-  GROK_REASONING_EFFORT_OPTIONS,
-  type GrokReasoningEffort,
   type ModelSlug,
+  type OpenCodeModelOptions,
   OrchestrationProposedPlanId,
   type OrchestrationLatestTurn,
-  type PiThinkingLevel,
   ModelSelection,
   OrchestrationThreadPullRequest,
   ProjectId,
@@ -75,18 +68,8 @@ const COMPOSER_DRAFT_STORAGE_VERSION = 5;
 const DraftThreadEnvModeSchema = Schema.Literals(["local", "worktree"]);
 export type DraftThreadEnvMode = typeof DraftThreadEnvModeSchema.Type;
 const DraftThreadEntryPointSchema = Schema.Literals(["chat", "terminal"]);
-const COMPOSER_PROVIDER_KINDS = [
-  "codex",
-  "claudeAgent",
-  "cursor",
-  "gemini",
-  "grok",
-  "kilo",
-  "opencode",
-  "pi",
-] as const satisfies readonly ProviderKind[];
+const COMPOSER_PROVIDER_KINDS = ["opencode"] as const satisfies readonly ProviderKind[];
 const isProviderKind = Schema.is(ProviderKind);
-const GROK_REASONING_EFFORT_SET = new Set<string>(GROK_REASONING_EFFORT_OPTIONS);
 
 const COMPOSER_PERSIST_DEBOUNCE_MS = 300;
 const TERMINAL_DRAFT_THREAD_MAPPING_SUFFIX = "::terminal";
@@ -501,7 +484,7 @@ export interface ComposerDraftStoreState {
   setProviderModelOptions: (
     threadId: ThreadId,
     provider: ProviderKind,
-    nextProviderOptions: ProviderModelOptions[ProviderKind] | null | undefined,
+    nextProviderOptions: OpenCodeModelOptions | null | undefined,
     options?: {
       model?: string | null;
       persistSticky?: boolean;
@@ -935,7 +918,39 @@ function shouldRemoveDraft(draft: ComposerThreadDraftState): boolean {
 }
 
 function normalizeProviderKind(value: unknown): ProviderKind | null {
+  if (
+    value === "codex" ||
+    value === "claudeAgent" ||
+    value === "cursor" ||
+    value === "gemini" ||
+    value === "grok" ||
+    value === "kilo" ||
+    value === "pi"
+  ) {
+    return "opencode";
+  }
   return isProviderKind(value) ? value : null;
+}
+
+function legacyVariantFromCandidate(
+  candidate: Record<string, unknown> | null,
+): string | undefined {
+  if (!candidate) {
+    return undefined;
+  }
+  return (
+    trimStringOrUndefined(candidate.variant) ??
+    trimStringOrUndefined(candidate.reasoningEffort) ??
+    trimStringOrUndefined(candidate.effort) ??
+    trimStringOrUndefined(candidate.thinkingLevel)
+  );
+}
+
+function legacyAgentFromCandidate(candidate: Record<string, unknown> | null): string | undefined {
+  if (!candidate) {
+    return undefined;
+  }
+  return trimStringOrUndefined(candidate.agent);
 }
 
 function trimStringOrUndefined(value: unknown): string | undefined {
@@ -946,293 +961,66 @@ function trimStringOrUndefined(value: unknown): string | undefined {
   return trimmed.length > 0 ? trimmed : undefined;
 }
 
-function isGrokReasoningEffort(value: unknown): value is GrokReasoningEffort {
-  return typeof value === "string" && GROK_REASONING_EFFORT_SET.has(value);
-}
-
 function makeModelSelection(
   provider: ProviderKind,
   model: string,
-  options?: ProviderModelOptions[ProviderKind],
+  options?: OpenCodeModelOptions,
 ): ModelSelection {
-  switch (provider) {
-    case "codex":
-      return {
-        provider,
-        model,
-        ...(options
-          ? { options: options as Extract<ModelSelection, { provider: "codex" }>["options"] }
-          : {}),
-      };
-    case "claudeAgent":
-      return {
-        provider,
-        model,
-        ...(options
-          ? {
-              options: options as Extract<ModelSelection, { provider: "claudeAgent" }>["options"],
-            }
-          : {}),
-      };
-    case "cursor":
-      return {
-        provider,
-        model,
-        ...(options
-          ? { options: options as Extract<ModelSelection, { provider: "cursor" }>["options"] }
-          : {}),
-      };
-    case "gemini":
-      return {
-        provider,
-        model,
-        ...(options
-          ? { options: options as Extract<ModelSelection, { provider: "gemini" }>["options"] }
-          : {}),
-      };
-    case "grok":
-      return {
-        provider,
-        model,
-        ...(options
-          ? { options: options as Extract<ModelSelection, { provider: "grok" }>["options"] }
-          : {}),
-      };
-    case "kilo":
-      return {
-        provider,
-        model,
-        ...(options
-          ? { options: options as Extract<ModelSelection, { provider: "kilo" }>["options"] }
-          : {}),
-      };
-    case "opencode":
-      return {
-        provider,
-        model,
-        ...(options
-          ? { options: options as Extract<ModelSelection, { provider: "opencode" }>["options"] }
-          : {}),
-      };
-    case "pi":
-      return {
-        provider,
-        model,
-        ...(options
-          ? { options: options as Extract<ModelSelection, { provider: "pi" }>["options"] }
-          : {}),
-      };
-  }
+  return {
+    provider: "opencode",
+    model,
+    ...(options ? { options } : {}),
+  };
 }
 
 function normalizeProviderModelOptions(
   value: unknown,
-  provider?: ProviderKind | null,
+  _provider?: ProviderKind | null,
   legacy?: LegacyCodexFields,
 ): ProviderModelOptions | null {
   const candidate = value && typeof value === "object" ? (value as Record<string, unknown>) : null;
-  const codexCandidate =
-    candidate?.codex && typeof candidate.codex === "object"
-      ? (candidate.codex as Record<string, unknown>)
-      : null;
-  const claudeCandidate =
-    candidate?.claudeAgent && typeof candidate.claudeAgent === "object"
-      ? (candidate.claudeAgent as Record<string, unknown>)
-      : null;
-  const cursorCandidate =
-    candidate?.cursor && typeof candidate.cursor === "object"
-      ? (candidate.cursor as Record<string, unknown>)
-      : null;
-  const geminiCandidate =
-    candidate?.gemini && typeof candidate.gemini === "object"
-      ? (candidate.gemini as Record<string, unknown>)
-      : null;
-  const grokCandidate =
-    candidate?.grok && typeof candidate.grok === "object"
-      ? (candidate.grok as Record<string, unknown>)
-      : null;
-  const openCodeCandidate =
-    candidate?.opencode && typeof candidate.opencode === "object"
-      ? (candidate.opencode as Record<string, unknown>)
-      : null;
-  const kiloCandidate =
-    candidate?.kilo && typeof candidate.kilo === "object"
-      ? (candidate.kilo as Record<string, unknown>)
-      : null;
-  const piCandidate =
-    candidate?.pi && typeof candidate.pi === "object"
-      ? (candidate.pi as Record<string, unknown>)
-      : null;
+  const legacyCandidates = [
+    candidate?.opencode,
+    candidate?.codex,
+    candidate?.claudeAgent,
+    candidate?.cursor,
+    candidate?.gemini,
+    candidate?.grok,
+    candidate?.kilo,
+    candidate?.pi,
+  ];
 
-  const codexReasoningEffort: CodexReasoningEffort | undefined =
-    codexCandidate?.reasoningEffort === "low" ||
-    codexCandidate?.reasoningEffort === "medium" ||
-    codexCandidate?.reasoningEffort === "high" ||
-    codexCandidate?.reasoningEffort === "xhigh"
-      ? codexCandidate.reasoningEffort
-      : provider === "codex" &&
-          (legacy?.effort === "low" ||
-            legacy?.effort === "medium" ||
-            legacy?.effort === "high" ||
-            legacy?.effort === "xhigh")
-        ? legacy.effort
-        : undefined;
-  const codexFastMode =
-    codexCandidate?.fastMode === true
-      ? true
-      : codexCandidate?.fastMode === false
-        ? false
-        : (provider === "codex" && legacy?.codexFastMode === true) ||
-            (typeof legacy?.serviceTier === "string" && legacy.serviceTier === "fast")
-          ? true
-          : undefined;
-  const codex =
-    codexReasoningEffort !== undefined || codexFastMode !== undefined
-      ? {
-          ...(codexReasoningEffort !== undefined ? { reasoningEffort: codexReasoningEffort } : {}),
-          ...(codexFastMode !== undefined ? { fastMode: codexFastMode } : {}),
-        }
-      : undefined;
+  let variant: string | undefined;
+  let agent: string | undefined;
 
-  const claudeThinking =
-    claudeCandidate?.thinking === true
-      ? true
-      : claudeCandidate?.thinking === false
-        ? false
-        : undefined;
-  const claudeEffort: ClaudeCodeEffort | undefined =
-    claudeCandidate?.effort === "low" ||
-    claudeCandidate?.effort === "medium" ||
-    claudeCandidate?.effort === "high" ||
-    claudeCandidate?.effort === "xhigh" ||
-    claudeCandidate?.effort === "max" ||
-    claudeCandidate?.effort === "ultrathink" ||
-    claudeCandidate?.effort === "ultracode"
-      ? claudeCandidate.effort
-      : undefined;
-  const claudeFastMode =
-    claudeCandidate?.fastMode === true
-      ? true
-      : claudeCandidate?.fastMode === false
-        ? false
-        : undefined;
-  const claudeContextWindow =
-    typeof claudeCandidate?.contextWindow === "string" && claudeCandidate.contextWindow.length > 0
-      ? claudeCandidate.contextWindow
-      : undefined;
-  const claude =
-    claudeThinking !== undefined ||
-    claudeEffort !== undefined ||
-    claudeFastMode !== undefined ||
-    claudeContextWindow !== undefined
-      ? {
-          ...(claudeThinking !== undefined ? { thinking: claudeThinking } : {}),
-          ...(claudeEffort !== undefined ? { effort: claudeEffort } : {}),
-          ...(claudeFastMode !== undefined ? { fastMode: claudeFastMode } : {}),
-          ...(claudeContextWindow !== undefined ? { contextWindow: claudeContextWindow } : {}),
-        }
-      : undefined;
-
-  const cursorReasoningEffort = trimStringOrUndefined(cursorCandidate?.reasoningEffort);
-  const cursorFastMode =
-    cursorCandidate?.fastMode === true
-      ? true
-      : cursorCandidate?.fastMode === false
-        ? false
-        : undefined;
-  const cursorThinking =
-    cursorCandidate?.thinking === true
-      ? true
-      : cursorCandidate?.thinking === false
-        ? false
-        : undefined;
-  const cursorContextWindow = trimStringOrUndefined(cursorCandidate?.contextWindow);
-  const cursor: CursorModelOptions | undefined =
-    cursorReasoningEffort !== undefined ||
-    cursorFastMode !== undefined ||
-    cursorThinking !== undefined ||
-    cursorContextWindow !== undefined
-      ? {
-          ...(cursorReasoningEffort !== undefined
-            ? { reasoningEffort: cursorReasoningEffort }
-            : {}),
-          ...(cursorFastMode !== undefined ? { fastMode: cursorFastMode } : {}),
-          ...(cursorThinking !== undefined ? { thinking: cursorThinking } : {}),
-          ...(cursorContextWindow !== undefined ? { contextWindow: cursorContextWindow } : {}),
-        }
-      : undefined;
-
-  const geminiThinkingLevel: GeminiThinkingLevel | undefined =
-    geminiCandidate?.thinkingLevel === "LOW" || geminiCandidate?.thinkingLevel === "HIGH"
-      ? geminiCandidate.thinkingLevel
-      : undefined;
-  const rawGeminiThinkingBudget =
-    typeof geminiCandidate?.thinkingBudget === "number"
-      ? geminiCandidate.thinkingBudget
-      : typeof geminiCandidate?.thinkingBudget === "string"
-        ? Number(geminiCandidate.thinkingBudget)
-        : undefined;
-  const geminiThinkingBudget: GeminiThinkingBudget | undefined =
-    rawGeminiThinkingBudget === -1 ||
-    rawGeminiThinkingBudget === 0 ||
-    rawGeminiThinkingBudget === 512
-      ? rawGeminiThinkingBudget
-      : undefined;
-  const gemini =
-    geminiThinkingLevel !== undefined || geminiThinkingBudget !== undefined
-      ? {
-          ...(geminiThinkingLevel !== undefined ? { thinkingLevel: geminiThinkingLevel } : {}),
-          ...(geminiThinkingBudget !== undefined ? { thinkingBudget: geminiThinkingBudget } : {}),
-        }
-      : undefined;
-  const grokReasoningEffort: GrokReasoningEffort | undefined = isGrokReasoningEffort(
-    grokCandidate?.reasoningEffort,
-  )
-    ? grokCandidate.reasoningEffort
-    : undefined;
-  const grok =
-    grokReasoningEffort !== undefined ? { reasoningEffort: grokReasoningEffort } : undefined;
-  const openCodeVariant = trimStringOrUndefined(openCodeCandidate?.variant);
-  const openCodeAgent = trimStringOrUndefined(openCodeCandidate?.agent);
-  const opencode =
-    openCodeVariant !== undefined || openCodeAgent !== undefined
-      ? {
-          ...(openCodeVariant !== undefined ? { variant: openCodeVariant } : {}),
-          ...(openCodeAgent !== undefined ? { agent: openCodeAgent } : {}),
-        }
-      : undefined;
-  const kiloVariant = trimStringOrUndefined(kiloCandidate?.variant);
-  const kiloAgent = trimStringOrUndefined(kiloCandidate?.agent);
-  const kilo =
-    kiloVariant !== undefined || kiloAgent !== undefined
-      ? {
-          ...(kiloVariant !== undefined ? { variant: kiloVariant } : {}),
-          ...(kiloAgent !== undefined ? { agent: kiloAgent } : {}),
-        }
-      : undefined;
-  const piThinkingLevel: PiThinkingLevel | undefined =
-    piCandidate?.thinkingLevel === "off" ||
-    piCandidate?.thinkingLevel === "minimal" ||
-    piCandidate?.thinkingLevel === "low" ||
-    piCandidate?.thinkingLevel === "medium" ||
-    piCandidate?.thinkingLevel === "high" ||
-    piCandidate?.thinkingLevel === "xhigh"
-      ? piCandidate.thinkingLevel
-      : undefined;
-  const pi = piThinkingLevel !== undefined ? { thinkingLevel: piThinkingLevel } : undefined;
-  if (!codex && !claude && !cursor && !gemini && !grok && !kilo && !opencode && !pi) {
-    return null;
+  for (const entry of legacyCandidates) {
+    if (!entry || typeof entry !== "object") {
+      continue;
+    }
+    const record = entry as Record<string, unknown>;
+    variant ??= legacyVariantFromCandidate(record);
+    agent ??= legacyAgentFromCandidate(record);
   }
-  return {
-    ...(codex ? { codex } : {}),
-    ...(claude ? { claudeAgent: claude } : {}),
-    ...(cursor ? { cursor } : {}),
-    ...(gemini ? { gemini } : {}),
-    ...(grok ? { grok } : {}),
-    ...(kilo ? { kilo } : {}),
-    ...(opencode ? { opencode } : {}),
-    ...(pi ? { pi } : {}),
-  };
+
+  if (
+    !variant &&
+    (legacy?.effort === "low" ||
+      legacy?.effort === "medium" ||
+      legacy?.effort === "high" ||
+      legacy?.effort === "xhigh")
+  ) {
+    variant = legacy.effort;
+  }
+
+  const opencode =
+    variant !== undefined || agent !== undefined
+      ? {
+          ...(variant !== undefined ? { variant } : {}),
+          ...(agent !== undefined ? { agent } : {}),
+        }
+      : undefined;
+
+  return opencode ? { opencode } : null;
 }
 
 function normalizeModelSelection(
@@ -1253,42 +1041,16 @@ function normalizeModelSelection(
   if (typeof rawModel !== "string") {
     return null;
   }
-  const inferredClaudeContextWindow =
-    provider === "claudeAgent" && /\[1m\]$/iu.test(rawModel) ? "1m" : undefined;
-  const model = normalizeModelSlug(rawModel, provider);
+  const model = normalizeModelSlug(rawModel, "opencode");
   if (!model) {
     return null;
   }
   const modelOptions = normalizeProviderModelOptions(
-    candidate?.options ? { [provider]: candidate.options } : legacy?.modelOptions,
-    provider,
-    provider === "codex" ? legacy?.legacyCodex : undefined,
+    candidate?.options ? { opencode: candidate.options } : legacy?.modelOptions,
+    "opencode",
+    legacy?.legacyCodex,
   );
-  const options =
-    provider === "codex"
-      ? modelOptions?.codex
-      : provider === "claudeAgent"
-        ? inferredClaudeContextWindow !== undefined
-          ? {
-              ...modelOptions?.claudeAgent,
-              contextWindow:
-                modelOptions?.claudeAgent?.contextWindow ?? inferredClaudeContextWindow,
-            }
-          : modelOptions?.claudeAgent
-        : provider === "gemini"
-          ? modelOptions?.gemini
-          : provider === "grok"
-            ? modelOptions?.grok
-            : provider === "kilo"
-              ? modelOptions?.kilo
-              : provider === "cursor"
-                ? modelOptions?.cursor
-                : provider === "opencode"
-                  ? modelOptions?.opencode
-                  : provider === "pi"
-                    ? modelOptions?.pi
-                    : undefined;
-  return makeModelSelection(provider, model, options);
+  return makeModelSelection("opencode", model, modelOptions?.opencode);
 }
 
 // ── Legacy sync helpers (used only during migration from v2 storage) ──
@@ -1321,7 +1083,7 @@ function legacyMergeModelSelectionIntoProviderModelOptions(
 function legacyReplaceProviderModelOptions(
   currentModelOptions: ProviderModelOptions | null | undefined,
   provider: ProviderKind,
-  nextProviderOptions: ProviderModelOptions[ProviderKind] | null | undefined,
+  nextProviderOptions: OpenCodeModelOptions | null | undefined,
 ): ProviderModelOptions | null {
   const { [provider]: _discardedProviderModelOptions, ...otherProviderModelOptions } =
     currentModelOptions ?? {};
@@ -1411,7 +1173,7 @@ export function deriveEffectiveComposerModelState(input: {
         activeSelection.model,
       )
     : null;
-  const unlistedDraftModel = input.selectedProvider === "pi" ? selectedDraftModel : null;
+  const unlistedDraftModel = input.selectedProvider === "opencode" ? selectedDraftModel : null;
   const selectedModel =
     resolveAvailableModel(activeSelection?.model) ??
     resolveAvailableModel(
@@ -1431,7 +1193,7 @@ export function deriveEffectiveComposerModelState(input: {
     input.availableModelOptionsByProvider?.[input.selectedProvider]?.[0]?.slug ??
     selectedDraftModel ??
     baseModel ??
-    getDefaultModel("codex");
+    getDefaultModel("opencode");
   const modelOptions = deriveEffectiveComposerModelOptions(input);
 
   return {
@@ -1461,7 +1223,7 @@ export function resolvePreferredComposerModelSelection(input: {
     input.threadModelSelection?.provider ??
     input.projectModelSelection?.provider ??
     input.defaultProvider ??
-    "codex";
+    "opencode";
 
   return (
     input.draft?.modelSelectionByProvider?.[preferredProvider] ??
@@ -1471,8 +1233,8 @@ export function resolvePreferredComposerModelSelection(input: {
     (input.projectModelSelection?.provider === preferredProvider
       ? input.projectModelSelection
       : null) ?? {
-      provider: preferredProvider === "pi" ? "codex" : preferredProvider,
-      model: getDefaultModel(preferredProvider === "pi" ? "codex" : preferredProvider),
+      provider: "opencode",
+      model: getDefaultModel("opencode"),
     }
   );
 }
@@ -2386,7 +2148,7 @@ function normalizeCurrentPersistedComposerDraftStoreState(
     const normalizedStickyModelSelection = normalizeModelSelection(
       normalizedPersistedState.stickyModelSelection,
       {
-        provider: normalizedPersistedState.stickyProvider ?? "codex",
+        provider: normalizedPersistedState.stickyProvider ?? "opencode",
         model: normalizedPersistedState.stickyModel,
         modelOptions: stickyModelOptions,
       },

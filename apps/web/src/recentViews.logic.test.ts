@@ -146,7 +146,7 @@ describe("recent view MRU logic", () => {
       id: terminalThreadId,
       projectId: project.id,
       title: "Dev server",
-      modelSelection: { provider: "codex", model: "gpt-5" },
+      modelSelection: { provider: "opencode", model: "gpt-5" },
     } as SidebarThreadSummary;
 
     const entries = buildRecentViewDisplayEntries({
@@ -172,7 +172,7 @@ describe("recent view MRU logic", () => {
     expect(entries[0]).toMatchObject({
       icon: { kind: "terminal", iconKey: "terminal" },
       isTerminal: true,
-      provider: "codex",
+      provider: "opencode",
       subtitle: "Synara · Terminal",
       terminalVisualIdentity: {
         cliKind: null,

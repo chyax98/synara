@@ -54,7 +54,7 @@ function createBaseServerConfig(): ServerConfig {
     issues: [],
     providers: [
       {
-        provider: "codex",
+        provider: "opencode",
         status: "ready",
         available: true,
         authStatus: "authenticated",
@@ -75,7 +75,7 @@ function createMinimalSnapshot(): OrchestrationReadModel {
         title: "Project",
         workspaceRoot: "/repo/project",
         defaultModelSelection: {
-          provider: "codex",
+          provider: "opencode",
           model: "gpt-5",
         },
         scripts: [],
@@ -90,7 +90,7 @@ function createMinimalSnapshot(): OrchestrationReadModel {
         projectId: PROJECT_ID,
         title: "Test thread",
         modelSelection: {
-          provider: "codex",
+          provider: "opencode",
           model: "gpt-5",
         },
         interactionMode: "default",
@@ -102,7 +102,6 @@ function createMinimalSnapshot(): OrchestrationReadModel {
         createdAt: NOW_ISO,
         updatedAt: NOW_ISO,
         deletedAt: null,
-        handoff: null,
         messages: [
           {
             id: "msg-1" as MessageId,
@@ -121,7 +120,7 @@ function createMinimalSnapshot(): OrchestrationReadModel {
         session: {
           threadId: THREAD_ID,
           status: "ready",
-          providerName: "codex",
+          providerName: "opencode",
           runtimeMode: "full-access",
           activeTurnId: null,
           lastError: null,

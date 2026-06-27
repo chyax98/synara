@@ -401,7 +401,6 @@ function threadShellsEqual(left: ThreadShell | undefined, right: ThreadShell): b
     (left.forkSourceThreadId ?? null) === (right.forkSourceThreadId ?? null) &&
     (left.sidechatSourceThreadId ?? null) === (right.sidechatSourceThreadId ?? null) &&
     deepEqualJson(left.lastKnownPr ?? null, right.lastKnownPr ?? null) &&
-    (left.handoff ?? null) === (right.handoff ?? null) &&
     deepEqualJson(left.pinnedMessages ?? null, right.pinnedMessages ?? null) &&
     deepEqualJson(left.threadMarkers ?? null, right.threadMarkers ?? null) &&
     (left.notes ?? "") === (right.notes ?? "") &&
@@ -449,7 +448,6 @@ function toThreadShell(thread: Thread): ThreadShell {
     forkSourceThreadId: thread.forkSourceThreadId ?? null,
     sidechatSourceThreadId: thread.sidechatSourceThreadId ?? null,
     lastKnownPr: thread.lastKnownPr ?? null,
-    handoff: thread.handoff ?? null,
     ...(thread.pinnedMessages !== undefined ? { pinnedMessages: thread.pinnedMessages } : {}),
     ...(thread.threadMarkers !== undefined ? { threadMarkers: thread.threadMarkers } : {}),
     ...(thread.notes !== undefined ? { notes: thread.notes } : {}),
@@ -1623,10 +1621,6 @@ function normalizeThreadFromReadModel(
   const messages = normalizeChatMessages(incoming.messages, previous?.messages);
   const proposedPlans = normalizeProposedPlans(incoming.proposedPlans, previous?.proposedPlans);
   const latestTurn = normalizeLatestTurn(incoming.latestTurn, previous?.latestTurn);
-  const handoff =
-    previous?.handoff && incoming.handoff && deepEqualJson(previous.handoff, incoming.handoff)
-      ? previous.handoff
-      : (incoming.handoff ?? null);
   const lastKnownPr =
     previous?.lastKnownPr &&
     incoming.lastKnownPr &&
@@ -1724,7 +1718,6 @@ function normalizeThreadFromReadModel(
     (previous.forkSourceThreadId ?? null) === (incoming.forkSourceThreadId ?? null) &&
     (previous.sidechatSourceThreadId ?? null) === (incoming.sidechatSourceThreadId ?? null) &&
     deepEqualJson(previous.lastKnownPr ?? null, lastKnownPr) &&
-    (previous.handoff ?? null) === handoff &&
     previous.pinnedMessages === pinnedMessages &&
     previous.threadMarkers === threadMarkers &&
     previous.notes === notes &&
@@ -1767,7 +1760,6 @@ function normalizeThreadFromReadModel(
     forkSourceThreadId: incoming.forkSourceThreadId ?? null,
     sidechatSourceThreadId: incoming.sidechatSourceThreadId ?? null,
     lastKnownPr,
-    handoff,
     ...(pinnedMessages !== undefined ? { pinnedMessages } : {}),
     ...(threadMarkers !== undefined ? { threadMarkers } : {}),
     ...(notes !== undefined ? { notes } : {}),
@@ -1799,10 +1791,6 @@ function normalizeThreadShellSnapshot(
   const modelSelection = normalizeModelSelection(incoming.modelSelection, previous?.modelSelection);
   const session = normalizeThreadSession(incoming.session, previous?.session);
   const latestTurn = normalizeLatestTurn(incoming.latestTurn, previous?.latestTurn);
-  const handoff =
-    previous?.handoff && incoming.handoff && deepEqualJson(previous.handoff, incoming.handoff)
-      ? previous.handoff
-      : (incoming.handoff ?? null);
   const lastKnownPr =
     previous?.lastKnownPr &&
     incoming.lastKnownPr &&
@@ -1860,7 +1848,6 @@ function normalizeThreadShellSnapshot(
     forkSourceThreadId: incoming.forkSourceThreadId ?? null,
     sidechatSourceThreadId: incoming.sidechatSourceThreadId ?? null,
     lastKnownPr,
-    handoff,
     // The sidebar shell snapshot/event does not carry thread annotations, so keep the values
     // resolved from the thread-detail path instead of clobbering them with `undefined`.
     ...(previous?.pinnedMessages !== undefined ? { pinnedMessages: previous.pinnedMessages } : {}),
@@ -2002,19 +1989,7 @@ function toLegacySessionStatus(
 }
 
 function toLegacyProvider(providerName: string | null): ProviderKind {
-  if (
-    providerName === "codex" ||
-    providerName === "claudeAgent" ||
-    providerName === "cursor" ||
-    providerName === "gemini" ||
-    providerName === "grok" ||
-    providerName === "kilo" ||
-    providerName === "opencode" ||
-    providerName === "pi"
-  ) {
-    return providerName;
-  }
-  return "codex";
+  return "opencode";
 }
 
 function attachmentPreviewRoutePath(attachmentId: string): string {
@@ -2159,8 +2134,7 @@ function sidebarThreadSummariesEqual(
     left.hasLiveTailWork === right.hasLiveTailWork &&
     (left.forkSourceThreadId ?? null) === (right.forkSourceThreadId ?? null) &&
     (left.sidechatSourceThreadId ?? null) === (right.sidechatSourceThreadId ?? null) &&
-    deepEqualJson(left.lastKnownPr ?? null, right.lastKnownPr ?? null) &&
-    (left.handoff ?? null) === (right.handoff ?? null)
+    deepEqualJson(left.lastKnownPr ?? null, right.lastKnownPr ?? null)
   );
 }
 
@@ -2199,7 +2173,6 @@ function buildSidebarThreadSummary(
     forkSourceThreadId: thread.forkSourceThreadId ?? null,
     sidechatSourceThreadId: thread.sidechatSourceThreadId ?? null,
     lastKnownPr: thread.lastKnownPr ?? null,
-    handoff: thread.handoff ?? null,
   };
   if (previous && sidebarThreadSummariesEqual(previous, nextSummary)) {
     return previous;
@@ -3235,8 +3208,6 @@ function applyOrchestrationEvent(
               (event.payload.subagentRole ?? null) === (thread.subagentRole ?? null)) &&
             (event.payload.lastKnownPr === undefined ||
               deepEqualJson(event.payload.lastKnownPr ?? null, thread.lastKnownPr ?? null)) &&
-            (event.payload.handoff === undefined ||
-              (event.payload.handoff ?? null) === (thread.handoff ?? null)) &&
             (event.payload.pinnedMessages === undefined ||
               deepEqualJson(event.payload.pinnedMessages, thread.pinnedMessages ?? null)) &&
             (event.payload.threadMarkers === undefined ||
@@ -3274,7 +3245,6 @@ function applyOrchestrationEvent(
             ...(event.payload.lastKnownPr !== undefined
               ? { lastKnownPr: event.payload.lastKnownPr }
               : {}),
-            ...(event.payload.handoff !== undefined ? { handoff: event.payload.handoff } : {}),
             ...(event.payload.pinnedMessages !== undefined
               ? {
                   pinnedMessages: event.payload.pinnedMessages as NonNullable<

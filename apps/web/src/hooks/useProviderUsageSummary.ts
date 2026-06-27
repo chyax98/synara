@@ -47,7 +47,7 @@ export function useProviderUsageSummary(input: {
   const localUsageSnapshotQuery = useQuery(
     serverProviderUsageSnapshotQueryOptions({
       provider: input.provider,
-      homePath: input.provider === "codex" ? input.codexHomePath || null : null,
+      homePath: null,
     }),
   );
   const openUsageSnapshotQuery = useQuery(openUsageProviderSnapshotQueryOptions(input.provider));

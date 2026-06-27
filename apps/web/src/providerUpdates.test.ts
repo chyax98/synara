@@ -41,6 +41,9 @@ function serverSettings(overrides: Partial<ServerSettings["providers"]> = {}): S
   const provider = {
     enabled: true,
     binaryPath: "",
+    serverUrl: "",
+    serverPassword: "",
+    experimentalWebSockets: false,
     customModels: [],
   };
 
@@ -48,22 +51,9 @@ function serverSettings(overrides: Partial<ServerSettings["providers"]> = {}): S
     enableAssistantStreaming: false,
     defaultThreadEnvMode: "local",
     addProjectBaseDirectory: "",
-    textGenerationModelSelection: { provider: "codex", model: "gpt-5.4-mini" },
+    textGenerationModelSelection: { provider: "opencode", model: "openai/gpt-5" },
     providers: {
-      codex: { ...provider, binaryPath: "codex", homePath: "" },
-      claudeAgent: { ...provider, binaryPath: "claude", launchArgs: "" },
-      cursor: { ...provider, binaryPath: "cursor-agent", apiEndpoint: "" },
-      gemini: { ...provider, binaryPath: "gemini" },
-      grok: { ...provider, binaryPath: "grok" },
-      kilo: { ...provider, binaryPath: "kilo", serverUrl: "", serverPassword: "" },
-      opencode: {
-        ...provider,
-        binaryPath: "opencode",
-        serverUrl: "",
-        serverPassword: "",
-        experimentalWebSockets: false,
-      },
-      pi: { ...provider, binaryPath: "pi", agentDir: "" },
+      opencode: { ...provider, binaryPath: "opencode" },
       ...overrides,
     },
     skills: { disabled: [] },
@@ -73,28 +63,35 @@ function serverSettings(overrides: Partial<ServerSettings["providers"]> = {}): S
 describe("getVisibleProviderUpdateStatuses", () => {
   it("excludes providers hidden from Synara so unchecked providers do not nag", () => {
     const result = getVisibleProviderUpdateStatuses({
-      providers: [providerStatus("codex"), providerStatus("pi")],
-      hiddenProviders: ["pi"],
+      providers: [providerStatus("opencode")],
+      hiddenProviders: ["opencode"],
       serverSettings: serverSettings(),
     });
 
-    expect(result.map((provider) => provider.provider)).toEqual(["codex"]);
+    expect(result).toEqual([]);
   });
 
   it("excludes server-disabled providers", () => {
     const result = getVisibleProviderUpdateStatuses({
-      providers: [providerStatus("codex"), providerStatus("pi")],
+      providers: [providerStatus("opencode")],
       serverSettings: serverSettings({
-        pi: { enabled: false, binaryPath: "pi", agentDir: "", customModels: [] },
+        opencode: {
+          enabled: false,
+          binaryPath: "opencode",
+          serverUrl: "",
+          serverPassword: "",
+          experimentalWebSockets: false,
+          customModels: [],
+        },
       }),
     });
 
-    expect(result.map((provider) => provider.provider)).toEqual(["codex"]);
+    expect(result).toEqual([]);
   });
 
   it("waits for server settings before showing provider updates", () => {
     const result = getVisibleProviderUpdateStatuses({
-      providers: [providerStatus("codex")],
+      providers: [providerStatus("opencode")],
       serverSettings: null,
     });
 
@@ -102,7 +99,7 @@ describe("getVisibleProviderUpdateStatuses", () => {
   });
 
   it("can narrow notifications to one-click updates while settings keep manual updates visible", () => {
-    const manualOnly = providerStatus("pi", {
+    const manualOnly = providerStatus("opencode", {
       versionAdvisory: {
         status: "behind_latest",
         currentVersion: "1.0.0",
@@ -116,36 +113,36 @@ describe("getVisibleProviderUpdateStatuses", () => {
 
     expect(
       getVisibleProviderUpdateStatuses({
-        providers: [providerStatus("codex"), manualOnly],
+        providers: [providerStatus("opencode"), manualOnly],
         serverSettings: serverSettings(),
       }).map((provider) => provider.provider),
-    ).toEqual(["codex", "pi"]);
+    ).toEqual(["opencode", "opencode"]);
     expect(
       getVisibleProviderUpdateStatuses({
-        providers: [providerStatus("codex"), manualOnly],
+        providers: [providerStatus("opencode"), manualOnly],
         serverSettings: serverSettings(),
         oneClickOnly: true,
       }).map((provider) => provider.provider),
-    ).toEqual(["codex"]);
+    ).toEqual(["opencode"]);
   });
 });
 
 describe("providerUpdateNotificationKey", () => {
   it("keys by provider/version and ignores ordering", () => {
     const left = providerUpdateNotificationKey([
-      providerStatus("pi", {
+      providerStatus("opencode", {
         versionAdvisory: {
-          ...providerStatus("pi").versionAdvisory!,
+          ...providerStatus("opencode").versionAdvisory!,
           latestVersion: "2.0.0",
         },
       }),
-      providerStatus("codex"),
+      providerStatus("opencode"),
     ]);
     const right = providerUpdateNotificationKey([
-      providerStatus("codex"),
-      providerStatus("pi", {
+      providerStatus("opencode"),
+      providerStatus("opencode", {
         versionAdvisory: {
-          ...providerStatus("pi").versionAdvisory!,
+          ...providerStatus("opencode").versionAdvisory!,
           latestVersion: "2.0.0",
         },
       }),
@@ -157,23 +154,29 @@ describe("providerUpdateNotificationKey", () => {
 
 describe("shouldShowProviderUpdateStatus", () => {
   it("matches the list filter for hidden and server-disabled providers", () => {
-    const codex = providerStatus("codex");
-    const hiddenPi = providerStatus("pi");
+    const opencode = providerStatus("opencode");
     const settings = serverSettings({
-      codex: { enabled: false, binaryPath: "codex", homePath: "", customModels: [] },
+      opencode: {
+        enabled: false,
+        binaryPath: "opencode",
+        serverUrl: "",
+        serverPassword: "",
+        experimentalWebSockets: false,
+        customModels: [],
+      },
     });
 
     expect(
       shouldShowProviderUpdateStatus({
-        provider: codex,
+        provider: opencode,
         hiddenProviderSet: new Set(),
         serverSettings: settings,
       }),
     ).toBe(false);
     expect(
       shouldShowProviderUpdateStatus({
-        provider: hiddenPi,
-        hiddenProviders: ["pi"],
+        provider: opencode,
+        hiddenProviders: ["opencode"],
         serverSettings: serverSettings(),
       }),
     ).toBe(false);
@@ -181,23 +184,26 @@ describe("shouldShowProviderUpdateStatus", () => {
 });
 
 describe("isProviderUpdateActive", () => {
-  it("only treats queued and running provider updates as active", () => {
+  it("treats queued and running update states as active", () => {
     const queuedState = {
-      status: "queued",
-      startedAt: null,
-      finishedAt: null,
+      status: "queued" as const,
       message: null,
+      startedAt: "2026-06-10T10:00:00.000Z",
+      finishedAt: null,
       output: null,
-    } satisfies NonNullable<ServerProviderStatus["updateState"]>;
+    };
     const succeededState = {
-      ...queuedState,
-      status: "succeeded",
-    } satisfies NonNullable<ServerProviderStatus["updateState"]>;
+      status: "succeeded" as const,
+      message: null,
+      startedAt: "2026-06-10T10:00:00.000Z",
+      finishedAt: "2026-06-10T10:01:00.000Z",
+      output: null,
+    };
 
-    expect(isProviderUpdateActive(providerStatus("codex", { updateState: queuedState }))).toBe(
+    expect(isProviderUpdateActive(providerStatus("opencode", { updateState: queuedState }))).toBe(
       true,
     );
-    expect(isProviderUpdateActive(providerStatus("codex", { updateState: succeededState }))).toBe(
+    expect(isProviderUpdateActive(providerStatus("opencode", { updateState: succeededState }))).toBe(
       false,
     );
   });

@@ -69,7 +69,7 @@ function createBaseServerConfig(): ServerConfig {
     issues: [],
     providers: [
       {
-        provider: "codex",
+        provider: "opencode",
         status: "ready",
         available: true,
         authStatus: "authenticated",
@@ -90,7 +90,7 @@ function createSnapshot(overrides?: Partial<OrchestrationReadModel["threads"][nu
         title: "Project",
         workspaceRoot: "/repo/project",
         defaultModelSelection: {
-          provider: "codex",
+          provider: "opencode",
           model: "gpt-5",
         },
         scripts: [],
@@ -105,7 +105,7 @@ function createSnapshot(overrides?: Partial<OrchestrationReadModel["threads"][nu
         projectId: PROJECT_ID,
         title: "Root test thread",
         modelSelection: {
-          provider: "codex",
+          provider: "opencode",
           model: "gpt-5",
         },
         interactionMode: "default",
@@ -117,7 +117,6 @@ function createSnapshot(overrides?: Partial<OrchestrationReadModel["threads"][nu
         createdAt: NOW_ISO,
         updatedAt: NOW_ISO,
         deletedAt: null,
-        handoff: null,
         messages: [
           {
             id: MessageId.makeUnsafe("msg-user-1"),
@@ -136,7 +135,7 @@ function createSnapshot(overrides?: Partial<OrchestrationReadModel["threads"][nu
         session: {
           threadId: THREAD_ID,
           status: "ready",
-          providerName: "codex",
+          providerName: "opencode",
           runtimeMode: "full-access",
           activeTurnId: null,
           lastError: null,
@@ -567,7 +566,7 @@ describe("EventRouter scoped orchestration sync", () => {
           session: {
             threadId: THREAD_ID,
             status: "ready",
-            providerName: "codex",
+            providerName: "opencode",
             runtimeMode: "full-access",
             activeTurnId: null,
             lastError: null,

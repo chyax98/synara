@@ -11,7 +11,7 @@ describe("normalizeSkillMentionTextForProvider", () => {
   it("translates slash-selected skills to Codex dollar mentions before provider dispatch", () => {
     expect(
       normalizeSkillMentionTextForProvider({
-        provider: "codex",
+        provider: "opencode",
         messageText: "Use /check-code and /recap please",
         skills: [
           { name: "check-code", path: "/skills/check-code/SKILL.md" },
@@ -24,7 +24,7 @@ describe("normalizeSkillMentionTextForProvider", () => {
   it("leaves non-Codex slash skills untouched", () => {
     expect(
       normalizeSkillMentionTextForProvider({
-        provider: "cursor",
+        provider: "opencode",
         messageText: "Use /check-code please",
         skills: [{ name: "check-code", path: "/skills/check-code/SKILL.md" }],
       }),

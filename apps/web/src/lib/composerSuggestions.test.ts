@@ -8,7 +8,7 @@ const OTHER_PROJECT_ID = ProjectId.makeUnsafe("project-other");
 const ACTIVE_THREAD_ID = ThreadId.makeUnsafe("thread-active");
 
 const MODEL_SELECTION: ModelSelection = {
-  provider: "codex",
+  provider: "opencode",
   model: "gpt-5",
 };
 

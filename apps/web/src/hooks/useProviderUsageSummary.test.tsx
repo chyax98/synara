@@ -14,7 +14,7 @@ import { useProviderUsageSummary } from "./useProviderUsageSummary";
 
 function snapshot(input: Partial<ServerProviderUsageSnapshot> = {}): ServerProviderUsageSnapshot {
   return {
-    provider: "claudeAgent",
+    provider: "opencode",
     updatedAt: "2026-06-09T12:00:00.000Z",
     limits: [],
     usageLines: [],
@@ -56,7 +56,7 @@ function readProviderUsageSummary(input: {
 
   function Probe() {
     captured.current = useProviderUsageSummary({
-      provider: "claudeAgent",
+      provider: "opencode",
       threads: [],
       threadRateLimits: input.threadRateLimits,
       providerSnapshot: input.providerSnapshot,
@@ -89,7 +89,7 @@ describe("useProviderUsageSummary", () => {
       snapshot({ status: "needs-auth", detail: "Sign in with claude to see usage." }),
     ]);
     queryClient.setQueryData(
-      serverQueryKeys.providerUsage("claudeAgent", null),
+      serverQueryKeys.providerUsage("opencode", null),
       fallbackSnapshot(),
     );
 
@@ -103,7 +103,7 @@ describe("useProviderUsageSummary", () => {
     const queryClient = createQueryClient();
     queryClient.setQueryData(serverQueryKeys.allProviderUsage(), []);
     queryClient.setQueryData(
-      serverQueryKeys.providerUsage("claudeAgent", null),
+      serverQueryKeys.providerUsage("opencode", null),
       fallbackSnapshot(),
     );
 
@@ -124,7 +124,7 @@ describe("useProviderUsageSummary", () => {
       queryClient,
       threadRateLimits: [
         {
-          provider: "claudeAgent",
+          provider: "opencode",
           updatedAt: "2026-06-09T12:00:00.000Z",
           limits: [
             {
@@ -147,7 +147,7 @@ describe("useProviderUsageSummary", () => {
     const queryClient = createQueryClient();
     queryClient.setQueryData(serverQueryKeys.allProviderUsage(), []);
     queryClient.setQueryData(
-      serverQueryKeys.providerUsage("claudeAgent", null),
+      serverQueryKeys.providerUsage("opencode", null),
       fallbackSnapshot(),
     );
 

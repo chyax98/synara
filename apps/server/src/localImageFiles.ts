@@ -15,8 +15,6 @@ import {
 } from "@t3tools/shared/localPreviewFiles";
 import { SCRATCH_WORKSPACES_DIRNAME } from "@t3tools/shared/threadWorkspace";
 
-import { resolveCodexGeneratedImagesRoots } from "./codexGeneratedImages.ts";
-
 export { LOCAL_IMAGE_ROUTE_PATH };
 
 export interface ResolvedLocalPreviewFile {
@@ -139,11 +137,6 @@ export async function resolveAllowedLocalPreviewFile(input: {
   if (!isSupportedLocalImagePath(realFilePath)) {
     return null;
   }
-  const generatedImagesRoots = await Promise.all(
-    resolveCodexGeneratedImagesRoots(input.codexHomePath).map(realpathOrNull),
-  ).then((roots) => roots.filter((root): root is string => root !== null));
-  const allowed =
-    generatedImagesRoots.some((root) => isPathInside(realFilePath, root)) ||
-    tempRoots.some((root) => isPathInside(realFilePath, root));
+  const allowed = tempRoots.some((root) => isPathInside(realFilePath, root));
   return allowed ? resolved : null;
 }

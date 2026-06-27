@@ -105,7 +105,7 @@ function getWindowForTest(): Window & typeof globalThis & { desktopBridge?: unkn
 
 const defaultProviders: ReadonlyArray<ServerProviderStatus> = [
   {
-    provider: "codex",
+    provider: "opencode",
     status: "ready",
     available: true,
     authStatus: "authenticated",
@@ -289,16 +289,16 @@ describe("wsNativeApi", () => {
         enableAssistantStreaming: true,
         defaultThreadEnvMode: "local",
         addProjectBaseDirectory: "",
-        textGenerationModelSelection: { provider: "codex", model: "gpt-5.4-mini" },
+        textGenerationModelSelection: { provider: "opencode", model: "gpt-5.4-mini" },
         providers: {
           codex: { enabled: true, binaryPath: "codex", homePath: "", customModels: [] },
           claudeAgent: { enabled: true, binaryPath: "claude", launchArgs: "", customModels: [] },
           cursor: { enabled: false, binaryPath: "agent", apiEndpoint: "", customModels: [] },
-          gemini: { enabled: true, binaryPath: "gemini", customModels: [] },
-          grok: { enabled: true, binaryPath: "grok", customModels: [] },
+          gemini: { enabled: true, binaryPath: "opencode", customModels: [] },
+          grok: { enabled: true, binaryPath: "opencode", customModels: [] },
           kilo: {
             enabled: true,
-            binaryPath: "kilo",
+            binaryPath: "opencode",
             serverUrl: "",
             serverPassword: "",
             customModels: [],
@@ -311,7 +311,7 @@ describe("wsNativeApi", () => {
             experimentalWebSockets: false,
             customModels: [],
           },
-          pi: { enabled: true, binaryPath: "pi", agentDir: "", customModels: [] },
+          pi: { enabled: true, binaryPath: "opencode", agentDir: "", customModels: [] },
         },
         skills: { disabled: [] },
       },
@@ -456,7 +456,7 @@ describe("wsNativeApi", () => {
       title: "Project",
       workspaceRoot: "/tmp/project",
       defaultModelSelection: {
-        provider: "codex",
+        provider: "opencode",
         model: "gpt-5-codex",
       },
       createdAt: "2026-02-24T00:00:00.000Z",
@@ -773,7 +773,7 @@ describe("wsNativeApi", () => {
     const { createWsNativeApi } = await import("./wsNativeApi");
     const api = createWsNativeApi();
     await api.server.transcribeVoice({
-      provider: "codex",
+      provider: "opencode",
       cwd: "/repo",
       audioBase64: "UklGRgAAAAAAAAAAAAAAAAAAAAA=",
       mimeType: "audio/wav",
@@ -782,7 +782,7 @@ describe("wsNativeApi", () => {
     });
 
     expect(transcribeVoice).toHaveBeenCalledWith({
-      provider: "codex",
+      provider: "opencode",
       cwd: "/repo",
       audioBase64: "UklGRgAAAAAAAAAAAAAAAAAAAAA=",
       mimeType: "audio/wav",

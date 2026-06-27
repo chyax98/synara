@@ -109,25 +109,20 @@ function providerIconClassName(
   provider: ProviderKind | ProviderPickerKind,
   fallbackClassName: string,
 ): string {
-  return provider === "claudeAgent" || provider === "gemini" || provider === "pi"
+  return provider === "opencode" || provider === "opencode" || provider === "opencode"
     ? "text-foreground"
     : fallbackClassName;
 }
 
 const SEARCHABLE_MODEL_PICKER_THRESHOLD = 15;
 const FAVORITE_MODEL_STORAGE_KEYS = {
-  cursor: "synara:cursor-favourite-models:v1",
-  kilo: "synara:kilo-favourite-models:v1",
   opencode: "synara:opencode-favourite-models:v1",
-  pi: "synara:pi-favourite-models:v1",
 } as const;
 const FavoriteModelSlugs = Schema.Array(Schema.String);
 type FavoriteModelProvider = keyof typeof FAVORITE_MODEL_STORAGE_KEYS;
 
 function supportsModelFavorites(provider: ProviderKind): provider is FavoriteModelProvider {
-  return (
-    provider === "cursor" || provider === "kilo" || provider === "opencode" || provider === "pi"
-  );
+  return provider === "opencode";
 }
 
 // Keeps persisted favorite slugs compact and stable while preserving the user's order.
@@ -151,7 +146,7 @@ function resolveSelectedModelLabel(input: {
   if (exact) {
     return exact.name;
   }
-  if (input.provider === "cursor") {
+  if (input.provider === "opencode") {
     const baseModel = stripParameterizedModelSuffix(input.model);
     const baseMatch = input.options.find(
       (option) => stripParameterizedModelSuffix(option.slug) === baseModel,
@@ -197,23 +192,8 @@ export const ProviderModelMenuItems = memo(function ProviderModelMenuItems(
 ) {
   const { onAfterSelection } = props;
   const [modelSearchQuery, setModelSearchQuery] = useState("");
-  const [kiloFavoriteModelSlugs, setKiloFavoriteModelSlugs] = useLocalStorage(
-    FAVORITE_MODEL_STORAGE_KEYS.kilo,
-    [],
-    FavoriteModelSlugs,
-  );
-  const [cursorFavoriteModelSlugs, setCursorFavoriteModelSlugs] = useLocalStorage(
-    FAVORITE_MODEL_STORAGE_KEYS.cursor,
-    [],
-    FavoriteModelSlugs,
-  );
   const [openCodeFavoriteModelSlugs, setOpenCodeFavoriteModelSlugs] = useLocalStorage(
     FAVORITE_MODEL_STORAGE_KEYS.opencode,
-    [],
-    FavoriteModelSlugs,
-  );
-  const [piFavoriteModelSlugs, setPiFavoriteModelSlugs] = useLocalStorage(
-    FAVORITE_MODEL_STORAGE_KEYS.pi,
     [],
     FavoriteModelSlugs,
   );
@@ -254,35 +234,15 @@ export const ProviderModelMenuItems = memo(function ProviderModelMenuItems(
       ),
     [hiddenProviderSet, protectedProviderSet, providerOrder],
   );
-  const kiloFavoriteModelSlugSet = useMemo(
-    () => new Set(kiloFavoriteModelSlugs),
-    [kiloFavoriteModelSlugs],
-  );
   const openCodeFavoriteModelSlugSet = useMemo(
     () => new Set(openCodeFavoriteModelSlugs),
     [openCodeFavoriteModelSlugs],
   );
-  const cursorFavoriteModelSlugSet = useMemo(
-    () => new Set(cursorFavoriteModelSlugs),
-    [cursorFavoriteModelSlugs],
-  );
-  const piFavoriteModelSlugSet = useMemo(
-    () => new Set(piFavoriteModelSlugs),
-    [piFavoriteModelSlugs],
-  );
   const favoriteModelSlugSets = useMemo(
     () => ({
-      cursor: cursorFavoriteModelSlugSet,
-      kilo: kiloFavoriteModelSlugSet,
       opencode: openCodeFavoriteModelSlugSet,
-      pi: piFavoriteModelSlugSet,
     }),
-    [
-      cursorFavoriteModelSlugSet,
-      kiloFavoriteModelSlugSet,
-      openCodeFavoriteModelSlugSet,
-      piFavoriteModelSlugSet,
-    ],
+    [openCodeFavoriteModelSlugSet],
   );
   const handleModelChange = (provider: ProviderKind, value: string) => {
     if (props.disabled) return;
@@ -297,23 +257,10 @@ export const ProviderModelMenuItems = memo(function ProviderModelMenuItems(
     onAfterSelection?.();
   };
   const toggleFavoriteModel = useCallback(
-    (provider: FavoriteModelProvider, slug: string) => {
-      const setFavoriteModelSlugs =
-        provider === "cursor"
-          ? setCursorFavoriteModelSlugs
-          : provider === "kilo"
-            ? setKiloFavoriteModelSlugs
-            : provider === "pi"
-              ? setPiFavoriteModelSlugs
-              : setOpenCodeFavoriteModelSlugs;
-      setFavoriteModelSlugs((current) => toggleFavoriteModelSlug(current, slug));
+    (_provider: FavoriteModelProvider, slug: string) => {
+      setOpenCodeFavoriteModelSlugs((current) => toggleFavoriteModelSlug(current, slug));
     },
-    [
-      setCursorFavoriteModelSlugs,
-      setKiloFavoriteModelSlugs,
-      setOpenCodeFavoriteModelSlugs,
-      setPiFavoriteModelSlugs,
-    ],
+    [setOpenCodeFavoriteModelSlugs],
   );
 
   const renderModelRadioGroup = (provider: ProviderKind) => {
@@ -332,10 +279,10 @@ export const ProviderModelMenuItems = memo(function ProviderModelMenuItems(
 
     const providerOptions = props.modelOptionsByProvider[provider];
     const shouldShowSearch =
-      (provider === "kilo" ||
+      (provider === "opencode" ||
         provider === "opencode" ||
-        provider === "cursor" ||
-        provider === "pi") &&
+        provider === "opencode" ||
+        provider === "opencode") &&
       providerOptions.length >= SEARCHABLE_MODEL_PICKER_THRESHOLD;
     const normalizedModelSearchQuery = deferredModelSearchQuery.trim().toLowerCase();
     const filteredOptions =
@@ -374,7 +321,7 @@ export const ProviderModelMenuItems = memo(function ProviderModelMenuItems(
         </MenuRadioGroup>
       ) : (
         <div className="px-2 py-2 text-muted-foreground text-sm">
-          {provider === "pi" && normalizedModelSearchQuery.length === 0
+          {provider === "opencode" && normalizedModelSearchQuery.length === 0
             ? "No Pi models found"
             : "No matches"}
         </div>

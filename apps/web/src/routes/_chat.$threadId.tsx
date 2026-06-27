@@ -317,7 +317,7 @@ function SplitPaneEmbeddedPanel(props: {
 
       const onPointerUp = () => {
         removePanelResizeOverlay(resizeOverlay);
-        document.body.style.removeProperty("cursor");
+        document.body.style.removeProperty("opencode");
         document.body.style.removeProperty("user-select");
         resizeOverlay.removeEventListener("pointermove", onPointerMove);
         resizeOverlay.removeEventListener("pointerup", onPointerUp);

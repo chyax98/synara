@@ -151,7 +151,7 @@ export function createShellSnapshotFromReadModel(
         createdAt: thread.createdAt,
         updatedAt: thread.updatedAt,
         archivedAt: thread.archivedAt ?? null,
-        handoff: thread.handoff ?? null,
+
         session: thread.session,
       })),
     updatedAt: snapshot.updatedAt,

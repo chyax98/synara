@@ -1,23 +1,45 @@
-import { assert, it } from "@effect/vitest";
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
 
-import { normalizePersistedModelSelection } from "./modelSelectionCompatibility.ts";
+import {
+  normalizeLegacyModelSelection,
+  normalizePersistedModelSelection,
+} from "./modelSelectionCompatibility.ts";
 
-it("preserves canonical Pi model selections", () => {
-  assert.deepEqual(normalizePersistedModelSelection({ provider: "pi", model: "openai/gpt-5.5" }), {
-    provider: "pi",
-    model: "openai/gpt-5.5",
+describe("modelSelectionCompatibility", () => {
+  it("maps legacy provider literals to opencode", () => {
+    assert.deepEqual(normalizePersistedModelSelection({ provider: "pi", model: "openai/gpt-5.5" }), {
+      provider: "opencode",
+      model: "openai/gpt-5.5",
+    });
+    assert.deepEqual(
+      normalizePersistedModelSelection({
+        provider: "claudeAgent",
+        model: "claude-sonnet-4-6",
+      }),
+      {
+        provider: "opencode",
+        model: "claude-sonnet-4-6",
+      },
+    );
   });
-});
 
-it("infers Pi from persisted instance labels", () => {
-  assert.deepEqual(
-    normalizePersistedModelSelection({
-      instanceId: "local-pi-runtime-instance",
-      model: "openai/gpt-5.5",
-    }),
-    {
-      provider: "pi",
-      model: "openai/gpt-5.5",
-    },
-  );
+  it("normalizes legacy provider-scoped options into opencode options", () => {
+    assert.deepEqual(
+      normalizeLegacyModelSelection({
+        provider: "codex",
+        model: "gpt-5.4",
+        options: {
+          codex: { reasoningEffort: "high" },
+        },
+      }),
+      {
+        provider: "opencode",
+        model: "gpt-5.4",
+        options: {
+          codex: { reasoningEffort: "high" },
+        },
+      },
+    );
+  });
 });

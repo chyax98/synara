@@ -25,9 +25,7 @@ import { APP_DISPLAY_NAME } from "../branding";
 import { DesktopWindowControls } from "../components/DesktopWindowControls";
 import { SETTINGS_TARGETS } from "../settingsNavigation";
 import ShortcutsDialog from "../components/ShortcutsDialog";
-import WhatsNewDialog from "../components/WhatsNewDialog";
-import { useWhatsNew } from "../whatsNew/useWhatsNew";
-import { WhatsNewPopoutCard } from "../whatsNew/WhatsNewPopoutCard";
+
 import { shouldRenderTerminalWorkspace } from "../components/ChatView.logic";
 import { Button, dialogActionButtonClassName } from "../components/ui/button";
 import { AnchoredToastProvider, ToastProvider, toastManager } from "../components/ui/toast";
@@ -191,7 +189,7 @@ function RootRouteView() {
           <GitProgressToastPreviewDev />
           <EventRouter />
           <GlobalShortcutsDialog />
-          <GlobalWhatsNewSurface />
+
           <TaskCompletionNotifications />
           <ProviderUpdateNotifications />
           <DesktopProjectBootstrap />
@@ -514,47 +512,6 @@ function GlobalShortcutsDialog() {
         terminalWorkspaceOpen,
       }}
     />
-  );
-}
-
-function GlobalWhatsNewSurface() {
-  // Single mount point per app session. The hook owns the "popout visible" and
-  // "dialog open" booleans and the seen-marker persistence; this component is
-  // just the plumbing that renders them together so they share one entry.
-  const {
-    currentEntry,
-    allEntries,
-    currentVersion,
-    isPopoutVisible,
-    isDialogOpen,
-    openDialog,
-    dismissPopout,
-    onDialogOpenChange,
-  } = useWhatsNew();
-
-  if (!currentEntry) {
-    // Silent-bootstrap or noop — nothing to render on either surface.
-    return null;
-  }
-
-  return (
-    <>
-      {isPopoutVisible && (
-        <WhatsNewPopoutCard
-          entry={currentEntry}
-          currentVersion={currentVersion}
-          onOpen={openDialog}
-          onDismiss={dismissPopout}
-        />
-      )}
-      <WhatsNewDialog
-        open={isDialogOpen}
-        onOpenChange={onDialogOpenChange}
-        currentEntry={currentEntry}
-        allEntries={allEntries}
-        currentVersion={currentVersion}
-      />
-    </>
   );
 }
 
@@ -1331,16 +1288,16 @@ function EventRouter() {
         // Model and agent discovery can depend on auth, availability, and installed versions,
         // but not on every provider-status timestamp replay.
         void queryClient.invalidateQueries({
-          queryKey: ["provider-discovery", "models", "kilo"],
+          queryKey: ["provider-discovery", "models", "opencode"],
         });
         void queryClient.invalidateQueries({
           queryKey: ["provider-discovery", "models", "opencode"],
         });
         void queryClient.invalidateQueries({
-          queryKey: ["provider-discovery", "models", "cursor"],
+          queryKey: ["provider-discovery", "models", "opencode"],
         });
         void queryClient.invalidateQueries({
-          queryKey: providerDiscoveryQueryKeys.agentsForProvider("kilo"),
+          queryKey: providerDiscoveryQueryKeys.agentsForProvider("opencode"),
         });
         void queryClient.invalidateQueries({
           queryKey: providerDiscoveryQueryKeys.agentsForProvider("opencode"),

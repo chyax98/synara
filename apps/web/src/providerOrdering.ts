@@ -5,16 +5,7 @@
 
 import type { ProviderKind } from "@t3tools/contracts";
 
-export const DEFAULT_PROVIDER_ORDER: readonly ProviderKind[] = [
-  "codex",
-  "claudeAgent",
-  "cursor",
-  "gemini",
-  "grok",
-  "kilo",
-  "opencode",
-  "pi",
-];
+export const DEFAULT_PROVIDER_ORDER: readonly ProviderKind[] = ["opencode"];
 
 const PROVIDER_KIND_SET: ReadonlySet<ProviderKind> = new Set(DEFAULT_PROVIDER_ORDER);
 

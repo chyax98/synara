@@ -38,17 +38,14 @@ import { ShortcutKbd } from "../ui/shortcut-kbd";
 
 const ULTRATHINK_PROMPT_PREFIX = "Ultrathink:\n";
 
-function defaultAgentForProvider(provider: ProviderKind): string | null {
-  if (provider === "kilo") return "code";
-  if (provider === "opencode") return "build";
-  return null;
+function defaultAgentForProvider(_provider: ProviderKind): string | null {
+  return "build";
 }
 
 function getAgentOptions(
-  provider: ProviderKind,
+  _provider: ProviderKind,
   runtimeAgents: ReadonlyArray<ProviderAgentDescriptor> | null | undefined,
 ): ReadonlyArray<ProviderAgentDescriptor> {
-  if (provider !== "kilo" && provider !== "opencode") return [];
   return runtimeAgents ?? [];
 }
 
@@ -104,7 +101,7 @@ export function resolveTraitsTriggerSummary(options: {
     options.modelOptions,
     options.runtimeModel,
   );
-  const supportsFastModeControl = fastModeDescriptor !== null || caps.supportsFastMode;
+  const supportsFastModeControl = fastModeDescriptor !== null;
   // Providers whose only trait control is the fast toggle surface it as the
   // primary label ("Fast"/"Default") instead of the appended badge.
   const isFastOnlyControl =
@@ -134,8 +131,7 @@ export function resolveTraitsTriggerSummary(options: {
   const agentOptions = getAgentOptions(options.provider, options.runtimeAgents);
   const selectedAgent = getSelectedAgentValue(options.provider, options.modelOptions);
   const agentLabel = findAgentLabel(agentOptions, selectedAgent);
-  // Agent name stands in as the primary label for agent-driven providers
-  // (kilo/opencode) that expose no effort/thinking controls.
+  // Agent name stands in as the primary label when OpenCode exposes no effort/thinking controls.
   const resolvedPrimaryLabel = primaryLabel ?? agentLabel;
   const showsFastBadge = supportsFastModeControl && fastModeEnabled && !isFastOnlyControl;
   const summaryText = [resolvedPrimaryLabel, showsFastBadge ? "Fast" : null, contextWindowLabel]
@@ -261,7 +257,7 @@ export const TraitsMenuContent = memo(function TraitsMenuContentImpl({
     { caps, effortLevels, thinkingEnabled, contextWindowOptions, fastModeDescriptor },
     { includeFastMode },
   );
-  const supportsFastModeControl = fastModeDescriptor !== null || caps.supportsFastMode;
+  const supportsFastModeControl = fastModeDescriptor !== null;
   const agentOptions = getAgentOptions(provider, runtimeAgents);
   const defaultAgent = defaultAgentForProvider(provider);
   const selectedAgent = getSelectedAgentValue(provider, modelOptions);
@@ -301,17 +297,7 @@ export const TraitsMenuContent = memo(function TraitsMenuContentImpl({
         onSelectionComplete?.();
         return;
       }
-      const optionId =
-        primarySelectDescriptor?.id ??
-        (provider === "kilo" || provider === "opencode"
-          ? "variant"
-          : provider === "pi"
-            ? "thinkingLevel"
-            : provider === "claudeAgent"
-              ? "effort"
-              : provider === "gemini"
-                ? "thinkingLevel"
-                : "reasoningEffort");
+      const optionId = primarySelectDescriptor?.id ?? "variant";
       commitTrait(buildProviderOptionPatch(provider, optionId, nextOption.value));
     },
     [
@@ -365,7 +351,7 @@ export const TraitsMenuContent = memo(function TraitsMenuContentImpl({
         <>
           {hasPriorEffortSection ? <MenuDivider /> : null}
           <TraitRadioSection
-            label={provider === "kilo" || provider === "opencode" ? "Variant" : "Effort"}
+            label="Variant"
             note={
               ultrathinkPromptControlled ? (
                 <div className="px-2 pb-1.5 text-muted-foreground/80 text-xs">
@@ -405,7 +391,7 @@ export const TraitsMenuContent = memo(function TraitsMenuContentImpl({
         <>
           {hasVisibleControls ? <MenuDivider /> : null}
           <TraitRadioSection
-            label={provider === "kilo" ? "Mode" : "Agent"}
+            label="Agent"
             value={selectedAgent ?? defaultAgent ?? ""}
             options={agentOptions.map((agent) => ({
               value: agent.name,
@@ -510,8 +496,6 @@ export const TraitsPicker = memo(function TraitsPicker({
     runtimeAgents,
   });
 
-  const isCodexStyle = provider === "codex";
-
   const triggerButton = (
     <Button
       size="sm"
@@ -526,35 +510,6 @@ export const TraitsPicker = memo(function TraitsPicker({
     <span className="flex min-w-0 items-center gap-1">
       <SettingsIcon aria-hidden="true" className="size-3.5 shrink-0 opacity-75" />
       {hiddenLabelTitle.length > 0 ? <span className="sr-only">{hiddenLabelTitle}</span> : null}
-      <ChevronDownIcon aria-hidden="true" className="size-3 shrink-0 opacity-60" />
-    </span>
-  ) : isCodexStyle ? (
-    <span className="flex min-w-0 w-full items-center gap-2 overflow-hidden">
-      <SettingsIcon aria-hidden="true" className="size-3.5 shrink-0 opacity-75" />
-      <span className="min-w-0 flex flex-1 items-center gap-1.5 truncate">
-        {visiblePrimaryTriggerLabel ? (
-          <span className="truncate">{visiblePrimaryTriggerLabel}</span>
-        ) : (
-          <span className="truncate">Options</span>
-        )}
-        {showsFastBadge ? (
-          <>
-            <span className="shrink-0 text-muted-foreground/45">·</span>
-            <span className="inline-flex shrink-0 items-center gap-1">
-              <IoFlash aria-hidden="true" className="size-3 text-[hsl(var(--chart-4))]" />
-              <span>Fast</span>
-            </span>
-          </>
-        ) : null}
-        {contextWindowLabel ? (
-          <>
-            {visiblePrimaryTriggerLabel || showsFastBadge ? (
-              <span className="shrink-0 text-muted-foreground/45">·</span>
-            ) : null}
-            <span className="shrink-0">{contextWindowLabel}</span>
-          </>
-        ) : null}
-      </span>
       <ChevronDownIcon aria-hidden="true" className="size-3 shrink-0 opacity-60" />
     </span>
   ) : (

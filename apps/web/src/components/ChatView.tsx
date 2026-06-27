@@ -13,6 +13,7 @@ import {
   type ProjectId,
   type ProviderApprovalDecision,
   type ProviderAgentDescriptor,
+  type ProviderModelDescriptor,
   type ProviderMentionReference,
   type ProviderNativeCommandDescriptor,
   type ProviderPluginDescriptor,
@@ -235,7 +236,7 @@ import {
 import { useTheme } from "../hooks/useTheme";
 import { useThreadWorkspaceHandoff } from "../hooks/useThreadWorkspaceHandoff";
 import { useComposerCommandMenuItems } from "../hooks/useComposerCommandMenuItems";
-import { useThreadHandoff } from "../hooks/useThreadHandoff";
+
 import { useTurnDiffSummaries } from "../hooks/useTurnDiffSummaries";
 import BranchToolbar, { RuntimeUsageControls } from "./BranchToolbar";
 import { SynaraLogo } from "./SynaraLogo";
@@ -499,13 +500,9 @@ import {
 import { useLocalStorage } from "~/hooks/useLocalStorage";
 import { useComposerSlashCommands } from "../hooks/useComposerSlashCommands";
 import { useFeatureFlags } from "../featureFlags";
-import { mergeCursorModelVariantsWithBaseControls } from "../cursorModelVariants";
+
 import { useHandleNewThread } from "../hooks/useHandleNewThread";
-import {
-  canCreateThreadHandoff,
-  resolveAvailableHandoffTargetProviders,
-  resolveThreadHandoffBadgeLabel,
-} from "../lib/threadHandoff";
+
 import {
   resolveDiffEnvironmentState,
   resolveThreadEnvironmentMode,
@@ -636,26 +633,9 @@ function getConfirmedCustomBinarySessionKey(
 
 function getProviderStartOptionsCustomBinaryPath(
   providerOptions: ProviderStartOptions | undefined,
-  provider: ProviderKind,
+  _provider: ProviderKind,
 ): string | null {
-  switch (provider) {
-    case "codex":
-      return normalizeCustomBinaryPath(providerOptions?.codex?.binaryPath);
-    case "claudeAgent":
-      return normalizeCustomBinaryPath(providerOptions?.claudeAgent?.binaryPath);
-    case "gemini":
-      return normalizeCustomBinaryPath(providerOptions?.gemini?.binaryPath);
-    case "grok":
-      return normalizeCustomBinaryPath(providerOptions?.grok?.binaryPath);
-    case "kilo":
-      return normalizeCustomBinaryPath(providerOptions?.kilo?.binaryPath);
-    case "opencode":
-      return normalizeCustomBinaryPath(providerOptions?.opencode?.binaryPath);
-    case "cursor":
-      return normalizeCustomBinaryPath(providerOptions?.cursor?.binaryPath);
-    case "pi":
-      return normalizeCustomBinaryPath(providerOptions?.pi?.binaryPath);
-  }
+  return normalizeCustomBinaryPath(providerOptions?.opencode?.binaryPath);
 }
 
 function getProviderHealthBannerDismissalKey(status: ServerProviderStatus | null): string | null {
@@ -896,7 +876,7 @@ export default function ChatView({
   const navigate = useNavigate();
   const { handleNewThread } = useHandleNewThread();
   const { handleNewChat } = useHandleNewChat();
-  const { createThreadHandoff } = useThreadHandoff();
+
   const rawSearch = useDiffRouteSearch();
   const activeSplitView = useSplitViewStore(selectSplitView(rawSearch.splitViewId ?? null));
   const removeThreadFromSplitViews = useSplitViewStore((store) => store.removeThreadFromSplitViews);
@@ -1350,8 +1330,8 @@ export default function ChatView({
             threadId,
             draftThread,
             fallbackDraftProject?.defaultModelSelection ?? {
-              provider: "codex",
-              model: DEFAULT_MODEL_BY_PROVIDER.codex,
+              provider: "opencode",
+              model: DEFAULT_MODEL_BY_PROVIDER.opencode,
             },
             localDraftError,
           )
@@ -1709,20 +1689,13 @@ export default function ChatView({
     const projectModelSelection = activeProject?.defaultModelSelection ?? null;
     const draftSelections = composerDraft.modelSelectionByProvider;
 
-    const resolveHint = (provider: ProviderKind): string | null =>
-      draftSelections[provider]?.model ??
-      (threadModelSelection?.provider === provider ? threadModelSelection.model : null) ??
-      (projectModelSelection?.provider === provider ? projectModelSelection.model : null);
+    const resolveHint = (): string | null =>
+      draftSelections.opencode?.model ??
+      (threadModelSelection?.provider === "opencode" ? threadModelSelection.model : null) ??
+      (projectModelSelection?.provider === "opencode" ? projectModelSelection.model : null);
 
     return {
-      codex: resolveHint("codex"),
-      claudeAgent: resolveHint("claudeAgent"),
-      cursor: resolveHint("cursor"),
-      gemini: resolveHint("gemini"),
-      grok: resolveHint("grok"),
-      kilo: resolveHint("kilo"),
-      opencode: resolveHint("opencode"),
-      pi: resolveHint("pi"),
+      opencode: resolveHint(),
     };
   }, [
     activeProject?.defaultModelSelection,
@@ -1734,38 +1707,8 @@ export default function ChatView({
     activeProjectCwd: activeProject?.cwd ?? null,
     serverCwd: serverConfigQuery.data?.cwd ?? null,
   });
-  const claudeDynamicModelsQuery = useQuery(
-    providerModelsQueryOptions({ provider: "claudeAgent" }),
-  );
-  const codexDynamicModelsQuery = useQuery(providerModelsQueryOptions({ provider: "codex" }));
   const openCodeModelDiscoveryEnabled =
     selectedProvider === "opencode" || lockedProvider === "opencode" || isModelPickerOpen;
-  const kiloModelDiscoveryEnabled =
-    selectedProvider === "kilo" || lockedProvider === "kilo" || isModelPickerOpen;
-  const piModelDiscoveryEnabled =
-    selectedProvider === "pi" || lockedProvider === "pi" || isModelPickerOpen;
-  const cursorDynamicModelsQuery = useQuery(
-    providerModelsQueryOptions({
-      provider: "cursor",
-      binaryPath: settings.cursorBinaryPath || null,
-      apiEndpoint: settings.cursorApiEndpoint || null,
-      enabled: selectedProvider === "cursor" || lockedProvider === "cursor" || isModelPickerOpen,
-    }),
-  );
-  const geminiModelsQuery = useQuery(
-    providerModelsQueryOptions({
-      provider: "gemini",
-      binaryPath: settings.geminiBinaryPath || null,
-      enabled: selectedProvider === "gemini" || lockedProvider === "gemini",
-    }),
-  );
-  const grokDynamicModelsQuery = useQuery(
-    providerModelsQueryOptions({
-      provider: "grok",
-      binaryPath: settings.grokBinaryPath || null,
-      enabled: selectedProvider === "grok" || lockedProvider === "grok" || isModelPickerOpen,
-    }),
-  );
   const openCodeDynamicModelsQuery = useQuery(
     providerModelsQueryOptions({
       provider: "opencode",
@@ -1774,27 +1717,6 @@ export default function ChatView({
       enabled: openCodeModelDiscoveryEnabled,
     }),
   );
-  const kiloDynamicModelsQuery = useQuery(
-    providerModelsQueryOptions({
-      provider: "kilo",
-      binaryPath: settings.kiloBinaryPath || null,
-      cwd: providerModelDiscoveryCwd,
-      enabled: kiloModelDiscoveryEnabled,
-    }),
-  );
-  const piDynamicModelsQuery = useQuery(
-    providerModelsQueryOptions({
-      provider: "pi",
-      binaryPath: settings.piBinaryPath || null,
-      agentDir: settings.piAgentDir || null,
-      cwd: providerModelDiscoveryCwd,
-      enabled: piModelDiscoveryEnabled,
-    }),
-  );
-  const claudeDynamicAgentsQuery = useQuery(
-    providerAgentsQueryOptions({ provider: "claudeAgent" }),
-  );
-  const codexDynamicAgentsQuery = useQuery(providerAgentsQueryOptions({ provider: "codex" }));
   const openCodeDynamicAgentsQuery = useQuery(
     providerAgentsQueryOptions({
       provider: "opencode",
@@ -1803,39 +1725,6 @@ export default function ChatView({
       enabled: openCodeModelDiscoveryEnabled,
     }),
   );
-  const kiloDynamicAgentsQuery = useQuery(
-    providerAgentsQueryOptions({
-      provider: "kilo",
-      binaryPath: settings.kiloBinaryPath || null,
-      cwd: providerModelDiscoveryCwd,
-      enabled: kiloModelDiscoveryEnabled,
-    }),
-  );
-  const cursorRuntimeModels = useMemo(
-    () =>
-      showExpandedCursorModelVariants
-        ? (cursorDynamicModelsQuery.data?.models ?? [])
-        : mergeCursorModelVariantsWithBaseControls(cursorDynamicModelsQuery.data?.models ?? []),
-    [cursorDynamicModelsQuery.data?.models, showExpandedCursorModelVariants],
-  );
-  const cursorModelDiscoveryEnabled =
-    selectedProvider === "cursor" || lockedProvider === "cursor" || isModelPickerOpen;
-  const hasResolvedCursorModelDiscovery =
-    (cursorDynamicModelsQuery.data?.source === "cursor.cli" ||
-      cursorDynamicModelsQuery.data?.source === "cursor.acp") &&
-    (cursorDynamicModelsQuery.data.models.length ?? 0) > 0;
-  const cursorModelDiscoveryPending =
-    cursorModelDiscoveryEnabled &&
-    !hasResolvedCursorModelDiscovery &&
-    (cursorDynamicModelsQuery.isLoading || cursorDynamicModelsQuery.isFetching);
-  const hasResolvedKiloModelDiscovery =
-    (kiloDynamicModelsQuery.data?.source === "kilo-cli" ||
-      kiloDynamicModelsQuery.data?.source === "kilo") &&
-    (kiloDynamicModelsQuery.data.models.length ?? 0) > 0;
-  const kiloModelDiscoveryPending =
-    kiloModelDiscoveryEnabled &&
-    !hasResolvedKiloModelDiscovery &&
-    (kiloDynamicModelsQuery.isLoading || kiloDynamicModelsQuery.isFetching);
   const hasResolvedOpenCodeModelDiscovery =
     (openCodeDynamicModelsQuery.data?.source === "opencode-cli" ||
       openCodeDynamicModelsQuery.data?.source === "opencode") &&
@@ -1844,104 +1733,28 @@ export default function ChatView({
     openCodeModelDiscoveryEnabled &&
     !hasResolvedOpenCodeModelDiscovery &&
     (openCodeDynamicModelsQuery.isLoading || openCodeDynamicModelsQuery.isFetching);
-  const hasResolvedPiModelDiscovery =
-    piDynamicModelsQuery.data?.source?.startsWith("pi.sdk") === true &&
-    (piDynamicModelsQuery.data.models.length ?? 0) > 0;
-  const piModelDiscoveryPending =
-    piModelDiscoveryEnabled &&
-    !hasResolvedPiModelDiscovery &&
-    (piDynamicModelsQuery.isLoading || piDynamicModelsQuery.isFetching);
   const modelOptionsByProvider = useMemo(() => {
-    const staticOptions: Record<ProviderKind, ReturnType<typeof getAppModelOptions>> = {
-      codex: getAppModelOptions(
-        "codex",
-        customModelsByProvider.codex,
-        composerModelHintByProvider.codex,
-      ),
-      claudeAgent: getAppModelOptions(
-        "claudeAgent",
-        customModelsByProvider.claudeAgent,
-        composerModelHintByProvider.claudeAgent,
-      ),
-      cursor: getAppModelOptions(
-        "cursor",
-        customModelsByProvider.cursor,
-        composerModelHintByProvider.cursor,
-      ),
-      gemini: getAppModelOptions(
-        "gemini",
-        customModelsByProvider.gemini,
-        composerModelHintByProvider.gemini,
-      ),
-      grok: getAppModelOptions(
-        "grok",
-        customModelsByProvider.grok,
-        composerModelHintByProvider.grok,
-      ),
-      kilo: getAppModelOptions(
-        "kilo",
-        customModelsByProvider.kilo,
-        composerModelHintByProvider.kilo,
-      ),
-      opencode: getAppModelOptions(
-        "opencode",
-        customModelsByProvider.opencode,
-        composerModelHintByProvider.opencode,
-      ),
-      pi: getAppModelOptions("pi", customModelsByProvider.pi, composerModelHintByProvider.pi),
-    };
-    const result: Record<
-      ProviderKind,
-      ReadonlyArray<ProviderModelOption & { isCustom?: boolean }>
-    > = { ...staticOptions };
-
-    const dynamicSources: Record<ProviderKind, typeof claudeDynamicModelsQuery.data> = {
-      claudeAgent: claudeDynamicModelsQuery.data,
-      codex: codexDynamicModelsQuery.data,
-      cursor:
-        cursorDynamicModelsQuery.data === undefined
-          ? undefined
-          : { ...cursorDynamicModelsQuery.data, models: cursorRuntimeModels },
-      gemini: geminiModelsQuery.data,
-      grok: grokDynamicModelsQuery.data,
-      kilo: kiloDynamicModelsQuery.data,
-      opencode: openCodeDynamicModelsQuery.data,
-      pi: piDynamicModelsQuery.data,
-    };
-
-    for (const provider of [
-      "claudeAgent",
-      "codex",
-      "cursor",
-      "gemini",
-      "grok",
-      "kilo",
+    const staticOptions = getAppModelOptions(
       "opencode",
-      "pi",
-    ] as const) {
-      const dynamicModels = dynamicSources[provider]?.models;
-      if (dynamicModels && dynamicModels.length > 0) {
-        result[provider] = mergeDynamicModelOptions({
-          provider,
-          staticOptions: staticOptions[provider],
-          dynamicModels,
-        });
-      }
-    }
-
-    return result;
+      customModelsByProvider.opencode,
+      composerModelHintByProvider.opencode,
+    );
+    const dynamicModels = openCodeDynamicModelsQuery.data?.models;
+    const opencodeOptions =
+      dynamicModels && dynamicModels.length > 0
+        ? mergeDynamicModelOptions({
+            provider: "opencode",
+            staticOptions,
+            dynamicModels,
+          })
+        : staticOptions;
+    return {
+      opencode: opencodeOptions,
+    } as Record<ProviderKind, ReadonlyArray<ProviderModelOption & { isCustom?: boolean }>>;
   }, [
-    claudeDynamicModelsQuery.data,
-    composerModelHintByProvider,
-    codexDynamicModelsQuery.data,
-    cursorDynamicModelsQuery.data,
-    cursorRuntimeModels,
-    customModelsByProvider,
-    geminiModelsQuery.data,
-    grokDynamicModelsQuery.data,
-    kiloDynamicModelsQuery.data,
+    composerModelHintByProvider.opencode,
+    customModelsByProvider.opencode,
     openCodeDynamicModelsQuery.data,
-    piDynamicModelsQuery.data,
   ]);
   const { modelOptions: composerModelOptions, selectedModel } = useEffectiveComposerModelState({
     threadId,
@@ -1953,35 +1766,12 @@ export default function ChatView({
   });
   const runtimeModelsByProvider = useMemo(
     () => ({
-      claudeAgent: claudeDynamicModelsQuery.data?.models ?? [],
-      codex: codexDynamicModelsQuery.data?.models ?? [],
-      cursor: cursorRuntimeModels,
-      gemini: geminiModelsQuery.data?.models ?? [],
-      grok: grokDynamicModelsQuery.data?.models ?? [],
-      kilo: kiloDynamicModelsQuery.data?.models ?? [],
       opencode: openCodeDynamicModelsQuery.data?.models ?? [],
-      pi: piDynamicModelsQuery.data?.models ?? [],
     }),
-    [
-      claudeDynamicModelsQuery.data?.models,
-      codexDynamicModelsQuery.data?.models,
-      cursorRuntimeModels,
-      geminiModelsQuery.data?.models,
-      grokDynamicModelsQuery.data?.models,
-      kiloDynamicModelsQuery.data?.models,
-      openCodeDynamicModelsQuery.data?.models,
-      piDynamicModelsQuery.data?.models,
-    ],
-  );
+    [openCodeDynamicModelsQuery.data?.models],
+  ) as Record<ProviderKind, ReadonlyArray<ProviderModelDescriptor>>;
   const providerModelsQueryByProvider = {
-    claudeAgent: claudeDynamicModelsQuery,
-    codex: codexDynamicModelsQuery,
-    cursor: cursorDynamicModelsQuery,
-    gemini: geminiModelsQuery,
-    grok: grokDynamicModelsQuery,
-    kilo: kiloDynamicModelsQuery,
     opencode: openCodeDynamicModelsQuery,
-    pi: piDynamicModelsQuery,
   } as const;
   const selectedRuntimeModel = useMemo(
     () =>
@@ -2008,7 +1798,7 @@ export default function ChatView({
   const draftModelSelectionForSelectedProvider =
     composerDraft.modelSelectionByProvider[selectedProvider] ?? null;
   const selectedModelSelection = useMemo<ModelSelection>(() => {
-    if (selectedProvider === "pi" && draftModelSelectionForSelectedProvider?.provider === "pi") {
+    if (selectedProvider === "opencode" && draftModelSelectionForSelectedProvider?.provider === "opencode") {
       return buildModelSelection(
         selectedProvider,
         draftModelSelectionForSelectedProvider.model,
@@ -2041,33 +1831,15 @@ export default function ChatView({
       : (activeThread?.modelSelection ?? activeProject?.defaultModelSelection ?? null);
   const selectedProviderModelsQuery = providerModelsQueryByProvider[selectedProvider];
   const providerModelsLoading =
-    selectedProvider === "cursor"
-      ? cursorModelDiscoveryPending
-      : selectedProvider === "kilo"
-        ? kiloModelDiscoveryPending
-        : selectedProvider === "opencode"
-          ? openCodeModelDiscoveryPending
-          : selectedProvider === "pi"
-            ? piModelDiscoveryPending
-            : selectedProviderModelsQuery !== undefined &&
-              (selectedProviderModelsQuery.isLoading ||
-                (selectedProviderModelsQuery.isFetching &&
-                  selectedProviderModelsQuery.data === undefined));
-  const selectedProviderRequiresRuntimeModels =
-    selectedProvider === "cursor" ||
-    selectedProvider === "kilo" ||
-    selectedProvider === "opencode" ||
-    selectedProvider === "pi";
+    selectedProvider === "opencode"
+      ? openCodeModelDiscoveryPending
+      : selectedProviderModelsQuery !== undefined &&
+        (selectedProviderModelsQuery.isLoading ||
+          (selectedProviderModelsQuery.isFetching &&
+            selectedProviderModelsQuery.data === undefined));
+  const selectedProviderRequiresRuntimeModels = selectedProvider === "opencode";
   const selectedProviderRuntimeModelDiscoveryPending =
-    selectedProvider === "cursor"
-      ? cursorModelDiscoveryPending
-      : selectedProvider === "kilo"
-        ? kiloModelDiscoveryPending
-        : selectedProvider === "opencode"
-          ? openCodeModelDiscoveryPending
-          : selectedProvider === "pi"
-            ? piModelDiscoveryPending
-            : false;
+    selectedProvider === "opencode" ? openCodeModelDiscoveryPending : false;
   const showComposerModelBootstrapSkeleton = shouldShowComposerModelBootstrapSkeleton({
     selectedProvider,
     selectedModel,
@@ -2403,17 +2175,7 @@ export default function ChatView({
     showPlanFollowUpPrompt,
   });
   const composerFooterHasWideActions = showPlanFollowUpPrompt || activePendingProgress !== null;
-  const handoffDisabled = !(
-    activeThread &&
-    activeProject &&
-    isServerThread &&
-    canCreateThreadHandoff({
-      thread: activeThread,
-      isBusy: isWorking,
-      hasPendingApprovals: pendingApprovals.length > 0,
-      hasPendingUserInput: pendingUserInputs.length > 0,
-    })
-  );
+
   const lastSyncedPendingInputRef = useRef<{
     requestId: string | null;
     questionId: string | null;
@@ -2866,29 +2628,11 @@ export default function ChatView({
       provider: selectedProvider,
       cwd: composerSkillCwd,
       threadId,
-      binaryPath:
-        (selectedProvider === "opencode"
-          ? providerOptionsForDispatch?.opencode?.binaryPath
-          : selectedProvider === "kilo"
-            ? providerOptionsForDispatch?.kilo?.binaryPath
-            : null) ?? null,
-      serverUrl:
-        (selectedProvider === "opencode"
-          ? providerOptionsForDispatch?.opencode?.serverUrl
-          : selectedProvider === "kilo"
-            ? providerOptionsForDispatch?.kilo?.serverUrl
-            : null) ?? null,
-      serverPassword:
-        (selectedProvider === "opencode"
-          ? providerOptionsForDispatch?.opencode?.serverPassword
-          : selectedProvider === "kilo"
-            ? providerOptionsForDispatch?.kilo?.serverPassword
-            : null) ?? null,
-      experimentalWebSockets:
-        selectedProvider === "opencode"
-          ? providerOptionsForDispatch?.opencode?.experimentalWebSockets
-          : undefined,
-      agentDir: selectedProvider === "pi" ? settings.piAgentDir || null : null,
+      binaryPath: providerOptionsForDispatch?.opencode?.binaryPath ?? null,
+      serverUrl: providerOptionsForDispatch?.opencode?.serverUrl ?? null,
+      serverPassword: providerOptionsForDispatch?.opencode?.serverPassword ?? null,
+      experimentalWebSockets: providerOptionsForDispatch?.opencode?.experimentalWebSockets,
+      agentDir: null,
       enabled:
         (composerTriggerKind === "slash-command" || composerTriggerKind === "slash-model") &&
         supportsNativeSlashCommandDiscovery(providerComposerCapabilitiesQuery.data) &&
@@ -2896,15 +2640,15 @@ export default function ChatView({
     }),
   );
   const canDiscoverProviderSkills =
-    selectedProvider === "pi" || supportsSkillDiscovery(providerComposerCapabilitiesQuery.data);
+    selectedProvider === "opencode" || supportsSkillDiscovery(providerComposerCapabilitiesQuery.data);
   const providerSkillsQuery = useQuery(
     providerSkillsQueryOptions({
       provider: selectedProvider,
       cwd: composerSkillCwd,
       threadId,
-      agentDir: selectedProvider === "pi" ? settings.piAgentDir || null : null,
+      agentDir: selectedProvider === "opencode" ? settings.piAgentDir || null : null,
       enabled:
-        (isSkillTrigger || composerTriggerKind === "slash-command" || selectedProvider === "pi") &&
+        (isSkillTrigger || composerTriggerKind === "slash-command" || selectedProvider === "opencode") &&
         canDiscoverProviderSkills &&
         composerSkillCwd !== null,
     }),
@@ -2980,7 +2724,7 @@ export default function ChatView({
     () => getModelCapabilities(selectedProvider, selectedModel),
     [selectedModel, selectedProvider],
   );
-  const supportsFastSlashCommand = selectedModelCaps.supportsFastMode;
+  const supportsFastSlashCommand = selectedRuntimeModel?.supportsFastMode === true;
   const currentProviderModelOptions = composerModelOptions?.[selectedProvider];
   const fastModeEnabled =
     supportsFastSlashCommand &&
@@ -3021,14 +2765,7 @@ export default function ChatView({
       interactionMode,
       isSidechat: Boolean(activeThread.sidechatSourceThreadId),
     });
-  const selectedDynamicAgents =
-    selectedProvider === "claudeAgent"
-      ? (claudeDynamicAgentsQuery.data?.agents ?? EMPTY_PROVIDER_AGENTS)
-      : selectedProvider === "kilo"
-        ? (kiloDynamicAgentsQuery.data?.agents ?? EMPTY_PROVIDER_AGENTS)
-        : selectedProvider === "opencode"
-          ? (openCodeDynamicAgentsQuery.data?.agents ?? EMPTY_PROVIDER_AGENTS)
-          : (codexDynamicAgentsQuery.data?.agents ?? EMPTY_PROVIDER_AGENTS);
+  const selectedDynamicAgents = openCodeDynamicAgentsQuery.data?.agents ?? EMPTY_PROVIDER_AGENTS;
   const dynamicAgents = useMemo(
     () =>
       selectedDynamicAgents.map((agent) =>
@@ -3205,24 +2942,7 @@ export default function ChatView({
         .flatMap((status) => (status ? [status] : [])),
     [confirmedCustomBinaryPathsByProvider, serverConfigQuery.data?.providers, settings],
   );
-  const handoffBadgeLabel = useMemo(
-    () => (activeThread ? resolveThreadHandoffBadgeLabel(activeThread) : null),
-    [activeThread],
-  );
-  const handoffBadgeSourceProvider = activeThread?.handoff?.sourceProvider ?? null;
-  const handoffBadgeTargetProvider = activeThread?.handoff
-    ? activeThread.modelSelection.provider
-    : null;
-  const handoffTargetProviders = useMemo(
-    () =>
-      activeThread
-        ? resolveAvailableHandoffTargetProviders(activeThread.modelSelection.provider).filter(
-            (provider) => isProviderUsable(findProviderStatus(providerStatuses, provider)),
-          )
-        : [],
-    [activeThread, providerStatuses],
-  );
-  const handoffActionLabel = activeThread ? "Hand off thread" : "Create handoff thread";
+
   const activeProviderStatus = useMemo(
     () => findProviderStatus(providerStatuses, selectedProvider),
     [selectedProvider, providerStatuses],
@@ -3237,7 +2957,7 @@ export default function ChatView({
       ? null
       : activeProviderStatus;
   const voiceProviderStatus = useMemo(
-    () => findProviderStatus(providerStatuses, "codex"),
+    () => findProviderStatus(providerStatuses, "opencode"),
     [providerStatuses],
   );
   const refreshVoiceStatus = useRefreshProviderStatusesNow();
@@ -5677,7 +5397,7 @@ export default function ChatView({
         return;
       }
       const result = await api.server.transcribeVoice({
-        provider: "codex",
+        provider: "opencode",
         cwd: activeProject.cwd,
         ...(activeThread ? { threadId: activeThread.id } : {}),
         ...payload,
@@ -5910,38 +5630,7 @@ export default function ChatView({
     [activeThread, hasLiveTurn, isConnecting, isRevertingCheckpoint, isSendBusy, setThreadError],
   );
 
-  const onCreateHandoffThread = useCallback(
-    async (targetProvider: ProviderKind) => {
-      if (!activeThread || handoffDisabled) {
-        return;
-      }
 
-      try {
-        const targetAvailability = resolveProviderSendAvailability({
-          provider: targetProvider,
-          statuses: providerStatuses,
-        });
-        if (!targetAvailability.usable) {
-          toastManager.add({
-            type: "error",
-            title: targetAvailability.unavailableReason,
-          });
-          return;
-        }
-        await createThreadHandoff(activeThread, targetProvider);
-      } catch (error) {
-        toastManager.add({
-          type: "error",
-          title: "Could not create handoff thread",
-          description:
-            error instanceof Error
-              ? error.message
-              : "An error occurred while creating the handoff thread.",
-        });
-      }
-    },
-    [activeThread, createThreadHandoff, handoffDisabled, providerStatuses],
-  );
 
   const clearComposerInput = useCallback(
     (threadId: ThreadId) => {
@@ -7189,7 +6878,7 @@ export default function ChatView({
           ? selectedModelSelectionForSend.model
           : selectedModelForSend ||
               targetProjectDefaultModelSelectionForSend?.model ||
-              DEFAULT_MODEL_BY_PROVIDER.codex,
+              DEFAULT_MODEL_BY_PROVIDER.opencode,
         selectedModelSelectionForSend.options,
       );
 
@@ -8077,7 +7766,7 @@ export default function ChatView({
         model: resolvedModel,
       };
       setComposerDraftModelSelection(activeThread.id, nextModelSelection);
-      if (provider === "cursor" && !showExpandedCursorModelVariants) {
+      if (provider === "opencode" && !showExpandedCursorModelVariants) {
         setComposerDraftProviderModelOptions(activeThread.id, provider, undefined, {
           persistSticky: true,
           model: resolvedModel,
@@ -8125,7 +7814,7 @@ export default function ChatView({
   const runtimeUsageContextWindow = useMemo(
     () =>
       activeContextWindow ??
-      (selectedProvider === "claudeAgent"
+      (selectedProvider === "opencode"
         ? deriveSelectedContextWindowSnapshot(composerTraitSelection.contextWindow)
         : null),
     [activeContextWindow, composerTraitSelection.contextWindow, selectedProvider],
@@ -8135,7 +7824,7 @@ export default function ChatView({
       deriveContextWindowSelectionStatus({
         activeSnapshot: runtimeUsageContextWindow,
         selectedValue:
-          selectedProvider === "claudeAgent" ? composerTraitSelection.contextWindow : null,
+          selectedProvider === "opencode" ? composerTraitSelection.contextWindow : null,
       }),
     [runtimeUsageContextWindow, composerTraitSelection.contextWindow, selectedProvider],
   );
@@ -8219,10 +7908,7 @@ export default function ChatView({
         providers={providerStatuses}
         modelOptionsByProvider={modelOptionsByProvider}
         loadingModelProviders={{
-          cursor: cursorModelDiscoveryPending,
-          kilo: kiloModelDiscoveryPending,
           opencode: openCodeModelDiscoveryPending,
-          pi: piModelDiscoveryPending,
         }}
         hiddenProviders={settings.hiddenProviders}
         providerOrder={settings.providerOrder}
@@ -8260,10 +7946,7 @@ export default function ChatView({
       providers={providerStatuses}
       modelOptionsByProvider={modelOptionsByProvider}
       loadingModelProviders={{
-        cursor: cursorModelDiscoveryPending,
-        kilo: kiloModelDiscoveryPending,
         opencode: openCodeModelDiscoveryPending,
-        pi: piModelDiscoveryPending,
       }}
       hiddenProviders={settings.hiddenProviders}
       providerOrder={settings.providerOrder}
@@ -8282,7 +7965,7 @@ export default function ChatView({
     />
   );
   const toggleFastMode = useCallback(() => {
-    if (!composerTraitSelection.caps.supportsFastMode) {
+    if (!composerTraitSelection.fastModeDescriptor) {
       scheduleComposerFocus();
       return;
     }
@@ -8296,7 +7979,7 @@ export default function ChatView({
     );
     scheduleComposerFocus();
   }, [
-    composerTraitSelection.caps.supportsFastMode,
+    composerTraitSelection.fastModeDescriptor,
     composerTraitSelection.fastModeEnabled,
     scheduleComposerFocus,
     selectedProvider,
@@ -8723,7 +8406,7 @@ export default function ChatView({
         return;
       }
       if (item.type === "provider-native-command") {
-        if (selectedProvider === "codex" && item.command.toLowerCase() === "review") {
+        if (item.command.toLowerCase() === "review") {
           setComposerCommandPicker("review-target");
           setComposerHighlightedItemId("review-target:changes");
           scheduleComposerFocus();
@@ -9231,7 +8914,7 @@ export default function ChatView({
     <>
       <ComposerExtrasMenu
         interactionMode={interactionMode}
-        supportsFastMode={composerTraitSelection.caps.supportsFastMode}
+        supportsFastMode={composerTraitSelection.fastModeDescriptor !== null}
         fastModeEnabled={composerTraitSelection.fastModeEnabled}
         onAddPhotos={addComposerImages}
         onToggleFastMode={toggleFastMode}
@@ -9898,7 +9581,7 @@ export default function ChatView({
             : {})}
           isSidechat={Boolean(activeThread.sidechatSourceThreadId)}
           hideSidebarControls={isEditorRail}
-          hideHandoffControls={terminalWorkspaceTerminalTabActive || isEditorRail}
+
           isGitRepo={isGitRepo}
           openInTarget={threadWorkspaceCwd}
           activeProjectScripts={isEditorRail ? undefined : activeProjectScripts}
@@ -9908,12 +9591,7 @@ export default function ChatView({
           keybindings={keybindings}
           availableEditors={availableEditors}
           diffToggleShortcutLabel={diffPanelShortcutLabel}
-          handoffBadgeLabel={handoffBadgeLabel}
-          handoffActionLabel={handoffActionLabel}
-          handoffDisabled={handoffDisabled}
-          handoffActionTargetProviders={handoffTargetProviders}
-          handoffBadgeSourceProvider={handoffBadgeSourceProvider}
-          handoffBadgeTargetProvider={handoffBadgeTargetProvider}
+
           gitCwd={threadWorkspaceCwd}
           diffTotals={repoDiffTotals}
           showGitActions={showGitActions && !isEditorRail}
@@ -9967,7 +9645,7 @@ export default function ChatView({
           onUpdateProjectScript={updateProjectScript}
           onDeleteProjectScript={deleteProjectScript}
           onToggleDiff={onToggleDiff}
-          onCreateHandoff={onCreateHandoffThread}
+
           onNavigateToThread={onNavigateToThread}
           onRenameThread={() => setRenameDialogOpen(true)}
           {...(onCloseThreadPane ? { onCloseThreadPane } : {})}

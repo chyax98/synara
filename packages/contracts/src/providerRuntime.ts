@@ -17,22 +17,7 @@ import { ProviderKind } from "./orchestration";
 const TrimmedNonEmptyStringSchema = TrimmedNonEmptyString;
 const UnknownRecordSchema = Schema.Record(Schema.String, Schema.Unknown);
 
-const RuntimeEventRawSource = Schema.Literals([
-  "codex.app-server.notification",
-  "codex.app-server.request",
-  "codex.eventmsg",
-  "claude.sdk.message",
-  "claude.sdk.permission",
-  "codex.sdk.thread-event",
-  "gemini.acp.message",
-  "gemini.acp.stdout",
-  "gemini.acp.stderr",
-  "acp.jsonrpc",
-  "acp.cursor.extension",
-  "kilo.sdk.event",
-  "opencode.sdk.event",
-  "pi.sdk.event",
-]);
+const RuntimeEventRawSource = Schema.Literals(["opencode.sdk.event"]);
 export type RuntimeEventRawSource = typeof RuntimeEventRawSource.Type;
 
 export const RuntimeEventRaw = Schema.Struct({

@@ -26,7 +26,7 @@ import {
   parseForkSlashCommandArgs,
   type ForkSlashCommandTarget,
 } from "../composerSlashCommands";
-import { buildThreadHandoffImportedMessages } from "../lib/threadHandoff";
+import { buildThreadImportedMessages } from "../lib/threadImportedMessages";
 import { toastManager } from "../components/ui/toast";
 import type { ComposerCommandItem } from "../components/chat/ComposerCommandMenu";
 import { buildNextProviderOptions } from "../providerModelOptions";
@@ -245,7 +245,7 @@ export function useComposerSlashCommands(input: {
         return true;
       }
 
-      const importedMessages = buildThreadHandoffImportedMessages(activeThread);
+      const importedMessages = buildThreadImportedMessages(activeThread);
 
       const nextThreadId = newThreadId();
       const createdAt = new Date().toISOString();
@@ -305,7 +305,7 @@ export function useComposerSlashCommands(input: {
         return true;
       }
 
-      const importedMessages = buildThreadHandoffImportedMessages(activeThread);
+      const importedMessages = buildThreadImportedMessages(activeThread);
       const nextThreadId = newThreadId();
       const createdAt = new Date().toISOString();
       const initialPrompt = inputOptions?.initialPrompt?.trim() ?? "";
@@ -489,15 +489,11 @@ export function useComposerSlashCommands(input: {
 
   const handleReviewTargetSelection = useCallback(
     async (target: "changes" | "base-branch") => {
-      if (selectedProvider === "codex") {
-        await runCodexReviewStart(target);
-      } else {
-        const replacement = buildSlashReviewComposerPrompt(target === "base-branch" ? "base" : "");
-        editorActions.setComposerPromptValue(replacement);
-      }
+      const replacement = buildSlashReviewComposerPrompt(target === "base-branch" ? "base" : "");
+      editorActions.setComposerPromptValue(replacement);
       editorActions.scheduleComposerFocus();
     },
-    [editorActions, selectedProvider, runCodexReviewStart],
+    [editorActions],
   );
 
   const handleForkTargetSelection = useCallback(
@@ -532,14 +528,14 @@ export function useComposerSlashCommands(input: {
 
     try {
       const result = await api.provider.listCommands({
-        provider: "claudeAgent",
+        provider: "opencode",
         cwd: providerCommandDiscoveryCwd,
         threadId,
         forceReload: true,
       });
       if (
         hasProviderNativeSlashCommand(
-          "claudeAgent",
+          "opencode",
           result.commands.map((command) => command.name),
           "fast",
         )
@@ -568,7 +564,7 @@ export function useComposerSlashCommands(input: {
   const handleStandaloneSlashCommand = useCallback(
     async (trimmed: string): Promise<boolean> => {
       const fastSlashAction = parseFastSlashCommandAction(trimmed);
-      if (selectedProvider === "claudeAgent" && fastSlashAction !== null) {
+      if (selectedProvider === "opencode" && fastSlashAction !== null) {
         if (await checkClaudeFastSlashCommandAvailability()) {
           return false;
         }
@@ -607,27 +603,6 @@ export function useComposerSlashCommands(input: {
         return true;
       }
       if (slashInvocation.command === "review") {
-        if (selectedProvider === "codex") {
-          const normalizedArgs = slashInvocation.args.trim().toLowerCase();
-          if (normalizedArgs.length === 0) {
-            editorActions.clearComposerSlashDraft();
-            openReviewTargetPicker();
-            return true;
-          }
-          const target =
-            normalizedArgs === "base" || normalizedArgs.startsWith("base ") ? "base-branch" : null;
-          if (!target) {
-            toastManager.add({
-              type: "warning",
-              title: "Invalid /review command",
-              description: "Use /review and then choose a review target.",
-            });
-            return true;
-          }
-          editorActions.clearComposerSlashDraft();
-          await runCodexReviewStart(target);
-          return true;
-        }
         if (supportsTextNativeReviewCommand && slashInvocation.args.length === 0) {
           return false;
         }
@@ -826,16 +801,6 @@ export function useComposerSlashCommands(input: {
       }
 
       if (item.command === "review") {
-        if (selectedProvider === "codex") {
-          const applied = clearSlashCommandFromComposer();
-          if (!wasPromptReplacementApplied(applied)) {
-            return;
-          }
-          editorActions.setComposerHighlightedItemId(null);
-          openReviewTargetPicker();
-          editorActions.scheduleComposerFocus();
-          return;
-        }
         if (supportsTextNativeReviewCommand) {
           const replacement = "/review";
           const replacementRangeEnd = extendReplacementRangeForTrailingSpace(

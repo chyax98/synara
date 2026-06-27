@@ -1,26 +1,12 @@
 import {
   formatModelDisplayName,
-  geminiModelOptionsFromEffortValue,
   humanizeModelSlug,
   normalizeModelSlug,
 } from "@t3tools/shared/model";
 import type {
-  ClaudeModelOptions,
-  ClaudeModelSelection,
-  CodexModelOptions,
-  CodexModelSelection,
-  CursorModelOptions,
-  CursorModelSelection,
-  GeminiModelOptions,
-  GeminiModelSelection,
-  GrokModelOptions,
-  GrokModelSelection,
-  KiloModelSelection,
   ModelSelection,
   OpenCodeModelOptions,
   OpenCodeModelSelection,
-  PiModelOptions,
-  PiModelSelection,
   ProviderKind,
   ProviderModelOptions,
 } from "@t3tools/contracts";
@@ -48,20 +34,15 @@ export function formatProviderModelOptionName(input: {
   provider: ProviderKind;
   slug: string;
 }): string {
-  const trimmedSlug =
-    input.provider === "cursor" ? input.slug.trim().replace(/\[[^\]]*\]$/u, "") : input.slug.trim();
+  const trimmedSlug = input.slug.trim();
   if (trimmedSlug.length === 0) {
     return trimmedSlug;
   }
 
-  if (input.provider === "kilo" || input.provider === "opencode" || input.provider === "pi") {
-    const modelIdentifier = trimmedSlug.includes("/")
-      ? trimmedSlug.slice(trimmedSlug.lastIndexOf("/") + 1)
-      : trimmedSlug;
-    return formatModelDisplayName(modelIdentifier) ?? humanizeModelSlug(modelIdentifier);
-  }
-
-  return formatModelDisplayName(trimmedSlug) ?? trimmedSlug;
+  const modelIdentifier = trimmedSlug.includes("/")
+    ? trimmedSlug.slice(trimmedSlug.lastIndexOf("/") + 1)
+    : trimmedSlug;
+  return formatModelDisplayName(modelIdentifier) ?? humanizeModelSlug(modelIdentifier);
 }
 
 export function mergeProviderModelOptions(
@@ -83,23 +64,10 @@ export function mergeProviderModelOptions(
   return merged;
 }
 
-function normalizeDynamicModelSlug(provider: ProviderKind, slug: string): string {
-  if (provider === "claudeAgent") {
-    const withoutContextSuffix = slug.replace(/\[[^\]]+\]$/u, "");
-    return normalizeModelSlug(withoutContextSuffix, provider) ?? withoutContextSuffix;
-  }
-  if (provider === "grok") {
-    return slug.trim();
-  }
-  return normalizeModelSlug(slug, provider) ?? slug;
+function normalizeDynamicModelSlug(slug: string): string {
+  return normalizeModelSlug(slug, "opencode") ?? slug.trim();
 }
 
-/**
- * Folds runtime-discovered models into the static option list for a provider:
- * discovered models lead (with display names recovered from the static list when
- * possible), static built-ins fill gaps unless discovery fully owns the catalog
- * (kilo/opencode/cursor), and user-defined custom models always survive.
- */
 export function mergeDynamicModelOptions(input: {
   provider: ProviderKind;
   staticOptions: ReadonlyArray<ProviderModelOption & { isCustom?: boolean }>;
@@ -116,16 +84,7 @@ export function mergeDynamicModelOptions(input: {
 
   for (const dynamicModel of input.dynamicModels) {
     const rawName = dynamicModel.name?.trim() ?? "";
-    const isClaudeDefaultAlias =
-      input.provider === "claudeAgent" &&
-      (rawName.toLowerCase() === "default (recommended)" ||
-        rawName.toLowerCase() === "default recommended" ||
-        dynamicModel.slug.trim().toLowerCase() === "default");
-    if (isClaudeDefaultAlias) {
-      continue;
-    }
-
-    const normalizedSlug = normalizeDynamicModelSlug(input.provider, dynamicModel.slug);
+    const normalizedSlug = normalizeDynamicModelSlug(dynamicModel.slug);
     const rawSlug = dynamicModel.slug.trim().toLowerCase();
     const displayNameFallback = formatProviderModelOptionName({
       provider: input.provider,
@@ -160,17 +119,11 @@ export function mergeDynamicModelOptions(input: {
     (model) => !("isCustom" in model) || model.isCustom !== true,
   );
   const missingStaticBuiltIns =
-    (input.provider === "kilo" || input.provider === "opencode" || input.provider === "cursor") &&
     normalizedDynamicOptions.length > 0
       ? []
       : staticBuiltInModels.filter((model) => !dynamicNormalizedSlugs.has(model.slug));
 
-  const orderedDynamicOptions =
-    input.provider === "claudeAgent"
-      ? normalizedDynamicOptions.toReversed()
-      : normalizedDynamicOptions;
-
-  return [...orderedDynamicOptions, ...missingStaticBuiltIns, ...customOnlyModels];
+  return [...normalizedDynamicOptions.toReversed(), ...missingStaticBuiltIns, ...customOnlyModels];
 }
 
 export function groupProviderModelOptions(
@@ -236,7 +189,6 @@ export function groupProviderModelOptionsWithFavorites(input: {
   ];
 }
 
-/** Long grouped model lists collapse provider sections to keep submenus scannable. */
 export const COLLAPSIBLE_MODEL_GROUP_THRESHOLD = 3;
 
 export function shouldUseCollapsibleModelGroups(groupCount: number, isSearching: boolean): boolean {
@@ -259,174 +211,34 @@ export function resolveModelGroupDefaultOpen(input: {
 }
 
 export function buildNextProviderOptions(
-  provider: ProviderKind,
+  _provider: ProviderKind,
   modelOptions: ProviderOptions | null | undefined,
   patch: Record<string, unknown>,
 ): ProviderOptions {
-  if (provider === "codex") {
-    return { ...(modelOptions as CodexModelOptions | undefined), ...patch } as CodexModelOptions;
-  }
-  if (provider === "claudeAgent") {
-    return { ...(modelOptions as ClaudeModelOptions | undefined), ...patch } as ClaudeModelOptions;
-  }
-  if (provider === "cursor") {
-    return { ...(modelOptions as CursorModelOptions | undefined), ...patch } as CursorModelOptions;
-  }
-  if (provider === "gemini") {
-    return {
-      ...(modelOptions as GeminiModelOptions | undefined),
-      thinkingLevel: undefined,
-      thinkingBudget: undefined,
-      ...patch,
-    } as GeminiModelOptions;
-  }
-  if (provider === "grok") {
-    return {
-      ...(modelOptions as GrokModelOptions | undefined),
-      ...patch,
-    } as GrokModelOptions;
-  }
-  if (provider === "opencode") {
-    return {
-      ...(modelOptions as OpenCodeModelOptions | undefined),
-      ...patch,
-    } as OpenCodeModelOptions;
-  }
   return {
-    ...(modelOptions as PiModelOptions | undefined),
+    ...(modelOptions as OpenCodeModelOptions | undefined),
     ...patch,
-  } as PiModelOptions;
+  } as OpenCodeModelOptions;
 }
 
 export function buildProviderOptionPatch(
-  provider: ProviderKind,
+  _provider: ProviderKind,
   optionId: string,
   value: string | boolean,
 ): Record<string, unknown> {
-  if (
-    provider === "gemini" &&
-    typeof value === "string" &&
-    (optionId === "thinkingLevel" || optionId === "thinkingBudget")
-  ) {
-    return geminiModelOptionsFromEffortValue(value) ?? {};
-  }
   return { [optionId]: value };
 }
 
-export function buildModelSelection(
-  provider: "codex",
-  model: string,
-  options?: CodexModelOptions | null | undefined,
-): CodexModelSelection;
-export function buildModelSelection(
-  provider: "claudeAgent",
-  model: string,
-  options?: ClaudeModelOptions | null | undefined,
-): ClaudeModelSelection;
-export function buildModelSelection(
-  provider: "cursor",
-  model: string,
-  options?: CursorModelOptions | null | undefined,
-): CursorModelSelection;
-export function buildModelSelection(
-  provider: "gemini",
-  model: string,
-  options?: GeminiModelOptions | null | undefined,
-): GeminiModelSelection;
-export function buildModelSelection(
-  provider: "grok",
-  model: string,
-  options?: GrokModelOptions | null | undefined,
-): GrokModelSelection;
-export function buildModelSelection(
-  provider: "opencode",
-  model: string,
-  options?: OpenCodeModelOptions | null | undefined,
-): OpenCodeModelSelection;
-export function buildModelSelection(
-  provider: "kilo",
-  model: string,
-  options?: OpenCodeModelOptions | null | undefined,
-): KiloModelSelection;
-export function buildModelSelection(
-  provider: "pi",
-  model: string,
-  options?: PiModelOptions | null | undefined,
-): PiModelSelection;
-export function buildModelSelection(
-  provider: ProviderKind,
-  model: string,
-  options?: ProviderOptions | null | undefined,
-): ModelSelection;
 export function buildModelSelection(
   provider: ProviderKind,
   model: string,
   options?: ProviderOptions | null | undefined,
 ): ModelSelection {
-  switch (provider) {
-    case "codex":
-      return options
-        ? {
-            provider,
-            model,
-            options: options as CodexModelOptions,
-          }
-        : { provider, model };
-    case "claudeAgent":
-      return options
-        ? {
-            provider,
-            model,
-            options: options as ClaudeModelOptions,
-          }
-        : { provider, model };
-    case "cursor":
-      return options
-        ? {
-            provider,
-            model,
-            options: options as CursorModelOptions,
-          }
-        : { provider, model };
-    case "gemini":
-      return options
-        ? {
-            provider,
-            model,
-            options: options as GeminiModelOptions,
-          }
-        : { provider, model };
-    case "grok":
-      return options
-        ? {
-            provider,
-            model,
-            options: options as GrokModelOptions,
-          }
-        : { provider, model };
-    case "kilo":
-      return options
-        ? {
-            provider,
-            model,
-            options: options as OpenCodeModelOptions,
-          }
-        : { provider, model };
-    case "opencode":
-      return options
-        ? {
-            provider,
-            model,
-            options: options as OpenCodeModelOptions,
-          }
-        : { provider, model };
-    case "pi":
-      return options
-        ? {
-            provider,
-            model,
-            options: options as PiModelOptions,
-          }
-        : { provider, model };
-  }
+  return options
+    ? {
+        provider: "opencode",
+        model,
+        options: options as OpenCodeModelOptions,
+      }
+    : { provider: "opencode", model };
 }

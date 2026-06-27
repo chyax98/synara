@@ -71,7 +71,7 @@ describe("thread retention", () => {
             session: {
               threadId: ThreadId.makeUnsafe("thread-running"),
               status: "running",
-              providerName: "codex",
+              providerName: "opencode",
               runtimeMode: "full-access",
               activeTurnId: null,
               lastError: null,

@@ -8,7 +8,7 @@ import {
 } from "./providerAvailability";
 
 const BASE_STATUS: ServerProviderStatus = {
-  provider: "gemini",
+  provider: "opencode",
   status: "error",
   available: false,
   authStatus: "unknown",
@@ -20,7 +20,7 @@ describe("normalizeProviderStatusForLocalConfig", () => {
   it("keeps Gemini interactive when a custom binary path is configured locally", () => {
     expect(
       normalizeProviderStatusForLocalConfig({
-        provider: "gemini",
+        provider: "opencode",
         status: BASE_STATUS,
         customBinaryPath: "/opt/homebrew/bin/gemini",
       }),
@@ -36,17 +36,17 @@ describe("normalizeProviderStatusForLocalConfig", () => {
   it("applies the same custom-path fallback to Claude", () => {
     expect(
       normalizeProviderStatusForLocalConfig({
-        provider: "claudeAgent",
+        provider: "opencode",
         status: {
           ...BASE_STATUS,
-          provider: "claudeAgent",
+          provider: "opencode",
           message: "Claude Code CLI (`claude`) is not installed or not on PATH.",
         },
         customBinaryPath: "/opt/homebrew/bin/claude",
       }),
     ).toEqual({
       ...BASE_STATUS,
-      provider: "claudeAgent",
+      provider: "opencode",
       available: true,
       status: "warning",
       message:
@@ -100,7 +100,7 @@ describe("normalizeProviderStatusForLocalConfig", () => {
   it("preserves authenticated and unauthenticated statuses", () => {
     expect(
       normalizeProviderStatusForLocalConfig({
-        provider: "gemini",
+        provider: "opencode",
         status: { ...BASE_STATUS, available: true, status: "ready", authStatus: "authenticated" },
         customBinaryPath: "/opt/homebrew/bin/gemini",
       }),
@@ -108,7 +108,7 @@ describe("normalizeProviderStatusForLocalConfig", () => {
 
     expect(
       normalizeProviderStatusForLocalConfig({
-        provider: "gemini",
+        provider: "opencode",
         status: { ...BASE_STATUS, authStatus: "unauthenticated" },
         customBinaryPath: "/opt/homebrew/bin/gemini",
       }),

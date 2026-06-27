@@ -92,12 +92,12 @@ interface ChatHeaderProps {
   keybindings: ResolvedKeybindingsConfig;
   availableEditors: ReadonlyArray<EditorId>;
   diffToggleShortcutLabel: string | null;
-  handoffBadgeLabel: string | null;
-  handoffActionLabel: string;
-  handoffDisabled: boolean;
-  handoffActionTargetProviders: ReadonlyArray<ProviderKind>;
-  handoffBadgeSourceProvider: ProviderKind | null;
-  handoffBadgeTargetProvider: ProviderKind | null;
+  handoffBadgeLabel?: string | null;
+  handoffActionLabel?: string;
+  handoffDisabled?: boolean;
+  handoffActionTargetProviders?: ReadonlyArray<ProviderKind>;
+  handoffBadgeSourceProvider?: ProviderKind | null;
+  handoffBadgeTargetProvider?: ProviderKind | null;
   gitCwd: string | null;
   diffTotals: RepoDiffTotals;
   showGitActions?: boolean;
@@ -138,7 +138,7 @@ interface ChatHeaderProps {
   onUpdateProjectScript: (scriptId: string, input: NewProjectScriptInput) => Promise<void>;
   onDeleteProjectScript: (scriptId: string) => Promise<void>;
   onToggleDiff: () => void;
-  onCreateHandoff: (targetProvider: ProviderKind) => void;
+  onCreateHandoff?: (targetProvider: ProviderKind) => void;
   onNavigateToThread: (threadId: ThreadId) => void;
   onRenameThread: () => void;
   onCloseThreadPane?: () => void;
@@ -493,12 +493,12 @@ export const ChatHeader = memo(function ChatHeader({
   keybindings,
   availableEditors,
   diffToggleShortcutLabel,
-  handoffBadgeLabel,
-  handoffActionLabel,
-  handoffDisabled,
-  handoffActionTargetProviders,
-  handoffBadgeSourceProvider,
-  handoffBadgeTargetProvider,
+  handoffBadgeLabel = null,
+  handoffActionLabel = "Hand off",
+  handoffDisabled = true,
+  handoffActionTargetProviders = [],
+  handoffBadgeSourceProvider = null,
+  handoffBadgeTargetProvider = null,
   gitCwd,
   diffTotals,
   showGitActions = true,
@@ -773,7 +773,7 @@ export const ChatHeader = memo(function ChatHeader({
             </Tooltip>
             <ComposerPickerMenuPopup align="end" side="bottom" className="w-48 min-w-48">
               {handoffActionTargetProviders.map((provider) => (
-                <MenuItem key={provider} onClick={() => onCreateHandoff(provider)}>
+                <MenuItem key={provider} onClick={() => onCreateHandoff?.(provider)}>
                   {renderProviderIcon(provider, "size-3.5 shrink-0")}
                   <span>Handoff to {PROVIDER_DISPLAY_NAMES[provider]}</span>
                 </MenuItem>

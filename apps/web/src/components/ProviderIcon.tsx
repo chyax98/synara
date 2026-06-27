@@ -1,32 +1,17 @@
 /**
  * ProviderIcon - shared provider glyphs for chat, sidebar, and picker surfaces.
  *
- * Centralizes provider-to-icon mapping so new providers do not need repeated
- * branching across every UI surface.
+ * OpenCode-only: single provider icon mapping.
  */
 import { type ProviderKind } from "@t3tools/contracts";
 import type { ReactNode, SVGProps } from "react";
 
 import { CentralIcon } from "~/lib/central-icons";
 import { cn } from "~/lib/utils";
-import {
-  ClaudeAI,
-  CursorIcon,
-  Gemini,
-  GrokIcon,
-  type Icon,
-  KiloIcon,
-  OpenAI,
-  OpenCodeIcon,
-  PiIcon,
-} from "./Icons";
+import { OpenCodeIcon } from "./Icons";
 
 export type ProviderIconTone = "default" | "header";
 
-// The bundled SVG has a dark outer fill, so dark mode swaps to the reversed Central asset.
-// React's SVGProps has no `title`, so accept it via an explicit prop type and forward it
-// only to CentralIcon (an HTML span, which supports `title`); the light-mode SVG conveys
-// its accessible name through aria-label instead.
 const OpenCodeProviderIcon = ({
   className,
   style,
@@ -62,28 +47,15 @@ const OpenCodeProviderIcon = ({
   );
 };
 
-export const PROVIDER_ICON_COMPONENT_BY_PROVIDER: Record<ProviderKind, Icon> = {
-  codex: OpenAI,
-  claudeAgent: ClaudeAI,
-  cursor: CursorIcon,
-  gemini: Gemini,
-  grok: GrokIcon,
-  kilo: KiloIcon,
+export const PROVIDER_ICON_COMPONENT_BY_PROVIDER = {
   opencode: OpenCodeProviderIcon,
-  pi: PiIcon,
-};
+} as Record<ProviderKind, typeof OpenCodeProviderIcon>;
 
 export function providerIconToneClassName(
-  provider: ProviderKind | null | undefined,
-  tone: ProviderIconTone = "default",
+  _provider: ProviderKind | null | undefined,
+  _tone: ProviderIconTone = "default",
 ): string {
-  if (provider === "kilo" || provider === "opencode") {
-    return "text-muted-foreground/70";
-  }
-  if (provider === "codex") {
-    return tone === "header" ? "text-muted-foreground/85" : "text-foreground";
-  }
-  return "text-foreground";
+  return "text-muted-foreground/70";
 }
 
 export type ProviderIconProps = Omit<SVGProps<SVGSVGElement>, "ref"> & {
@@ -104,7 +76,7 @@ export function ProviderIcon({
     return fallback;
   }
 
-  const Icon = PROVIDER_ICON_COMPONENT_BY_PROVIDER[provider];
+  const Icon = PROVIDER_ICON_COMPONENT_BY_PROVIDER.opencode;
   return (
     <Icon
       aria-hidden={ariaHidden}

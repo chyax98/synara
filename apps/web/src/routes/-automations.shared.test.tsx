@@ -75,8 +75,8 @@ const baseRun: AutomationRun = {
     archivedAt: null,
   },
   permissionSnapshot: {
-    provider: "codex",
-    modelSelection: { provider: "codex", model: "gpt-5-codex" },
+    provider: "opencode",
+    modelSelection: { provider: "opencode", model: "gpt-5-codex" },
     runtimeMode: "approval-required",
     interactionMode: "default",
     worktreeMode: "auto",
@@ -96,7 +96,7 @@ const baseDefinition: AutomationDefinition = {
   schedule: { type: "interval", everySeconds: 3600 },
   enabled: true,
   nextRunAt: "2026-06-19T11:00:00.000Z",
-  modelSelection: { provider: "codex", model: "gpt-5-codex" },
+  modelSelection: { provider: "opencode", model: "gpt-5-codex" },
   runtimeMode: "approval-required",
   interactionMode: "default",
   worktreeMode: "auto",
@@ -263,40 +263,40 @@ describe("automation shared route helpers", () => {
     const projects = [
       {
         id: projectId("project-old"),
-        defaultModelSelection: { provider: "codex", model: "gpt-5-codex" },
+        defaultModelSelection: { provider: "opencode", model: "gpt-5-codex" },
       },
       {
         id: projectId("project-new"),
-        defaultModelSelection: { provider: "claudeAgent", model: "sonnet" },
+        defaultModelSelection: { provider: "opencode", model: "sonnet" },
       },
     ] as Parameters<typeof modelSelectionForProjectChange>[0];
 
     expect(
       modelSelectionForProjectChange(projects, "project-old", "project-new", {
-        provider: "codex",
+        provider: "opencode",
         model: "gpt-5-codex",
       }),
-    ).toEqual({ provider: "claudeAgent", model: "sonnet" });
+    ).toEqual({ provider: "opencode", model: "sonnet" });
   });
 
   it("preserves an explicitly chosen model when switching projects", () => {
     const projects = [
       {
         id: projectId("project-old"),
-        defaultModelSelection: { provider: "codex", model: "gpt-5-codex" },
+        defaultModelSelection: { provider: "opencode", model: "gpt-5-codex" },
       },
       {
         id: projectId("project-new"),
-        defaultModelSelection: { provider: "claudeAgent", model: "sonnet" },
+        defaultModelSelection: { provider: "opencode", model: "sonnet" },
       },
     ] as Parameters<typeof modelSelectionForProjectChange>[0];
 
     expect(
       modelSelectionForProjectChange(projects, "project-old", "project-new", {
-        provider: "cursor",
+        provider: "opencode",
         model: "cursor-default",
       }),
-    ).toEqual({ provider: "cursor", model: "cursor-default" });
+    ).toEqual({ provider: "opencode", model: "cursor-default" });
   });
 
   it("preserves timezone when changing weekly day and time", () => {
@@ -419,13 +419,13 @@ describe("automation shared route helpers", () => {
       opencode: { binaryPath: "/old/opencode", serverUrl: "http://old.example" },
     };
     const currentProviderOptions: ProviderStartOptions = {
-      cursor: { binaryPath: "/current/cursor", apiEndpoint: "http://cursor.example" },
+      opencode: { binaryPath: "/current/opencode", serverUrl: "http://opencode.example" },
     };
     const definition = definitionWith({
       modelSelection: { provider: "opencode", model: "openai/gpt-5" },
       providerOptions: savedProviderOptions,
     });
-    const nextModelSelection = { provider: "cursor" as const, model: "composer-2" };
+    const nextModelSelection = { provider: "opencode" as const, model: "composer-2" };
 
     expect(
       providerOptionsForAutomationModelSelection(
@@ -438,16 +438,16 @@ describe("automation shared route helpers", () => {
 
   it("preserves saved provider options when only model capability options change", () => {
     const savedProviderOptions: ProviderStartOptions = {
-      codex: { binaryPath: "/old/codex", homePath: "/old/home" },
+      opencode: { binaryPath: "/old/opencode", serverUrl: "http://old.example" },
     };
     const currentProviderOptions: ProviderStartOptions = {
-      codex: { binaryPath: "/new/codex", homePath: "/new/home" },
+      opencode: { binaryPath: "/new/opencode", serverUrl: "http://new.example" },
     };
     const definition = definitionWith({
       modelSelection: {
-        provider: "codex",
+        provider: "opencode",
         model: "gpt-5-codex",
-        options: { reasoningEffort: "medium" },
+        options: { variant: "medium" },
       },
       providerOptions: savedProviderOptions,
     });
@@ -456,9 +456,9 @@ describe("automation shared route helpers", () => {
       providerOptionsForAutomationModelSelection(
         definition,
         {
-          provider: "codex",
+          provider: "opencode",
           model: "gpt-5-codex",
-          options: { reasoningEffort: "high" },
+          options: { variant: "high" },
         },
         currentProviderOptions,
       ),
@@ -475,7 +475,7 @@ describe("automation shared route helpers", () => {
 
     expect(
       providerOptionsForAutomationModelSelection(definition, {
-        provider: "cursor",
+        provider: "opencode",
         model: "composer-2",
       }),
     ).toEqual({});

@@ -133,15 +133,12 @@ export function getComposerTraitSelection(
   const resolvedContextWindow = trimOrNull(
     getProviderOptionCurrentValue(contextWindowDescriptor) as string | undefined,
   );
-  const promptInjectedValues = promptInjectedValuesForDescriptor(
-    caps.promptInjectedEffortLevels,
-    primarySelectDescriptor,
-  );
+  const promptInjectedValues = promptInjectedValuesForDescriptor([], primarySelectDescriptor);
   const isPromptInjected = resolvedEffort ? promptInjectedValues.includes(resolvedEffort) : false;
   const effort = resolvedEffort && !isPromptInjected ? resolvedEffort : defaultEffort;
 
   const thinkingEnabled = thinkingDescriptor
-    ? provider === "cursor"
+    ? provider === "opencode"
       ? (thinkingDescriptor.currentValue ??
         getCursorBooleanModelParameter(model, "thinking") ??
         true)
@@ -151,7 +148,7 @@ export function getComposerTraitSelection(
   const fastModeEnabled =
     Boolean(fastModeDescriptor) &&
     (fastModeDescriptor?.currentValue ??
-      (provider === "cursor" ? getCursorBooleanModelParameter(model, "fast") : false)) === true;
+      (provider === "opencode" ? getCursorBooleanModelParameter(model, "fast") : false)) === true;
 
   const contextWindow = resolvedContextWindow ?? defaultContextWindow;
 
@@ -191,7 +188,6 @@ export function hasVisibleComposerTraitControls(
     selection.effortLevels.length > 0 ||
     selection.thinkingEnabled !== null ||
     selection.contextWindowOptions.length > 1 ||
-    ((options?.includeFastMode ?? true) &&
-      (selection.fastModeDescriptor !== null || selection.caps.supportsFastMode))
+    ((options?.includeFastMode ?? true) && selection.fastModeDescriptor !== null)
   );
 }

@@ -630,7 +630,7 @@ const makeOrchestrationProjectionPipeline = Effect.gen(function* () {
             sidechatSourceThreadId: event.payload.sidechatSourceThreadId,
             lastKnownPr: event.payload.lastKnownPr ?? null,
             latestTurnId: null,
-            handoff: event.payload.handoff,
+
             pinnedMessages: null,
             threadMarkers: null,
             notes: null,
@@ -698,7 +698,7 @@ const makeOrchestrationProjectionPipeline = Effect.gen(function* () {
             ...(event.payload.lastKnownPr !== undefined
               ? { lastKnownPr: event.payload.lastKnownPr }
               : {}),
-            ...(event.payload.handoff !== undefined ? { handoff: event.payload.handoff } : {}),
+
             ...(event.payload.pinnedMessages !== undefined
               ? { pinnedMessages: event.payload.pinnedMessages }
               : {}),
