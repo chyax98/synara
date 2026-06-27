@@ -58,17 +58,17 @@ describe("groupCommandItems", () => {
     expect(groupCommandItems(items, "mention", true)).toEqual([
       {
         id: "plugins",
-        label: "Plugins",
+        label: "插件",
         items: [items[2]],
       },
       {
         id: "local",
-        label: "Local",
+        label: "本地",
         items: [items[1], items[3]],
       },
       {
         id: "subagents",
-        label: "Subagents",
+        label: "子代理",
         items: [items[0]],
       },
     ]);
@@ -110,7 +110,7 @@ describe("groupCommandItems", () => {
     expect(groupCommandItems(items, "slash-command", true)).toEqual([
       {
         id: "built-in",
-        label: "Built-in",
+        label: "内置",
         items: [items[0]],
       },
       {
@@ -120,7 +120,7 @@ describe("groupCommandItems", () => {
       },
       {
         id: "skills",
-        label: "Skills",
+        label: "技能",
         items: [items[2]],
       },
     ]);

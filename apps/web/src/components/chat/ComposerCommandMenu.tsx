@@ -244,13 +244,13 @@ export function groupCommandItems(
 
     const groups: ComposerCommandGroupModel[] = [];
     if (pluginItems.length > 0) {
-      groups.push({ id: "plugins", label: "Plugins", items: pluginItems });
+      groups.push({ id: "plugins", label: "插件", items: pluginItems });
     }
     if (localItems.length > 0) {
-      groups.push({ id: "local", label: "Local", items: localItems });
+      groups.push({ id: "local", label: "本地", items: localItems });
     }
     if (agentItems.length > 0) {
-      groups.push({ id: "subagents", label: "Subagents", items: agentItems });
+      groups.push({ id: "subagents", label: "子代理", items: agentItems });
     }
     if (otherItems.length > 0) {
       groups.push({ id: "other", label: null, items: otherItems });
@@ -274,13 +274,13 @@ export function groupCommandItems(
 
   const groups: ComposerCommandGroupModel[] = [];
   if (builtInItems.length > 0) {
-    groups.push({ id: "built-in", label: "Built-in", items: builtInItems });
+    groups.push({ id: "built-in", label: "内置", items: builtInItems });
   }
   if (providerItems.length > 0) {
     groups.push({ id: "provider", label: "Provider", items: providerItems });
   }
   if (skillItems.length > 0) {
-    groups.push({ id: "skills", label: "Skills", items: skillItems });
+    groups.push({ id: "skills", label: "技能", items: skillItems });
   }
   if (otherItems.length > 0) {
     groups.push({ id: "other", label: null, items: otherItems });

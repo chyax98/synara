@@ -36,14 +36,14 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   {
     id: "general:default-provider",
     section: "general",
-    title: "默认 provider",
-    keywords: "为新会话选择默认 provider。OpenCode Codex agent",
+    title: "默认提供商",
+    keywords: "为新会话选择默认提供商。OpenCode 代理",
   },
   {
     id: "general:new-threads",
     section: "general",
     title: "新会话",
-    keywords: "选择新建草稿会话的默认工作区模式。本地 工作树 worktree Environment",
+    keywords: "选择新建草稿会话的默认工作区模式。本地 工作树",
   },
   {
     id: "general:project-order",
@@ -79,32 +79,31 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "general:environment-editor",
     section: "general",
     title: "编辑器",
-    keywords:
-      "在 chat Environment 面板中显示编辑器区块（应用内编辑器视图与「在编辑器中打开」选择器）。",
+    keywords: "在聊天环境面板中显示编辑器区块（应用内编辑器视图与「在编辑器中打开」选择器）。",
   },
   {
     id: "general:environment-recap",
     section: "general",
     title: "回顾",
-    keywords: "在 Environment 面板中显示自动生成的聊天回顾。",
+    keywords: "在环境面板中显示自动生成的聊天回顾。",
   },
   {
     id: "general:environment-pinned",
     section: "general",
     title: "置顶消息",
-    keywords: "在 Environment 面板中显示置顶消息清单。",
+    keywords: "在环境面板中显示置顶消息清单。",
   },
   {
     id: "general:environment-markers",
     section: "general",
     title: "文本标记",
-    keywords: "在 Environment 面板中显示高亮与下划线的对话文本。",
+    keywords: "在环境面板中显示高亮与下划线的对话文本。",
   },
   {
     id: "general:environment-notepad",
     section: "general",
     title: "记事本",
-    keywords: "在 Environment 面板中显示每个会话的记事本。",
+    keywords: "在环境面板中显示每个会话的记事本。",
   },
 
   // ── Appearance ───────────────────────────────────────────────────────────────
@@ -130,14 +129,13 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "appearance:terminal-font-size",
     section: "appearance",
     title: "终端字号",
-    keywords: "独立于应用与聊天字号调整 Terminal 文字。",
+    keywords: "独立于应用与聊天字号调整终端文字。",
   },
   {
     id: "appearance:terminal-font",
     section: "appearance",
     title: "终端字体",
-    keywords:
-      "输入本机已安装的等宽字体（如 Fira Code）。留空则使用默认字体；未安装的字体将回退到系统等宽字体。",
+    keywords: "输入本机已安装的等宽字体名称。留空则使用系统默认等宽字体",
   },
   {
     id: "appearance:font-smoothing",
@@ -172,13 +170,13 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "behavior:assistant-output",
     section: "behavior",
     title: "助手输出",
-    keywords: "在回复进行中逐 token 显示输出。流式 streaming",
+    keywords: "在回复进行中逐 token 显示输出。流式",
   },
   {
     id: "behavior:diff-line-wrapping",
     section: "behavior",
-    title: "Diff 自动换行",
-    keywords: "设置打开 Diff 面板时的默认换行状态。自动换行",
+    title: "差异自动换行",
+    keywords: "设置打开差异面板时的默认换行状态。自动换行",
   },
   {
     id: "behavior:prompt-suggestions",
@@ -190,28 +188,27 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "behavior:delete-confirmation",
     section: "behavior",
     title: "删除确认",
-    keywords: "删除会话及聊天历史前进行确认。安全 confirm",
+    keywords: "删除会话及聊天历史前进行确认。安全",
   },
   {
     id: "behavior:archive-confirmation",
     section: "behavior",
     title: "归档确认",
-    keywords: "归档会话前进行确认。安全 confirm",
+    keywords: "归档会话前进行确认。安全",
   },
   {
     id: "behavior:terminal-close-confirmation",
     section: "behavior",
-    title: "关闭 Terminal 确认",
-    keywords: "关闭终端标签并清除其历史前进行确认。安全 confirm",
+    title: "关闭终端确认",
+    keywords: "关闭终端标签并清除其历史前进行确认。安全",
   },
 
   // ── Worktrees ─────────────────────────────────────────────────────────────────
   {
     id: "worktrees:managed-worktrees",
     section: "worktrees",
-    title: "托管 worktree",
-    keywords: "查看并清理 Synara 创建的工作树。git 分支 删除",
-    target: null,
+    title: "托管工作树",
+    keywords: "查看并清理 Synara 创建的工作树。分支 删除",
   },
 
   // ── Archived ──────────────────────────────────────────────────────────────────
@@ -220,7 +217,6 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     section: "archived",
     title: "已归档会话",
     keywords: "查看并恢复已归档会话。取消归档 历史",
-    target: null,
   },
 
   // ── Models ────────────────────────────────────────────────────────────────────
@@ -234,36 +230,35 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "models:saved-model-slugs",
     section: "models",
     title: "已保存模型代号",
-    keywords: "为支持的 provider 添加自定义模型代号。",
+    keywords: "为支持的提供商添加自定义模型代号。",
   },
 
   // ── Providers ─────────────────────────────────────────────────────────────────
   {
     id: "providers:visible-providers",
     section: "providers",
-    title: "可见 provider",
-    keywords: "拖拽 provider 调整选择器顺序，并隐藏不使用的项。可见性 排序",
+    title: "可见提供商",
+    keywords: "拖拽提供商调整选择器顺序，并隐藏不使用的项。可见性 排序",
   },
   {
     id: "providers:provider-updates",
     section: "providers",
-    title: "Provider 更新",
-    keywords: "更新 Synara 可安全更新的已安装 provider 工具。升级 CLI",
+    title: "提供商更新",
+    keywords: "更新 Synara 可安全更新的已安装工具。升级 CLI",
   },
   {
     id: "providers:installed-clis",
     section: "providers",
     title: "已安装 CLI",
-    keywords: "查看 provider 版本并更新工具。二进制 覆盖 路径 安装",
+    keywords: "查看提供商版本并更新工具。二进制 覆盖 路径 安装",
   },
 
   // ── Skills ────────────────────────────────────────────────────────────────────
   {
     id: "skills:skills",
     section: "skills",
-    title: "Skill",
-    keywords: "各 provider 中发现的所有技能，可开关控制可用性。agent",
-    target: null,
+    title: "技能",
+    keywords: "各提供商中发现的所有技能，可开关控制可用性。代理",
   },
 
   // ── Advanced ──────────────────────────────────────────────────────────────────
@@ -283,7 +278,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "advanced:version",
     section: "advanced",
     title: "版本",
-    keywords: "当前应用版本。关于 about",
+    keywords: "当前应用版本。关于",
   },
   {
     id: "advanced:release-history",

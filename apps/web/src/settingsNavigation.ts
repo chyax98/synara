@@ -48,7 +48,7 @@ export const SETTINGS_NAV_GROUPS: ReadonlyArray<{
   id: SettingsNavGroupId;
   label: string;
 }> = [
-  { id: "app", label: "App" },
+  { id: "app", label: "应用" },
   { id: "synara", label: "Synara" },
 ] as const;
 
@@ -57,7 +57,7 @@ export const SETTINGS_NAV_ITEMS: readonly SettingsNavItem[] = [
     id: "general",
     group: "app",
     label: "通用",
-    description: "默认 provider、会话模式和侧边栏组织。",
+    description: "默认提供商、会话模式和侧边栏组织。",
     icon: "settings-gear-1",
     eyebrow: "工作流默认",
   },
@@ -120,16 +120,16 @@ export const SETTINGS_NAV_ITEMS: readonly SettingsNavItem[] = [
   {
     id: "providers",
     group: "synara",
-    label: "Provider",
-    description: "选择可见的 provider、查看 CLI 安装并更新 provider 工具。",
+    label: "提供商",
+    description: "选择可见的提供商、查看 CLI 安装并更新工具。",
     icon: "puzzle",
     eyebrow: "选择器可见性",
   },
   {
     id: "skills",
     group: "synara",
-    label: "Skill",
-    description: "跨 Provider 发现的所有技能，可开关可用性。",
+    label: "技能",
+    description: "跨提供商发现的所有技能，可开关可用性。",
     icon: "building-blocks",
     eyebrow: "Agent 技能",
   },

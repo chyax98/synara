@@ -299,7 +299,7 @@ export const ProjectPicker = memo(function ProjectPicker({
               >
                 <PlusIcon className="size-3.5 shrink-0 text-muted-foreground/70" />
                 <span className="truncate">
-                  {isPicking ? "Opening folder picker…" : "Add new project"}
+                  {isPicking ? "正在打开文件夹选择器…" : "添加新项目"}
                 </span>
               </button>
               {showResetToHome ? (

@@ -408,7 +408,7 @@ function SettingsRouteView() {
   const changedSettingLabels = [
     ...(theme !== "system" ? ["主题"] : []),
     ...(!isDefaultActiveTheme ? [`${resolvedTheme === "dark" ? "深色" : "浅色"}主题包`] : []),
-    ...(settings.defaultProvider !== defaults.defaultProvider ? ["默认 Provider"] : []),
+    ...(settings.defaultProvider !== defaults.defaultProvider ? ["默认提供商"] : []),
     ...(settings.defaultThreadEnvMode !== defaults.defaultThreadEnvMode ? ["默认工作区模式"] : []),
     ...(settings.sidebarProjectSortOrder !== defaults.sidebarProjectSortOrder ? ["项目排序"] : []),
     ...(settings.sidebarThreadSortOrder !== defaults.sidebarThreadSortOrder ? ["会话排序"] : []),
@@ -501,7 +501,7 @@ function SettingsRouteView() {
       if (customModels.includes(normalized)) {
         setCustomModelErrorByProvider((existing) => ({
           ...existing,
-          [provider]: "默认 provider",
+          [provider]: "默认提供商",
         }));
         return;
       }
@@ -853,12 +853,12 @@ function SettingsRouteView() {
     <div className="space-y-6">
       <SettingsSection title="核心默认">
         <SettingsRow
-          title="默认 Provider"
+          title="默认提供商"
           description="新会话使用 OpenCode。"
           resetAction={
             settings.defaultProvider !== defaults.defaultProvider ? (
               <SettingResetButton
-                label="默认 Provider"
+                label="默认提供商"
                 onClick={() => updateSettings({ defaultProvider: defaults.defaultProvider })}
               />
             ) : null
@@ -870,7 +870,7 @@ function SettingsRouteView() {
                 if (!isProviderSelectOption(value)) return;
                 updateSettings({ defaultProvider: value });
               }}
-              ariaLabel="默认 Provider"
+              ariaLabel="默认提供商"
               valueContent={
                 <ProviderOptionLabel
                   provider={settings.defaultProvider}
@@ -1026,63 +1026,63 @@ function SettingsRouteView() {
       </SettingsSection>
 
       <div ref={environmentPanelRef} id={SETTINGS_TARGETS.environmentPanel}>
-        <SettingsSection title="Environment 面板">
+        <SettingsSection title="环境面板">
           {renderBooleanSettingRow({
             settingKey: "showEnvironmentRepository",
             title: "仓库",
             description:
-              "在 chat Environment 面板中显示 GitHub 仓库链接。git 区块（Changes、Worktree、branch、Commit and Push）始终可见。",
+              "在聊天环境面板中显示 GitHub 仓库链接。变更区块（变更、工作树、分支、提交并推送）始终可见。",
             resetLabel: "仓库分区",
-            ariaLabel: "在 Environment 面板中显示仓库分区",
+            ariaLabel: "在 环境面板中显示仓库分区",
           })}
 
           {renderBooleanSettingRow({
             settingKey: "showEnvironmentEditor",
             title: "编辑器",
             description:
-              "在 chat Environment 面板中显示编辑器区块（应用内编辑器视图与「在编辑器中打开」选择器）。",
+              "在聊天环境面板中显示编辑器区块（应用内编辑器视图与「在编辑器中打开」选择器）。",
             resetLabel: "侧边栏分区",
-            ariaLabel: "在 Environment 面板中显示编辑器区块",
+            ariaLabel: "在 环境面板中显示编辑器区块",
           })}
 
           {renderBooleanSettingRow({
             settingKey: "showEnvironmentRecap",
             title: "回顾",
-            description: "在 Environment 面板中显示自动生成的聊天回顾。",
+            description: "在 环境面板中显示自动生成的聊天回顾。",
             resetLabel: "回顾分区",
-            ariaLabel: "在 Environment 面板中显示回顾分区",
+            ariaLabel: "在 环境面板中显示回顾分区",
           })}
 
           {renderBooleanSettingRow({
             settingKey: "showEnvironmentPinned",
             title: "置顶消息",
-            description: "在 Environment 面板中显示置顶消息清单。",
+            description: "在 环境面板中显示置顶消息清单。",
             resetLabel: "置顶消息分区",
-            ariaLabel: "Environment 面板",
+            ariaLabel: "环境面板",
           })}
 
           {renderBooleanSettingRow({
             settingKey: "showEnvironmentMarkers",
             title: "文本标记",
-            description: "在 Environment 面板中显示高亮与下划线的对话文本。",
+            description: "在 环境面板中显示高亮与下划线的对话文本。",
             resetLabel: "用量分区",
-            ariaLabel: "在 Environment 面板中显示文本标记区块",
+            ariaLabel: "在 环境面板中显示文本标记区块",
           })}
 
           {renderBooleanSettingRow({
             settingKey: "showEnvironmentInstructions",
             title: "项目说明",
-            description: "在 Environment 面板中显示项目级说明。",
+            description: "在 环境面板中显示项目级说明。",
             resetLabel: "仓库分区",
-            ariaLabel: "在 Environment 面板中显示项目说明区块",
+            ariaLabel: "在 环境面板中显示项目说明区块",
           })}
 
           {renderBooleanSettingRow({
             settingKey: "showEnvironmentNotepad",
             title: "记事本",
-            description: "在 Environment 面板中显示每个会话的记事本。",
+            description: "在 环境面板中显示每个会话的记事本。",
             resetLabel: "编辑器分区",
-            ariaLabel: "在 Environment 面板中显示记事本区块",
+            ariaLabel: "在 环境面板中显示记事本区块",
           })}
         </SettingsSection>
       </div>
@@ -1167,7 +1167,7 @@ function SettingsRouteView() {
             resetAction={
               settings.chatFontSizePx !== defaults.chatFontSizePx ? (
                 <SettingResetButton
-                  label="在 Environment 面板中显示每个会话的记事本。"
+                  label="在 环境面板中显示每个会话的记事本。"
                   onClick={() =>
                     updateSettings({
                       chatFontSizePx: defaults.chatFontSizePx,
@@ -1737,7 +1737,7 @@ function SettingsRouteView() {
       <SettingsSection title="自定义模型">
         <SettingsRow
           title="已保存模型代号"
-          description="为支持的 Provider 添加自定义模型代号。"
+          description="为支持的提供商添加自定义模型代号。"
           resetAction={
             totalCustomModels > 0 ? (
               <SettingResetButton

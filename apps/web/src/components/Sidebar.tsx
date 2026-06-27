@@ -3119,8 +3119,8 @@ export default function Sidebar() {
           { id: "rename", label: "重命名会话" },
           { id: "toggle-pin", label: isPinned ? "取消置顶会话" : "置顶会话" },
           ...(threadStatus?.dismissible ? [{ id: "clear-notification", label: "清除通知" }] : []),
-          { id: "mark-unread", label: "Mark unread" },
-          { id: "copy-path", label: "Copy Path", separatorBefore: true },
+          { id: "mark-unread", label: "标为未读" },
+          { id: "copy-path", label: "复制路径", separatorBefore: true },
           ...(threadWorkspacePath
             ? [{ id: "open-path-in-terminal", label: "在终端中打开路径" }]
             : []),
@@ -3289,7 +3289,7 @@ export default function Sidebar() {
 
       const clicked = await api.contextMenu.show(
         [
-          { id: "mark-unread", label: `Mark unread (${count})` },
+          { id: "mark-unread", label: `标为未读 (${count})` },
           { id: "archive", label: `归档 (${count})` },
           { id: "delete", label: `删除 (${count})`, destructive: true },
         ],
@@ -5858,10 +5858,10 @@ export default function Sidebar() {
                     />
                     <SidebarIconButton
                       icon={FiPlus}
-                      label={shouldShowProjectPathEntry ? "Cancel add project" : "添加项目"}
+                      label={shouldShowProjectPathEntry ? "取消添加项目" : "添加项目"}
                       aria-pressed={shouldShowProjectPathEntry}
                       onClick={handleStartAddProject}
-                      tooltip={shouldShowProjectPathEntry ? "Cancel add project" : "添加项目"}
+                      tooltip={shouldShowProjectPathEntry ? "取消添加项目" : "添加项目"}
                       tooltipSide="right"
                     />
                   </SidebarSectionToolbar>

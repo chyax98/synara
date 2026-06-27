@@ -1,8 +1,8 @@
 #!/usr/bin/env bun
 /**
  * File-scoped scan for user-facing English in production UI sources.
- * Joins multi-line string literals onto their prop keys; flags [A-Za-z]{3,}
- * unless the whole value is on the brand allowlist. Writes ui-zh-violations.txt.
+ * Joins multi-line props; extracts ternaries, aria-label=, inline label: "…".
+ * Writes ui-zh-violations.txt. Exit non-zero until empty.
  */
 import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
@@ -15,6 +15,7 @@ const SCAN_ROOTS = [
   "apps/web/src/components/ChatView.tsx",
   "apps/web/src/components/Sidebar.tsx",
   "apps/web/src/components/ComposerPromptEditor.tsx",
+  "apps/web/src/components/EditorWorkspaceView.tsx",
   "apps/web/src/routes/_chat.settings.tsx",
   "apps/web/src/components/settings",
   "apps/web/src/components/chat",
@@ -35,7 +36,6 @@ const ALLOW_PATH_SUBSTRINGS = [
   ".test.tsx",
 ];
 
-/** Tiny brand/technical allowlist — whole value must match exactly. */
 const BRAND_ALLOWLIST = new Set([
   "OpenCode",
   "Synara",
@@ -81,7 +81,6 @@ const BRAND_ALLOWLIST = new Set([
   "confirm",
 ]);
 
-/** Status/enum literals — not user-facing copy. */
 const STATUS_ENUM_VALUES = new Set([
   "error",
   "disabled",
@@ -99,22 +98,8 @@ const STATUS_ENUM_VALUES = new Set([
   "rejected",
 ]);
 
-const USER_FACING_PROPS = new Set([
-  "title",
-  "description",
-  "label",
-  "tooltip",
-  "placeholder",
-  "status",
-  "aria-label",
-  "ariaLabel",
-  "resetLabel",
-  "valueContent",
-  "eyebrow",
-  "keywords",
-  "message",
-  "detail",
-]);
+const USER_FACING_PROP_NAMES =
+  "title|description|label|tooltip|placeholder|status|aria-label|ariaLabel|resetLabel|valueContent|eyebrow|keywords|message|detail";
 
 const ENGLISH_RUN = /[A-Za-z]{3,}/;
 
@@ -144,7 +129,43 @@ function isBrandAllowedWhole(text: string): boolean {
 }
 
 function isLikelyCodeFragment(text: string): boolean {
-  return /[{}()=<>|&;]|=>|\.\w|new Set|Promise|ReadonlyArray|boolean/.test(text);
+  return /[{}()=<>|&;]|=>|\.\w|new Set|Promise|ReadonlyArray|boolean|pluralize\(/.test(text);
+}
+
+/** Skip enum/CSS/code branches inside JSX ternaries. */
+function isCodeTernaryBranch(text: string): boolean {
+  const stripped = stripTemplateExpressions(text).trim();
+  if (stripped.length === 0) return true;
+  if (/^[a-z][a-z0-9_-]*$/.test(stripped)) return true;
+  if (/^#[0-9a-f]{3,8}$/i.test(stripped)) return true;
+  if (
+    /^(?:opacity-|min-w-|max-w-|hidden|flex|block|close|quit|local|default|settled|content|empty|available|unavailable|queue|steer|docked|floating|chat|terminal|pointer-events|ico|png|jpg|svg|off|plan|worktree)$/i.test(
+      stripped,
+    )
+  )
+    return true;
+  if (
+    /^(?:hidden |flex |block |opacity-|min-w-|pointer-events|z-\d|ring-|leading-|truncate|gap-|h-full|right-|top-|rounded-|Ctrl\+)/.test(
+      stripped,
+    )
+  )
+    return true;
+  if (/pluralize\(/.test(stripped)) return true;
+  if (/^Ctrl\+/.test(stripped)) return true;
+  if (
+    /(?:^|\s)(?:z-\d|opacity-|ring-|leading-|truncate|rounded-|py-\d|gap-|sm:|overflow-|w-full|max-w-|min-h|translate-|right-|top-|text-foreground)/.test(
+      stripped,
+    )
+  )
+    return true;
+  return false;
+}
+
+function isUserFacingTernaryBranch(text: string): boolean {
+  if (isCodeTernaryBranch(text)) return false;
+  const stripped = stripTemplateExpressions(text).trim();
+  if (hasCjk(stripped)) return true;
+  return /\s/.test(stripped) || /^[A-Z][a-z]/.test(stripped);
 }
 
 function isLikelyCssClass(text: string): boolean {
@@ -158,9 +179,7 @@ function containsForbiddenEnglish(text: string, prop: string): boolean {
   if (prop === "status" && STATUS_ENUM_VALUES.has(stripped)) return false;
   if (isLikelyCodeFragment(stripped) || isLikelyCssClass(stripped)) return false;
   if (!ENGLISH_RUN.test(stripped)) return false;
-  // Pure English phrases (no CJK) are always violations.
   if (!hasCjk(stripped)) return true;
-  // Mixed zh+en: flag Latin words of 4+ letters not on allowlist.
   for (const word of stripped.match(/[A-Za-z]{4,}/g) ?? []) {
     if (!BRAND_ALLOWLIST.has(word) && !BRAND_ALLOWLIST.has(word.toLowerCase())) {
       return true;
@@ -200,63 +219,141 @@ function walk(dir: string, files: string[] = []): string[] {
 
 type ExtractedValue = { prop: string; text: string; line: number };
 
-/** Join continuation string literals after a prop key across newlines. */
+function lineNumberAt(content: string, index: number): number {
+  return content.slice(0, index).split("\n").length;
+}
+
+function pushIfViolation(
+  results: ExtractedValue[],
+  file: string,
+  prop: string,
+  text: string,
+  line: number,
+): void {
+  results.push({ prop, text, line });
+}
+
+function extractQuotedStrings(text: string): string[] {
+  const out: string[] = [];
+  const re = /(["'`])((?:\\.|(?!\1)[^\\])*?)\1/g;
+  for (const m of text.matchAll(re)) {
+    if (m[2] !== undefined) out.push(m[2]);
+  }
+  return out;
+}
+
+function extractTemplateLiterals(text: string): string[] {
+  const out: string[] = [];
+  for (const m of text.matchAll(/`((?:\\.|[^`\\])*?)`/g)) {
+    if (m[1] !== undefined) out.push(m[1]);
+  }
+  return out;
+}
+
+/** Full-file extraction: props, ternaries, aria-label=, inline objects, JSX text. */
 function extractUserFacingValues(content: string): ExtractedValue[] {
   const results: ExtractedValue[] = [];
   const lines = content.split("\n");
 
-  const propKeyPattern =
-    /^\s*(title|description|label|tooltip|placeholder|status|aria-label|ariaLabel|resetLabel|valueContent|eyebrow|keywords|message|detail)\s*[:=]\s*/;
+  const propKeyPattern = new RegExp(`^\\s*(${USER_FACING_PROP_NAMES})\\s*[:=]\\s*`);
 
+  // 1) Prop keys at line start (with multi-line join)
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i] ?? "";
     const propMatch = line.match(propKeyPattern);
     if (!propMatch?.[1]) continue;
     const prop = propMatch[1];
-    if (!USER_FACING_PROPS.has(prop)) continue;
-
     const afterKey = line.slice(propMatch[0].length);
     const extracted = extractStringFromPosition(lines, i, afterKey);
     if (extracted) {
-      results.push({ prop, text: extracted.text, line: i + 1 });
+      pushIfViolation(results, "", prop, extracted.text, i + 1);
       i = extracted.endLine;
     }
   }
 
-  // JSX text nodes: >English text< (skip code fragments)
+  // 2) Inline object props anywhere: label: "App", ariaLabel: "…"
+  const inlinePropRe = new RegExp(
+    `(?:^|[,{(\\s])(${USER_FACING_PROP_NAMES})\\s*:\\s*(["'\`])`,
+    "g",
+  );
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i] ?? "";
     if (line.trim().startsWith("//")) continue;
-    for (const match of line.matchAll(/>\s*([A-Za-z][^<{]{2,}?)\s*</g)) {
-      const text = (match[1] ?? "").trim();
-      if (isLikelyCodeFragment(text)) continue;
-      if (!/\s/.test(text) && /^[A-Z][a-zA-Z]+$/.test(text)) continue;
-      results.push({ prop: "jsx-text", text, line: i + 1 });
+    let m: RegExpExecArray | null;
+    inlinePropRe.lastIndex = 0;
+    while ((m = inlinePropRe.exec(line)) !== null) {
+      const prop = m[1] ?? "inline";
+      const afterKey = line.slice(m.index + m[0].length - 1);
+      const extracted = extractStringFromPosition(lines, i, afterKey);
+      if (extracted) {
+        pushIfViolation(results, "", prop, extracted.text, i + 1);
+      }
     }
   }
 
-  // Template literals on user-facing props (single-line)
+  // 3) JSX aria-label="…" and aria-label={'…'}
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i] ?? "";
-    for (const match of line.matchAll(
-      /(?:label|tooltip|title|description|aria-label|ariaLabel)\s*[:=]\s*\{`([^`]+)`\}/g,
-    )) {
-      results.push({ prop: "template", text: match[1] ?? "", line: i + 1 });
+    for (const m of line.matchAll(/aria-label\s*=\s*(["'])/g)) {
+      const quote = m[1] ?? '"';
+      const start = (m.index ?? 0) + m[0].length;
+      const rest = line.slice(start);
+      const close = findClosingQuote(rest, quote);
+      if (close !== null) {
+        pushIfViolation(results, "", "aria-label", rest.slice(0, close), i + 1);
+      }
+    }
+    for (const m of line.matchAll(/aria-label\s*=\s*\{`([^`]+)`\}/g)) {
+      pushIfViolation(results, "", "aria-label", m[1] ?? "", i + 1);
     }
   }
 
-  // dialog.showMessageBox / toast strings in main.ts
-  if (content.includes("showMessageBox") || content.includes("dialog.")) {
+  // 4) JSX expressions: ternaries with string/template branches
+  const ternaryRe =
+    /\?\s*(?:(`[^`]*`)|"([^"]*)"|'([^']*)')\s*:\s*(?:(`[^`]*`)|"([^"]*)"|'([^']*)')/g;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i] ?? "";
+    if (!line.includes("?")) continue;
+    for (const m of line.matchAll(ternaryRe)) {
+      const branches = [m[1], m[2], m[3], m[4], m[5], m[6]].filter(
+        (b): b is string => typeof b === "string" && b.length > 0,
+      );
+      for (const branch of branches) {
+        const text = branch.startsWith("`") ? branch.slice(1, -1) : branch;
+        if (!isUserFacingTernaryBranch(text)) continue;
+        pushIfViolation(results, "", "ternary", text, i + 1);
+      }
+    }
+    // Standalone template props: label={`…`} aria-label={cond ? `a` : `b`} already covered
+    for (const m of line.matchAll(
+      new RegExp(`(?:${USER_FACING_PROP_NAMES})\\s*[:=]\\s*\\{?\\\`([^\\\`]+)\\\`\\}?`, "g"),
+    )) {
+      pushIfViolation(results, "", "template", m[1] ?? "", i + 1);
+    }
+  }
+
+  // 5) JSX text nodes
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i] ?? "";
+    if (line.trim().startsWith("//")) continue;
+    for (const m of line.matchAll(/>\s*([A-Za-z][^<{]{2,}?)\s*</g)) {
+      const text = (m[1] ?? "").trim();
+      if (isLikelyCodeFragment(text)) continue;
+      if (!/\s/.test(text) && /^[A-Z][a-zA-Z]+$/.test(text)) continue;
+      pushIfViolation(results, "", "jsx-text", text, i + 1);
+    }
+  }
+
+  // 6) dialog strings in main.ts
+  if (content.includes("showMessageBox")) {
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i] ?? "";
-      if (!/(?:title|message|detail)\s*:/.test(line)) continue;
       const propMatch = line.match(/(title|message|detail)\s*:\s*/);
       if (!propMatch?.[1]) continue;
       const afterKey = line.slice(propMatch.index! + propMatch[0].length);
       const extracted = extractStringFromPosition(lines, i, afterKey);
       if (extracted) {
-        results.push({ prop: propMatch[1], text: extracted.text, line: i + 1 });
-        i = extracted.endLine;
+        pushIfViolation(results, "", propMatch[1], extracted.text, i + 1);
       }
     }
   }
@@ -276,13 +373,11 @@ function extractStringFromPosition(
   let text = quoteMatch[2] ?? "";
   let lineIdx = startLine;
 
-  // Same-line closing quote
   const sameLineClose = findClosingQuote(text, quote);
   if (sameLineClose !== null) {
     return { text: text.slice(0, sameLineClose), endLine: startLine };
   }
 
-  // Multi-line continuation
   const parts: string[] = [text];
   while (lineIdx + 1 < lines.length) {
     lineIdx++;

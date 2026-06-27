@@ -41,7 +41,7 @@ describe("rankSettingsSearchEntries", () => {
   });
 
   it("respects the result limit", () => {
-    expect(rankSettingsSearchEntries("e", 3)).toHaveLength(3);
+    expect(rankSettingsSearchEntries("分", 3)).toHaveLength(3);
   });
 
   it("derives a deep-link anchor target from each entry's title", () => {

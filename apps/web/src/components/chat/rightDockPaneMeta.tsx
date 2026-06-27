@@ -29,11 +29,11 @@ export interface RightDockPaneMeta {
 }
 
 export const RIGHT_DOCK_PANE_META: Record<RightDockPaneKind, RightDockPaneMeta> = {
-  browser: { label: "Browser", Icon: GlobeIcon },
+  browser: { label: "浏览器", Icon: GlobeIcon },
   diff: { label: "Diff", Icon: DiffIcon },
-  file: { label: "File", Icon: FileIcon },
+  file: { label: "文件", Icon: FileIcon },
   terminal: { label: "Terminal", Icon: TerminalIcon },
-  sidechat: { label: "Side", Icon: MessageCircleIcon },
+  sidechat: { label: "侧栏", Icon: MessageCircleIcon },
   git: { label: "Git", Icon: GitCommitIcon },
 };
 

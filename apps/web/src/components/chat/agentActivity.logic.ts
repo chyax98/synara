@@ -36,7 +36,7 @@ export function formatAgentActivityEntryTitle(entry: WorkLogEntry): string {
   }
   const heading = normalizeCompactToolLabel(entry.toolTitle ?? entry.label).trim();
   if (!heading) {
-    return entry.itemType === "collab_agent_tool_call" ? "Agent task" : "Activity";
+    return entry.itemType === "collab_agent_tool_call" ? "代理任务" : "活动";
   }
   return capitalizePhrase(heading);
 }

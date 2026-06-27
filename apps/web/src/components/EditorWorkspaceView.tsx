@@ -585,7 +585,7 @@ function DiffFilesSidebar(props: {
           <DiffFilesLoadingRows />
         ) : props.files.length === 0 ? (
           <PanelStateMessage density="compact" fill="flex">
-            <p>No files in this diff.</p>
+            <p>此差异中没有文件。</p>
           </PanelStateMessage>
         ) : (
           props.files.map((fileDiff) => {
@@ -640,7 +640,7 @@ function WorkspaceFilesSidebar(props: {
           />
         ) : (
           <PanelStateMessage density="compact" fill="flex">
-            <p>No workspace.</p>
+            <p>暂无工作区。</p>
           </PanelStateMessage>
         )}
       </div>
@@ -774,11 +774,11 @@ export function WorkspaceSearchSidebar(props: {
       >
         {!props.workspaceRoot ? (
           <PanelStateMessage density="compact" fill="flex">
-            <p>No workspace.</p>
+            <p>暂无工作区。</p>
           </PanelStateMessage>
         ) : inputQuery.length === 0 ? (
           <PanelStateMessage density="compact" fill="flex">
-            <p>Search files by name or path.</p>
+            <p>按名称或路径搜索文件。</p>
           </PanelStateMessage>
         ) : searchResultsCurrent && entriesQuery.error ? (
           <PanelStateMessage density="compact" fill="flex">
@@ -791,7 +791,7 @@ export function WorkspaceSearchSidebar(props: {
             <ExplorerLoadingRows depth={0} />
           ) : (
             <PanelStateMessage density="compact" fill="flex">
-              <p>No matching files.</p>
+              <p>没有匹配的文件。</p>
             </PanelStateMessage>
           )
         ) : (
@@ -865,10 +865,10 @@ function EditorActivityBar(props: {
   return (
     <nav
       className="flex w-12 shrink-0 flex-col items-center border-r border-border/65 bg-[var(--color-background-surface)]"
-      aria-label="Editor activity bar"
+      aria-label="编辑器活动栏"
     >
       <EditorActivityBarButton
-        label={filesActive ? "隐藏文件侧边栏" : "Files"}
+        label={filesActive ? "隐藏文件侧边栏" : "文件"}
         active={filesActive}
         onClick={() => props.onSelectItem("file")}
       >
@@ -880,7 +880,7 @@ function EditorActivityBar(props: {
         />
       </EditorActivityBarButton>
       <EditorActivityBarButton
-        label={diffActive ? "隐藏 diff 侧边栏" : "Diff"}
+        label={diffActive ? "隐藏差异侧边栏" : "差异"}
         active={diffActive}
         onClick={() => props.onSelectItem("diff")}
       >
@@ -1109,18 +1109,18 @@ export function EditorWorkspaceView(props: EditorWorkspaceViewProps) {
           type="button"
           tone="outline"
           aria-pressed={chatPaneVisible}
-          title={chatPaneVisible ? "隐藏 chat 面板" : "显示 chat 面板"}
+          title={chatPaneVisible ? "隐藏聊天面板" : "显示聊天面板"}
           className="gap-1.5"
           onClick={toggleChatPaneVisible}
         >
           <PanelRightCloseIcon className="size-3.5" />
-          <span className="sr-only">{chatPaneVisible ? "隐藏 chat 面板" : "显示 chat 面板"}</span>
+          <span className="sr-only">{chatPaneVisible ? "隐藏聊天面板" : "显示聊天面板"}</span>
         </ChatHeaderButton>
         <ChatHeaderButton
           type="button"
           tone="outline"
           aria-pressed={true}
-          title="切换到 chat 视图"
+          title="切换到聊天视图"
           className="w-[5.5rem] gap-1.5"
           onClick={props.onExitEditorView}
         >
@@ -1186,13 +1186,13 @@ export function EditorWorkspaceView(props: EditorWorkspaceViewProps) {
           </main>
           <div
             role="separator"
-            aria-label="Resize chat panel"
+            aria-label="调整聊天面板大小"
             aria-orientation="vertical"
             aria-valuemin={EDITOR_CHAT_PANE_MIN_WIDTH}
             aria-valuemax={EDITOR_CHAT_PANE_MAX_WIDTH}
             aria-valuenow={chatPaneWidth}
             tabIndex={0}
-            title="拖动以调整 chat 面板大小"
+            title="拖动以调整聊天面板大小"
             className={cn(
               "group relative z-10 w-0 shrink-0 cursor-col-resize outline-none",
               chatPaneVisible ? "hidden lg:block" : "hidden",

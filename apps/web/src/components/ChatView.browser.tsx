@@ -3864,9 +3864,9 @@ describe("ChatView timeline estimator parity (full app)", () => {
       await waitForElement(
         () =>
           Array.from(document.querySelectorAll("button")).find(
-            (button) => button.textContent?.trim() === "Expand plan",
+            (button) => button.textContent?.trim() === "展开计划",
           ) as HTMLButtonElement | null,
-        "Unable to find Expand plan button.",
+        "Unable to find 展开计划 button.",
       );
 
       expect(document.body.textContent).not.toContain("deep hidden detail only after expand");
@@ -3874,9 +3874,9 @@ describe("ChatView timeline estimator parity (full app)", () => {
       const expandButton = await waitForElement(
         () =>
           Array.from(document.querySelectorAll("button")).find(
-            (button) => button.textContent?.trim() === "Expand plan",
+            (button) => button.textContent?.trim() === "展开计划",
           ) as HTMLButtonElement | null,
-        "Unable to find Expand plan button.",
+        "Unable to find 展开计划 button.",
       );
       expandButton.click();
 
@@ -3898,7 +3898,7 @@ describe("ChatView timeline estimator parity (full app)", () => {
     });
 
     try {
-      await expect.element(page.getByText("Expand plan")).toBeInTheDocument();
+      await expect.element(page.getByText("展开计划")).toBeInTheDocument();
       expect(document.querySelector('[aria-label="Close plan sidebar"]')).toBeNull();
     } finally {
       await mounted.cleanup();

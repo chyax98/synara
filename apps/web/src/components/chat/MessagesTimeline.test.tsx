@@ -645,7 +645,7 @@ describe("MessagesTimeline", () => {
       />,
     );
 
-    expect(markup).toContain("Show more");
+    expect(markup).toContain("展开更多");
     expect(markup).not.toContain(hiddenTail);
   });
 
@@ -1144,7 +1144,7 @@ describe("MessagesTimeline", () => {
     expect(markup).toContain(">done</p>");
     // Completed turns fold all tool work behind the single collapsed disclosure,
     // which stays unmounted until expanded, so no inline tool rows leak out.
-    expect(markup).not.toContain("+2 more tool calls");
+    expect(markup).not.toContain("+2 个更多工具调用");
     expect(markup).not.toContain("Tool 1");
     expect(markup).not.toContain("Tool 5");
   });
@@ -1368,7 +1368,7 @@ describe("MessagesTimeline", () => {
     expect(markup).not.toContain("Tool 2");
     expect(markup).toContain("Tool 3");
     expect(markup).toContain("Tool 6");
-    expect(markup).toContain("+2 more tool calls");
+    expect(markup).toContain("+2 个更多工具调用");
   });
 
   it("attaches trailing tool rows to the last assistant reply after completion", async () => {
@@ -1536,7 +1536,7 @@ describe("MessagesTimeline", () => {
     );
 
     expect(markup).toContain("Tool 5");
-    expect(markup).toContain("Show less");
+    expect(markup).toContain("收起");
   });
 
   it("renders inline file-change tool calls as edited rows with diff stats", async () => {

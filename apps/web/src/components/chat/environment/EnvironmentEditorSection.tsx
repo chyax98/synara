@@ -76,7 +76,7 @@ export function EnvironmentEditorSection({
                   <ActiveIcon aria-hidden className={ENVIRONMENT_ROW_ICON_CLASS_NAME} />
                 ) : null
               }
-              label={activeOption ? `Open in ${activeOption.label}` : "Open in editor"}
+              label={activeOption ? `在 ${activeOption.label} 中打开` : "在编辑器中打开"}
               trailing={<EnvironmentRowChevron />}
             />
           </MenuTrigger>

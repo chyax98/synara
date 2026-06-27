@@ -173,16 +173,6 @@ export interface ContextMenuItem<T extends string = string> {
   destructive?: boolean;
 }
 
-export type DesktopUpdateStatus =
-  | "disabled"
-  | "idle"
-  | "checking"
-  | "up-to-date"
-  | "available"
-  | "downloading"
-  | "downloaded"
-  | "error";
-
 export type DesktopRuntimeArch = "arm64" | "x64" | "other";
 export type DesktopTheme = "light" | "dark" | "system";
 
@@ -190,33 +180,6 @@ export interface DesktopRuntimeInfo {
   hostArch: DesktopRuntimeArch;
   appArch: DesktopRuntimeArch;
   runningUnderArm64Translation: boolean;
-}
-
-export interface DesktopUpdateState {
-  enabled: boolean;
-  status: DesktopUpdateStatus;
-  currentVersion: string;
-  hostArch: DesktopRuntimeArch;
-  appArch: DesktopRuntimeArch;
-  runningUnderArm64Translation: boolean;
-  availableVersion: string | null;
-  downloadedVersion: string | null;
-  downloadPercent: number | null;
-  checkedAt: string | null;
-  message: string | null;
-  errorContext: "check" | "download" | "install" | null;
-  canRetry: boolean;
-  // Public URL where the user can manually download the release when the
-  // in-app updater cannot apply it (silent installer failure, unsigned build,
-  // read-only install location, unsupported platform). Null when no GitHub
-  // update source is configured.
-  releaseUrl: string | null;
-}
-
-export interface DesktopUpdateActionResult {
-  accepted: boolean;
-  completed: boolean;
-  state: DesktopUpdateState;
 }
 
 export interface BrowserTabState {
@@ -349,11 +312,6 @@ export interface DesktopBridge {
   /** Current `webContents` page zoom (1 = 100%). Used to keep macOS traffic-light gutter aligned. */
   getZoomFactor: () => number;
   onZoomFactorChange: (listener: (zoomFactor: number) => void) => () => void;
-  getUpdateState: () => Promise<DesktopUpdateState>;
-  checkForUpdates: () => Promise<DesktopUpdateState>;
-  downloadUpdate: () => Promise<DesktopUpdateActionResult>;
-  installUpdate: () => Promise<DesktopUpdateActionResult>;
-  onUpdateState: (listener: (state: DesktopUpdateState) => void) => () => void;
   notifications: {
     isSupported: () => Promise<boolean>;
     show: (input: DesktopNotificationInput) => Promise<boolean>;

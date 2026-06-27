@@ -523,7 +523,7 @@ export const ComposerLocalDirectoryMenu = memo(function ComposerLocalDirectoryMe
           </p>
         ) : visibleCount === 0 ? (
           <p className="px-2 py-1.5 text-muted-foreground/50 text-[11px]">
-            {filter.trim().length > 0 ? "No matches." : "No files or folders here."}
+            {filter.trim().length > 0 ? "没有匹配项。" : "此处没有文件或文件夹。"}
           </p>
         ) : searchQuery.data?.truncated ? (
           <p className="px-2 py-1 text-muted-foreground/40 text-[10.5px]">

@@ -63,7 +63,7 @@ export const CompactComposerControlsMenu = memo(function CompactComposerControls
             <MenuDivider />
             <MenuItem onClick={props.onTogglePlanSidebar}>
               <ListTodoIcon className="size-4 shrink-0" />
-              {props.planSidebarOpen ? "Hide plan sidebar" : "Show plan sidebar"}
+              {props.planSidebarOpen ? "隐藏计划侧栏" : "显示计划侧栏"}
             </MenuItem>
           </>
         ) : null}

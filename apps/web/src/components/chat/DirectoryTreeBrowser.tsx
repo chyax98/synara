@@ -141,7 +141,7 @@ export const DirectoryTreeBrowser = memo(function DirectoryTreeBrowser({
           >
             <button
               type="button"
-              aria-label={expanded ? `Collapse ${entry.name}` : `Expand ${entry.name}`}
+              aria-label={expanded ? `折叠 ${entry.name}` : `展开 ${entry.name}`}
               className={cn(
                 "inline-flex size-5 shrink-0 items-center justify-center rounded-md text-muted-foreground/70 transition-colors hover:bg-[var(--color-background-button-secondary-hover)] hover:text-foreground",
                 (!isDirectory || !entry.hasChildren) && "opacity-35",

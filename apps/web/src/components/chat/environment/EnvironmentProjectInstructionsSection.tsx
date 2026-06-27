@@ -152,7 +152,7 @@ export function EnvironmentProjectInstructionsSection({
     onChange: onInstructionsChange,
   });
   const hasInstructions = autosave.value.trim().length > 0;
-  const copyLabel = threadNotes.trim().length === 0 ? "Copy to notepad" : "Append to notepad";
+  const copyLabel = threadNotes.trim().length === 0 ? "复制到记事本" : "追加到记事本";
 
   return (
     <EnvironmentCollapsibleSection label="项目说明" defaultOpen={hasInstructions}>

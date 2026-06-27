@@ -218,17 +218,17 @@ describe("ChatTranscriptPane", () => {
     try {
       expect(screen.container.textContent).not.toContain(hiddenTail);
       expect(screen.container.querySelector("button[data-scroll-anchor-ignore]")?.textContent).toBe(
-        "Show more",
+        "展开更多",
       );
 
-      await page.getByText("Show more").click();
+      await page.getByText("展开更多").click();
 
       await vi.waitFor(() => {
         expect(screen.container.textContent).toContain(hiddenTail);
       });
-      await expect.element(page.getByText("Show less")).toBeInTheDocument();
+      await expect.element(page.getByText("收起")).toBeInTheDocument();
       expect(screen.container.querySelector("button[data-scroll-anchor-ignore]")?.textContent).toBe(
-        "Show less",
+        "收起",
       );
     } finally {
       await screen.unmount();

@@ -6,7 +6,6 @@
 // Layer: Chat composer UI
 // Exports: ComposerLiveChangesHeader
 
-import { pluralize } from "@t3tools/shared/text";
 import { memo } from "react";
 
 import { ChangesIcon } from "~/lib/icons";
@@ -38,8 +37,7 @@ export const ComposerLiveChangesHeader = memo(function ComposerLiveChangesHeader
   if (fileCount === 0) {
     return null;
   }
-  const label =
-    fileCount === null ? "Files changed" : `${fileCount} ${pluralize(fileCount, "file")} changed`;
+  const label = fileCount === null ? "文件已更改" : `${fileCount} 个文件已更改`;
 
   return (
     <ComposerStackedPanel attachedToPrevious={attachedToPrevious}>

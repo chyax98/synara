@@ -185,7 +185,7 @@ const MarkerRow = memo(function MarkerRow({
         className="size-3.5 sm:size-3.5"
         checked={marker.done}
         onCheckedChange={() => onToggleDone(marker.id)}
-        aria-label={marker.done ? "Mark not done" : "Mark done"}
+        aria-label={marker.done ? "标为未完成" : "标为已完成"}
       />
       <span
         aria-hidden="true"

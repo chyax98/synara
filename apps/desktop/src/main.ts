@@ -30,12 +30,7 @@ import type {
   MenuItemConstructorOptions,
 } from "electron";
 import * as Effect from "effect/Effect";
-import type {
-  ContextMenuItem,
-  DesktopTheme,
-  DesktopUpdateActionResult,
-  DesktopUpdateState,
-} from "@t3tools/contracts";
+import type { ContextMenuItem, DesktopTheme } from "@t3tools/contracts";
 import { getMacTrafficLightPosition } from "@t3tools/shared/desktopChrome";
 import { NetService } from "@t3tools/shared/Net";
 import { RotatingFileSink } from "@t3tools/shared/logging";
@@ -97,11 +92,6 @@ const WINDOW_STATE_CHANNEL = "desktop:window-state";
 const MENU_ACTION_CHANNEL = "desktop:menu-action";
 const ZOOM_FACTOR_CHANNEL = "desktop:zoom-factor";
 const ZOOM_FACTOR_CHANGED_CHANNEL = "desktop:zoom-factor-changed";
-const UPDATE_STATE_CHANNEL = "desktop:update-state";
-const UPDATE_GET_STATE_CHANNEL = "desktop:update-get-state";
-const UPDATE_CHECK_CHANNEL = "desktop:update-check";
-const UPDATE_DOWNLOAD_CHANNEL = "desktop:update-download";
-const UPDATE_INSTALL_CHANNEL = "desktop:update-install";
 const NOTIFICATIONS_IS_SUPPORTED_CHANNEL = "desktop:notifications-is-supported";
 const NOTIFICATIONS_SHOW_CHANNEL = "desktop:notifications-show";
 const BASE_DIR =
@@ -218,25 +208,6 @@ const desktopRuntimeInfo = resolveDesktopRuntimeInfo({
   processArch: process.arch,
   runningUnderArm64Translation: app.runningUnderARM64Translation === true,
 });
-function createDisabledUpdateState(): DesktopUpdateState {
-  return {
-    enabled: false,
-    status: "disabled",
-    currentVersion: app.getVersion(),
-    hostArch: desktopRuntimeInfo.hostArch,
-    appArch: desktopRuntimeInfo.appArch,
-    runningUnderArm64Translation: desktopRuntimeInfo.runningUnderArm64Translation,
-    availableVersion: null,
-    downloadedVersion: null,
-    downloadPercent: null,
-    checkedAt: null,
-    message: null,
-    errorContext: null,
-    canRetry: false,
-    releaseUrl: null,
-  };
-}
-
 function logTimestamp(): string {
   return new Date().toISOString();
 }
@@ -542,8 +513,6 @@ function getDestructiveMenuIcon(): Electron.NativeImage | undefined {
     return undefined;
   }
 }
-let updateState: DesktopUpdateState = createDisabledUpdateState();
-
 protocol.registerSchemesAsPrivileged([
   {
     scheme: DESKTOP_SCHEME,
@@ -1074,18 +1043,6 @@ function applyLegacyMacDockIcon(): void {
   app.dock.setIcon(image);
 }
 
-function emitUpdateState(): void {
-  for (const window of BrowserWindow.getAllWindows()) {
-    if (window.isDestroyed()) continue;
-    window.webContents.send(UPDATE_STATE_CHANNEL, updateState);
-  }
-}
-
-function setUpdateState(patch: Partial<DesktopUpdateState>): void {
-  updateState = { ...updateState, ...patch };
-  emitUpdateState();
-}
-
 // Builds process-local Node args so provider/tool children do not inherit Synara's heap guard.
 function backendNodeArgs(): string[] {
   const configuredMaxOldSpaceMb =
@@ -1561,24 +1518,6 @@ function registerIpcHandlers(): void {
     return window ? getDesktopWindowState(window) : { isMaximized: false, isFullscreen: false };
   });
 
-  const disabledUpdateActionResult = (): DesktopUpdateActionResult => ({
-    accepted: false,
-    completed: false,
-    state: updateState,
-  });
-
-  ipcMain.removeHandler(UPDATE_GET_STATE_CHANNEL);
-  ipcMain.handle(UPDATE_GET_STATE_CHANNEL, async () => updateState);
-
-  ipcMain.removeHandler(UPDATE_CHECK_CHANNEL);
-  ipcMain.handle(UPDATE_CHECK_CHANNEL, async () => updateState);
-
-  ipcMain.removeHandler(UPDATE_DOWNLOAD_CHANNEL);
-  ipcMain.handle(UPDATE_DOWNLOAD_CHANNEL, async () => disabledUpdateActionResult());
-
-  ipcMain.removeHandler(UPDATE_INSTALL_CHANNEL);
-  ipcMain.handle(UPDATE_INSTALL_CHANNEL, async () => disabledUpdateActionResult());
-
   ipcMain.removeHandler(NOTIFICATIONS_IS_SUPPORTED_CHANNEL);
   ipcMain.handle(NOTIFICATIONS_IS_SUPPORTED_CHANNEL, async () => Notification.isSupported());
 
@@ -1735,7 +1674,6 @@ function createWindow(): BrowserWindow {
   });
   window.webContents.on("did-finish-load", () => {
     window.setTitle(APP_DISPLAY_NAME);
-    emitUpdateState();
   });
   window.once("ready-to-show", () => {
     // Launch filling the screen work area; the 1100x780 size above stays as the
@@ -1883,8 +1821,6 @@ if (hasSingleInstanceLock) {
       configureMediaPermissions();
       configureApplicationMenu();
       registerDesktopProtocol();
-      updateState = createDisabledUpdateState();
-      emitUpdateState();
       void bootstrap().catch((error) => {
         handleFatalStartupError("bootstrap", error);
       });

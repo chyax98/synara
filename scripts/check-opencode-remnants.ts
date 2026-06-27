@@ -51,6 +51,20 @@ const DESKTOP_FORBIDDEN_SYMBOLS = [
   "configureAutoUpdater",
   "quitAndInstall",
   "checkForUpdates",
+  "createDisabledUpdateState",
+  "DesktopUpdateState",
+  "UPDATE_STATE_CHANNEL",
+  "UPDATE_GET_STATE_CHANNEL",
+  "UPDATE_CHECK_CHANNEL",
+  "UPDATE_DOWNLOAD_CHANNEL",
+  "UPDATE_INSTALL_CHANNEL",
+  "desktop:update-state",
+  "desktop:update-get-state",
+  "desktop:update-check",
+  "downloadUpdate",
+  "installUpdate",
+  "getUpdateState",
+  "onUpdateState",
 ] as const;
 
 /** Deleted desktop updater modules — flag import paths, not unrelated local identifiers. */
@@ -64,12 +78,6 @@ const DESKTOP_FORBIDDEN_MODULE_IMPORTS = [
 ] as const;
 
 const DESKTOP_SCAN_ROOT = "apps/desktop/src";
-
-/** IPC bridge contract methods kept while main returns disabled update state. */
-const DESKTOP_ALLOWED_UPDATER_SYMBOLS: ReadonlyArray<{
-  readonly pathIncludes: string;
-  readonly symbols: readonly string[];
-}> = [{ pathIncludes: "desktop/src/preload.ts", symbols: ["checkForUpdates"] }];
 
 function isTestFile(path: string): boolean {
   return /\.(test|spec|browser)\.[cm]?[jt]sx?$/.test(path);
@@ -99,16 +107,6 @@ function isAllowed(path: string, literal: string): boolean {
   const rel = relative(ROOT, path);
   for (const rule of ALLOWED_LITERALS) {
     if (rel.includes(rule.pathIncludes) && rule.literals.includes(literal)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-function isAllowedDesktopUpdaterSymbol(path: string, symbol: string): boolean {
-  const rel = relative(ROOT, path);
-  for (const rule of DESKTOP_ALLOWED_UPDATER_SYMBOLS) {
-    if (rel.includes(rule.pathIncludes) && rule.symbols.includes(symbol)) {
       return true;
     }
   }
@@ -174,7 +172,7 @@ for (const file of walk(desktopRoot)) {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i] ?? "";
     for (const symbol of DESKTOP_FORBIDDEN_SYMBOLS) {
-      if (line.includes(symbol) && !isAllowedDesktopUpdaterSymbol(file, symbol)) {
+      if (line.includes(symbol)) {
         violations.push(
           `${relative(ROOT, file)}:${i + 1}:forbidden desktop updater symbol "${symbol}"`,
         );

@@ -324,8 +324,8 @@ export const TraitsMenuContent = memo(function TraitsMenuContentImpl({
           label="思考"
           value={thinkingEnabled ? "on" : "off"}
           options={[
-            { value: "on", label: "关" },
-            { value: "off", label: "Off" },
+            { value: "on", label: "开" },
+            { value: "off", label: "关" },
           ]}
           onValueChange={(value) => commitTrait({ thinking: value === "on" })}
           onSelectionComplete={onSelectionComplete}
@@ -379,8 +379,8 @@ export const TraitsMenuContent = memo(function TraitsMenuContentImpl({
             label="速度"
             value={fastModeEnabled ? "on" : "off"}
             options={[
-              { value: "off", label: "Default" },
-              { value: "on", label: "Fast" },
+              { value: "off", label: "默认" },
+              { value: "on", label: "快速" },
             ]}
             onValueChange={(value) => commitTrait({ fastMode: value === "on" })}
             onSelectionComplete={onSelectionComplete}

@@ -21,11 +21,6 @@ const WINDOW_CLOSE_CHANNEL = "desktop:window-close";
 const WINDOW_GET_STATE_CHANNEL = "desktop:window-get-state";
 const WINDOW_STATE_CHANNEL = "desktop:window-state";
 const MENU_ACTION_CHANNEL = "desktop:menu-action";
-const UPDATE_STATE_CHANNEL = "desktop:update-state";
-const UPDATE_GET_STATE_CHANNEL = "desktop:update-get-state";
-const UPDATE_CHECK_CHANNEL = "desktop:update-check";
-const UPDATE_DOWNLOAD_CHANNEL = "desktop:update-download";
-const UPDATE_INSTALL_CHANNEL = "desktop:update-install";
 const NOTIFICATIONS_IS_SUPPORTED_CHANNEL = "desktop:notifications-is-supported";
 const NOTIFICATIONS_SHOW_CHANNEL = "desktop:notifications-show";
 const ZOOM_FACTOR_CHANNEL = "desktop:zoom-factor";
@@ -93,21 +88,6 @@ contextBridge.exposeInMainWorld("desktopBridge", {
     ipcRenderer.on(ZOOM_FACTOR_CHANGED_CHANNEL, wrappedListener);
     return () => {
       ipcRenderer.removeListener(ZOOM_FACTOR_CHANGED_CHANNEL, wrappedListener);
-    };
-  },
-  getUpdateState: () => ipcRenderer.invoke(UPDATE_GET_STATE_CHANNEL),
-  checkForUpdates: () => ipcRenderer.invoke(UPDATE_CHECK_CHANNEL),
-  downloadUpdate: () => ipcRenderer.invoke(UPDATE_DOWNLOAD_CHANNEL),
-  installUpdate: () => ipcRenderer.invoke(UPDATE_INSTALL_CHANNEL),
-  onUpdateState: (listener) => {
-    const wrappedListener = (_event: Electron.IpcRendererEvent, state: unknown) => {
-      if (typeof state !== "object" || state === null) return;
-      listener(state as Parameters<typeof listener>[0]);
-    };
-
-    ipcRenderer.on(UPDATE_STATE_CHANNEL, wrappedListener);
-    return () => {
-      ipcRenderer.removeListener(UPDATE_STATE_CHANNEL, wrappedListener);
     };
   },
   notifications: {

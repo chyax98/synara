@@ -368,7 +368,7 @@ describe("EditorWorkspaceView", () => {
     );
 
     const filesIndex = markup.indexOf('aria-label="隐藏文件侧边栏"');
-    const diffIndex = markup.indexOf('aria-label="Diff"');
+    const diffIndex = markup.indexOf('aria-label="差异"');
     const searchIndex = markup.indexOf('aria-label="搜索文件"');
     expect(filesIndex).toBeGreaterThan(-1);
     expect(diffIndex).toBeGreaterThan(filesIndex);
@@ -391,7 +391,7 @@ describe("EditorWorkspaceView", () => {
     );
 
     expect(markup).toContain('placeholder="搜索文件..."');
-    expect(markup).toContain("Search files by name or path.");
+    expect(markup).toContain("按名称或路径搜索文件。");
   });
 
   it("lists only matching files from the workspace search results", () => {
@@ -418,7 +418,7 @@ describe("EditorWorkspaceView", () => {
 
     expect(markup).toContain('title="apps/web/src/components/EditorWorkspaceView.tsx"');
     expect(markup).toContain("EditorWorkspaceView.tsx");
-    expect(markup).not.toContain("No matching files.");
+    expect(markup).not.toContain("没有匹配的文件。");
   });
 
   it("shows pointer cursor on activity buttons that switch files and diff", () => {
@@ -449,7 +449,7 @@ describe("EditorWorkspaceView", () => {
     // Files is the active mode with a visible sidebar, so its button reads as
     // a sidebar collapse toggle; Diff stays a plain mode switch.
     expect(markup).toContain('aria-label="隐藏文件侧边栏"');
-    expect(markup).toContain('aria-label="Diff"');
+    expect(markup).toContain('aria-label="差异"');
     expect(markup.match(/cursor-pointer/g)?.length).toBeGreaterThanOrEqual(2);
   });
 });

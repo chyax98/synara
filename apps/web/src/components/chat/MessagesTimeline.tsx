@@ -775,7 +775,7 @@ export const MessagesTimeline = memo(function MessagesTimeline({
                     style={{ fontSize: `${appTypographyScale.uiSmPx}px` }}
                     onClick={() => handleToggleWorkGroup(groupId)}
                   >
-                    {isExpanded ? "Show less" : `Show ${hiddenCount} more`}
+                    {isExpanded ? "收起" : `再显示 ${hiddenCount} 项`}
                   </button>
                 </div>
               )}
@@ -953,7 +953,7 @@ export const MessagesTimeline = memo(function MessagesTimeline({
                           }));
                         }}
                       >
-                        {userMessageExpanded ? "Show less" : "Show more"}
+                        {userMessageExpanded ? "收起" : "展开更多"}
                       </button>
                     )}
                   </div>
@@ -1202,8 +1202,8 @@ export const MessagesTimeline = memo(function MessagesTimeline({
                             onClick={() => handleToggleWorkGroup(inlineToolGroupId)}
                           >
                             {inlineToolExpanded
-                              ? "Show less"
-                              : `+${hiddenInlineToolCount} more tool calls`}
+                              ? "收起"
+                              : `+${hiddenInlineToolCount} 个更多工具调用`}
                           </button>
                         </div>
                       )}
@@ -1277,8 +1277,8 @@ export const MessagesTimeline = memo(function MessagesTimeline({
                     // unpinned message only reveals it on hover, like the other footer actions.
                     // Same Central pin glyph in both states — persistence signals the pinned state.
                     <MessageActionButton
-                      label={messagePinned ? "Unpin message" : "Pin message"}
-                      tooltip={messagePinned ? "Unpin from panel" : "Pin to panel"}
+                      label={messagePinned ? "取消固定消息" : "固定消息"}
+                      tooltip={messagePinned ? "从面板取消固定" : "固定到面板"}
                       aria-pressed={messagePinned}
                       className={
                         messagePinned ? "text-muted-foreground/80" : MESSAGE_HOVER_REVEAL_CLASS_NAME
@@ -1459,11 +1459,8 @@ export const MessagesTimeline = memo(function MessagesTimeline({
                             <DisclosureChevron open={fileListExpanded} />
                             <span>
                               {fileListExpanded
-                                ? "Show less"
-                                : `Show ${overflowCheckpointFiles.length} more ${pluralize(
-                                    overflowCheckpointFiles.length,
-                                    "file",
-                                  )}`}
+                                ? "收起"
+                                : `再显示 ${overflowCheckpointFiles.length} 个文件`}
                             </span>
                           </button>
                         ) : null}

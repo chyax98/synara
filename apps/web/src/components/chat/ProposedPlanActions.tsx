@@ -144,7 +144,7 @@ export const ProposedPlanActions = memo(function ProposedPlanActions({
         <ArrowUpIcon className={cn("size-3.5", iconClassName)} />
       </PlanActionButton>
       <PlanActionButton
-        label={isCopied ? "Copied" : "Copy as markdown"}
+        label={isCopied ? "已复制" : "复制为 Markdown"}
         onClick={handleCopy}
         variant={variant}
         className={buttonClassName}
