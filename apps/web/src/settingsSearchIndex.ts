@@ -37,7 +37,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "general:default-provider",
     section: "general",
     title: "默认提供商",
-    keywords: "为新会话选择默认提供商。OpenCode 代理",
+    keywords: "为新会话选择默认提供商。代理",
   },
   {
     id: "general:new-threads",
@@ -73,7 +73,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "general:environment-repository",
     section: "general",
     title: "仓库",
-    keywords: "在聊天环境面板中显示 GitHub 仓库链接。变更 工作树 分支",
+    keywords: "在聊天环境面板中显示远程代码仓库链接。变更 工作树 分支",
   },
   {
     id: "general:environment-editor",
@@ -111,12 +111,12 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "appearance:theme",
     section: "appearance",
     title: "主题",
-    keywords: "选择 Synara 在应用中的外观。深色 浅色 系统 颜色",
+    keywords: "选择应用在界面中的外观。深色 浅色 系统 颜色",
   },
   {
     id: "appearance:ui-density",
     section: "appearance",
-    title: "UI 密度",
+    title: "界面密度",
     keywords: "控制侧边栏、输入区、聊天边距与设置行的间距，不改变字号。紧凑 舒适",
   },
   {
@@ -141,7 +141,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "appearance:font-smoothing",
     section: "appearance",
     title: "字体平滑",
-    keywords: "使用 macOS 风格抗锯齿，使文字更轻、更清晰。",
+    keywords: "使用苹果系统风格抗锯齿，使文字更轻、更清晰。",
     target: null,
   },
   {
@@ -170,7 +170,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "behavior:assistant-output",
     section: "behavior",
     title: "助手输出",
-    keywords: "在回复进行中逐 token 显示输出。流式",
+    keywords: "在回复进行中逐词元显示输出。流式",
   },
   {
     id: "behavior:diff-line-wrapping",
@@ -208,7 +208,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "worktrees:managed-worktrees",
     section: "worktrees",
     title: "托管工作树",
-    keywords: "查看并清理 Synara 创建的工作树。分支 删除",
+    keywords: "查看并清理应用创建的工作树。分支 删除",
   },
 
   // ── Archived ──────────────────────────────────────────────────────────────────
@@ -223,8 +223,8 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   {
     id: "models:git-writing-model",
     section: "models",
-    title: "Git 文案模型",
-    keywords: "用于生成提交说明、PR 标题与分支名。",
+    title: "版本控制文案模型",
+    keywords: "用于生成提交说明、合并请求标题与分支名。",
   },
   {
     id: "models:saved-model-slugs",
@@ -235,22 +235,10 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
 
   // ── Providers ─────────────────────────────────────────────────────────────────
   {
-    id: "providers:visible-providers",
+    id: "providers:opencode",
     section: "providers",
-    title: "可见提供商",
-    keywords: "拖拽提供商调整选择器顺序，并隐藏不使用的项。可见性 排序",
-  },
-  {
-    id: "providers:provider-updates",
-    section: "providers",
-    title: "提供商更新",
-    keywords: "更新 Synara 可安全更新的已安装工具。升级 CLI",
-  },
-  {
-    id: "providers:installed-clis",
-    section: "providers",
-    title: "已安装 CLI",
-    keywords: "查看提供商版本并更新工具。二进制 覆盖 路径 安装",
+    title: "OpenCode",
+    keywords: "唯一提供商 无需配置",
   },
 
   // ── Skills ────────────────────────────────────────────────────────────────────

@@ -290,23 +290,23 @@ export function automationAttentionCount(runs: readonly AutomationRun[]): number
 export function runStatusLabel(status: AutomationRun["status"]): string {
   switch (status) {
     case "pending":
-      return "Queued";
+      return "排队中";
     case "claimed":
-      return "Starting";
+      return "启动中";
     case "running":
-      return "Running";
+      return "运行中";
     case "waiting-for-approval":
       return "等待确认";
     case "succeeded":
       return "已完成";
     case "failed":
-      return "Failed";
+      return "失败";
     case "cancelled":
-      return "Cancelled";
+      return "已取消";
     case "interrupted":
-      return "Interrupted";
+      return "已中断";
     case "skipped":
-      return "Skipped";
+      return "已跳过";
   }
 }
 
@@ -323,7 +323,7 @@ export function runResultSummary(run: AutomationRun): string {
     case "needs-attention":
       return "需要注意";
     case "unknown":
-      return run.threadId ? "已完成；打开 thread 查看回复" : "已完成";
+      return run.threadId ? "已完成；打开会话查看回复" : "已完成";
     case undefined:
       return runStatusLabel(run.status);
   }
@@ -594,6 +594,28 @@ export function useAutomations(onRunStarted?: (threadId: ThreadId) => void) {
 /** Subtle labeled pill used in the automation composer toolbar. */
 const CHIP_CLASS =
   "gap-1.5 rounded-lg px-2 font-normal text-[var(--color-text-foreground-secondary)]";
+
+const CHEVRON_CLASS = "size-3.5 shrink-0 text-muted-foreground";
+
+export function worktreeModeLabel(mode: AutomationWorktreeMode): string {
+  switch (mode) {
+    case "auto":
+      return "自动";
+    case "local":
+      return "本地";
+    case "worktree":
+      return "工作树";
+  }
+}
+
+function automationModeLabel(mode: AutomationMode): string {
+  switch (mode) {
+    case "heartbeat":
+      return "心跳";
+    case "standalone":
+      return "独立运行";
+  }
+}
 type CadenceOption = { readonly value: string; readonly label: string };
 type IntervalCadenceOption = {
   readonly amount: string;
@@ -616,12 +638,12 @@ function intervalOptionValue(option: Pick<IntervalCadenceOption, "amount" | "uni
 }
 
 function intervalOptionLabel(amount: string, unit: IntervalUnit): string {
-  return unit === "seconds" ? `Every ${amount} sec` : `Every ${amount} min`;
+  return unit === "seconds" ? `每 ${amount} 秒` : `每 ${amount} 分钟`;
 }
 
 /** Heartbeat run-count presets ("" = unlimited). */
 const MAX_ITERATION_PRESETS: readonly CadenceOption[] = [
-  { value: "", label: "Unlimited" },
+  { value: "", label: "无限制" },
   { value: "10", label: "10 次运行" },
   { value: "25", label: "25 次运行" },
   { value: "50", label: "50 次运行" },
@@ -630,7 +652,7 @@ const MAX_ITERATION_PRESETS: readonly CadenceOption[] = [
 ];
 
 function maxIterationLabel(value: string): string {
-  return value === "1" ? "1 次运行" : `${value} runs`;
+  return value === "1" ? "1 次运行" : `${value} 次运行`;
 }
 
 export function maxIterationOptions(
@@ -661,11 +683,11 @@ export function AutomationApprovalBanner({
   }
   return (
     <Alert variant="warning">
-      <AlertTitle>Approval needed</AlertTitle>
+      <AlertTitle>需要审批</AlertTitle>
       <AlertDescription>
         <span>
-          This automation needs your approval once before Synara can save changes. When a warning
-          blocks manual runs, Run now stays disabled until you approve it.
+          此自动化需要您审批一次后，Synara
+          才能保存更改。当警告阻止手动运行时，「立即运行」将保持禁用，直到您批准为止。
         </span>
         <ul className="flex flex-col gap-1.5">
           {warnings.map((warning) => (
@@ -677,10 +699,10 @@ export function AutomationApprovalBanner({
         </ul>
         <div className="flex justify-end gap-2">
           <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={onApprove}>
-            Approve
+            批准
           </Button>
           <Button type="button" size="sm" disabled={busy} onClick={onApproveAndRun}>
-            Approve &amp; run now
+            批准并立即运行
           </Button>
         </div>
       </AlertDescription>
@@ -824,16 +846,14 @@ export function AutomationDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogPopup surface="solid" showCloseButton={false} className="max-w-3xl">
-        <DialogTitle className="sr-only">
-          {editing ? "编辑 automation" : "新建 automation"}
-        </DialogTitle>
+        <DialogTitle className="sr-only">{editing ? "编辑自动化" : "新建自动化"}</DialogTitle>
 
         <div className="flex items-start gap-3 px-5 pt-5">
           <input
             value={form.name}
             onChange={(event) => setField("name", event.target.value)}
-            placeholder="Automation 标题"
-            aria-label="Automation 标题"
+            placeholder="自动化标题"
+            aria-label="自动化标题"
             autoFocus
             className="min-w-0 flex-1 bg-transparent py-1 font-system-ui text-lg font-medium text-foreground outline-none placeholder:text-muted-foreground/50"
           />
@@ -842,15 +862,13 @@ export function AutomationDialog({
               type="button"
               variant="ghost"
               size="icon-sm"
-              aria-label="About automations"
-              title="Automation 会按 schedule 运行这段 prompt，并将结果作为一个 thread 打开。"
+              aria-label="关于自动化"
+              title="自动化会按计划运行这段提示词，并将结果作为一个会话打开。"
             >
               <CentralIcon name="info-simple" className="size-4" />
             </Button>
             <Menu>
-              <MenuTrigger render={<Button variant="outline" size="sm" />}>
-                Use template
-              </MenuTrigger>
+              <MenuTrigger render={<Button variant="outline" size="sm" />}>使用模板</MenuTrigger>
               <ComposerPickerMenuPopup align="end" className="w-52">
                 {AUTOMATION_TEMPLATES.map((template) => (
                   <MenuItem key={template.label} onClick={() => applyTemplate(template)}>
@@ -882,8 +900,8 @@ export function AutomationDialog({
                 submit();
               }
             }}
-            placeholder="输入 prompt，例如：在 $sentry 中查找崩溃"
-            aria-label="Automation prompt"
+            placeholder="输入提示词，例如：检查过时的依赖并运行测试"
+            aria-label="自动化提示词"
             className="min-h-[15rem] w-full flex-1 resize-none overflow-y-auto bg-transparent font-system-ui text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground/50"
           />
 
@@ -925,8 +943,8 @@ export function AutomationDialog({
               <Menu>
                 <MenuTrigger render={<Button variant="ghost" size="sm" className={CHIP_CLASS} />}>
                   <WorktreeIcon className="size-4" />
-                  <span className="capitalize">{form.worktreeMode}</span>
-                  <CentralIcon name="chevron-down-small" className="自动" />
+                  <span>{worktreeModeLabel(form.worktreeMode)}</span>
+                  <CentralIcon name="chevron-down-small" className={CHEVRON_CLASS} />
                 </MenuTrigger>
                 <ComposerPickerMenuPopup align="start" className="w-40">
                   <MenuRadioGroup
@@ -937,7 +955,7 @@ export function AutomationDialog({
                   >
                     {(["auto", "worktree", "local"] as const).map((value) => (
                       <MenuRadioItem key={value} value={value}>
-                        <span className="capitalize">{value}</span>
+                        {worktreeModeLabel(value)}
                       </MenuRadioItem>
                     ))}
                   </MenuRadioGroup>
@@ -949,9 +967,9 @@ export function AutomationDialog({
               <MenuTrigger render={<Button variant="ghost" size="sm" className={CHIP_CLASS} />}>
                 <CentralIcon name="folder-2" className="size-4" />
                 <span className="max-w-[10rem] truncate">
-                  {selectedProject?.name ?? "Select project"}
+                  {selectedProject?.name ?? "选择项目"}
                 </span>
-                <CentralIcon name="chevron-down-small" className="自动" />
+                <CentralIcon name="chevron-down-small" className={CHEVRON_CLASS} />
               </MenuTrigger>
               <ComposerPickerMenuPopup align="start" className="w-56">
                 <MenuRadioGroup value={form.projectId} onValueChange={chooseProject}>
@@ -974,11 +992,11 @@ export function AutomationDialog({
               <MenuTrigger render={<Button variant="ghost" size="sm" className={CHIP_CLASS} />}>
                 <CentralIcon name="clock" className="size-4" />
                 <span>{formatCadence(schedule)}</span>
-                <CentralIcon name="chevron-down-small" className="自动" />
+                <CentralIcon name="chevron-down-small" className={CHEVRON_CLASS} />
               </MenuTrigger>
               <ComposerPickerMenuPopup align="start" className="w-56">
                 <MenuGroup>
-                  <MenuGroupLabel>Schedule</MenuGroupLabel>
+                  <MenuGroupLabel>计划</MenuGroupLabel>
                   <MenuRadioGroup
                     value={form.scheduleKind}
                     onValueChange={(value) => setField("scheduleKind", value as ScheduleKind)}
@@ -994,7 +1012,7 @@ export function AutomationDialog({
                   <>
                     <MenuSeparator />
                     <MenuGroup>
-                      <MenuGroupLabel>Every</MenuGroupLabel>
+                      <MenuGroupLabel>每隔</MenuGroupLabel>
                       <MenuRadioGroup
                         value={intervalValue}
                         onValueChange={(value) => {
@@ -1024,7 +1042,7 @@ export function AutomationDialog({
                   <>
                     <MenuSeparator />
                     <MenuGroup>
-                      <MenuGroupLabel>Run at</MenuGroupLabel>
+                      <MenuGroupLabel>运行时间</MenuGroupLabel>
                       <div className="px-2 py-1">
                         <input
                           type="datetime-local"
@@ -1057,7 +1075,7 @@ export function AutomationDialog({
                   <>
                     <MenuSeparator />
                     <MenuGroup>
-                      <MenuGroupLabel>Day</MenuGroupLabel>
+                      <MenuGroupLabel>日期</MenuGroupLabel>
                       <MenuRadioGroup
                         value={form.dayOfWeek}
                         onValueChange={(value) => setField("dayOfWeek", value)}
@@ -1078,7 +1096,7 @@ export function AutomationDialog({
                     <MenuSeparator />
                     <MenuSub>
                       <MenuSubTrigger>
-                        Time
+                        时间
                         <span className="ml-auto pr-1 tabular-nums text-muted-foreground">
                           {form.timeOfDay}
                         </span>
@@ -1102,12 +1120,12 @@ export function AutomationDialog({
                   <>
                     <MenuSeparator />
                     <MenuGroup>
-                      <MenuGroupLabel>Timezone</MenuGroupLabel>
+                      <MenuGroupLabel>时区</MenuGroupLabel>
                       <div className="px-2 py-1">
                         <input
                           value={form.timezone}
                           onChange={(event) => setField("timezone", event.target.value)}
-                          placeholder="Europe/Rome"
+                          placeholder="时区"
                           className="w-full rounded-md border border-border bg-transparent px-2 py-1.5 text-xs outline-none focus-visible:ring-1 focus-visible:ring-ring"
                         />
                       </div>
@@ -1133,22 +1151,26 @@ export function AutomationDialog({
               </MenuTrigger>
               <ComposerPickerMenuPopup align="start" className="w-56">
                 <MenuGroup>
-                  <MenuGroupLabel>Mode</MenuGroupLabel>
+                  <MenuGroupLabel>模式</MenuGroupLabel>
                   <MenuRadioGroup
                     value={form.mode}
                     onValueChange={(value) => setField("mode", value as AutomationMode)}
                   >
-                    <MenuRadioItem value="standalone">Standalone</MenuRadioItem>
-                    <MenuRadioItem value="heartbeat">Heartbeat</MenuRadioItem>
+                    <MenuRadioItem value="standalone">
+                      {automationModeLabel("standalone")}
+                    </MenuRadioItem>
+                    <MenuRadioItem value="heartbeat">
+                      {automationModeLabel("heartbeat")}
+                    </MenuRadioItem>
                   </MenuRadioGroup>
                 </MenuGroup>
                 {form.mode === "heartbeat" ? (
                   <>
                     <MenuSeparator />
                     <MenuGroup>
-                      <MenuGroupLabel>Target thread</MenuGroupLabel>
+                      <MenuGroupLabel>目标会话</MenuGroupLabel>
                       {projectThreads.length === 0 ? (
-                        <MenuItem disabled>No threads in this project</MenuItem>
+                        <MenuItem disabled>此项目暂无会话</MenuItem>
                       ) : (
                         <MenuRadioGroup
                           value={form.targetThreadId}
@@ -1166,12 +1188,12 @@ export function AutomationDialog({
                     </MenuGroup>
                     <MenuSeparator />
                     <MenuGroup>
-                      <MenuGroupLabel>Stop when</MenuGroupLabel>
+                      <MenuGroupLabel>停止条件</MenuGroupLabel>
                       <div className="px-2 py-1">
                         <input
                           value={form.stopWhen}
                           onChange={(event) => setField("stopWhen", event.target.value)}
-                          placeholder="PR is ready to merge"
+                          placeholder="PR 可以合并时"
                           className="w-full rounded-md border border-border bg-transparent px-2 py-1.5 text-xs outline-none focus-visible:ring-1 focus-visible:ring-ring"
                         />
                       </div>
@@ -1181,13 +1203,13 @@ export function AutomationDialog({
                       checked={form.stopOnError}
                       onCheckedChange={(checked) => setField("stopOnError", checked)}
                     >
-                      Stop on error
+                      出错时停止
                     </MenuCheckboxItem>
                   </>
                 ) : null}
                 <MenuSeparator />
                 <MenuGroup>
-                  <MenuGroupLabel>Max iterations</MenuGroupLabel>
+                  <MenuGroupLabel>最大迭代次数</MenuGroupLabel>
                   <MenuRadioGroup
                     value={form.maxIterations}
                     onValueChange={(value) => setField("maxIterations", value)}
@@ -1221,8 +1243,8 @@ export function AutomationDialog({
                   value={form.runtimeMode}
                   onValueChange={(value) => setField("runtimeMode", value as RuntimeMode)}
                 >
-                  <MenuRadioItem value="approval-required">Approval required</MenuRadioItem>
-                  <MenuRadioItem value="full-access">Full access</MenuRadioItem>
+                  <MenuRadioItem value="approval-required">需要审批</MenuRadioItem>
+                  <MenuRadioItem value="full-access">完全访问</MenuRadioItem>
                 </MenuRadioGroup>
               </ComposerPickerMenuPopup>
             </Menu>
@@ -1235,10 +1257,10 @@ export function AutomationDialog({
               disabled={busy}
               onClick={() => onOpenChange(false)}
             >
-              Cancel
+              取消
             </Button>
             <Button type="button" onClick={submit} disabled={busy || !submittable}>
-              {editing ? "Save" : "Create"}
+              {editing ? "保存" : "创建"}
             </Button>
           </div>
         </div>

@@ -274,7 +274,7 @@ function SettingsRouteView() {
   const [isOpeningKeybindings, setIsOpeningKeybindings] = useState(false);
   const [isRepairingLocalState, setIsRepairingLocalState] = useState(false);
   const [showRecoveryTools, setShowRecoveryTools] = useState(false);
-  const [releaseHistoryOpen, setReleaseHistoryOpen] = useState(false);
+
   const [openKeybindingsError, setOpenKeybindingsError] = useState<string | null>(null);
   const environmentPanelRef = useRef<HTMLDivElement | null>(null);
   const [customModelInput, setCustomModelInput] = useState("");
@@ -442,7 +442,7 @@ function SettingsRouteView() {
     ...(settings.confirmTerminalTabClose !== defaults.confirmTerminalTabClose
       ? ["关闭终端确认"]
       : []),
-    ...(isGitTextGenerationModelDirty ? ["Git 文案模型"] : []),
+    ...(isGitTextGenerationModelDirty ? ["版本控制文案模型"] : []),
     ...(settings.customOpenCodeModels.length > 0 ? ["自定义模型"] : []),
   ];
 
@@ -1030,10 +1030,9 @@ function SettingsRouteView() {
           {renderBooleanSettingRow({
             settingKey: "showEnvironmentRepository",
             title: "仓库",
-            description:
-              "在聊天环境面板中显示 GitHub 仓库链接。变更区块（变更、工作树、分支、提交并推送）始终可见。",
+            description: "在聊天环境面板中显示远程代码仓库链接。源代码变更区域始终可见。",
             resetLabel: "仓库分区",
-            ariaLabel: "在 环境面板中显示仓库分区",
+            ariaLabel: "在环境面板中显示仓库分区",
           })}
 
           {renderBooleanSettingRow({
@@ -1687,12 +1686,12 @@ function SettingsRouteView() {
     <div className="space-y-6">
       <SettingsSection title="生成默认">
         <SettingsRow
-          title="Git 文案模型"
-          description="用于生成提交说明、PR 标题与分支名。"
+          title="版本控制文案模型"
+          description="用于生成提交说明、合并请求标题与分支名。"
           resetAction={
             isGitTextGenerationModelDirty ? (
               <SettingResetButton
-                label="Git 文案模型"
+                label="版本控制文案模型"
                 onClick={() =>
                   updateSettings({
                     textGenerationProvider: defaults.textGenerationProvider,
@@ -1832,10 +1831,10 @@ function SettingsRouteView() {
 
   const renderProvidersPanel = () => (
     <div className="space-y-6">
-      <SettingsSection title="Provider">
+      <SettingsSection title="提供商">
         <SettingsRow
           title="OpenCode"
-          description="Synara 仅支持 OpenCode 作为唯一 Provider，无需额外配置。"
+          description="Synara 仅支持 OpenCode 作为唯一提供商，无需额外配置。"
         />
       </SettingsSection>
     </div>
@@ -1907,8 +1906,7 @@ function SettingsRouteView() {
                     SETTINGS_INSET_LIST_CLASS_NAME,
                   )}
                 >
-                  Rebuilds local project indexes and refreshes project snapshots. Existing chats
-                  stay in place.
+                  重建本地项目索引并刷新项目快照。现有会话会保留。
                 </div>
               ) : null}
             </div>
@@ -1921,15 +1919,6 @@ function SettingsRouteView() {
           title="版本"
           description="当前应用版本。"
           control={<code className="text-xs font-medium text-muted-foreground">{APP_VERSION}</code>}
-        />
-        <SettingsRow
-          title="发布历史"
-          description="按时间倒序记录每次更新。与更新后对话框相同的说明，可随时在此查看。"
-          control={
-            <Button size="sm" variant="outline" onClick={() => setReleaseHistoryOpen(true)}>
-              View release history
-            </Button>
-          }
         />
       </SettingsSection>
     </div>

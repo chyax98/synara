@@ -191,7 +191,7 @@ describe("automation shared route helpers", () => {
           status: "succeeded",
         }),
       ),
-    ).toBe("已完成；打开 thread 查看回复");
+    ).toBe("已完成；打开会话查看回复");
   });
 
   it("round-trips one-shot datetimes through datetime-local values", () => {
@@ -255,8 +255,8 @@ describe("automation shared route helpers", () => {
   });
 
   it("keeps custom max-iteration caps visible in picker options", () => {
-    expect(maxIterationOptions("3")[0]).toEqual({ value: "3", label: "3 runs" });
-    expect(maxIterationOptions(10)[0]).toEqual({ value: "", label: "Unlimited" });
+    expect(maxIterationOptions("3")[0]).toEqual({ value: "3", label: "3 次运行" });
+    expect(maxIterationOptions(10)[0]).toEqual({ value: "", label: "无限制" });
   });
 
   it("refreshes the default model when the current model came from the old project", () => {

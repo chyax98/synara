@@ -2728,7 +2728,7 @@ export default function Sidebar() {
         });
         toastManager.add({
           type: "error",
-          title: "会话已删除，但 worktree 移除失败",
+          title: "会话已删除，但工作树移除失败",
           description: `无法移除 ${displayWorktreePath ?? orphanedWorktreePath}。${message}`,
         });
       }

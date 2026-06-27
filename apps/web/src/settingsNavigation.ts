@@ -27,8 +27,6 @@ export type SettingsNavGroupId = "app" | "synara";
  * silently drifting apart.
  */
 export const SETTINGS_TARGETS = {
-  providerUpdates: "provider-updates",
-  providerInstalls: "provider-installs",
   environmentPanel: "environment-panel",
 } as const;
 
@@ -113,7 +111,7 @@ export const SETTINGS_NAV_ITEMS: readonly SettingsNavItem[] = [
     id: "models",
     group: "synara",
     label: "模型",
-    description: "Git 文案默认设置和自定义模型代号。",
+    description: "版本控制文案默认设置和自定义模型代号。",
     icon: "brain",
     eyebrow: "AI 配置",
   },
@@ -121,7 +119,7 @@ export const SETTINGS_NAV_ITEMS: readonly SettingsNavItem[] = [
     id: "providers",
     group: "synara",
     label: "提供商",
-    description: "选择可见的提供商、查看 CLI 安装并更新工具。",
+    description: "OpenCode 是唯一提供商，无需额外配置。",
     icon: "puzzle",
     eyebrow: "选择器可见性",
   },

@@ -73,7 +73,7 @@ function isLiveRun(run: AutomationRun | null): run is LiveAutomationRun {
 }
 
 function triageRunLabel(run: AutomationRun): string {
-  if (run.status === "succeeded" && run.result?.unread) return "New result";
+  if (run.status === "succeeded" && run.result?.unread) return "新结果";
   return runStatusLabel(run.status);
 }
 
@@ -126,7 +126,7 @@ function AutomationListRow({
         <button
           type="button"
           aria-label="删除自动化"
-          title="Delete"
+          title="删除"
           onClick={(event) => {
             event.stopPropagation();
             onDelete();
@@ -146,7 +146,7 @@ function rowMeta(definition: AutomationDefinition, latestRun: AutomationRun | nu
   if (isLiveRun(latestRun)) return runStatusLabel(latestRun.status);
   if (latestRun && isTriageRun(latestRun)) return triageRunLabel(latestRun);
   if (!definition.enabled) {
-    return automationLifecycleState(definition) === "done" ? "Done" : "已暂停";
+    return automationLifecycleState(definition) === "done" ? "已完成" : "已暂停";
   }
   return formatCadence(definition.schedule);
 }
@@ -239,7 +239,7 @@ function AutomationsRouteView() {
   };
 
   const deleteDefinition = async (definition: AutomationDefinition) => {
-    const confirmed = await ensureNativeApi().dialogs.confirm(`Delete "${definition.name}"?`);
+    const confirmed = await ensureNativeApi().dialogs.confirm(`确定删除「${definition.name}」？`);
     if (!confirmed) return;
     deleteMutation.mutate(definition);
   };
@@ -251,14 +251,14 @@ function AutomationsRouteView() {
   const unreadTriageCount = unresolvedTriageRuns(data.runs).length;
 
   const projectName = (definition: AutomationDefinition) =>
-    projects.find((project) => project.id === definition.projectId)?.name ?? "Unknown project";
+    projects.find((project) => project.id === definition.projectId)?.name ?? "未知项目";
 
   const sourceSuffix = (definition: AutomationDefinition) => {
     if (!definition.sourceThreadId || definition.sourceThreadId === definition.targetThreadId) {
       return "";
     }
     const sourceThread = threads.find((candidate) => candidate.id === definition.sourceThreadId);
-    return sourceThread ? ` · From ${resolveThreadPickerTitle(sourceThread.title)}` : "";
+    return sourceThread ? ` · 来自 ${resolveThreadPickerTitle(sourceThread.title)}` : "";
   };
 
   const subtitle = (definition: AutomationDefinition) => {
@@ -266,7 +266,7 @@ function AutomationsRouteView() {
     if (definition.mode === "heartbeat") {
       const thread = threads.find((candidate) => candidate.id === definition.targetThreadId);
       const target = thread ? resolveThreadPickerTitle(thread.title) : projectName(definition);
-      return `Heartbeat · ${target}${suffix}`;
+      return `心跳 · ${target}${suffix}`;
     }
     return `${projectName(definition)}${suffix}`;
   };
@@ -311,7 +311,7 @@ function AutomationsRouteView() {
   const renderTriageRow = (run: AutomationRun) => {
     const definition = data.definitions.find((entry) => entry.id === run.automationId);
     const summary = runResultSummary(run);
-    const target = definition ? subtitle(definition) : "Saved run";
+    const target = definition ? subtitle(definition) : "已保存的运行";
     return (
       <AutomationListRow
         key={run.id}
@@ -328,7 +328,7 @@ function AutomationsRouteView() {
               : undefined
         }
         leading={<RunStatusIndicator status={run.status} />}
-        title={definition?.name ?? "Automation run"}
+        title={definition?.name ?? "自动化运行"}
         detail={summary || target}
         meta={formatRelativeTime(run.finishedAt ?? run.startedAt ?? run.scheduledFor)}
         trailing={
@@ -345,7 +345,7 @@ function AutomationsRouteView() {
     allTriageRuns.length > 0 ? (
       <section className="flex flex-col gap-0.5">
         <div className="flex items-center justify-between gap-3 px-2 pb-1">
-          <h2 className="text-sm font-medium text-foreground">Needs review</h2>
+          <h2 className="text-sm font-medium text-foreground">待审核</h2>
           <div className="flex items-center gap-0.5 rounded-md bg-[var(--color-background-elevated-secondary)] p-0.5 text-xs">
             {(["unread", "all"] as const).map((value) => (
               <button
@@ -359,13 +359,13 @@ function AutomationsRouteView() {
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                {value === "unread" ? `Unread ${unreadTriageCount}` : `All ${allTriageRuns.length}`}
+                {value === "unread" ? `未读 ${unreadTriageCount}` : `全部 ${allTriageRuns.length}`}
               </button>
             ))}
           </div>
         </div>
         {triageRuns.length === 0 ? (
-          <div className="px-2 py-4 text-xs text-muted-foreground">No unread runs.</div>
+          <div className="px-2 py-4 text-xs text-muted-foreground">暂无未读运行。</div>
         ) : (
           <div className="flex flex-col">{triageRuns.map(renderTriageRow)}</div>
         )}
@@ -413,7 +413,7 @@ function AutomationsRouteView() {
                 disabled={projects.length === 0}
               >
                 <CentralIcon name="plus-small" className="size-4" />
-                New automation
+                新建自动化
               </Button>
             </div>
           </div>
@@ -422,23 +422,21 @@ function AutomationsRouteView() {
         <main className="min-h-0 flex-1 overflow-y-auto">
           <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 pb-12 pt-8">
             <h1 className="px-2 font-heading text-2xl font-semibold tracking-tight text-foreground">
-              Automations
+              自动化
             </h1>
             {isLoading ? (
-              <div className="py-16 text-center text-sm text-muted-foreground">
-                Loading automations...
-              </div>
+              <div className="py-16 text-center text-sm text-muted-foreground">正在加载自动化…</div>
             ) : data.definitions.length === 0 ? (
               <div className="flex flex-col items-center gap-1 py-16 text-center">
-                <p className="text-sm font-medium text-foreground">No automations yet</p>
+                <p className="text-sm font-medium text-foreground">暂无自动化</p>
                 <p className="max-w-xs text-xs text-muted-foreground">
-                  Schedule a prompt to run on its own, or wake an existing thread on a loop.
+                  安排提示词按计划自动运行，或让现有会话在循环中持续唤醒。
                 </p>
               </div>
             ) : (
               <div className="flex flex-col gap-6">
                 {renderTriage()}
-                {renderSection("Current", active)}
+                {renderSection("当前", active)}
                 {renderSection("已暂停", inactive)}
               </div>
             )}
