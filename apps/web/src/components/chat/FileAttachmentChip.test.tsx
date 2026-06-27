@@ -26,7 +26,7 @@ describe("FileAttachmentChip", () => {
 
     expect(markup).toContain("99247298-78c2-44ba-a1f6-721b11fb3a5a (1).ics");
     expect(markup).toContain("ICS");
-    expect(markup).toContain("Remove 99247298-78c2-44ba-a1f6-721b11fb3a5a (1).ics");
+    expect(markup).toContain("移除 99247298-78c2-44ba-a1f6-721b11fb3a5a (1).ics");
     expect(markup).not.toContain("Draft attachment may not persist");
     // The card shows a type-aware glyph, never the generic source-code bracket.
     expect(markup).toContain("calendar-days");

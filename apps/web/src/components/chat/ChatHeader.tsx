@@ -173,8 +173,8 @@ function EditorChatHistoryMenu(props: {
           <IconButton
             variant="ghost"
             size="icon-xs"
-            label="Chat history"
-            title="Chat history"
+            label="聊天历史"
+            title="聊天历史"
             className="size-5 shrink-0 text-muted-foreground hover:text-foreground"
           >
             <HistoryIcon className="size-3.5" />
@@ -386,8 +386,8 @@ function EditorRailTabs(props: {
               <IconButton
                 variant="ghost"
                 size="icon-xs"
-                label="New editor rail item"
-                title="New"
+                label="新建编辑器轨道项"
+                title="新建"
                 className="size-5 shrink-0 text-muted-foreground hover:text-foreground"
               >
                 <PlusIcon className="size-3.5" />
@@ -402,7 +402,7 @@ function EditorRailTabs(props: {
           >
             <MenuItem onClick={props.onNewChat}>
               <MessageCircleIcon className="size-3.5 shrink-0 text-muted-foreground" />
-              <span>New chat</span>
+              <span>新建聊天</span>
             </MenuItem>
             <MenuItem onClick={newTerminalTab}>
               <TerminalIcon className="size-3.5 shrink-0 text-[var(--color-text-accent)]" />
@@ -426,7 +426,7 @@ function EditorRailTabs(props: {
               key={thread.id}
               active={props.activeSurface === "chat" && thread.id === props.activeThreadId}
               title={thread.title}
-              label={`Chat ${index + 1}`}
+              label={`聊天 ${index + 1}`}
               labelClassName="max-w-24"
               icon={
                 <ProviderIcon
@@ -493,7 +493,7 @@ export const ChatHeader = memo(function ChatHeader({
   availableEditors,
   diffToggleShortcutLabel,
   handoffBadgeLabel = null,
-  handoffActionLabel = "Hand off",
+  handoffActionLabel = "移交",
   handoffDisabled = true,
   handoffActionTargetProviders = [],
   handoffBadgeSourceProvider = null,
@@ -584,7 +584,7 @@ export const ChatHeader = memo(function ChatHeader({
             )}
             pressed={diffOpen}
             onPressedChange={onToggleDiff}
-            aria-label="Toggle diff panel"
+            aria-label="切换差异面板"
             variant="default"
             size="xs"
             disabled={!isGitRepo || (diffDisabledReason !== null && !diffOpen)}
@@ -688,8 +688,8 @@ export const ChatHeader = memo(function ChatHeader({
                   <IconButton
                     variant="chrome"
                     size="icon-xs"
-                    label="Close selected Side"
-                    tooltip="Close selected Side"
+                    label="关闭选中的侧边"
+                    tooltip="关闭选中的侧边"
                     tooltipSide="bottom"
                     className="size-5 rounded-lg [-webkit-app-region:no-drag] [&_svg]:size-3"
                     onClick={(event) => {
@@ -761,7 +761,7 @@ export const ChatHeader = memo(function ChatHeader({
                     }
                   >
                     <HandoffIcon className="size-[1em] shrink-0 opacity-80" />
-                    {!compact ? <span className="truncate font-normal">Hand off</span> : null}
+                    {!compact ? <span className="truncate font-normal">移交</span> : null}
                   </MenuTrigger>
                 }
               />

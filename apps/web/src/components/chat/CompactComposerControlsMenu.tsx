@@ -32,7 +32,7 @@ export const CompactComposerControlsMenu = memo(function CompactComposerControls
             size="sm"
             variant="chrome"
             className="shrink-0 px-2"
-            aria-label="More composer controls"
+            aria-label="更多编辑器控件"
           />
         }
       >

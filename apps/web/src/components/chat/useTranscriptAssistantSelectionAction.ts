@@ -223,7 +223,7 @@ export function useTranscriptAssistantSelectionAction(
       if (getAssistantSelectionValidationError(pendingSelection.selection) === "too-long") {
         toastManager.add({
           type: "warning",
-          title: "Selections can be up to 4,000 characters.",
+          title: "选中内容最多 4,000 个字符。",
         });
       }
       return;

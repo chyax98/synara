@@ -26,7 +26,7 @@ describe("rankSettingsSearchEntries", () => {
   });
 
   it("matches on description keywords, not just titles", () => {
-    const results = rankSettingsSearchEntries("wrap", 12);
+    const results = rankSettingsSearchEntries("自动换行", 12);
     expect(results.some((entry) => entry.id === "behavior:diff-line-wrapping")).toBe(true);
   });
 

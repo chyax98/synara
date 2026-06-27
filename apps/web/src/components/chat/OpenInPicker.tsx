@@ -101,7 +101,7 @@ export const OpenInPicker = memo(function OpenInPicker({
         <MenuTrigger
           render={
             <ChatHeaderIconButton
-              label="Editor options"
+              label="编辑器选项"
               tone="outline"
               className={CHAT_HEADER_SPLIT_TRAILING_CLASS_NAME}
             />

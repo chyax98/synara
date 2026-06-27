@@ -42,8 +42,8 @@ describe("deriveAgentActivityTimelineState", () => {
       "tool-1",
     ]);
     expect(state.timelineWorkEntries[0]).toMatchObject({
-      label: "Reasoning",
-      toolTitle: "Reasoning",
+      label: "推理",
+      toolTitle: "推理",
       preview: "2 updates - Verify diffToggleControl uses valid props",
     });
     expect(state.detailById.get("agent-reasoning:reasoning-1")?.entries).toHaveLength(2);

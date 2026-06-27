@@ -37,14 +37,13 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "general:default-provider",
     section: "general",
     title: "默认 provider",
-    keywords: "为新会话选择默认 provider。agent codex claude",
+    keywords: "为新会话选择默认 provider。OpenCode Codex agent",
   },
   {
     id: "general:new-threads",
     section: "general",
     title: "新会话",
-    keywords:
-      "Pick the default workspace mode for newly created draft threads. local worktree environment",
+    keywords: "选择新建草稿会话的默认工作区模式。本地 工作树 worktree Environment",
   },
   {
     id: "general:project-order",
@@ -56,59 +55,56 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "general:thread-order",
     section: "general",
     title: "会话排序",
-    keywords:
-      "Controls how threads are arranged inside each project in the main sidebar. sort updated created",
+    keywords: "控制每个项目中会话的排列方式。排序 更新 创建",
   },
   {
     id: "general:chats-section",
     section: "general",
     title: "会话列表",
-    keywords:
-      "Show the standalone Chats list in the sidebar footer chats not tied to a project. sidebar section",
+    keywords: "在侧边栏底部显示独立的会话列表（未绑定到项目的会话）。侧边栏 分区",
   },
   {
     id: "general:workspace-section",
     section: "general",
     title: "工作区",
-    keywords:
-      "Show the Workspace tab in the sidebar switcher. The Threads tab always stays visible. sidebar section",
+    keywords: "在侧边栏切换器中显示工作区标签。会话标签始终可见。侧边栏 分区",
   },
   {
     id: "general:environment-repository",
     section: "general",
     title: "仓库",
-    keywords: "Show the GitHub repository link in the chat Environment panel. git changes worktree",
+    keywords: "在聊天环境面板中显示 GitHub 仓库链接。变更 工作树 分支",
   },
   {
     id: "general:environment-editor",
     section: "general",
     title: "编辑器",
     keywords:
-      "Show the Editor section in-app editor view and Open in editor picker in the chat Environment panel.",
+      "在 chat Environment 面板中显示编辑器区块（应用内编辑器视图与「在编辑器中打开」选择器）。",
   },
   {
     id: "general:environment-recap",
     section: "general",
-    title: "Recap",
-    keywords: "Show the auto-generated chat recap in the Environment panel.",
+    title: "回顾",
+    keywords: "在 Environment 面板中显示自动生成的聊天回顾。",
   },
   {
     id: "general:environment-pinned",
     section: "general",
     title: "置顶消息",
-    keywords: "Show the pinned-messages checklist in the Environment panel.",
+    keywords: "在 Environment 面板中显示置顶消息清单。",
   },
   {
     id: "general:environment-markers",
     section: "general",
     title: "文本标记",
-    keywords: "Show highlighted and underlined transcript text in the Environment panel.",
+    keywords: "在 Environment 面板中显示高亮与下划线的对话文本。",
   },
   {
     id: "general:environment-notepad",
     section: "general",
     title: "记事本",
-    keywords: "Show the per-thread notepad in the Environment panel.",
+    keywords: "在 Environment 面板中显示每个会话的记事本。",
   },
 
   // ── Appearance ───────────────────────────────────────────────────────────────
@@ -116,33 +112,32 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "appearance:theme",
     section: "appearance",
     title: "主题",
-    keywords: "Choose how Synara looks across the app. dark light system color",
+    keywords: "选择 Synara 在应用中的外观。深色 浅色 系统 颜色",
   },
   {
     id: "appearance:ui-density",
     section: "appearance",
     title: "UI 密度",
-    keywords:
-      "Control spacing in the sidebar, composer, chat gutters, and settings rows without changing font size. compact comfortable",
+    keywords: "控制侧边栏、输入区、聊天边距与设置行的间距，不改变字号。紧凑 舒适",
   },
   {
     id: "appearance:base-font-size",
     section: "appearance",
     title: "基础字号",
-    keywords:
-      "Adjust the app text base in pixels. Chat and UI typography scale proportionally. font",
+    keywords: "以像素调整应用文字基准。聊天与界面排版将按比例缩放。字体 字号",
   },
   {
     id: "appearance:terminal-font-size",
     section: "appearance",
     title: "终端字号",
-    keywords: "独立于应用与聊天字号调整终端文字 terminal font size",
+    keywords: "独立于应用与聊天字号调整 Terminal 文字。",
   },
   {
     id: "appearance:terminal-font",
     section: "appearance",
     title: "终端字体",
-    keywords: "输入本机已安装的等宽字体，例如 Fira Code。系统默认等宽字体",
+    keywords:
+      "输入本机已安装的等宽字体（如 Fira Code）。留空则使用默认字体；未安装的字体将回退到系统等宽字体。",
   },
   {
     id: "appearance:font-smoothing",
@@ -155,8 +150,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "appearance:time-format",
     section: "appearance",
     title: "时间格式",
-    keywords:
-      "System default follows your browser or OS clock preference. timestamp 12-hour 24-hour locale",
+    keywords: "系统默认跟随浏览器或操作系统的时钟偏好。时间戳 12小时 24小时 区域",
   },
 
   // ── Notifications ─────────────────────────────────────────────────────────────
@@ -164,15 +158,13 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "notifications:activity-toasts",
     section: "notifications",
     title: "活动通知",
-    keywords:
-      "Show an in-app toast when a chat or managed terminal agent finishes or needs input. alerts",
+    keywords: "当聊天或托管终端代理完成或需要输入时，显示应用内通知。提醒",
   },
   {
     id: "notifications:desktop-notifications",
     section: "notifications",
     title: "桌面通知",
-    keywords:
-      "Show an OS notification when a chat or managed terminal agent finishes or needs input while the app is in the background. alerts toast",
+    keywords: "当应用在后台时，若聊天或托管终端代理完成或需要输入，显示系统通知。提醒",
   },
 
   // ── Behavior ──────────────────────────────────────────────────────────────────
@@ -186,14 +178,13 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "behavior:diff-line-wrapping",
     section: "behavior",
     title: "Diff 自动换行",
-    keywords: "设置打开 diff 面板时的默认换行状态。自动换行 word wrap",
+    keywords: "设置打开 Diff 面板时的默认换行状态。自动换行",
   },
   {
     id: "behavior:prompt-suggestions",
     section: "behavior",
     title: "提示建议",
-    keywords:
-      "Show suggested prompts under the composer when starting a new thread. composer suggestions",
+    keywords: "新建会话时在输入框下方显示建议提示。输入框 建议",
   },
   {
     id: "behavior:delete-confirmation",
@@ -219,7 +210,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "worktrees:managed-worktrees",
     section: "worktrees",
     title: "托管 worktree",
-    keywords: "Review and clean up the worktrees created by Synara. git branch remove",
+    keywords: "查看并清理 Synara 创建的工作树。git 分支 删除",
     target: null,
   },
 
@@ -237,13 +228,13 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "models:git-writing-model",
     section: "models",
     title: "Git 文案模型",
-    keywords: "Used for generated commit messages, PR titles, and branch names.",
+    keywords: "用于生成提交说明、PR 标题与分支名。",
   },
   {
     id: "models:saved-model-slugs",
     section: "models",
-    title: "已保存 model 代号",
-    keywords: "Add custom model slugs for supported providers. custom model",
+    title: "已保存模型代号",
+    keywords: "为支持的 provider 添加自定义模型代号。",
   },
 
   // ── Providers ─────────────────────────────────────────────────────────────────
@@ -251,14 +242,13 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "providers:visible-providers",
     section: "providers",
     title: "可见 provider",
-    keywords:
-      "Drag providers into your preferred picker order and hide the ones you don't use. visibility order",
+    keywords: "拖拽 provider 调整选择器顺序，并隐藏不使用的项。可见性 排序",
   },
   {
     id: "providers:provider-updates",
     section: "providers",
     title: "Provider 更新",
-    keywords: "Update installed provider tools that Synara can safely update. upgrade cli",
+    keywords: "更新 Synara 可安全更新的已安装 provider 工具。升级 CLI",
   },
   {
     id: "providers:installed-clis",
@@ -281,15 +271,13 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "advanced:keybindings",
     section: "advanced",
     title: "快捷键",
-    keywords:
-      "Open the persisted keybindings.json file to edit advanced bindings directly. shortcuts",
+    keywords: "打开持久化的快捷键配置文件以直接编辑高级绑定。快捷键",
   },
   {
     id: "advanced:recovery-tools",
     section: "advanced",
     title: "恢复工具",
-    keywords:
-      "Rebuild local project indexes without clearing existing chats when the local state gets out of sync.",
+    keywords: "当本地状态不同步时，重建本地项目索引且不清除现有聊天。",
   },
   {
     id: "advanced:version",
@@ -301,8 +289,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     id: "advanced:release-history",
     section: "advanced",
     title: "发布历史",
-    keywords:
-      "A running log of every update, newest first. changelog what's new about release notes",
+    keywords: "按时间倒序记录每次更新。更新日志 新功能 关于 发布说明",
   },
 ] as const;
 

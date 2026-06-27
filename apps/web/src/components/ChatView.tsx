@@ -2838,7 +2838,7 @@ export default function ChatView({
           type: "review-target" as const,
           target: "base-branch" as const,
           label: "对照基线分支审查",
-          description: "审查当前分支相对基线的 diff",
+          description: "审查当前分支相对基线的差异",
         },
       ];
     }
@@ -9374,7 +9374,7 @@ export default function ChatView({
                           className="sm:size-[26px]"
                           onClick={() => void onInterrupt()}
                           aria-label="停止生成"
-                          title="停止当前回复。在 Mac 上可按 Ctrl+C 中断。"
+                          title="停止当前回复。在苹果电脑上可按 Ctrl+C 中断。"
                         >
                           <span
                             aria-hidden="true"

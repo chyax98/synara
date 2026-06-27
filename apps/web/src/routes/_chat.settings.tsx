@@ -1042,7 +1042,7 @@ function SettingsRouteView() {
             description:
               "在 chat Environment 面板中显示编辑器区块（应用内编辑器视图与「在编辑器中打开」选择器）。",
             resetLabel: "侧边栏分区",
-            ariaLabel: "Show the Editor section in the Environment panel",
+            ariaLabel: "在 Environment 面板中显示编辑器区块",
           })}
 
           {renderBooleanSettingRow({
@@ -1066,7 +1066,7 @@ function SettingsRouteView() {
             title: "文本标记",
             description: "在 Environment 面板中显示高亮与下划线的对话文本。",
             resetLabel: "用量分区",
-            ariaLabel: "Show the Text markers section in the Environment panel",
+            ariaLabel: "在 Environment 面板中显示文本标记区块",
           })}
 
           {renderBooleanSettingRow({
@@ -1074,7 +1074,7 @@ function SettingsRouteView() {
             title: "项目说明",
             description: "在 Environment 面板中显示项目级说明。",
             resetLabel: "仓库分区",
-            ariaLabel: "Show the Project instructions section in the Environment panel",
+            ariaLabel: "在 Environment 面板中显示项目说明区块",
           })}
 
           {renderBooleanSettingRow({
@@ -1082,7 +1082,7 @@ function SettingsRouteView() {
             title: "记事本",
             description: "在 Environment 面板中显示每个会话的记事本。",
             resetLabel: "编辑器分区",
-            ariaLabel: "Show the Notepad section in the Environment panel",
+            ariaLabel: "在 Environment 面板中显示记事本区块",
           })}
         </SettingsSection>
       </div>
@@ -1109,7 +1109,7 @@ function SettingsRouteView() {
                   if (value !== "system" && value !== "light" && value !== "dark") return;
                   setTheme(value);
                 }}
-                ariaLabel="Theme preference"
+                ariaLabel="主题偏好"
                 options={THEME_OPTIONS}
               />
             }
@@ -1245,7 +1245,7 @@ function SettingsRouteView() {
 
           <SettingsRow
             title="Terminal 字体"
-            description="输入本机已安装的等宽字体（如 Fira Code）。留空则使用默认字体；未安装的字体将回退到系统等宽字体。"
+            description="输入本机已安装的等宽字体名称。留空则使用默认字体；未安装的字体将回退到系统等宽字体。"
             resetAction={
               settings.terminalFontFamily !== defaults.terminalFontFamily ? (
                 <SettingResetButton
@@ -1278,7 +1278,7 @@ function SettingsRouteView() {
                     showClear={settings.terminalFontFamily.length > 0}
                     spellCheck={false}
                     autoComplete="off"
-                    placeholder="默认（JetBrains Mono）"
+                    placeholder="默认字体"
                     className="w-full sm:w-56"
                     aria-label="终端字体"
                   />
@@ -1299,7 +1299,7 @@ function SettingsRouteView() {
                           {suggestion}
                         </AutocompleteItem>
                       ))}
-                      <AutocompleteEmpty>No matching suggested fonts.</AutocompleteEmpty>
+                      <AutocompleteEmpty>无匹配的推荐字体。</AutocompleteEmpty>
                     </AutocompleteList>
                   </AutocompletePopup>
                 </Autocomplete>
@@ -1312,7 +1312,7 @@ function SettingsRouteView() {
                 settingKey: "enableNativeFontSmoothing",
                 title: "字体平滑",
                 description: "使用 macOS 风格抗锯齿，使文字更轻、更清晰。",
-                resetLabel: "terminal 字号",
+                resetLabel: "终端字号",
                 ariaLabel: "启用字体平滑",
               })
             : null}
@@ -1326,7 +1326,7 @@ function SettingsRouteView() {
           resetAction={
             settings.timestampFormat !== defaults.timestampFormat ? (
               <SettingResetButton
-                label="time format"
+                label="时间格式"
                 onClick={() =>
                   updateSettings({
                     timestampFormat: defaults.timestampFormat,
@@ -1371,10 +1371,10 @@ function SettingsRouteView() {
       <SettingsSection title="活动提醒">
         {renderBooleanSettingRow({
           settingKey: "enableTaskCompletionToasts",
-          title: "活动 Toast",
-          description: "当聊天或托管终端代理完成或需要输入时，显示应用内 Toast。",
+          title: "活动通知",
+          description: "当聊天或托管终端代理完成或需要输入时，显示应用内通知。",
           resetLabel: "活动通知",
-          ariaLabel: "活动 Toast 通知",
+          ariaLabel: "活动应用内通知",
         })}
 
         <SettingsRow
@@ -1421,24 +1421,24 @@ function SettingsRouteView() {
           settingKey: "enableAssistantStreaming",
           title: "助手输出",
           description: "在回复进行中逐 token 显示输出。",
-          resetLabel: "assistant output",
-          ariaLabel: "Stream assistant messages",
+          resetLabel: "助手输出",
+          ariaLabel: "流式显示助手消息",
         })}
 
         {renderBooleanSettingRow({
           settingKey: "diffWordWrap",
           title: "Diff 自动换行",
-          description: "设置打开 diff 面板时的默认换行状态。面板内换行开关仅影响当前 diff 会话。",
-          resetLabel: "diff line wrapping",
-          ariaLabel: "Wrap diff lines by default",
+          description: "设置打开差异面板时的默认换行状态。面板内换行开关仅影响当前差异会话。",
+          resetLabel: "差异自动换行",
+          ariaLabel: "默认换行显示差异",
         })}
 
         {renderBooleanSettingRow({
           settingKey: "enableComposerSuggestions",
           title: "提示建议",
           description: "新建会话时在输入框下方显示建议提示。",
-          resetLabel: "当 chat 或托管 terminal agent 完成或需要输入时，显示应用内通知。",
-          ariaLabel: "活动通知",
+          resetLabel: "提示建议",
+          ariaLabel: "显示输入建议",
         })}
       </SettingsSection>
 
@@ -1692,7 +1692,7 @@ function SettingsRouteView() {
           resetAction={
             isGitTextGenerationModelDirty ? (
               <SettingResetButton
-                label="git writing model"
+                label="Git 文案模型"
                 onClick={() =>
                   updateSettings({
                     textGenerationProvider: defaults.textGenerationProvider,
@@ -1716,7 +1716,7 @@ function SettingsRouteView() {
                   textGenerationModel: model,
                 });
               }}
-              ariaLabel="Git text generation model"
+              ariaLabel="Git 文案生成模型"
               triggerClassName="w-full sm:w-52"
               valueContent={selectedGitTextGenerationModelLabel}
             >
@@ -1736,8 +1736,8 @@ function SettingsRouteView() {
 
       <SettingsSection title="自定义模型">
         <SettingsRow
-          title="已保存 model 代号"
-          description="为支持的 provider 添加自定义 model 代号。"
+          title="已保存模型代号"
+          description="为支持的 Provider 添加自定义模型代号。"
           resetAction={
             totalCustomModels > 0 ? (
               <SettingResetButton
@@ -1855,7 +1855,7 @@ function SettingsRouteView() {
               {openKeybindingsError ? (
                 <span className="正在打开…">{openKeybindingsError}</span>
               ) : (
-                <span className="打开文件">Opens in your preferred editor.</span>
+                <span className="打开文件">将在你首选的编辑器中打开。</span>
               )}
             </>
           }
@@ -1897,7 +1897,7 @@ function SettingsRouteView() {
                 className="flex w-full items-center justify-between text-left"
                 onClick={() => setShowRecoveryTools((current) => !current)}
               >
-                <span className="text-xs font-medium text-muted-foreground">What this does</span>
+                <span className="text-xs font-medium text-muted-foreground">功能说明</span>
                 <ChevronDownIcon className={cn("版本", showRecoveryTools && "rotate-180")} />
               </button>
               {showRecoveryTools ? (

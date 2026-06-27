@@ -164,7 +164,7 @@ export function EnvironmentProjectInstructionsSection({
           onChange={autosave.onChange}
           onFocus={autosave.onFocus}
           onBlur={autosave.onBlur}
-          placeholder="Architecture notes, conventions, repo links"
+          placeholder="架构说明、约定、仓库链接"
           maxLength={THREAD_NOTES_MAX_CHARS}
           disabled={!projectId}
         />

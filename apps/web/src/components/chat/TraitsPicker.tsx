@@ -321,7 +321,7 @@ export const TraitsMenuContent = memo(function TraitsMenuContentImpl({
     <>
       {thinkingEnabled !== null ? (
         <TraitRadioSection
-          label="Thinking"
+          label="思考"
           value={thinkingEnabled ? "on" : "off"}
           options={[
             { value: "on", label: "关" },
@@ -335,7 +335,7 @@ export const TraitsMenuContent = memo(function TraitsMenuContentImpl({
         <>
           {hasPriorContextWindowSection ? <MenuDivider /> : null}
           <TraitRadioSection
-            label="Context"
+            label="上下文"
             value={contextWindow ?? defaultContextWindow ?? ""}
             options={contextWindowOptions.map((option) => ({
               value: option.value,
@@ -351,7 +351,7 @@ export const TraitsMenuContent = memo(function TraitsMenuContentImpl({
         <>
           {hasPriorEffortSection ? <MenuDivider /> : null}
           <TraitRadioSection
-            label="Variant"
+            label="变体"
             note={
               ultrathinkPromptControlled ? (
                 <div className="px-2 pb-1.5 text-muted-foreground/80 text-xs">
@@ -376,7 +376,7 @@ export const TraitsMenuContent = memo(function TraitsMenuContentImpl({
         <>
           {hasPriorFastModeSection ? <MenuDivider /> : null}
           <TraitRadioSection
-            label="Speed"
+            label="速度"
             value={fastModeEnabled ? "on" : "off"}
             options={[
               { value: "off", label: "Default" },
@@ -391,7 +391,7 @@ export const TraitsMenuContent = memo(function TraitsMenuContentImpl({
         <>
           {hasVisibleControls ? <MenuDivider /> : null}
           <TraitRadioSection
-            label="Agent"
+            label="智能体"
             value={selectedAgent ?? defaultAgent ?? ""}
             options={agentOptions.map((agent) => ({
               value: agent.name,

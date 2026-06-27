@@ -33,7 +33,7 @@ export function EnvironmentToggle({ environment }: { environment: EnvironmentTog
             className={TOGGLE_CLASS_NAME}
             pressed={environment.open}
             onPressedChange={environment.onOpenChange}
-            aria-label="Toggle environment panel"
+            aria-label="切换环境面板"
             variant="default"
             size="xs"
           >

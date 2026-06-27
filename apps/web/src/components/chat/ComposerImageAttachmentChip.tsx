@@ -33,7 +33,7 @@ export const ComposerImageAttachmentChip = memo(function ComposerImageAttachment
       <button
         type="button"
         className="block size-16 overflow-hidden rounded-xl border border-[color:var(--color-border-light)] bg-[var(--color-background-elevated-secondary)] transition-colors hover:border-[color:var(--color-border)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        aria-label={`Preview ${image.name}`}
+        aria-label={`预览 ${image.name}`}
         title={image.name}
         onClick={() => {
           const preview = buildExpandedImagePreview(images, image.id);
@@ -65,7 +65,7 @@ export const ComposerImageAttachmentChip = memo(function ComposerImageAttachment
 
       <AttachmentRemoveButton
         size="md"
-        label={`Remove ${image.name}`}
+        label={`移除 ${image.name}`}
         onRemove={() => onRemoveImage(image.id)}
       />
     </div>

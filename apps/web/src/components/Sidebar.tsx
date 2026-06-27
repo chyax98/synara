@@ -1646,7 +1646,7 @@ export default function Sidebar() {
     if (!api) {
       toastManager.add({
         type: "error",
-        title: "Link opening is unavailable.",
+        title: "无法打开链接",
       });
       return;
     }
@@ -3154,7 +3154,7 @@ export default function Sidebar() {
         if (!threadWorkspacePath) {
           toastManager.add({
             type: "error",
-            title: "Path unavailable",
+            title: "路径不可用",
             description: "此会话没有可复制的工作区路径。",
           });
           return;
@@ -3166,7 +3166,7 @@ export default function Sidebar() {
         if (!threadWorkspacePath) {
           toastManager.add({
             type: "error",
-            title: "Path unavailable",
+            title: "路径不可用",
             description: "此会话没有可打开的工作区路径。",
           });
           return;
@@ -4681,7 +4681,7 @@ export default function Sidebar() {
             </Tooltip>
             {!isSubagentThread && threadStatus?.label === "等待确认" ? (
               <span
-                aria-label="Pending approval"
+                aria-label="待审批"
                 className={cn("shrink-0 text-[10px] font-medium", threadStatus.colorClass)}
               >
                 Pending
@@ -4920,7 +4920,7 @@ export default function Sidebar() {
             </span>
             {!isSubagentThread && threadStatus?.label === "等待确认" ? (
               <span
-                aria-label="Pending approval"
+                aria-label="待审批"
                 className={cn("shrink-0 text-[10px] font-medium", threadStatus.colorClass)}
               >
                 Pending
@@ -4932,7 +4932,7 @@ export default function Sidebar() {
               <button
                 type="button"
                 data-thread-selection-safe
-                aria-label={`${isExpanded ? "Collapse" : "Expand"} ${childCountLabel}`}
+                aria-label={`${isExpanded ? "折叠" : "展开"} ${childCountLabel}`}
                 title={childCountLabel}
                 className={cn(
                   "inline-flex h-5 min-w-5 items-center justify-center gap-0.5 rounded-full border px-[5px] transition-colors",
@@ -4963,7 +4963,7 @@ export default function Sidebar() {
                     </span>
                   }
                 />
-                <TooltipPopup side="top">Disposable chat</TooltipPopup>
+                <TooltipPopup side="top">临时会话</TooltipPopup>
               </Tooltip>
             ) : null}
           </div>
@@ -5472,7 +5472,7 @@ export default function Sidebar() {
     () => [
       {
         id: "new-chat",
-        label: "New chat",
+        label: "新对话",
         description: "打开新对话起始页。",
         keywords: ["chat", "new", "home"],
         shortcutLabel: newChatShortcutLabel,
@@ -5678,7 +5678,7 @@ export default function Sidebar() {
                     />
                     <SidebarPrimaryAction
                       icon={ClockIcon}
-                      label="Automations"
+                      label="自动化"
                       active={isOnAutomations}
                       badgeCount={automationAttentionBadgeCount}
                       onClick={() => {
@@ -5830,18 +5830,18 @@ export default function Sidebar() {
                         label={
                           allProjectsExpanded
                             ? focusedProjectId
-                              ? "Collapse all projects except the active project"
-                              : "Collapse all projects"
-                            : "Expand all projects"
+                              ? "折叠除当前项目外的所有项目"
+                              : "折叠所有项目"
+                            : "展开所有项目"
                         }
                         className="disabled:cursor-default disabled:opacity-45"
                         onClick={handleToggleProjects}
                         tooltip={
                           allProjectsExpanded
                             ? focusedProjectId
-                              ? "Collapse all projects except the active chat's project"
-                              : "Collapse all projects"
-                            : "Expand all projects"
+                              ? "折叠除当前会话项目外的所有项目"
+                              : "折叠所有项目"
+                            : "展开所有项目"
                         }
                         tooltipSide="bottom"
                       />
@@ -6034,13 +6034,13 @@ export default function Sidebar() {
                 />
                 <SidebarIconButton
                   icon={NewThreadIcon}
-                  label="Open new chat home"
+                  label="打开新对话首页"
                   onClick={(event) => {
                     event.preventDefault();
                     event.stopPropagation();
                     void handleCreateHomeChat();
                   }}
-                  tooltip="New chat"
+                  tooltip="新对话"
                   tooltipSide="top"
                 />
               </SidebarSectionToolbar>
@@ -6144,7 +6144,7 @@ export default function Sidebar() {
                 }
               >
                 <ProjectContextMenuIcon icon={FolderOpenIcon} />
-                <span>Open in Finder</span>
+                <span>在 Finder 中打开</span>
               </MenuItem>
               <MenuItem
                 className={PROJECT_CONTEXT_MENU_ITEM_CLASS_NAME}
@@ -6156,7 +6156,7 @@ export default function Sidebar() {
                 }
               >
                 <ProjectContextMenuIcon icon={KanbanIcon} />
-                <span>Open in Kanban</span>
+                <span>在看板中打开</span>
               </MenuItem>
               <MenuItem
                 className={PROJECT_CONTEXT_MENU_ITEM_CLASS_NAME}
@@ -6168,7 +6168,7 @@ export default function Sidebar() {
                 }
               >
                 <ProjectContextMenuIcon icon={CopyIcon} />
-                <span>Copy Path</span>
+                <span>复制路径</span>
               </MenuItem>
               <MenuSeparator />
               {projectContextMenuIsRunning ? (
@@ -6182,7 +6182,7 @@ export default function Sidebar() {
                   }
                 >
                   <ProjectContextMenuIcon icon={StopFilledIcon} />
-                  <span>Stop dev</span>
+                  <span>停止开发</span>
                 </MenuItem>
               ) : (
                 <MenuItem
@@ -6195,7 +6195,7 @@ export default function Sidebar() {
                   }
                 >
                   <ProjectContextMenuIcon icon={PlayIcon} />
-                  <span>Start dev</span>
+                  <span>启动开发</span>
                 </MenuItem>
               )}
               {projectContextMenuHasOpenServer ? (
@@ -6220,7 +6220,7 @@ export default function Sidebar() {
                 }
               >
                 <ProjectContextMenuIcon icon={PencilIcon} />
-                <span>Edit name</span>
+                <span>编辑名称</span>
               </MenuItem>
               <MenuItem
                 className={PROJECT_CONTEXT_MENU_ITEM_CLASS_NAME}

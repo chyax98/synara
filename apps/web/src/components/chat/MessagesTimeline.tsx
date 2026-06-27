@@ -1420,9 +1420,7 @@ export const MessagesTimeline = memo(function MessagesTimeline({
                             className="inline-flex items-center justify-center rounded-md p-1 text-muted-foreground/70 transition-colors hover:bg-[var(--color-background-button-secondary-hover)] hover:text-foreground/80"
                             aria-expanded={fileChangesExpanded}
                             aria-label={
-                              fileChangesExpanded
-                                ? "Collapse changed files list"
-                                : "Expand changed files list"
+                              fileChangesExpanded ? "折叠已更改文件列表" : "展开已更改文件列表"
                             }
                             onClick={(event) => {
                               event.preventDefault();
@@ -1675,7 +1673,7 @@ const UserImageAttachmentThumbnail = memo(function UserImageAttachmentThumbnail(
     <button
       type="button"
       className="flex size-15 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border/70 bg-background/82 text-left shadow-[0_1px_0_rgba(255,255,255,0.2)_inset] transition-colors hover:bg-background/94"
-      aria-label={`Preview ${props.image.name}`}
+      aria-label={`预览 ${props.image.name}`}
       title={props.image.name}
       onClick={() => {
         const preview = buildExpandedImagePreview(props.userImages, props.image.id);

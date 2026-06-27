@@ -151,7 +151,7 @@ const ComposerPendingUserInputCard = memo(function ComposerPendingUserInputCard(
       </div>
       <p className="mt-1.5 text-sm text-foreground/90">{activeQuestion.question}</p>
       {activeQuestion.multiSelect ? (
-        <p className="mt-1 text-xs text-muted-foreground/65">Select one or more options.</p>
+        <p className="mt-1 text-xs text-muted-foreground/65">请选择一个或多个选项。</p>
       ) : null}
       {activeQuestion.options.length > 0 ? (
         <div className="mt-3 space-y-1">

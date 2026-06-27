@@ -2371,7 +2371,7 @@ describe("MessagesTimeline", () => {
     );
 
     expect(markup).toContain("Edited 1 file");
-    expect(markup).toContain("Review");
+    expect(markup).toContain("审查");
     expect(markup).toContain('aria-expanded="true"');
     expect(markup).toContain("font-system-ui truncate font-normal");
     expect(markup).toContain("apps/web/src/components/Sidebar.tsx");

@@ -369,7 +369,7 @@ export const ProjectPicker = memo(function ProjectPicker({
             ) : null}
             {filteredMacFolderOptions.length > 0 ? (
               <ComboboxGroup>
-                <ComboboxGroupLabel>Folders on this Mac</ComboboxGroupLabel>
+                <ComboboxGroupLabel>此 Mac 上的文件夹</ComboboxGroupLabel>
                 {filteredMacFolderOptions.map(({ absolutePath, entry }, index) => (
                   <ComboboxItem
                     hideIndicator={absolutePath !== selectedWorkspaceRoot}

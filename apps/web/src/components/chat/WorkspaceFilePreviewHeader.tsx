@@ -40,13 +40,13 @@ interface WorkspaceFilePreviewHeaderProps {
 const MARKDOWN_VIEW_SEGMENTS = [
   {
     rendered: false,
-    label: "Source",
+    label: "源",
     title: "源码视图 — 选中文字可在聊天中引用精确行号",
     Icon: FileIcon,
   },
   {
     rendered: true,
-    label: "Preview",
+    label: "预览",
     title: "渲染预览 — 浏览并切换任务列表",
     Icon: EyeIcon,
   },
@@ -103,7 +103,7 @@ export const WorkspaceFilePreviewHeader = memo(function WorkspaceFilePreviewHead
       )}
     >
       <nav
-        aria-label="File path"
+        aria-label="文件路径"
         className="flex min-w-0 flex-1 items-center text-[12px] leading-none"
       >
         <span className="flex min-w-0 items-center overflow-hidden">
@@ -123,14 +123,14 @@ export const WorkspaceFilePreviewHeader = memo(function WorkspaceFilePreviewHead
       </nav>
 
       {props.truncated ? (
-        <span className="shrink-0 text-[10px] text-muted-foreground/70">Shown partially</span>
+        <span className="shrink-0 text-[10px] text-muted-foreground/70">部分显示</span>
       ) : null}
 
       <div className="flex shrink-0 items-center gap-1.5">
         {props.isMarkdown ? (
           <div
             role="radiogroup"
-            aria-label="Markdown view"
+            aria-label="Markdown 视图"
             className="flex h-7 shrink-0 items-center rounded-lg bg-[var(--color-background-elevated-secondary)] p-0.5"
           >
             {MARKDOWN_VIEW_SEGMENTS.map((segment) => {
@@ -165,11 +165,9 @@ export const WorkspaceFilePreviewHeader = memo(function WorkspaceFilePreviewHead
             </MenuTrigger>
             <ComposerPickerMenuPopup align="end" side="bottom" className="w-52 min-w-52">
               {onReferenceInChat ? (
-                <MenuItem onClick={referenceWholeFile}>Reference in chat</MenuItem>
+                <MenuItem onClick={referenceWholeFile}>在聊天中引用</MenuItem>
               ) : null}
-              {onAskWhyInChat ? (
-                <MenuItem onClick={askWhyWholeFile}>Ask why this changed</MenuItem>
-              ) : null}
+              {onAskWhyInChat ? <MenuItem onClick={askWhyWholeFile}>询问为何更改</MenuItem> : null}
             </ComposerPickerMenuPopup>
           </Menu>
         ) : null}

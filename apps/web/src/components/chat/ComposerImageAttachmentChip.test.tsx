@@ -39,8 +39,8 @@ describe("ComposerImageAttachmentChip", () => {
 
     expect(markup).toContain("CleanShot 2026-04-11 at 20.00.33@2x.png");
     expect(markup).toContain("size-16");
-    expect(markup).toContain("Preview CleanShot 2026-04-11 at 20.00.33@2x.png");
-    expect(markup).toContain("Remove CleanShot 2026-04-11 at 20.00.33@2x.png");
+    expect(markup).toContain("预览 CleanShot 2026-04-11 at 20.00.33@2x.png");
+    expect(markup).toContain("移除 CleanShot 2026-04-11 at 20.00.33@2x.png");
     expect(markup).not.toContain("h-14 w-14");
   });
 });

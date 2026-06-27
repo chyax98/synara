@@ -60,21 +60,21 @@ function resolveLiveProviderAvailability(provider: ServerProviderStatus | undefi
   if (!provider) {
     return {
       disabled: true,
-      label: "Checking",
+      label: "检查中",
     };
   }
 
   if (!provider.available) {
     return {
       disabled: true,
-      label: provider.authStatus === "unauthenticated" ? "Sign in" : "Unavailable",
+      label: provider.authStatus === "unauthenticated" ? "登录" : "不可用",
     };
   }
 
   if (provider.authStatus === "unauthenticated") {
     return {
       disabled: true,
-      label: "Sign in",
+      label: "登录",
     };
   }
 
@@ -561,7 +561,7 @@ export const ProviderModelPicker = memo(function ProviderModelPicker(
           {!isMenuOpen ? (
             <ComposerPickerTooltipPopup side="top" sideOffset={6}>
               <span className="inline-flex items-center gap-2 px-1 py-0.5">
-                <span>Change model</span>
+                <span>更改模型</span>
                 <ShortcutKbd
                   shortcutLabel={props.shortcutLabel}
                   className="h-4 min-w-4 px-1 text-[length:var(--app-font-size-ui-2xs,9px)] text-muted-foreground"

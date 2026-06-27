@@ -41,7 +41,7 @@ export const RIGHT_DOCK_PANE_META: Record<RightDockPaneKind, RightDockPaneMeta> 
 // persisted state). Persisted dock state is sanitized on rehydrate, so this is
 // only a defensive guard to keep a single bad pane from crashing render.
 const FALLBACK_RIGHT_DOCK_PANE_META: RightDockPaneMeta = {
-  label: "Panel",
+  label: "面板",
   Icon: InfoIcon,
 };
 

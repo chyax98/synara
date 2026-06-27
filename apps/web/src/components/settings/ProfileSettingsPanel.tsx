@@ -41,7 +41,7 @@ export function ProfileSettingsPanel() {
   if (coreQuery.isError || !coreQuery.data) {
     return (
       <div className="flex flex-col items-center gap-3 py-24 text-center">
-        <p className="text-sm text-muted-foreground">Couldn’t load your local stats.</p>
+        <p className="text-sm text-muted-foreground">无法加载本地统计数据。</p>
         <Button variant="outline" size="sm" onClick={() => void coreQuery.refetch()}>
           Try again
         </Button>
@@ -121,11 +121,11 @@ function ProfileContent({
       {/* Stat tiles */}
       <div className="grid grid-cols-2 divide-x divide-y divide-border/50 overflow-hidden rounded-2xl border border-border/60 sm:grid-cols-3 lg:grid-cols-5 lg:divide-y-0">
         <StatTile
-          label="Lifetime tokens"
+          label="累计 Token"
           value={tokensPending ? null : formatCompact(tokenStats?.lifetimeTotalTokens ?? null)}
         />
         <StatTile
-          label="Peak day"
+          label="峰值日"
           value={tokensPending ? null : formatCompact(tokenStats?.peakDayTokens ?? null)}
         />
         <StatTile label="Total prompts" value={formatNumber(stats.activity.totalPromptsSent)} />
@@ -151,7 +151,7 @@ function ProfileContent({
       {/* Insights + plugins */}
       <div className="grid gap-x-12 gap-y-7 md:grid-cols-2">
         <section className="flex flex-col gap-3">
-          <h3 className="text-sm font-medium">Activity insights</h3>
+          <h3 className="text-sm font-medium">活动洞察</h3>
           <dl className="flex flex-col gap-2.5">
             <InsightRow
               label="最常用 Provider"
@@ -166,7 +166,7 @@ function ProfileContent({
               }
             />
             <InsightRow
-              label="Most used reasoning"
+              label="最常用推理模式"
               value={
                 stats.insights.topReasoning
                   ? `${capitalize(stats.insights.topReasoning)}${
@@ -189,7 +189,7 @@ function ProfileContent({
         </section>
 
         <section className="flex flex-col gap-3">
-          <h3 className="text-sm font-medium">Most used plugins</h3>
+          <h3 className="text-sm font-medium">最常用插件</h3>
           {stats.skills.length > 0 ? (
             <ul className="flex flex-col gap-2.5">
               {stats.skills.slice(0, 6).map((skill) => (
@@ -233,7 +233,7 @@ function ProfileContent({
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-muted-foreground">No model activity yet.</p>
+          <p className="text-sm text-muted-foreground">尚无模型活动。</p>
         )}
       </section>
 

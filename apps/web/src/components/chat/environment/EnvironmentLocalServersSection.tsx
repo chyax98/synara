@@ -43,7 +43,7 @@ function LocalServersRefreshButton({
       closeOnClick={false}
       disabled={refreshing}
       onClick={onRefresh}
-      aria-label="Refresh local servers"
+      aria-label="刷新本地服务器"
       title="刷新"
       className="inline-flex size-5 items-center justify-center rounded-md p-0 text-muted-foreground/60 transition-colors hover:bg-[var(--color-background-button-secondary-hover)] hover:text-[var(--color-text-foreground)] data-highlighted:bg-[var(--color-background-button-secondary-hover)] data-highlighted:text-[var(--color-text-foreground)]"
     >
@@ -161,7 +161,7 @@ export function EnvironmentLocalServersSection({ enabled }: { enabled: boolean }
       <MenuTrigger render={<button type="button" className={ENVIRONMENT_ROW_CLASS_NAME} />}>
         <EnvironmentRowBody
           icon={<GlobeIcon className={ENVIRONMENT_ROW_ICON_CLASS_NAME} aria-hidden />}
-          label="Local Servers"
+          label="本地服务器"
           trailing={trailing}
         />
       </MenuTrigger>
@@ -184,7 +184,7 @@ export function EnvironmentLocalServersSection({ enabled }: { enabled: boolean }
         ) : localServersQuery.isError ? (
           <LocalServersPlaceholder
             icon={<GlobeIcon className="size-4" />}
-            title="Couldn't scan local ports"
+            title="无法扫描本地端口"
             subtitle={
               localServersQuery.error instanceof Error
                 ? localServersQuery.error.message

@@ -80,10 +80,10 @@ export function ContextWindowMeter(props: {
                   <span className="mx-1">⋅</span>
                   <span>{display.tokenUsageLabel}</span>
                   <span>/</span>
-                  <span>{formatContextWindowTokens(usage.maxTokens)} context used</span>
+                  <span>{formatContextWindowTokens(usage.maxTokens)} 已用上下文</span>
                 </>
               ) : (
-                <span className="ml-1">context used</span>
+                <span className="ml-1">已用上下文</span>
               )}
             </div>
           ) : (

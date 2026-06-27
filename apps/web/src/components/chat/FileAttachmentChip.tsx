@@ -131,7 +131,7 @@ function FileAttachmentPillTrigger({
         <AttachmentRemoveButton
           size="sm"
           placement="center-right"
-          label={`Remove ${file.name}`}
+          label={`移除 ${file.name}`}
           onRemove={() => onRemove(file.id)}
         />
       ) : null}
@@ -171,7 +171,7 @@ export function FileAttachmentChip({
           </>
         }
         onRemove={onRemove ? () => onRemove(file.id) : undefined}
-        removeLabel={`Remove ${file.name}`}
+        removeLabel={`移除 ${file.name}`}
       />
     ) : (
       <FileAttachmentPillTrigger

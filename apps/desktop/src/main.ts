@@ -1,7 +1,7 @@
 // FILE: main.ts
-// Purpose: Starts the Electron shell, backend process, native menus, IPC bridges, and updater.
+// Purpose: Starts the Electron shell, backend process, native menus, and IPC bridges.
 // Layer: Desktop main process
-// Depends on: Electron, backend startup helpers, browser manager, and update runtime.
+// Depends on: Electron, backend startup helpers, and browser manager.
 
 import * as ChildProcess from "node:child_process";
 import * as Crypto from "node:crypto";
@@ -31,13 +31,11 @@ import type {
 } from "electron";
 import * as Effect from "effect/Effect";
 import type {
+  ContextMenuItem,
   DesktopTheme,
   DesktopUpdateActionResult,
   DesktopUpdateState,
 } from "@t3tools/contracts";
-import { autoUpdater, BaseUpdater, CancellationToken } from "electron-updater";
-
-import type { ContextMenuItem } from "@t3tools/contracts";
 import { getMacTrafficLightPosition } from "@t3tools/shared/desktopChrome";
 import { NetService } from "@t3tools/shared/Net";
 import { RotatingFileSink } from "@t3tools/shared/logging";
@@ -47,48 +45,15 @@ import { waitForBackendStartupReady } from "./backendStartupReadiness";
 import { showDesktopConfirmDialog } from "./confirmDialog";
 import { openInitialBackendWindow } from "./initialBackendWindowOpen";
 import { shouldAllowMediaPermissionRequest } from "./mediaPermissions";
-import {
-  installResumableUpdateDownloader,
-  type ResumableDownloaderTarget,
-} from "./resumableUpdateDownload";
-import { hardenElectronUpdater } from "./electronUpdaterSecurity";
 import { ServerListeningDetector } from "./serverListeningDetector";
 import { syncShellEnvironment } from "./syncShellEnvironment";
-import {
-  type DownloadProgressSample,
-  getAutoUpdateDisabledReason,
-  getDownloadStallTimeoutMessage,
-  hasDownloadProgressAdvanced,
-  isExpectedStalledDownloadCancellationError,
-  isUpdateVersionNewer,
-  shouldBroadcastDownloadProgress,
-  shouldCheckForUpdatesOnForeground,
-} from "./updateState";
 import { registerDesktopVoiceTranscriptionHandler } from "./voiceTranscription";
 import {
   resolveDesktopMenuAccelerator,
   resolveKeyboardShortcutsMenuAccelerator,
   shouldUseNativeZoomMenuRoles,
 } from "./menuShortcuts";
-import {
-  createInitialDesktopUpdateState,
-  reduceDesktopUpdateStateOnCheckFailure,
-  reduceDesktopUpdateStateOnCheckStart,
-  reduceDesktopUpdateStateOnDownloadComplete,
-  reduceDesktopUpdateStateOnDownloadFailure,
-  reduceDesktopUpdateStateOnDownloadProgress,
-  reduceDesktopUpdateStateOnDownloadStart,
-  reduceDesktopUpdateStateOnInstallFailure,
-  reduceDesktopUpdateStateOnNoUpdate,
-  reduceDesktopUpdateStateOnUpdateAvailable,
-} from "./updateMachine";
-import {
-  PendingUpdateCacheClearQueue,
-  resolveElectronUpdaterCacheDirName,
-  resolveElectronUpdaterPendingCacheDir,
-} from "./updatePendingCache";
-import { buildGitHubReleasesPageUrl, resolveGitHubUpdateSource } from "./githubUpdateFeed";
-import { isArm64HostRunningIntelBuild, resolveDesktopRuntimeInfo } from "./runtimeArch";
+import { resolveDesktopRuntimeInfo } from "./runtimeArch";
 import { DesktopBrowserManager } from "./browserManager";
 import {
   BROWSER_IPC_CHANNELS,
@@ -157,20 +122,6 @@ const LOG_FILE_MAX_BYTES = 10 * 1024 * 1024;
 const LOG_FILE_MAX_FILES = 10;
 const APP_RUN_ID = Crypto.randomBytes(6).toString("hex");
 const hasSingleInstanceLock = app.requestSingleInstanceLock();
-const AUTO_UPDATE_STARTUP_DELAY_MS = 15_000;
-const AUTO_UPDATE_POLL_INTERVAL_MS = 4 * 60 * 60 * 1000;
-const AUTO_UPDATE_FOREGROUND_RECHECK_MIN_INTERVAL_MS = 5 * 60 * 1000;
-const AUTO_UPDATE_FOREGROUND_RECHECK_MIN_BACKGROUND_MS = 30 * 1000;
-const AUTO_UPDATE_CHECK_TIMEOUT_MS = 45 * 1000;
-const AUTO_UPDATE_DOWNLOAD_STALL_TIMEOUT_MS = 60 * 1000;
-// Upper bound on how long we wait for electron-updater to release a cancelled
-// download before allowing a retry, so a wedged updater promise can't block updates.
-const AUTO_UPDATE_DOWNLOAD_SETTLE_TIMEOUT_MS = 20 * 1000;
-const AUTO_UPDATE_STALLED_DOWNLOAD_CANCELLATION_SUPPRESSION_MS = 2 * 60 * 1000;
-// How long we give quitAndInstall() to actually quit/relaunch the app before we
-// conclude the OS installer never started (unsigned/quarantined build, read-only
-// install dir, blocked NSIS run) and surface the manual-download fallback.
-const AUTO_UPDATE_INSTALL_WATCHDOG_MS = 15 * 1000;
 const BACKEND_FORCE_KILL_DELAY_MS = 8_000;
 const BACKEND_SHUTDOWN_TIMEOUT_MS = 10_000;
 const BACKEND_MAX_OLD_SPACE_ENV_KEYS = [
@@ -178,8 +129,6 @@ const BACKEND_MAX_OLD_SPACE_ENV_KEYS = [
   "T3CODE_BACKEND_MAX_OLD_SPACE_MB",
   "DPCODE_BACKEND_MAX_OLD_SPACE_MB",
 ] as const;
-const DESKTOP_UPDATE_CHANNEL = "latest";
-const DESKTOP_UPDATE_ALLOW_PRERELEASE = false;
 const BROWSER_PERF_SAMPLE_INTERVAL_MS = 5_000;
 const DESKTOP_MENU_ZOOM_FACTOR_STEP = 1.1;
 const DESKTOP_MENU_MIN_ZOOM_FACTOR = 0.25;
@@ -189,8 +138,6 @@ const browserPerfLoggingEnabled =
   process.env.SYNARA_BROWSER_PERF === "1" ||
   process.env.DPCODE_BROWSER_PERF === "1" ||
   process.env.T3CODE_BROWSER_PERF === "1";
-
-type DesktopUpdateErrorContext = DesktopUpdateState["errorContext"];
 
 let mainWindow: BrowserWindow | null = null;
 let backendProcess: ChildProcess.ChildProcess | null = null;
@@ -204,13 +151,10 @@ let backendListeningDetector: ServerListeningDetector | null = null;
 let restartAttempt = 0;
 let restartTimer: ReturnType<typeof setTimeout> | null = null;
 let isQuitting = false;
-let isUpdaterInstallPreparing = false;
-let isUpdaterQuitAndInstallInFlight = false;
 let desktopShutdownPromise: Promise<void> | null = null;
 let desktopShutdownComplete = false;
 let desktopProtocolRegistered = false;
 let aboutCommitHashCache: string | null | undefined;
-let appUpdateYmlCache: Record<string, string> | null | undefined;
 let desktopLogSink: RotatingFileSink | null = null;
 let backendLogSink: RotatingFileSink | null = null;
 let restoreStdIoCapture: (() => void) | null = null;
@@ -218,8 +162,6 @@ let unreadBackgroundNotificationCount = 0;
 let browserPerfInterval: ReturnType<typeof setInterval> | null = null;
 const browserManager = new DesktopBrowserManager();
 let browserUsePipeServer: BrowserUsePipeServer | null = null;
-let configuredGitHubUpdateSource: ReturnType<typeof resolveGitHubUpdateSource> = null;
-let configuredUpdaterCacheDirName: string | null = null;
 
 browserManager.subscribe((state) => {
   sendBrowserState(mainWindow?.webContents, state);
@@ -276,8 +218,24 @@ const desktopRuntimeInfo = resolveDesktopRuntimeInfo({
   processArch: process.arch,
   runningUnderArm64Translation: app.runningUnderARM64Translation === true,
 });
-const initialUpdateState = (): DesktopUpdateState =>
-  createInitialDesktopUpdateState(app.getVersion(), desktopRuntimeInfo);
+function createDisabledUpdateState(): DesktopUpdateState {
+  return {
+    enabled: false,
+    status: "disabled",
+    currentVersion: app.getVersion(),
+    hostArch: desktopRuntimeInfo.hostArch,
+    appArch: desktopRuntimeInfo.appArch,
+    runningUnderArm64Translation: desktopRuntimeInfo.runningUnderArm64Translation,
+    availableVersion: null,
+    downloadedVersion: null,
+    downloadPercent: null,
+    checkedAt: null,
+    message: null,
+    errorContext: null,
+    canRetry: false,
+    releaseUrl: null,
+  };
+}
 
 function logTimestamp(): string {
   return new Date().toISOString();
@@ -584,78 +542,7 @@ function getDestructiveMenuIcon(): Electron.NativeImage | undefined {
     return undefined;
   }
 }
-let updatePollTimer: ReturnType<typeof setInterval> | null = null;
-let updateStartupTimer: ReturnType<typeof setTimeout> | null = null;
-let updateCheckInFlight = false;
-let updateDownloadInFlight = false;
-let updaterConfigured = false;
-let updateState: DesktopUpdateState = initialUpdateState();
-let updateBackgroundedAtMs: number | null = null;
-let updateBackgroundBlurTimer: ReturnType<typeof setTimeout> | null = null;
-let updateCheckTimeoutTimer: ReturnType<typeof setTimeout> | null = null;
-let updateDownloadStallTimer: ReturnType<typeof setTimeout> | null = null;
-let updateInstallWatchdogTimer: ReturnType<typeof setTimeout> | null = null;
-let updateDownloadCancellationToken: CancellationToken | null = null;
-let rejectUpdateDownloadStall: ((error: Error) => void) | null = null;
-let lastUpdateDownloadProgressSample: DownloadProgressSample | null = null;
-let stalledDownloadCancellationSuppressionsRemaining = 0;
-let stalledDownloadCancellationSuppressionExpiresAtMs = 0;
-const pendingUpdateCacheClearQueue = new PendingUpdateCacheClearQueue();
-
-function resolveUpdaterErrorContext(): DesktopUpdateErrorContext {
-  if (isUpdaterInstallPreparing || isUpdaterQuitAndInstallInFlight) return "install";
-  if (updateDownloadInFlight) return "download";
-  if (updateCheckInFlight) return "check";
-  return updateState.errorContext;
-}
-
-function clearUpdaterInstallInFlightAfterError(): void {
-  if (!isUpdaterInstallPreparing && !isUpdaterQuitAndInstallInFlight) {
-    return;
-  }
-  isUpdaterInstallPreparing = false;
-  isUpdaterQuitAndInstallInFlight = false;
-  isQuitting = false;
-}
-
-function clearUpdateInstallWatchdogTimer(): void {
-  if (updateInstallWatchdogTimer) {
-    clearTimeout(updateInstallWatchdogTimer);
-    updateInstallWatchdogTimer = null;
-  }
-}
-
-// quitAndInstall() is a fire-and-forget void call with no success signal: when
-// the OS installer silently fails the app never quits and the user is left with
-// no feedback (the "update doesn't work for some people" report). If the process
-// is still alive after the watchdog window, recover and surface an actionable
-// install failure so the UI can offer the manual-download fallback.
-function armInstallWatchdog(): void {
-  clearUpdateInstallWatchdogTimer();
-  updateInstallWatchdogTimer = setTimeout(() => {
-    updateInstallWatchdogTimer = null;
-    if (!isUpdaterQuitAndInstallInFlight) {
-      return;
-    }
-    clearUpdaterInstallInFlightAfterError();
-    // The backend was already stopped before quitAndInstall(); since the app is
-    // not actually quitting, bring it back so the recovered app is functional
-    // (renderer reconnects) instead of a zombie window with a dead backend.
-    startBackend();
-    // Polling was stopped before the install attempt; resume it so background
-    // update checks keep running after this recovery.
-    scheduleUpdatePoll();
-    setUpdateState(
-      reduceDesktopUpdateStateOnInstallFailure(
-        updateState,
-        "The update couldn’t be installed automatically.",
-      ),
-    );
-    console.error(
-      "[desktop-updater] quitAndInstall did not exit the app within the watchdog window; surfacing manual-download fallback.",
-    );
-  }, AUTO_UPDATE_INSTALL_WATCHDOG_MS);
-}
+let updateState: DesktopUpdateState = createDisabledUpdateState();
 
 protocol.registerSchemesAsPrivileged([
   {
@@ -674,40 +561,6 @@ function resolveAppRoot(): string {
     return ROOT_DIR;
   }
   return app.getAppPath();
-}
-
-/**
- * Read the baked-in app-update.yml config (if applicable). The file ships inside
- * the package and never changes at runtime, so the parsed result is cached to keep
- * repeated callers off the synchronous-FS path on the main thread.
- */
-function readAppUpdateYml(): Record<string, string> | null {
-  if (appUpdateYmlCache !== undefined) {
-    return appUpdateYmlCache;
-  }
-  appUpdateYmlCache = parseAppUpdateYml();
-  return appUpdateYmlCache;
-}
-
-function parseAppUpdateYml(): Record<string, string> | null {
-  try {
-    // electron-updater reads from process.resourcesPath in packaged builds,
-    // or dev-app-update.yml via app.getAppPath() in dev.
-    const ymlPath = app.isPackaged
-      ? Path.join(process.resourcesPath, "app-update.yml")
-      : Path.join(app.getAppPath(), "dev-app-update.yml");
-    const raw = FS.readFileSync(ymlPath, "utf-8");
-    // The YAML is simple key-value pairs — avoid pulling in a YAML parser by
-    // doing a line-based parse (fields: provider, owner, repo, releaseType, …).
-    const entries: Record<string, string> = {};
-    for (const line of raw.split("\n")) {
-      const match = line.match(/^(\w+):\s*(.+)$/);
-      if (match?.[1] && match[2]) entries[match[1]] = match[2].trim();
-    }
-    return entries.provider ? entries : null;
-  } catch {
-    return null;
-  }
 }
 
 function normalizeCommitHash(value: unknown): string | null {
@@ -926,40 +779,6 @@ function adjustWindowZoomFromMenu(multiplier: number): void {
   webContents.setZoomFactor(nextZoomFactor);
 }
 
-// A configured app-update.yml (or the mock-updates flag) is the prerequisite for any
-// auto-update activity; centralized so the menu and the enable check stay in lockstep.
-function hasConfiguredUpdateFeed(): boolean {
-  return readAppUpdateYml() !== null || Boolean(process.env.T3CODE_DESKTOP_MOCK_UPDATES);
-}
-
-function resolveAutoUpdateDisabledReason(): string | null {
-  return "Automatic updates are disabled in this personal fork.";
-}
-
-function handleCheckForUpdatesMenuClick(): void {
-  const disabledReason = resolveAutoUpdateDisabledReason();
-  if (disabledReason) {
-    console.info("[desktop-updater] Manual update check requested, but updates are disabled.");
-    void dialog.showMessageBox({
-      type: "info",
-      title: "Updates unavailable",
-      message: "Automatic updates are not available right now.",
-      detail: disabledReason,
-      buttons: ["OK"],
-    });
-    return;
-  }
-
-  if (!BrowserWindow.getAllWindows().length) {
-    mainWindow = createWindow();
-  }
-  void checkForUpdatesFromMenu();
-}
-
-async function checkForUpdatesFromMenu(): Promise<void> {
-  // Auto-updates are disabled in this personal fork; menu entries were removed.
-}
-
 function configureApplicationMenu(): void {
   const template: MenuItemConstructorOptions[] = [];
   const keyboardShortcutsAccelerator = resolveKeyboardShortcutsMenuAccelerator(process.platform);
@@ -977,13 +796,13 @@ function configureApplicationMenu(): void {
         { role: "zoomOut" },
       ]
     : [
-        { label: "Reset Zoom", click: () => resetWindowZoomFromMenu() },
+        { label: "重置缩放", click: () => resetWindowZoomFromMenu() },
         {
-          label: "Zoom In",
+          label: "放大",
           click: () => adjustWindowZoomFromMenu(DESKTOP_MENU_ZOOM_FACTOR_STEP),
         },
         {
-          label: "Zoom Out",
+          label: "缩小",
           click: () => adjustWindowZoomFromMenu(1 / DESKTOP_MENU_ZOOM_FACTOR_STEP),
         },
       ];
@@ -995,7 +814,7 @@ function configureApplicationMenu(): void {
         { role: "about" },
         { type: "separator" },
         {
-          label: "Settings...",
+          label: "设置…",
           accelerator: "CmdOrCtrl+,",
           click: () => dispatchMenuAction("open-settings"),
         },
@@ -1013,13 +832,13 @@ function configureApplicationMenu(): void {
 
   template.push(
     {
-      label: "File",
+      label: "文件",
       submenu: [
         ...(process.platform === "darwin"
           ? []
           : [
               {
-                label: "Settings...",
+                label: "设置…",
                 ...acceleratorProps("CmdOrCtrl+,"),
                 click: () => dispatchMenuAction("open-settings"),
               },
@@ -1030,21 +849,21 @@ function configureApplicationMenu(): void {
     },
     { role: "editMenu" },
     {
-      label: "View",
+      label: "视图",
       submenu: [
         {
-          label: "New Terminal Tab",
+          label: "新建终端标签",
           ...acceleratorProps("CmdOrCtrl+T"),
           click: () => dispatchMenuAction("new-terminal-tab"),
         },
         { type: "separator" },
         {
-          label: "Toggle Sidebar",
+          label: "切换侧边栏",
           ...acceleratorProps("CmdOrCtrl+B"),
           click: () => dispatchMenuAction("toggle-sidebar"),
         },
         {
-          label: "Toggle Browser",
+          label: "切换浏览器",
           ...acceleratorProps("CmdOrCtrl+Shift+B"),
           click: () => dispatchMenuAction("toggle-browser"),
         },
@@ -1063,7 +882,7 @@ function configureApplicationMenu(): void {
       role: "help",
       submenu: [
         {
-          label: "Keyboard Shortcuts",
+          label: "键盘快捷键",
           ...(keyboardShortcutsAccelerator ? { accelerator: keyboardShortcutsAccelerator } : {}),
           click: () => dispatchMenuAction("show-shortcuts"),
         },
@@ -1255,30 +1074,6 @@ function applyLegacyMacDockIcon(): void {
   app.dock.setIcon(image);
 }
 
-function clearUpdatePollTimer(): void {
-  if (updateStartupTimer) {
-    clearTimeout(updateStartupTimer);
-    updateStartupTimer = null;
-  }
-  if (updatePollTimer) {
-    clearInterval(updatePollTimer);
-    updatePollTimer = null;
-  }
-}
-
-// Starts the periodic background update check. Used by configureAutoUpdater and
-// by the install watchdog recovery so polling resumes after a silent install
-// failure instead of staying off until the next app restart.
-function scheduleUpdatePoll(): void {
-  if (updatePollTimer) {
-    return;
-  }
-  updatePollTimer = setInterval(() => {
-    void checkForUpdates("poll");
-  }, AUTO_UPDATE_POLL_INTERVAL_MS);
-  updatePollTimer.unref();
-}
-
 function emitUpdateState(): void {
   for (const window of BrowserWindow.getAllWindows()) {
     if (window.isDestroyed()) continue;
@@ -1291,509 +1086,6 @@ function setUpdateState(patch: Partial<DesktopUpdateState>): void {
   emitUpdateState();
 }
 
-function shouldEnableAutoUpdates(): boolean {
-  return resolveAutoUpdateDisabledReason() === null;
-}
-
-function isKnownUpdateVersionNewer(version: string | null | undefined): boolean {
-  return typeof version === "string" && isUpdateVersionNewer(app.getVersion(), version);
-}
-
-function getPendingUpdateCacheDir(): string | null {
-  return resolveElectronUpdaterPendingCacheDir({
-    cacheDirName: configuredUpdaterCacheDirName,
-    platform: process.platform,
-    homeDir: OS.homedir(),
-    localAppData: process.env.LOCALAPPDATA ?? null,
-    xdgCacheHome: process.env.XDG_CACHE_HOME ?? null,
-  });
-}
-
-// electron-updater can leave a same-version ZIP in `pending` after a restart or
-// a failed install attempt. Clearing it prevents stale "ready" states.
-async function clearPendingUpdateCache(reason: string): Promise<void> {
-  const pendingDir = getPendingUpdateCacheDir();
-  if (!pendingDir || updateDownloadInFlight) {
-    return;
-  }
-  try {
-    await FS.promises.rm(pendingDir, { recursive: true, force: true });
-    console.info(`[desktop-updater] Cleared pending update cache (${reason}).`);
-  } catch (error) {
-    console.warn(
-      `[desktop-updater] Failed to clear pending update cache (${reason}): ${formatErrorMessage(error)}`,
-    );
-  }
-}
-
-// Terminal updater events can arrive before downloadUpdate() settles; defer cache deletion
-// until the updater has released its in-flight download bookkeeping.
-function clearPendingUpdateCacheWhenSafe(reason: string): void {
-  pendingUpdateCacheClearQueue.request(reason, updateDownloadInFlight, (safeReason) => {
-    void clearPendingUpdateCache(safeReason);
-  });
-}
-
-function clearUpdateBackgroundBlurTimer(): void {
-  if (updateBackgroundBlurTimer) {
-    clearTimeout(updateBackgroundBlurTimer);
-    updateBackgroundBlurTimer = null;
-  }
-}
-
-// Fail closed if electron-updater never emits a terminal check outcome.
-function clearUpdateCheckTimeoutTimer(): void {
-  if (updateCheckTimeoutTimer) {
-    clearTimeout(updateCheckTimeoutTimer);
-    updateCheckTimeoutTimer = null;
-  }
-}
-
-function armUpdateCheckTimeout(reason: string): void {
-  clearUpdateCheckTimeoutTimer();
-  updateCheckTimeoutTimer = setTimeout(() => {
-    updateCheckTimeoutTimer = null;
-    if (updateState.status !== "checking") {
-      return;
-    }
-    updateCheckInFlight = false;
-    setUpdateState(
-      reduceDesktopUpdateStateOnCheckFailure(
-        updateState,
-        "Timed out while checking for updates. Try again.",
-        new Date().toISOString(),
-      ),
-    );
-    console.error(`[desktop-updater] Update check timed out (${reason}).`);
-  }, AUTO_UPDATE_CHECK_TIMEOUT_MS);
-  updateCheckTimeoutTimer.unref();
-}
-
-function clearUpdateDownloadStallTimer(): void {
-  if (updateDownloadStallTimer) {
-    clearTimeout(updateDownloadStallTimer);
-    updateDownloadStallTimer = null;
-  }
-}
-
-function clearStalledDownloadCancellationSuppression(): void {
-  stalledDownloadCancellationSuppressionsRemaining = 0;
-  stalledDownloadCancellationSuppressionExpiresAtMs = 0;
-}
-
-function armStalledDownloadCancellationSuppression(): void {
-  stalledDownloadCancellationSuppressionsRemaining += 1;
-  stalledDownloadCancellationSuppressionExpiresAtMs =
-    Date.now() + AUTO_UPDATE_STALLED_DOWNLOAD_CANCELLATION_SUPPRESSION_MS;
-}
-
-function isStalledDownloadCancellationSuppressionArmed(): boolean {
-  if (stalledDownloadCancellationSuppressionsRemaining <= 0) {
-    return false;
-  }
-  if (Date.now() <= stalledDownloadCancellationSuppressionExpiresAtMs) {
-    return true;
-  }
-  clearStalledDownloadCancellationSuppression();
-  return false;
-}
-
-function consumeStalledDownloadCancellationSuppression(): void {
-  stalledDownloadCancellationSuppressionsRemaining = Math.max(
-    0,
-    stalledDownloadCancellationSuppressionsRemaining - 1,
-  );
-  if (stalledDownloadCancellationSuppressionsRemaining === 0) {
-    stalledDownloadCancellationSuppressionExpiresAtMs = 0;
-  }
-}
-
-// Bounds a silent updater download while allowing slow downloads that keep making progress.
-function armUpdateDownloadStallTimer(reason: string): void {
-  clearUpdateDownloadStallTimer();
-  updateDownloadStallTimer = setTimeout(() => {
-    updateDownloadStallTimer = null;
-    if (!updateDownloadInFlight || updateState.status !== "downloading") {
-      return;
-    }
-
-    const error = new Error(getDownloadStallTimeoutMessage(AUTO_UPDATE_DOWNLOAD_STALL_TIMEOUT_MS));
-    console.error(`[desktop-updater] ${error.message} (${reason}).`);
-    armStalledDownloadCancellationSuppression();
-    rejectUpdateDownloadStall?.(error);
-    updateDownloadCancellationToken?.cancel();
-  }, AUTO_UPDATE_DOWNLOAD_STALL_TIMEOUT_MS);
-  updateDownloadStallTimer.unref();
-}
-
-function updateDownloadStallTimerOnProgress(progress: DownloadProgressSample): void {
-  if (!updateDownloadInFlight) {
-    return;
-  }
-  if (!hasDownloadProgressAdvanced(lastUpdateDownloadProgressSample, progress)) {
-    return;
-  }
-  lastUpdateDownloadProgressSample = {
-    percent: progress.percent ?? null,
-    transferred: progress.transferred ?? null,
-  };
-  armUpdateDownloadStallTimer(`download progress ${Math.floor(progress.percent ?? 0)}%`);
-}
-
-function isDesktopAppForegrounded(): boolean {
-  return BrowserWindow.getAllWindows().some(
-    (window) => !window.isDestroyed() && window.isFocused(),
-  );
-}
-
-function markDesktopAppBackgrounded(): void {
-  clearUpdateBackgroundBlurTimer();
-  updateBackgroundBlurTimer = setTimeout(() => {
-    updateBackgroundBlurTimer = null;
-    if (isDesktopAppForegrounded()) {
-      return;
-    }
-    updateBackgroundedAtMs = Date.now();
-  }, 0);
-}
-
-function handleDesktopAppForegrounded(): void {
-  clearUpdateBackgroundBlurTimer();
-  clearUnreadNotificationBadge();
-  const foregroundedAtMs = Date.now();
-  const backgroundedAtMs = updateBackgroundedAtMs;
-  updateBackgroundedAtMs = null;
-  const shouldCheck = shouldCheckForUpdatesOnForeground({
-    checkedAt: updateState.checkedAt,
-    backgroundedAtMs,
-    foregroundedAtMs,
-    minBackgroundDurationMs: AUTO_UPDATE_FOREGROUND_RECHECK_MIN_BACKGROUND_MS,
-    minIntervalMs: AUTO_UPDATE_FOREGROUND_RECHECK_MIN_INTERVAL_MS,
-  });
-  if (!shouldCheck) {
-    return;
-  }
-  void checkForUpdates("foreground");
-}
-
-async function checkForUpdates(reason: string): Promise<void> {
-  if (isQuitting || !updaterConfigured || updateCheckInFlight) return;
-  if (
-    updateState.status === "checking" ||
-    updateState.status === "downloading" ||
-    updateState.status === "downloaded"
-  ) {
-    console.info(
-      `[desktop-updater] Skipping update check (${reason}) while status=${updateState.status}.`,
-    );
-    return;
-  }
-  updateCheckInFlight = true;
-  setUpdateState(reduceDesktopUpdateStateOnCheckStart(updateState, new Date().toISOString()));
-  armUpdateCheckTimeout(reason);
-  console.info(`[desktop-updater] Checking for updates (${reason})...`);
-
-  try {
-    await autoUpdater.checkForUpdates();
-  } catch (error: unknown) {
-    clearUpdateCheckTimeoutTimer();
-    const message = error instanceof Error ? error.message : String(error);
-    setUpdateState(
-      reduceDesktopUpdateStateOnCheckFailure(updateState, message, new Date().toISOString()),
-    );
-    console.error(`[desktop-updater] Failed to check for updates: ${message}`);
-  } finally {
-    updateCheckInFlight = false;
-  }
-}
-
-async function downloadAvailableUpdate(): Promise<{
-  accepted: boolean;
-  completed: boolean;
-}> {
-  if (!updaterConfigured || updateDownloadInFlight || updateState.status !== "available") {
-    return { accepted: false, completed: false };
-  }
-  if (!isKnownUpdateVersionNewer(updateState.availableVersion)) {
-    await clearPendingUpdateCache("available version is not newer than current app");
-    setUpdateState(reduceDesktopUpdateStateOnNoUpdate(updateState, new Date().toISOString()));
-    console.info(
-      `[desktop-updater] Ignoring stale available update ${updateState.availableVersion ?? "unknown"} for current ${app.getVersion()}.`,
-    );
-    return { accepted: false, completed: false };
-  }
-  updateDownloadInFlight = true;
-  setUpdateState(reduceDesktopUpdateStateOnDownloadStart(updateState));
-  // Keep existing cancellation suppressions across immediate retries; the old
-  // updater cancellation can arrive after a new download has already started.
-  lastUpdateDownloadProgressSample = null;
-  const cancellationToken = new CancellationToken();
-  updateDownloadCancellationToken = cancellationToken;
-  const downloadStalled = new Promise<never>((_, reject) => {
-    rejectUpdateDownloadStall = reject;
-  });
-  armUpdateDownloadStallTimer("download start");
-  console.info("[desktop-updater] Downloading update...");
-
-  // Track electron-updater's own download promise separately from the stall race.
-  // When the stall timer wins the race it cancels this promise, but the updater
-  // keeps its internal download promise set until that cancellation unwinds. We
-  // observe its settlement here (so a late rejection can't surface as an unhandled
-  // rejection) and wait on it before releasing the in-flight flag below.
-  let updaterDownloadSettled = false;
-  const updaterDownloadPromise = autoUpdater.downloadUpdate(cancellationToken);
-  const updaterDownloadSettledPromise = updaterDownloadPromise.then(
-    () => {
-      updaterDownloadSettled = true;
-    },
-    () => {
-      updaterDownloadSettled = true;
-    },
-  );
-
-  try {
-    await Promise.race([updaterDownloadPromise, downloadStalled]);
-    return { accepted: true, completed: true };
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
-    setUpdateState(reduceDesktopUpdateStateOnDownloadFailure(updateState, message));
-    console.error(`[desktop-updater] Failed to download update: ${message}`);
-    return { accepted: true, completed: false };
-  } finally {
-    clearUpdateDownloadStallTimer();
-    // Hold the in-flight flag until the updater download actually settles, so an
-    // immediate retry can't grab the still-cancelling promise (which would reject
-    // as "cancelled"). Bounded so a stuck updater promise can't wedge updates.
-    if (!updaterDownloadSettled) {
-      await Promise.race([
-        updaterDownloadSettledPromise,
-        new Promise<void>((resolve) => {
-          setTimeout(resolve, AUTO_UPDATE_DOWNLOAD_SETTLE_TIMEOUT_MS).unref();
-        }),
-      ]);
-    }
-    if (updateDownloadCancellationToken === cancellationToken) {
-      updateDownloadCancellationToken = null;
-    }
-    rejectUpdateDownloadStall = null;
-    lastUpdateDownloadProgressSample = null;
-    updateDownloadInFlight = false;
-    const pendingCacheClearReason = pendingUpdateCacheClearQueue.consumeAfterDownload();
-    if (pendingCacheClearReason) {
-      await clearPendingUpdateCache(pendingCacheClearReason);
-    }
-  }
-}
-
-// Starts the automatic prepare step after a successful update check; install
-// stays user-controlled so active agent work is not interrupted by a restart.
-function prepareAvailableUpdateInBackground(reason: string): void {
-  if (updateDownloadInFlight || updateState.status !== "available") {
-    return;
-  }
-  void downloadAvailableUpdate()
-    .then((result) => {
-      if (result.accepted && result.completed) {
-        console.info(`[desktop-updater] Background update download completed (${reason}).`);
-      }
-    })
-    .catch((error) => {
-      console.error(
-        `[desktop-updater] Background update download crashed (${reason}): ${formatErrorMessage(error)}`,
-      );
-    });
-}
-
-async function installDownloadedUpdate(): Promise<{
-  accepted: boolean;
-  completed: boolean;
-}> {
-  if (isQuitting || !updaterConfigured || updateState.status !== "downloaded") {
-    return { accepted: false, completed: false };
-  }
-  const versionToInstall = updateState.downloadedVersion ?? updateState.availableVersion;
-  if (!isKnownUpdateVersionNewer(versionToInstall)) {
-    await clearPendingUpdateCache("downloaded version is not newer than current app");
-    setUpdateState(reduceDesktopUpdateStateOnNoUpdate(updateState, new Date().toISOString()));
-    console.info(
-      `[desktop-updater] Ignoring stale downloaded update ${versionToInstall ?? "unknown"} for current ${app.getVersion()}.`,
-    );
-    return { accepted: false, completed: false };
-  }
-
-  isQuitting = true;
-  isUpdaterInstallPreparing = true;
-  clearUpdatePollTimer();
-  try {
-    await stopBackendAndWaitForExit();
-    isUpdaterQuitAndInstallInFlight = true;
-    autoUpdater.quitAndInstall();
-    armInstallWatchdog();
-    return { accepted: true, completed: true };
-  } catch (error: unknown) {
-    const message = formatErrorMessage(error);
-    isUpdaterInstallPreparing = false;
-    isUpdaterQuitAndInstallInFlight = false;
-    isQuitting = false;
-    setUpdateState(reduceDesktopUpdateStateOnInstallFailure(updateState, message));
-    console.error(`[desktop-updater] Failed to install update: ${message}`);
-    return { accepted: true, completed: false };
-  }
-}
-
-function configureAutoUpdater(): void {
-  const appUpdateYml = readAppUpdateYml();
-  configuredUpdaterCacheDirName = resolveElectronUpdaterCacheDirName(appUpdateYml, app.getName());
-  const enabled = shouldEnableAutoUpdates();
-  setUpdateState({
-    ...createInitialDesktopUpdateState(app.getVersion(), desktopRuntimeInfo),
-    enabled,
-    status: enabled ? "idle" : "disabled",
-  });
-  if (!enabled) {
-    configuredGitHubUpdateSource = null;
-    configuredUpdaterCacheDirName = null;
-    return;
-  }
-  updaterConfigured = true;
-  hardenElectronUpdater({ BaseUpdater }, autoUpdater);
-  configuredGitHubUpdateSource = resolveGitHubUpdateSource(appUpdateYml);
-  if (configuredGitHubUpdateSource !== null) {
-    // The updater itself uses app-update.yml; this URL is only the human fallback.
-    setUpdateState({ releaseUrl: buildGitHubReleasesPageUrl(configuredGitHubUpdateSource) });
-  }
-
-  autoUpdater.autoDownload = false;
-  autoUpdater.autoInstallOnAppQuit = false;
-  // Keep alpha branding, but force all installs onto the stable update track.
-  autoUpdater.channel = DESKTOP_UPDATE_CHANNEL;
-  autoUpdater.allowPrerelease = DESKTOP_UPDATE_ALLOW_PRERELEASE;
-  autoUpdater.allowDowngrade = false;
-  // Match electron-updater's native GitHub provider path; the packaged
-  // app-update.yml owns the production feed, and generic feeds stay mock-only.
-  // macOS release builds repack and validate the Squirrel update zip, then omit
-  // the stale zip blockmap so ShipIt always installs the exact signed payload.
-  autoUpdater.disableDifferentialDownload =
-    process.platform === "darwin" || isArm64HostRunningIntelBuild(desktopRuntimeInfo);
-  // electron-updater has no working idle timeout on macOS (its socket timeout is
-  // wired to a `socket` event Electron's net.request never emits) and never
-  // resumes from a byte offset, so a stalled CDN transfer hangs for minutes
-  // until TCP recovers on its own. installResumableUpdateDownloader replaces the
-  // download transfer with a stall-aware, resumable one and installs a real idle
-  // timeout, so an intermittent stall becomes a brief reconnect-and-resume
-  // instead of a multi-minute freeze. Independent of the zip-validation fix.
-  if (!installResumableUpdateDownloader(autoUpdater as unknown as ResumableDownloaderTarget)) {
-    console.warn(
-      "[desktop-updater] Could not install resumable update downloader; falling back to default transfer.",
-    );
-  }
-  let lastLoggedDownloadMilestone = -1;
-
-  if (isArm64HostRunningIntelBuild(desktopRuntimeInfo)) {
-    console.info(
-      "[desktop-updater] Apple Silicon host detected while running Intel build; updates will switch to arm64 packages.",
-    );
-  }
-
-  autoUpdater.on("checking-for-update", () => {
-    console.info("[desktop-updater] Looking for updates...");
-  });
-  autoUpdater.on("update-available", (info) => {
-    clearUpdateCheckTimeoutTimer();
-    if (!isUpdateVersionNewer(app.getVersion(), info.version)) {
-      void clearPendingUpdateCache("available version is not newer than current app");
-      setUpdateState(reduceDesktopUpdateStateOnNoUpdate(updateState, new Date().toISOString()));
-      lastLoggedDownloadMilestone = -1;
-      console.info(
-        `[desktop-updater] Ignoring non-newer update ${info.version}; current version is ${app.getVersion()}.`,
-      );
-      return;
-    }
-    setUpdateState(
-      reduceDesktopUpdateStateOnUpdateAvailable(
-        updateState,
-        info.version,
-        new Date().toISOString(),
-      ),
-    );
-    lastLoggedDownloadMilestone = -1;
-    console.info(`[desktop-updater] Update available: ${info.version}`);
-    prepareAvailableUpdateInBackground(`available ${info.version}`);
-  });
-  autoUpdater.on("update-not-available", () => {
-    clearUpdateCheckTimeoutTimer();
-    void clearPendingUpdateCache("no newer update available");
-    setUpdateState(reduceDesktopUpdateStateOnNoUpdate(updateState, new Date().toISOString()));
-    lastLoggedDownloadMilestone = -1;
-    console.info("[desktop-updater] No updates available.");
-  });
-  autoUpdater.on("error", (error) => {
-    clearUpdateCheckTimeoutTimer();
-    const message = formatErrorMessage(error);
-    const errorContext = resolveUpdaterErrorContext();
-    if (
-      isExpectedStalledDownloadCancellationError({
-        suppressionArmed: isStalledDownloadCancellationSuppressionArmed(),
-        errorContext,
-        message,
-      })
-    ) {
-      consumeStalledDownloadCancellationSuppression();
-      console.warn("[desktop-updater] Ignored expected cancellation after stalled download.");
-      return;
-    }
-    clearUpdaterInstallInFlightAfterError();
-    if (!updateCheckInFlight && !updateDownloadInFlight) {
-      setUpdateState({
-        status: "error",
-        message,
-        checkedAt: new Date().toISOString(),
-        downloadPercent: null,
-        errorContext,
-        canRetry: updateState.availableVersion !== null || updateState.downloadedVersion !== null,
-      });
-    }
-    console.error(`[desktop-updater] Updater error: ${message}`);
-  });
-  autoUpdater.on("download-progress", (progress) => {
-    const percent = Math.floor(progress.percent);
-    updateDownloadStallTimerOnProgress(progress);
-    if (
-      shouldBroadcastDownloadProgress(updateState, progress.percent) ||
-      updateState.message !== null
-    ) {
-      setUpdateState(reduceDesktopUpdateStateOnDownloadProgress(updateState, progress.percent));
-    }
-    const milestone = percent - (percent % 10);
-    if (milestone > lastLoggedDownloadMilestone) {
-      lastLoggedDownloadMilestone = milestone;
-      console.info(`[desktop-updater] Download progress: ${percent}%`);
-    }
-  });
-  autoUpdater.on("update-downloaded", (info) => {
-    clearUpdateDownloadStallTimer();
-    if (!isUpdateVersionNewer(app.getVersion(), info.version)) {
-      clearPendingUpdateCacheWhenSafe("downloaded version is not newer than current app");
-      setUpdateState(reduceDesktopUpdateStateOnNoUpdate(updateState, new Date().toISOString()));
-      console.info(
-        `[desktop-updater] Ignoring downloaded non-newer update ${info.version}; current version is ${app.getVersion()}.`,
-      );
-      return;
-    }
-    setUpdateState(reduceDesktopUpdateStateOnDownloadComplete(updateState, info.version));
-    console.info(`[desktop-updater] Update downloaded: ${info.version}`);
-  });
-
-  clearUpdatePollTimer();
-
-  updateStartupTimer = setTimeout(() => {
-    updateStartupTimer = null;
-    void checkForUpdates("startup");
-  }, AUTO_UPDATE_STARTUP_DELAY_MS);
-  updateStartupTimer.unref();
-
-  scheduleUpdatePoll();
-}
 // Builds process-local Node args so provider/tool children do not inherit Synara's heap guard.
 function backendNodeArgs(): string[] {
   const configuredMaxOldSpaceMb =
@@ -2031,9 +1323,6 @@ async function shutdownDesktopRuntime(reason: string): Promise<void> {
   desktopShutdownPromise = (async () => {
     writeDesktopLogHeader(`${reason} shutdown start`);
     try {
-      clearUpdateBackgroundBlurTimer();
-      clearUpdateCheckTimeoutTimer();
-      clearUpdatePollTimer();
       cancelBackendReadinessWait();
       await disposeBrowserUsePipeServerForShutdown(reason);
       await stopBackendAndWaitForExit();
@@ -2049,11 +1338,6 @@ async function shutdownDesktopRuntime(reason: string): Promise<void> {
 }
 
 function requestGracefulAppQuit(reason: string): void {
-  if (isUpdaterInstallPreparing) {
-    writeDesktopLogHeader(`${reason} waiting for updater quit-and-install`);
-    return;
-  }
-
   void shutdownDesktopRuntime(reason)
     .catch((error: unknown) => {
       const message = formatErrorMessage(error);
@@ -2277,41 +1561,23 @@ function registerIpcHandlers(): void {
     return window ? getDesktopWindowState(window) : { isMaximized: false, isFullscreen: false };
   });
 
+  const disabledUpdateActionResult = (): DesktopUpdateActionResult => ({
+    accepted: false,
+    completed: false,
+    state: updateState,
+  });
+
   ipcMain.removeHandler(UPDATE_GET_STATE_CHANNEL);
   ipcMain.handle(UPDATE_GET_STATE_CHANNEL, async () => updateState);
 
   ipcMain.removeHandler(UPDATE_CHECK_CHANNEL);
-  ipcMain.handle(UPDATE_CHECK_CHANNEL, async () => {
-    await checkForUpdates("renderer");
-    return updateState;
-  });
+  ipcMain.handle(UPDATE_CHECK_CHANNEL, async () => updateState);
 
   ipcMain.removeHandler(UPDATE_DOWNLOAD_CHANNEL);
-  ipcMain.handle(UPDATE_DOWNLOAD_CHANNEL, async () => {
-    const result = await downloadAvailableUpdate();
-    return {
-      accepted: result.accepted,
-      completed: result.completed,
-      state: updateState,
-    } satisfies DesktopUpdateActionResult;
-  });
+  ipcMain.handle(UPDATE_DOWNLOAD_CHANNEL, async () => disabledUpdateActionResult());
 
   ipcMain.removeHandler(UPDATE_INSTALL_CHANNEL);
-  ipcMain.handle(UPDATE_INSTALL_CHANNEL, async () => {
-    if (isQuitting) {
-      return {
-        accepted: false,
-        completed: false,
-        state: updateState,
-      } satisfies DesktopUpdateActionResult;
-    }
-    const result = await installDownloadedUpdate();
-    return {
-      accepted: result.accepted,
-      completed: result.completed,
-      state: updateState,
-    } satisfies DesktopUpdateActionResult;
-  });
+  ipcMain.handle(UPDATE_INSTALL_CHANNEL, async () => disabledUpdateActionResult());
 
   ipcMain.removeHandler(NOTIFICATIONS_IS_SUPPORTED_CHANNEL);
   ipcMain.handle(NOTIFICATIONS_IS_SUPPORTED_CHANNEL, async () => Notification.isSupported());
@@ -2432,14 +1698,14 @@ function createWindow(): BrowserWindow {
         });
       }
       if (params.dictionarySuggestions.length === 0) {
-        menuTemplate.push({ label: "No suggestions", enabled: false });
+        menuTemplate.push({ label: "无建议", enabled: false });
       }
       menuTemplate.push({ type: "separator" });
     }
 
     if (params.mediaType === "image") {
       menuTemplate.push({
-        label: "Copy Image",
+        label: "复制图片",
         click: () => window.webContents.copyImageAt(params.x, params.y),
       });
       menuTemplate.push({ type: "separator" });
@@ -2603,19 +1869,6 @@ app.on("before-quit", (event) => {
     return;
   }
 
-  if (isUpdaterQuitAndInstallInFlight) {
-    // Electron's updater owns this quit; canceling it would turn install into a plain app quit.
-    writeDesktopLogHeader("before-quit allowing updater quit-and-install");
-    return;
-  }
-
-  if (isUpdaterInstallPreparing) {
-    // Keep user/system quits from preempting the pending updater install with a plain app.quit().
-    writeDesktopLogHeader("before-quit waiting for updater quit-and-install");
-    event.preventDefault();
-    return;
-  }
-
   event.preventDefault();
   requestGracefulAppQuit("before-quit");
 });
@@ -2630,25 +1883,18 @@ if (hasSingleInstanceLock) {
       configureMediaPermissions();
       configureApplicationMenu();
       registerDesktopProtocol();
-      setUpdateState({
-        ...createInitialDesktopUpdateState(app.getVersion(), desktopRuntimeInfo),
-        enabled: false,
-        status: "disabled",
-      });
+      updateState = createDisabledUpdateState();
+      emitUpdateState();
       void bootstrap().catch((error) => {
         handleFatalStartupError("bootstrap", error);
       });
 
-      app.on("browser-window-blur", () => {
-        markDesktopAppBackgrounded();
-      });
-
       app.on("browser-window-focus", () => {
-        handleDesktopAppForegrounded();
+        clearUnreadNotificationBadge();
       });
 
       app.on("activate", () => {
-        handleDesktopAppForegrounded();
+        clearUnreadNotificationBadge();
         if (BrowserWindow.getAllWindows().length === 0) {
           if (!isDevelopment) {
             ensureInitialBackendWindowOpen(backendHttpUrl);

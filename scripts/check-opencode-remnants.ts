@@ -45,6 +45,32 @@ const ALLOWED_LITERALS: ReadonlyArray<{
 
 const FORBIDDEN_PATHS = ["orchestration/handoff.ts", "providerUsage", "effect-acp", "whatsNew"];
 
+const DESKTOP_FORBIDDEN_SYMBOLS = [
+  "autoUpdater",
+  "electron-updater",
+  "configureAutoUpdater",
+  "quitAndInstall",
+  "checkForUpdates",
+] as const;
+
+/** Deleted desktop updater modules — flag import paths, not unrelated local identifiers. */
+const DESKTOP_FORBIDDEN_MODULE_IMPORTS = [
+  "updateMachine",
+  "updateState",
+  "updatePendingCache",
+  "electronUpdaterSecurity",
+  "githubUpdateFeed",
+  "resumableUpdateDownload",
+] as const;
+
+const DESKTOP_SCAN_ROOT = "apps/desktop/src";
+
+/** IPC bridge contract methods kept while main returns disabled update state. */
+const DESKTOP_ALLOWED_UPDATER_SYMBOLS: ReadonlyArray<{
+  readonly pathIncludes: string;
+  readonly symbols: readonly string[];
+}> = [{ pathIncludes: "desktop/src/preload.ts", symbols: ["checkForUpdates"] }];
+
 function isTestFile(path: string): boolean {
   return /\.(test|spec|browser)\.[cm]?[jt]sx?$/.test(path);
 }
@@ -73,6 +99,16 @@ function isAllowed(path: string, literal: string): boolean {
   const rel = relative(ROOT, path);
   for (const rule of ALLOWED_LITERALS) {
     if (rel.includes(rule.pathIncludes) && rule.literals.includes(literal)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function isAllowedDesktopUpdaterSymbol(path: string, symbol: string): boolean {
+  const rel = relative(ROOT, path);
+  for (const rule of DESKTOP_ALLOWED_UPDATER_SYMBOLS) {
+    if (rel.includes(rule.pathIncludes) && rule.symbols.includes(symbol)) {
       return true;
     }
   }
@@ -125,6 +161,34 @@ for (const relRoot of SCAN_ROOTS) {
       }
       if (/"cursor"/.test(line)) {
         scanLiteral(file, "cursor", line, i + 1, violations);
+      }
+    }
+  }
+}
+
+const desktopRoot = join(ROOT, DESKTOP_SCAN_ROOT);
+for (const file of walk(desktopRoot)) {
+  if (isTestFile(file)) continue;
+  const content = readFileSync(file, "utf8");
+  const lines = content.split("\n");
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i] ?? "";
+    for (const symbol of DESKTOP_FORBIDDEN_SYMBOLS) {
+      if (line.includes(symbol) && !isAllowedDesktopUpdaterSymbol(file, symbol)) {
+        violations.push(
+          `${relative(ROOT, file)}:${i + 1}:forbidden desktop updater symbol "${symbol}"`,
+        );
+      }
+    }
+    for (const moduleName of DESKTOP_FORBIDDEN_MODULE_IMPORTS) {
+      if (
+        line.includes(`./${moduleName}`) ||
+        line.includes(`'./${moduleName}'`) ||
+        line.includes(`"./${moduleName}"`)
+      ) {
+        violations.push(
+          `${relative(ROOT, file)}:${i + 1}:forbidden desktop updater module "${moduleName}"`,
+        );
       }
     }
   }

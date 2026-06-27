@@ -60,7 +60,7 @@ export function EnvironmentEditorSection({
       {onOpenEditorView ? (
         <EnvironmentRow
           icon={<LayoutSidebarIcon aria-hidden className={ENVIRONMENT_ROW_ICON_CLASS_NAME} />}
-          label="Editor view"
+          label="编辑器视图"
           onClick={onOpenEditorView}
         />
       ) : null}

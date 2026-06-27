@@ -47,7 +47,7 @@ function QueuedComposerActions({
             <Button
               variant="ghost"
               size="icon-chip"
-              aria-label="Queued follow-up actions"
+              aria-label="排队的后续操作"
               className="[&_svg]:mx-0"
             />
           }

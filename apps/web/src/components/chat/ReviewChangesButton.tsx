@@ -21,7 +21,7 @@ export const ReviewChangesButton = memo(function ReviewChangesButton({
   onClick,
   className,
   style,
-  label = "Review",
+  label = "审查",
 }: ReviewChangesButtonProps) {
   return (
     <button

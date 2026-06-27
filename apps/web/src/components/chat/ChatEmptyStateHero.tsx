@@ -16,7 +16,7 @@ export const ChatEmptyStateHero = memo(function ChatEmptyStateHero({
       <SynaraLogo aria-label="Synara logo" className="size-10" />
 
       <div className="flex flex-col items-center gap-0.5">
-        <h1 className="text-2xl font-semibold text-foreground/90">Let's build</h1>
+        <h1 className="text-2xl font-semibold text-foreground/90">开始构建</h1>
         {projectName && <span className="text-lg text-muted-foreground/40">{projectName}</span>}
       </div>
     </div>

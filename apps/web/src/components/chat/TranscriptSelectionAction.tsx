@@ -55,7 +55,7 @@ export function TranscriptSelectionAction(props: TranscriptSelectionActionProps)
       className="pointer-events-none fixed z-50"
       style={{ left: props.left, top: props.top }}
       role="toolbar"
-      aria-label="Selection actions"
+      aria-label="选择操作"
     >
       <div
         className={cn(

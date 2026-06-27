@@ -400,7 +400,7 @@ export const ComposerLocalDirectoryMenu = memo(function ComposerLocalDirectoryMe
           {parent ? (
             <button
               type="button"
-              aria-label="Go up one directory"
+              aria-label="向上一级目录"
               onMouseDown={(event) => event.preventDefault()}
               onClick={handleGoUp}
               className="inline-flex size-5 shrink-0 items-center justify-center rounded-md text-muted-foreground/70 transition-colors hover:bg-[var(--color-background-elevated-secondary)] hover:text-foreground"

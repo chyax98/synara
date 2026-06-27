@@ -215,8 +215,8 @@ export function RightDock(props: RightDockProps) {
                   <Button
                     variant="chrome"
                     size="icon-xs"
-                    aria-label="Add panel"
-                    title="Add panel"
+                    aria-label="添加面板"
+                    title="添加面板"
                     className={DOCK_HEADER_ICON_BUTTON_CLASS}
                   />
                 }
@@ -238,8 +238,8 @@ export function RightDock(props: RightDockProps) {
             <IconButton
               variant="chrome"
               size="icon-xs"
-              label="Collapse panel"
-              tooltip="Collapse panel"
+              label="折叠面板"
+              tooltip="折叠面板"
               tooltipSide="bottom"
               className={DOCK_HEADER_ICON_BUTTON_CLASS}
               onClick={props.onCollapse}

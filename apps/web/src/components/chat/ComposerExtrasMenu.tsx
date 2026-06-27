@@ -61,7 +61,7 @@ export const ComposerExtrasMenu = memo(function ComposerExtrasMenu(props: {
               size="icon-sm"
               variant="chrome"
               className="shrink-0 rounded-md"
-              aria-label="Composer extras"
+              aria-label="编辑器扩展"
             />
           }
         >

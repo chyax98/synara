@@ -71,7 +71,7 @@ export const ProposedPlanActions = memo(function ProposedPlanActions({
       .then((result) => {
         toastManager.add({
           type: "success",
-          title: "Plan downloaded",
+          title: "计划已下载",
           description: result.relativePath,
         });
       })
@@ -109,7 +109,7 @@ export const ProposedPlanActions = memo(function ProposedPlanActions({
         if (!filePath) return;
         toastManager.add({
           type: "success",
-          title: "Plan exported",
+          title: "计划已导出",
           description: filePath,
         });
       })

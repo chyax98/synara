@@ -272,7 +272,7 @@ export function EnvironmentPanel({
       {isGitRepo ? (
         <EnvironmentRow
           icon={<ChangesIcon className={ENVIRONMENT_ROW_ICON_CLASS_NAME} aria-hidden />}
-          label="Changes"
+          label="更改"
           trailing={
             hasChanges ? (
               <>

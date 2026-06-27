@@ -61,7 +61,7 @@ export function GeneratedMarkdownImage(props: GeneratedMarkdownImageProps) {
         downloadUrl={downloadUrl}
         downloadName={downloadName}
         className="local-image-error--prose"
-        downloadAriaLabel="Download generated image"
+        downloadAriaLabel="下载生成的图片"
         onDownloadClick={downloadImage}
       />
     );
@@ -73,7 +73,7 @@ export function GeneratedMarkdownImage(props: GeneratedMarkdownImageProps) {
         type="button"
         className="chat-generated-image__frame"
         onClick={expandImage}
-        aria-label="Expand generated image"
+        aria-label="展开生成的图片"
       >
         {status === "loading" ? (
           <span className="chat-generated-image__skeleton" aria-hidden="true">
@@ -94,8 +94,8 @@ export function GeneratedMarkdownImage(props: GeneratedMarkdownImageProps) {
         onClick={downloadImage}
         onMouseDown={stopPropagation}
         className="chat-generated-image__overlay-pill chat-generated-image__overlay-pill--download"
-        aria-label="Download generated image"
-        title="Download"
+        aria-label="下载生成的图片"
+        title="下载"
       >
         <DownloadIcon className="size-3.5" aria-hidden="true" />
         <span>Download</span>

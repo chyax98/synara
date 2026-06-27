@@ -77,11 +77,7 @@ export const RateLimitBanner = memo(function RateLimitBanner({
         <AlertDescription>{message}</AlertDescription>
         {onDismiss ? (
           <AlertAction>
-            <IconButton
-              label="Dismiss rate limit status"
-              title="Dismiss rate limit status"
-              onClick={onDismiss}
-            >
+            <IconButton label="关闭限速提示" title="关闭限速提示" onClick={onDismiss}>
               <XIcon className="size-3.5" />
             </IconButton>
           </AlertAction>

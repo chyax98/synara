@@ -32,7 +32,7 @@ export function isAgentActivityWorkEntry(entry: WorkLogEntry): boolean {
 
 export function formatAgentActivityEntryTitle(entry: WorkLogEntry): string {
   if (isReasoningUpdateWorkEntry(entry)) {
-    return "Reasoning";
+    return "推理";
   }
   const heading = normalizeCompactToolLabel(entry.toolTitle ?? entry.label).trim();
   if (!heading) {
@@ -102,8 +102,8 @@ export function deriveAgentActivityTimelineState(
     const displayEntry: WorkLogEntry = {
       ...latest,
       id: groupId,
-      label: "Reasoning",
-      toolTitle: "Reasoning",
+      label: "推理",
+      toolTitle: "推理",
       tone: "thinking",
       ...(displayPreview ? { preview: displayPreview, detail: displayPreview } : {}),
     };

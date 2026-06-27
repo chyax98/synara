@@ -334,12 +334,12 @@ describe("EditorWorkspaceView", () => {
     );
 
     // The header renders a path breadcrumb (project › …dirs › file).
-    expect(markup).toContain('aria-label="File path"');
+    expect(markup).toContain('aria-label="文件路径"');
     expect(markup).toContain("README.md");
     // Markdown files surface their source/rendered toggle in the header next
     // to the Open-in picker, whose editor menu trigger is always rendered.
-    expect(markup).toContain('aria-label="Markdown view"');
-    expect(markup).toContain('aria-label="Editor options"');
+    expect(markup).toContain('aria-label="Markdown 视图"');
+    expect(markup).toContain('aria-label="编辑器选项"');
   });
 
   it("renders a search item in the activity bar below files and diff", () => {

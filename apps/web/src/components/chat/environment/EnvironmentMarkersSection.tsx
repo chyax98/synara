@@ -231,7 +231,7 @@ const MarkerRow = memo(function MarkerRow({
       )}
       <IconButton
         label="移除标记"
-        tooltip="Remove"
+        tooltip="移除"
         size="icon-xs"
         className="shrink-0 opacity-0 transition-opacity group-hover/marker:opacity-100 focus-visible:opacity-100"
         onClick={() => onRemove(marker.id)}

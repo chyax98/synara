@@ -80,7 +80,7 @@ export function ComposerSlashStatusDialog(props: {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogPopup className="max-w-xl">
         <DialogHeader>
-          <DialogTitle>Session Status</DialogTitle>
+          <DialogTitle>会话状态</DialogTitle>
           <DialogDescription>
             Runtime controls and local thread state for the active composer.
           </DialogDescription>
@@ -92,7 +92,7 @@ export function ComposerSlashStatusDialog(props: {
               <p className="font-medium text-foreground">{selectedModel}</p>
             </div>
             <div className="space-y-1">
-              <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">Fast Mode</p>
+              <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">快速模式</p>
               <p className="font-medium text-foreground">{fastModeEnabled ? "On" : "Off"}</p>
             </div>
             <div className="space-y-1">
@@ -181,7 +181,7 @@ export function ComposerSlashStatusDialog(props: {
           </div>
 
           <div className="space-y-2 rounded-lg border border-border/60 bg-card p-4">
-            <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">Rate Limits</p>
+            <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">速率限制</p>
             {rateLimitStatus ? (
               <p className="text-sm text-foreground">{formatRateLimitMessage(rateLimitStatus)}</p>
             ) : (

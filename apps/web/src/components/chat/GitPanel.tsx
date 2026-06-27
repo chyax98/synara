@@ -307,15 +307,15 @@ export function GitPanel(props: {
   return (
     <div className="flex h-full min-h-0 w-full flex-col">
       <DockPaneHeader
-        title="Source control"
+        title="源代码管理"
         onClose={props.onClose}
         closeLabel="Close source control"
         actions={
           <IconButton
             size="icon-xs"
             variant="ghost"
-            label="Refresh changes"
-            tooltip="Refresh changes"
+            label="刷新更改"
+            tooltip="刷新更改"
             className={DOCK_HEADER_ICON_BUTTON_CLASS}
             onClick={refresh}
           >
@@ -341,7 +341,7 @@ export function GitPanel(props: {
         {hasChanges ? (
           <>
             <GitFileSection
-              title="Staged"
+              title="已暂存"
               emptyLabel="No staged changes."
               files={stagedFiles}
               theme={theme}
@@ -355,7 +355,7 @@ export function GitPanel(props: {
               onAction={unstage}
             />
             <GitFileSection
-              title="Changes"
+              title="更改"
               emptyLabel="No unstaged changes."
               files={unstagedFiles}
               theme={theme}
@@ -376,7 +376,7 @@ export function GitPanel(props: {
         {selectedFileDiff ? (
           <SelectedFileDiff fileDiff={selectedFileDiff} theme={theme} />
         ) : (
-          <PanelStateMessage density="compact">Select a file to view its diff.</PanelStateMessage>
+          <PanelStateMessage density="compact">选择文件以查看其差异。</PanelStateMessage>
         )}
       </div>
     </div>
