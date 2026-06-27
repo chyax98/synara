@@ -14,7 +14,6 @@ export const SETTINGS_SECTION_IDS = [
   "models",
   "providers",
   "skills",
-  "usage",
   "advanced",
 ] as const;
 
@@ -133,14 +132,6 @@ export const SETTINGS_NAV_ITEMS: readonly SettingsNavItem[] = [
     description: "跨 provider 发现的所有 skill，可开关可用性。",
     icon: "building-blocks",
     eyebrow: "Agent skill",
-  },
-  {
-    id: "usage",
-    group: "synara",
-    label: "用量",
-    description: "每个已登录 provider 的剩余额度和积分。",
-    icon: "gauge",
-    eyebrow: "额度与积分",
   },
   {
     id: "advanced",

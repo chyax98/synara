@@ -86,7 +86,6 @@ interface SidebarSearchPaletteProps {
   homeDir: string | null;
   initialBrowseQuery?: string | null;
   onOpenSettings: () => void;
-  onOpenUsageSettings: () => void;
   onOpenProject: (projectId: string) => void;
   onOpenThread: (threadId: string) => void;
   importProviders: readonly ImportProviderKind[];
@@ -99,7 +98,7 @@ function actionHandler(
   actionId: string,
   props: Pick<
     SidebarSearchPaletteProps,
-    "onCreateChat" | "onCreateThread" | "onOpenSettings" | "onOpenUsageSettings"
+    "onCreateChat" | "onCreateThread" | "onOpenSettings"
   >,
 ): (() => void) | null {
   switch (actionId) {
@@ -109,8 +108,6 @@ function actionHandler(
       return props.onCreateThread;
     case "settings":
       return props.onOpenSettings;
-    case "usage-settings":
-      return props.onOpenUsageSettings;
     default:
       return null;
   }
@@ -124,7 +121,6 @@ const ACTION_ICONS: Record<string, IconComponent> = {
   "add-project": FolderClosed,
   "import-thread": LuArrowDownToLine,
   settings: SettingsIcon,
-  "usage-settings": SettingsIcon,
 };
 
 const BROWSE_STALE_TIME_MS = 10_000;

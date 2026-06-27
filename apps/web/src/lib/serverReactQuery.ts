@@ -1,8 +1,4 @@
-import type {
-  ProviderKind,
-  ServerListProviderUsageInput,
-  ServerStopLocalServerInput,
-} from "@t3tools/contracts";
+import type { ServerStopLocalServerInput } from "@t3tools/contracts";
 import { mutationOptions, queryOptions, type QueryClient } from "@tanstack/react-query";
 import { ensureNativeApi } from "~/nativeApi";
 
@@ -18,9 +14,6 @@ export const serverQueryKeys = {
   settings: () => ["server", "settings"] as const,
   worktrees: () => ["server", "worktrees"] as const,
   localServers: () => ["server", "localServers"] as const,
-  providerUsage: (provider: ProviderKind | null | undefined, homePath?: string | null) =>
-    ["server", "providerUsage", provider ?? null, homePath ?? null] as const,
-  allProviderUsage: () => ["server", "allProviderUsage"] as const,
   profileStats: (utcOffsetMinutes: number) =>
     ["server", "profileStats", "peak-hour-v2", utcOffsetMinutes] as const,
   profileTokenStats: (utcOffsetMinutes: number) =>
@@ -128,33 +121,6 @@ export function serverStopLocalServerMutationOptions(input: { queryClient: Query
   });
 }
 
-export function serverProviderUsageSnapshotQueryOptions(input: {
-  provider: ProviderKind | null | undefined;
-  homePath?: string | null;
-}) {
-  return queryOptions({
-    queryKey: serverQueryKeys.providerUsage(input.provider, input.homePath),
-    enabled: input.provider !== null && input.provider !== undefined,
-    staleTime: 30_000,
-    refetchInterval: 30_000,
-    refetchOnWindowFocus: false,
-    retry: false,
-    queryFn: async () => {
-      if (!input.provider) return null;
-      const api = ensureNativeApi();
-      return api.server.getProviderUsageSnapshot({
-        provider: input.provider,
-        ...(input.homePath ? { homePath: input.homePath } : {}),
-      });
-    },
-  });
-}
-
-export async function fetchAllProviderUsage(input: ServerListProviderUsageInput = {}) {
-  const api = ensureNativeApi();
-  return api.server.listProviderUsage(input);
-}
-
 // Local profile + shareable-card core statistics. The client passes its own fixed
 // UTC offset; all metrics are computed from Synara's local DB projections.
 export function serverProfileStatsQueryOptions(input: { enabled?: boolean } = {}) {
@@ -193,22 +159,4 @@ export function serverProfileTokenStatsQueryOptions(input: { enabled?: boolean }
   });
 }
 
-// Live remaining-usage for every supported provider at once, powering Settings and active usage UI.
-export function serverAllProviderUsageQueryOptions(
-  input:
-    | boolean
-    | {
-        enabled?: boolean;
-      } = true,
-) {
-  const enabled = typeof input === "boolean" ? input : (input.enabled ?? true);
-  return queryOptions({
-    queryKey: serverQueryKeys.allProviderUsage(),
-    enabled,
-    staleTime: 60_000,
-    refetchInterval: 60_000,
-    refetchOnWindowFocus: false,
-    retry: false,
-    queryFn: async () => fetchAllProviderUsage(),
-  });
-}
+

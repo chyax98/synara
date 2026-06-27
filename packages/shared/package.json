@@ -136,10 +136,6 @@
       "types": "./src/editorIcons.ts",
       "import": "./src/editorIcons.ts"
     },
-    "./providerUsage": {
-      "types": "./src/providerUsage.ts",
-      "import": "./src/providerUsage.ts"
-    },
     "./formatBytes": {
       "types": "./src/formatBytes.ts",
       "import": "./src/formatBytes.ts"

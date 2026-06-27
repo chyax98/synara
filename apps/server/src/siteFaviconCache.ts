@@ -5,7 +5,7 @@
 //          given site shares one outbound fetch and one cached blob.
 // Layer: Server runtime utility (plain module; called from the HTTP route via
 //          Effect.promise). Follows the Map + TTL + max-size eviction pattern
-//          used by providerUsageSnapshot.ts / workspaceEntries.ts.
+//          used by workspaceEntries.ts.
 
 const FAVICON_CACHE_MAX = 500;
 const FAVICON_SUCCESS_TTL_MS = 24 * 60 * 60 * 1000; // 24 h

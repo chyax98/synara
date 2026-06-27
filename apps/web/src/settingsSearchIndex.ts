@@ -74,12 +74,6 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
       "Show the Workspace tab in the sidebar switcher. The Threads tab always stays visible. sidebar section",
   },
   {
-    id: "general:environment-usage",
-    section: "general",
-    title: "用量",
-    keywords: "Show the provider usage row in the chat Environment panel.",
-  },
-  {
     id: "general:environment-repository",
     section: "general",
     title: "仓库",
@@ -280,15 +274,6 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     section: "skills",
     title: "Skill",
     keywords: "Every skill found across providers, with toggles to control availability. agent",
-    target: null,
-  },
-
-  // ── Usage ─────────────────────────────────────────────────────────────────────
-  {
-    id: "usage:usage",
-    section: "usage",
-    title: "用量与计费",
-    keywords: "Remaining quota and credits for each signed-in provider. limits credits",
     target: null,
   },
 

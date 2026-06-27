@@ -3,7 +3,6 @@
 // for provider runtime events so UI components can stay presentation-only.
 
 import type { OrchestrationThread } from "@t3tools/contracts";
-import { providerUsageLearnMoreHref } from "@t3tools/shared/providerUsage";
 
 export interface RateLimitWindow {
   window: string;
@@ -405,19 +404,9 @@ export function formatRateLimitResetTime(resetsAt: string): string {
 }
 
 export function deriveRateLimitLearnMoreHref(
-  rateLimits: ReadonlyArray<ProviderRateLimit>,
+  _rateLimits: ReadonlyArray<ProviderRateLimit>,
 ): string | null {
-  const providers = new Set(rateLimits.map((rateLimit) => rateLimit.provider));
-  if (providers.size !== 1) return null;
-
-  const [provider] = providers;
-  return deriveProviderUsageLearnMoreHref(provider);
-}
-
-export function deriveProviderUsageLearnMoreHref(
-  provider: string | null | undefined,
-): string | null {
-  return providerUsageLearnMoreHref(provider);
+  return null;
 }
 
 function timestampMs(value: string | undefined): number {

@@ -1479,13 +1479,7 @@ function SettingsRouteView() {
 
       <div ref={environmentPanelRef} id={SETTINGS_TARGETS.environmentPanel}>
         <SettingsSection title="Environment 面板">
-          {renderBooleanSettingRow({
-            settingKey: "showEnvironmentUsage",
-            title: "用量",
-            description: "在 chat Environment 面板中显示 provider 用量行。",
-            resetLabel: "usage section",
-            ariaLabel: "Show the Usage section in the Environment panel",
-          })}
+
 
           {renderBooleanSettingRow({
             settingKey: "showEnvironmentRepository",
@@ -3001,8 +2995,6 @@ function SettingsRouteView() {
         return <ProfileSettingsPanel />;
       case "skills":
         return <SkillsSettingsPanel />;
-      case "usage":
-        return null;
       case "advanced":
         return renderAdvancedPanel();
       default:

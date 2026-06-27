@@ -1,30 +1,22 @@
 // FILE: BranchToolbar.tsx
-// Purpose: Renders the chat thread's compact workspace controls, including the
-// local usage popover, inline workspace handoff actions, and runtime access toggle.
+// Purpose: Renders the chat thread's compact workspace controls, including
+// inline workspace handoff actions and runtime access toggle.
 import type { ThreadId, RuntimeMode } from "@t3tools/contracts";
 import {
   CheckIcon,
   ChevronDownIcon,
-  ChevronRightIcon,
   HandoffIcon,
   WorktreeIcon,
 } from "~/lib/icons";
 import { HiOutlineHandRaised } from "react-icons/hi2";
 import { CentralIcon } from "~/lib/central-icons";
 import { useCallback, useMemo, useRef, useState, type ReactNode } from "react";
-import { useAppSettings } from "~/appSettings";
-
 import { newCommandId, cn } from "../lib/utils";
 import { readNativeApi } from "../nativeApi";
 import { useComposerDraftStore } from "../composerDraftStore";
-import { useProviderUsageSummary } from "../hooks/useProviderUsageSummary";
 import { resolveThreadEnvironmentPresentation } from "../lib/threadEnvironment";
 import { useStore } from "../store";
-import {
-  createAllThreadsSelector,
-  createProjectSelector,
-  createThreadSelector,
-} from "../storeSelectors";
+import { createProjectSelector, createThreadSelector } from "../storeSelectors";
 import {
   EnvMode,
   resolveAssociatedWorktreeMetadataAfterWorkspacePatch,
@@ -46,10 +38,8 @@ import {
   EnvironmentRowChevron,
 } from "./chat/environment/EnvironmentRow";
 import type { ContextWindowSnapshot } from "../lib/contextWindow";
-import { ProviderUsagePanelContent } from "./ProviderUsagePanelContent";
 import { ComposerPickerMenuPopup } from "./chat/ComposerPickerMenuPopup";
 import { Button } from "./ui/button";
-import { Collapsible, CollapsiblePanel } from "./ui/collapsible";
 import {
   Menu,
   MenuGroup,
@@ -58,7 +48,6 @@ import {
   MenuPopup,
   MenuRadioGroup,
   MenuRadioItem,
-  MenuSeparator,
   MenuTrigger,
 } from "./ui/menu";
 import type { ThreadWorkspacePatch } from "../types";
@@ -231,8 +220,7 @@ export default function BranchToolbar({
   const setThreadWorkspaceAction = useStore((store) => store.setThreadWorkspace);
   const draftThread = useComposerDraftStore((store) => store.getDraftThread(threadId));
   const setDraftThreadContext = useComposerDraftStore((store) => store.setDraftThreadContext);
-  const threads = useStore(useRef(createAllThreadsSelector()).current);
-  const { settings } = useAppSettings();
+
 
   const serverThread = useStore(useMemo(() => createThreadSelector(threadId), [threadId]));
   const activeProjectId = serverThread?.projectId ?? draftThread?.projectId ?? null;
@@ -353,12 +341,6 @@ export default function BranchToolbar({
   const canSwitchToLocal = Boolean(!envLocked && effectiveEnvMode === "worktree");
   const showEnvPicker = effectiveEnvMode === "local" || canSwitchToLocal;
 
-  const usageSummary = useProviderUsageSummary({
-    provider: activeProvider,
-    threads,
-    codexHomePath: settings.codexHomePath || null,
-  });
-  const [rateLimitsOpen, setRateLimitsOpen] = useState(true);
   const [envPickerOpen, setEnvPickerOpen] = useState(false);
 
   if (!activeThreadId || !activeProject) return null;
@@ -460,33 +442,6 @@ export default function BranchToolbar({
                   />
                 ) : null}
               </MenuGroup>
-
-              <MenuSeparator />
-
-              <Collapsible open={rateLimitsOpen} onOpenChange={setRateLimitsOpen}>
-                <MenuItem closeOnClick={false} onClick={() => setRateLimitsOpen((open) => !open)}>
-                  <CentralIcon name="clock" className="size-3.5 text-muted-foreground" />
-                  <span className="min-w-0 flex-1 truncate">Rate limits remaining</span>
-                  <ChevronRightIcon
-                    className={cn(
-                      "size-3.5 shrink-0 text-[var(--color-text-foreground-secondary)] transition-transform duration-150",
-                      rateLimitsOpen && "rotate-90",
-                    )}
-                  />
-                </MenuItem>
-                <CollapsiblePanel>
-                  <ProviderUsagePanelContent
-                    provider={activeProvider}
-                    rateLimits={usageSummary.rateLimits}
-                    usageLines={usageSummary.usageLines}
-                    isLoading={usageSummary.isLoading}
-                    learnMoreHref={usageSummary.learnMoreHref}
-                    showTitle={false}
-                    showLearnMore={true}
-                    className="px-2 pb-1 pt-1"
-                  />
-                </CollapsiblePanel>
-              </Collapsible>
             </ComposerPickerMenuPopup>
           </Menu>
         ) : isPanel ? (

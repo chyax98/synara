@@ -919,10 +919,6 @@ export const makeWsRpcLayer = () =>
             profileStatsQuery.getProfileTokenStats(input),
             "Failed to load profile token stats",
           ),
-        [WS_METHODS.serverGetProviderUsageSnapshot]: () =>
-          rpcEffect(Effect.succeed(null), "Failed to load provider usage"),
-        [WS_METHODS.serverListProviderUsage]: () =>
-          rpcEffect(Effect.succeed([]), "Failed to load provider usage"),
         [WS_METHODS.serverGetDiagnostics]: () =>
           rpcEffect(
             Effect.gen(function* () {
