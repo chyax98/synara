@@ -532,7 +532,7 @@ function AutomationDetailView() {
                         <CentralIcon
                           name="info-simple"
                           className="size-3 text-muted-foreground/60"
-                          aria-label="自动化运行位置：worktree、本地检出或自动"
+                          aria-label="自动化运行位置：工作树、本地检出或自动"
                         />
                       </>
                     }

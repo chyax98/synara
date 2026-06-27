@@ -1,8 +1,8 @@
 import type { ContextMenuItem } from "@t3tools/contracts";
 
-export interface ContextMenuItemWithIcon<T extends string = string> extends ContextMenuItem<T> {
+export type ContextMenuItemWithIcon<T extends string = string> = ContextMenuItem<T> & {
   icon?: string; // SVG string
-}
+};
 
 /**
  * Imperative DOM-based context menu that matches the app's Base UI menu styling.

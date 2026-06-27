@@ -143,16 +143,16 @@ export function TerminalSearch({ searchAddon, isOpen, onClose }: TerminalSearchP
         value={query}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
-        placeholder="Find"
+        placeholder="查找"
         className="h-6 w-28 min-w-0 flex-shrink bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
       />
       {hasResults === false && query && (
-        <span className="whitespace-nowrap px-1 text-xs text-muted-foreground">No results</span>
+        <span className="whitespace-nowrap px-1 text-xs text-muted-foreground">无结果</span>
       )}
       <div className="flex shrink-0 items-center">
         <IconButton
           onClick={() => setCaseSensitive((v) => !v)}
-          label="Match case"
+          label="区分大小写"
           className={cn(
             "size-6 rounded-sm border-transparent bg-transparent shadow-none sm:size-6",
             caseSensitive

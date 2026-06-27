@@ -417,7 +417,7 @@ function SplitPaneEmptyState(props: {
       onMouseDown={props.onFocus}
     >
       <div className="w-full max-w-sm space-y-4">
-        <p className="text-center text-sm font-medium text-foreground/70">Select a chat</p>
+        <p className="text-center text-sm font-medium text-foreground/70">选择聊天</p>
         <div className="max-h-[60vh] space-y-1 overflow-y-auto">
           {props.threads.map((thread) => {
             const isUsed = props.excludedThreadIds.has(thread.id);
@@ -1324,7 +1324,7 @@ function SplitChatSurface(props: { splitViewId: SplitViewId; routeThreadId: Thre
       >
         <DialogPopup className="max-w-lg">
           <DialogHeader className="items-center text-center">
-            <DialogTitle>Choose Chat</DialogTitle>
+            <DialogTitle>选择聊天</DialogTitle>
             <DialogDescription className="max-w-sm text-center">
               Pick which chat should appear in the focused split pane.
             </DialogDescription>
@@ -1877,7 +1877,7 @@ function SingleChatSurface(props: {
       void openEditorProject(projectId).catch((error: unknown) => {
         toastManager.add({
           type: "error",
-          title: "Unable to open project",
+          title: "无法打开项目",
           description: error instanceof Error ? error.message : "The project could not be opened.",
         });
       });
@@ -1936,15 +1936,15 @@ function SingleChatSurface(props: {
         if (!createSidechat) {
           toastManager.add({
             type: "warning",
-            title: "Side is unavailable",
-            description: "Open a server-backed main thread before starting Side.",
+            title: "侧栏不可用",
+            description: "请先打开由服务器支持的主会话，再启动侧栏。",
           });
           return;
         }
         void createSidechat().catch((error) => {
           toastManager.add({
             type: "error",
-            title: "Could not start Side",
+            title: "无法启动侧栏",
             description:
               error instanceof Error ? error.message : "An error occurred while creating Side.",
           });
@@ -1995,7 +1995,7 @@ function SingleChatSurface(props: {
           );
         case "terminal":
           if (context.runtimeMode === "preview") {
-            return <PanelStateMessage>Terminal is sleeping. Restoring shortly.</PanelStateMessage>;
+            return <PanelStateMessage>终端正在休眠，即将恢复。</PanelStateMessage>;
           }
           // Kept mounted across tab switches; visibility toggles the xterm runtime
           // instead of detaching/reattaching it (avoids the open-lag + fit flicker).
@@ -2228,7 +2228,7 @@ function SingleChatSurface(props: {
               onOpenTurnDiff={handleOpenTurnDiff}
               onSplitSurface={handleSplitSurface}
               viewModeAction={{
-                label: "Editor view",
+                label: "编辑器视图",
                 active: false,
                 onClick: handleOpenEditorView,
               }}

@@ -13,6 +13,12 @@ import type { PdfPageIntrinsicSize } from "./pdfZoom";
 
 export type PdfDocumentStatus = "loading" | "ready" | "error";
 
+const PDF_DOCUMENT_STATUS = {
+  loading: "loading",
+  ready: "ready",
+  error: "error",
+} as const satisfies Record<string, PdfDocumentStatus>;
+
 export interface PdfDocumentState {
   status: PdfDocumentStatus;
   document: PDFDocumentProxy | null;
@@ -23,7 +29,7 @@ export interface PdfDocumentState {
 }
 
 const INITIAL_STATE: PdfDocumentState = {
-  status: "loading",
+  status: PDF_DOCUMENT_STATUS.loading,
   document: null,
   numPages: 0,
   firstPageSize: null,
@@ -62,7 +68,7 @@ export function usePdfDocument(url: string): PdfDocumentState {
           return;
         }
         setState({
-          status: "ready",
+          status: PDF_DOCUMENT_STATUS.ready,
           document,
           numPages: document.numPages,
           firstPageSize: { width: viewport.width, height: viewport.height },
@@ -77,7 +83,7 @@ export function usePdfDocument(url: string): PdfDocumentState {
           loadedDocument = null;
         }
         setState({
-          status: "error",
+          status: PDF_DOCUMENT_STATUS.error,
           document: null,
           numPages: 0,
           firstPageSize: null,

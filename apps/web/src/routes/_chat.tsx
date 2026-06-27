@@ -84,7 +84,7 @@ function ThreadRetentionMaintenanceToast() {
         toastIdRef.current = toastManager.add({
           type: "loading",
           title: "正在隐藏旧会话...",
-          description: "Preparing background maintenance.",
+          description: "正在准备后台维护。",
           timeout: 0,
           data: { allowCrossThreadVisibility: true },
         });
@@ -120,7 +120,7 @@ function ThreadRetentionMaintenanceToast() {
         if (toastId) {
           toastManager.update(toastId, {
             type: "warning",
-            title: "Chat maintenance paused",
+            title: "聊天维护已暂停",
             description: error ?? "旧会话已隐藏",
             timeout: 6000,
             data: { allowCrossThreadVisibility: true },
@@ -129,7 +129,7 @@ function ThreadRetentionMaintenanceToast() {
         }
         toastManager.add({
           type: "warning",
-          title: "Chat maintenance paused",
+          title: "聊天维护已暂停",
           description: error ?? "旧会话已隐藏",
           timeout: 6000,
           data: { allowCrossThreadVisibility: true },
@@ -142,7 +142,7 @@ function ThreadRetentionMaintenanceToast() {
       if (!toastId) return;
       toastManager.update(toastId, {
         type: "success",
-        title: "Old chats hidden",
+        title: "旧会话已隐藏",
         description:
           deletedCount && deletedCount > 0
             ? `${deletedCount} old chats hidden from the app.`

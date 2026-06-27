@@ -81,8 +81,8 @@ export function buildGitActionProgressStages(input: {
   featureBranch?: boolean;
   shouldPushBeforePr?: boolean;
 }): string[] {
-  const branchStages = input.featureBranch ? ["准备 feature branch..."] : [];
-  const pushStage = input.pushTarget ? `Pushing to ${input.pushTarget}...` : "Pushing...";
+  const branchStages = input.featureBranch ? ["准备功能分支..."] : [];
+  const pushStage = input.pushTarget ? `推送到 ${input.pushTarget}...` : "推送中...";
   if (input.action === "push") {
     return [pushStage];
   }
@@ -94,8 +94,8 @@ export function buildGitActionProgressStages(input: {
   const commitStages = !shouldIncludeCommitStages
     ? []
     : input.hasCustomCommitMessage
-      ? ["Committing..."]
-      : ["生成提交信息中...", "Committing..."];
+      ? ["提交中..."]
+      : ["生成提交信息中...", "提交中..."];
   if (input.action === "commit") {
     return [...branchStages, ...commitStages];
   }
@@ -171,20 +171,20 @@ export function summarizeGitResult(result: GitRunStackedActionResult): {
     const shortSha = shortenSha(result.commit.commitSha);
     const branch = result.push.upstreamBranch ?? result.push.branch;
     const pushedCommitPart = shortSha ? ` ${shortSha}` : "";
-    const branchPart = branch ? ` to ${branch}` : "";
+    const branchPart = branch ? ` 到 ${branch}` : "";
     return withDescription(
-      `Pushed${pushedCommitPart}${branchPart}`,
+      `已推送${pushedCommitPart}${branchPart}`,
       truncateText(result.commit.subject),
     );
   }
 
   if (result.commit.status === "created") {
     const shortSha = shortenSha(result.commit.commitSha);
-    const title = shortSha ? `Committed ${shortSha}` : "已提交更改";
+    const title = shortSha ? `已提交 ${shortSha}` : "已提交更改";
     return withDescription(title, truncateText(result.commit.subject));
   }
 
-  return { title: "Done" };
+  return { title: "完成" };
 }
 
 export function buildMenuItems(
@@ -227,7 +227,7 @@ export function buildMenuItems(
   return [
     {
       id: "commit",
-      label: "Commit",
+      label: "提交",
       disabled: !canCommit,
       icon: "commit",
       kind: "open_dialog",
@@ -247,7 +247,7 @@ export function buildMenuItems(
       : []),
     {
       id: "push",
-      label: isDefaultBranch ? "提交并推送" : "Push",
+      label: isDefaultBranch ? "提交并推送" : "推送",
       disabled: !(isDefaultBranch ? canCommitPush : canPush),
       icon: "push",
       kind: "open_dialog",
@@ -281,12 +281,12 @@ export function resolveQuickAction(
   _defaultBranchName?: string | null,
 ): GitQuickAction {
   if (isBusy) {
-    return { label: "Commit", disabled: true, kind: "show_hint", hint: "Git 操作进行中。" };
+    return { label: "提交", disabled: true, kind: "show_hint", hint: "Git 操作进行中。" };
   }
 
   if (!gitStatus) {
     return {
-      label: "Commit",
+      label: "提交",
       disabled: true,
       kind: "show_hint",
       hint: "Git 状态不可用。",
@@ -302,16 +302,16 @@ export function resolveQuickAction(
 
   if (!hasBranch) {
     return {
-      label: "Commit",
+      label: "提交",
       disabled: true,
       kind: "show_hint",
-      hint: "先创建并切换到一个 branch，再推送或打开 PR。",
+      hint: "先创建并切换到一个分支，再推送或打开 PR。",
     };
   }
 
   if (!gitStatus.hasUpstream && shouldOfferCreateBranch) {
     return {
-      label: "创建 Branch",
+      label: "创建分支",
       disabled: false,
       kind: "create_branch",
     };
@@ -320,16 +320,16 @@ export function resolveQuickAction(
   if (gitStatus.hasUpstream) {
     if (isDiverged) {
       return {
-        label: "同步 branch",
+        label: "同步分支",
         disabled: true,
         kind: "show_hint",
-        hint: "branch 已与上游分叉，请先 rebase/merge。",
+        hint: "分支已与上游分叉，请先 rebase/merge。",
       };
     }
 
     if (isBehind) {
       return {
-        label: "Pull",
+        label: "拉取",
         disabled: false,
         kind: "run_pull",
       };
@@ -338,7 +338,7 @@ export function resolveQuickAction(
 
   if (hasChanges) {
     if (!gitStatus.hasUpstream && !hasOriginRemote) {
-      return { label: "Commit", disabled: false, kind: "run_action", action: "commit" };
+      return { label: "提交", disabled: false, kind: "run_action", action: "commit" };
     }
     if (hasOpenPr || isDefaultBranch) {
       return {
@@ -362,7 +362,7 @@ export function resolveQuickAction(
         return { label: "查看 PR", disabled: false, kind: "open_pr" };
       }
       return {
-        label: "Push",
+        label: "推送",
         disabled: true,
         kind: "show_hint",
         hint: '先添加 "origin" remote，再推送或创建 PR。',
@@ -373,15 +373,15 @@ export function resolveQuickAction(
         return { label: "查看 PR", disabled: false, kind: "open_pr" };
       }
       return {
-        label: "Push",
+        label: "推送",
         disabled: true,
         kind: "show_hint",
-        hint: "没有可推送的本地 commit。",
+        hint: "没有可推送的本地提交。",
       };
     }
     if (hasOpenPr || isDefaultBranch) {
       return {
-        label: isDefaultBranch ? "提交并推送" : "Push",
+        label: isDefaultBranch ? "提交并推送" : "推送",
         disabled: false,
         kind: "run_action",
         action: isDefaultBranch ? "commit_push" : "push",
@@ -398,7 +398,7 @@ export function resolveQuickAction(
   if (isAhead) {
     if (hasOpenPr || isDefaultBranch) {
       return {
-        label: isDefaultBranch ? "提交并推送" : "Push",
+        label: isDefaultBranch ? "提交并推送" : "推送",
         disabled: false,
         kind: "run_action",
         action: isDefaultBranch ? "commit_push" : "push",
@@ -417,10 +417,10 @@ export function resolveQuickAction(
   }
 
   return {
-    label: "Commit",
+    label: "提交",
     disabled: true,
     kind: "show_hint",
-    hint: "branch 已是最新，无需操作。",
+    hint: "分支已是最新，无需操作。",
   };
 }
 
@@ -452,16 +452,16 @@ export function resolvePullActionAvailability(input: {
   if (isBusy) return { canRun: false, hint: "Git 操作进行中。" };
   if (!gitStatus) return { canRun: false, hint: "Git 状态不可用。" };
   if (gitStatus.branch === null) {
-    return { canRun: false, hint: "分离 HEAD：先切换到一个 branch 再拉取。" };
+    return { canRun: false, hint: "分离 HEAD：先切换到一个分支再拉取。" };
   }
   if (!gitStatus.hasUpstream) {
-    return { canRun: false, hint: "当前 branch 没有可拉取的上游。" };
+    return { canRun: false, hint: "当前分支没有可拉取的上游。" };
   }
   if (gitStatus.aheadCount > 0 && gitStatus.behindCount > 0) {
-    return { canRun: false, hint: "branch 已与上游分叉，请先 rebase/merge。" };
+    return { canRun: false, hint: "分支已与上游分叉，请先 rebase/merge。" };
   }
   if (gitStatus.behindCount <= 0) {
-    return { canRun: false, hint: "branch 已是最新。" };
+    return { canRun: false, hint: "分支已是最新。" };
   }
   return { canRun: true, hint: null };
 }
@@ -497,34 +497,34 @@ export function resolveDefaultBranchActionDialogCopy(input: {
   includesCommit: boolean;
 }): DefaultBranchActionDialogCopy {
   const branchLabel = input.branchName;
-  const suffix = ` on "${branchLabel}". You can continue on this branch or create a feature branch and run the same action there.`;
+  const suffix = `（在 "${branchLabel}" 上）。你可以继续在此分支上操作，或创建一个功能分支并在那里执行相同操作。`;
 
   if (input.action === "push" || input.action === "commit_push") {
     if (input.includesCommit) {
       return {
-        title: "提交并推送到默认 branch？",
-        description: `This action will commit and push changes${suffix}`,
-        continueLabel: `Commit & push to ${branchLabel}`,
+        title: "提交并推送到默认分支？",
+        description: `此操作将提交并推送更改${suffix}`,
+        continueLabel: `提交并推送到 ${branchLabel}`,
       };
     }
     return {
-      title: "推送到默认 branch？",
-      description: `This action will push local commits${suffix}`,
-      continueLabel: `Push to ${branchLabel}`,
+      title: "推送到默认分支？",
+      description: `此操作将推送本地提交${suffix}`,
+      continueLabel: `推送到 ${branchLabel}`,
     };
   }
 
   if (input.includesCommit) {
     return {
-      title: "创建 feature branch、提交并创建 PR？",
-      description: `Pull requests can't be opened from "${branchLabel}" into itself. This action will create a feature branch, commit your changes there, push it, and create the PR.`,
-      continueLabel: "创建 feature branch 并继续",
+      title: "创建功能分支、提交并创建 PR？",
+      description: `无法从 "${branchLabel}" 向自身打开拉取请求。此操作将创建功能分支，在那里提交更改、推送并创建 PR。`,
+      continueLabel: "创建功能分支并继续",
     };
   }
   return {
-    title: "创建 feature branch 和 PR？",
-    description: `Pull requests can't be opened from "${branchLabel}" into itself. This action will create a feature branch from your current commits, push it, and create the PR.`,
-    continueLabel: "创建 feature branch 并继续",
+    title: "创建功能分支和 PR？",
+    description: `无法从 "${branchLabel}" 向自身打开拉取请求。此操作将从当前提交创建功能分支，推送并创建 PR。`,
+    continueLabel: "创建功能分支并继续",
   };
 }
 

@@ -182,10 +182,10 @@ async function dispatchKanbanDraftThreadOnce(
   );
   const titleSeed =
     prompt ||
-    (composerImages[0] ? `Image: ${composerImages[0].name}` : "") ||
-    (composerFiles[0] ? `File: ${composerFiles[0].name}` : "") ||
-    (composerAssistantSelections.length > 0 ? "Referenced assistant selection" : "") ||
-    (sendableTerminalContexts.length > 0 ? "Attached terminal context" : "") ||
+    (composerImages[0] ? `图片：${composerImages[0].name}` : "") ||
+    (composerFiles[0] ? `文件：${composerFiles[0].name}` : "") ||
+    (composerAssistantSelections.length > 0 ? "引用的助手选择" : "") ||
+    (sendableTerminalContexts.length > 0 ? "已附加终端上下文" : "") ||
     (composerFileComments.length > 0
       ? formatFileCommentTitleSeed(composerFileComments.length)
       : "") ||

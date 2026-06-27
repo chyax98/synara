@@ -82,27 +82,29 @@ export function ThemePackEditor({
     CODE_THEME_OPTIONS.find((option) => option.id === pack.codeThemeId)?.label ?? pack.codeThemeId;
   const isPristine = isDefaultThemePack(variant);
   const titleLabel = variant === "dark" ? "深色主题" : "浅色主题";
+  const variantLabel = variant === "dark" ? "深色" : "浅色";
+  const modeLabel = mode === "system" ? "跟随系统" : mode === "dark" ? "深色" : "浅色";
   const contextLabel = isActive
     ? mode === "system"
-      ? `System is currently using this ${variant} slot.`
-      : "This is the active theme right now."
+      ? `系统当前正在使用此${variantLabel}主题槽位。`
+      : "这是当前生效的主题。"
     : mode === "system"
-      ? `Used when your system switches to ${variant}.`
-      : `Inactive while the app is locked to ${mode}.`;
+      ? `系统切换到${variantLabel}模式时使用。`
+      : `应用锁定为${modeLabel}模式时未启用。`;
 
   const handleCopy = async () => {
     try {
       await copyTextToClipboard(exportThemeString(variant));
       toastManager.add({
         type: "success",
-        title: "这是当前生效的主题。",
-        description: `Copied the ${variant} theme share string.`,
+        title: "主题已复制",
+        description: `已复制${variantLabel}主题分享字符串。`,
       });
     } catch {
       toastManager.add({
         type: "error",
-        title: "Copy failed",
-        description: "深色",
+        title: "复制失败",
+        description: "无法复制主题分享字符串。",
       });
     }
   };
@@ -123,7 +125,7 @@ export function ThemePackEditor({
               onClick={() => resetThemeVariant(variant)}
               className="rounded-md px-1.5 py-0.5 text-[11px] text-[var(--color-text-foreground-secondary)] transition-colors hover:bg-[var(--color-background-elevated-secondary)] hover:text-[var(--color-text-foreground)]"
             >
-              Reset
+              重置
             </button>
           ) : null}
         </div>
@@ -134,7 +136,7 @@ export function ThemePackEditor({
             onClick={() => void handleCopy()}
             className="rounded-md px-2 py-1 text-xs text-[var(--color-text-foreground-secondary)] transition-colors hover:bg-[var(--color-background-elevated-secondary)] hover:text-[var(--color-text-foreground)]"
           >
-            Copy
+            复制
           </button>
           <Select
             value={pack.codeThemeId}
@@ -145,8 +147,8 @@ export function ThemePackEditor({
           >
             <SelectTrigger
               size="sm"
-              className={cn(SETTINGS_CONTROL_RADIUS_CLASS_NAME, "无法复制主题分享字符串。")}
-              aria-label={`${titleLabel} code theme`}
+              className={SETTINGS_CONTROL_RADIUS_CLASS_NAME}
+              aria-label={`${titleLabel}代码主题`}
             >
               <SelectValue className="flex-1 text-left">
                 <CodeThemeSelectOption label={codeThemeLabel} theme={theme} />
@@ -172,10 +174,10 @@ export function ThemePackEditor({
       </div>
 
       <div className="divide-y divide-[color:var(--color-border)]">
-        <ThemeRow label="Accent">
+        <ThemeRow label="强调色">
           <ColorPill
             color={theme.accent}
-            ariaLabel={`${titleLabel} accent color`}
+            ariaLabel={`${titleLabel}强调色`}
             onChange={(next) => updateThemePack(variant, { accent: next })}
             onReset={
               theme.accent !== defaultTheme.accent
@@ -188,10 +190,10 @@ export function ThemePackEditor({
           />
         </ThemeRow>
 
-        <ThemeRow label="Background">
+        <ThemeRow label="背景">
           <ColorPill
             color={theme.surface}
-            ariaLabel={`${titleLabel} background color`}
+            ariaLabel={`${titleLabel}背景色`}
             onChange={(next) => updateThemePack(variant, { surface: next })}
             onReset={
               theme.surface !== defaultTheme.surface
@@ -204,10 +206,10 @@ export function ThemePackEditor({
           />
         </ThemeRow>
 
-        <ThemeRow label="Foreground">
+        <ThemeRow label="前景">
           <ColorPill
             color={theme.ink}
-            ariaLabel={`${titleLabel} foreground color`}
+            ariaLabel={`${titleLabel}前景色`}
             onChange={(next) => updateThemePack(variant, { ink: next })}
             onReset={
               theme.ink !== defaultTheme.ink
@@ -220,23 +222,23 @@ export function ThemePackEditor({
           />
         </ThemeRow>
 
-        <ThemeRow label="UI font">
+        <ThemeRow label="界面字体">
           <div className="flex flex-col items-end gap-1">
             <FontInput
               value={theme.fonts.ui ?? ""}
-              placeholder="System default"
-              ariaLabel={`${titleLabel} UI font`}
+              placeholder="系统默认"
+              ariaLabel={`${titleLabel}界面字体`}
               onChange={(next) => updateThemeFonts(variant, { ui: next.length > 0 ? next : null })}
             />
           </div>
         </ThemeRow>
 
-        <ThemeRow label="Code font">
+        <ThemeRow label="代码字体">
           <div className="flex flex-col items-end gap-1">
             <FontInput
               value={theme.fonts.code ?? ""}
-              placeholder='"JetBrains Mono"'
-              ariaLabel={`${titleLabel} code font`}
+              placeholder="输入字体名称"
+              ariaLabel={`${titleLabel}代码字体`}
               mono
               onChange={(next) =>
                 updateThemeFonts(variant, { code: next.length > 0 ? next : null })
@@ -245,19 +247,19 @@ export function ThemePackEditor({
           </div>
         </ThemeRow>
 
-        <ThemeRow label="Translucent sidebar">
+        <ThemeRow label="半透明侧边栏">
           <Switch
             checked={!theme.opaqueWindows}
             onCheckedChange={(checked) => updateThemePack(variant, { opaqueWindows: !checked })}
-            aria-label={`${titleLabel} translucent sidebar`}
+            aria-label={`${titleLabel}半透明侧边栏`}
           />
         </ThemeRow>
 
-        <ThemeRow label="Contrast">
+        <ThemeRow label="对比度">
           <ContrastSlider
             value={theme.contrast}
             onChange={(next) => updateThemePack(variant, { contrast: next })}
-            ariaLabel={`${titleLabel} contrast`}
+            ariaLabel={`${titleLabel}对比度`}
           />
         </ThemeRow>
       </div>
@@ -377,8 +379,8 @@ function ColorPill({
             onReset();
           }}
           className="rounded-md p-1 text-[var(--color-text-foreground-tertiary)] transition-colors hover:bg-[var(--color-background-elevated-secondary)] hover:text-[var(--color-text-foreground)]"
-          aria-label={`Reset ${ariaLabel}`}
-          title="系统默认"
+          aria-label={`重置${ariaLabel}`}
+          title="重置"
         >
           <ResetGlyph />
         </button>
@@ -404,7 +406,7 @@ function ColorPill({
             className="block size-5 shrink-0 rounded-full border"
             style={{ borderColor: ringColor }}
           />
-          <span className="半透明侧边栏">{previewColor}</span>
+          <span>{previewColor}</span>
         </PopoverTrigger>
         <PopoverPopup
           align="end"
@@ -434,7 +436,7 @@ function ColorPill({
                 SETTINGS_CONTROL_RADIUS_CLASS_NAME,
                 "h-8 border border-[color:var(--color-border-light)] bg-[var(--color-background-elevated-secondary)] px-2 text-center font-chat-code text-xs uppercase outline-none focus:border-[color:var(--color-border-focus)]",
               )}
-              aria-label={`${ariaLabel} hex value`}
+              aria-label={`${ariaLabel}十六进制值`}
             />
           </div>
         </PopoverPopup>
@@ -557,14 +559,14 @@ function ImportThemeDialog({
       onImport(value);
       toastManager.add({
         type: "success",
-        title: "Theme imported",
-        description: `Updated the ${variant} theme pack.`,
+        title: "主题已导入",
+        description: `已更新${variant === "dark" ? "深色" : "浅色"}主题包。`,
       });
       setValue("");
       setError(null);
       setOpen(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to import that theme string.");
+      setError(err instanceof Error ? err.message : "无法导入该主题字符串。");
     }
   };
 
@@ -576,18 +578,18 @@ function ImportThemeDialog({
             type="button"
             className="rounded-md px-2 py-1 text-xs text-[var(--color-text-foreground-secondary)] transition-colors hover:bg-[var(--color-background-elevated-secondary)] hover:text-[var(--color-text-foreground)]"
           >
-            Import
+            导入
           </button>
         }
       />
       <DialogPopup className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Import {variant} theme</DialogTitle>
+          <DialogTitle>导入{variant === "dark" ? "深色" : "浅色"}主题</DialogTitle>
           <p className="text-xs text-muted-foreground">
-            Paste a{" "}
-            <code className="rounded bg-muted px-1 py-0.5 font-chat-code">codex-theme-v1:</code>{" "}
-            share string. The embedded variant must match {variant}, and the selected code theme
-            must exist for that variant.
+            粘贴{" "}
+            <code className="rounded bg-muted px-1 py-0.5 font-chat-code">{"codex-theme-v1:"}</code>{" "}
+            分享字符串。内嵌变体必须与{variant === "dark" ? "深色" : "浅色"}
+            一致，且所选代码主题必须适用于该变体。
           </p>
         </DialogHeader>
         <DialogPanel>
@@ -601,7 +603,7 @@ function ImportThemeDialog({
             spellCheck={false}
             rows={5}
             className="font-chat-code text-[11px]"
-            aria-label="主题已导入"
+            aria-label="主题分享字符串"
           />
           {error ? <p className="mt-2 text-xs text-destructive-foreground">{error}</p> : null}
         </DialogPanel>
@@ -609,7 +611,7 @@ function ImportThemeDialog({
           <DialogClose
             render={
               <Button variant="outline" type="button" size="sm">
-                Cancel
+                取消
               </Button>
             }
           />
@@ -619,7 +621,7 @@ function ImportThemeDialog({
             disabled={value.trim().length === 0}
             onClick={handleSubmit}
           >
-            Import
+            导入
           </Button>
         </DialogFooter>
       </DialogPopup>

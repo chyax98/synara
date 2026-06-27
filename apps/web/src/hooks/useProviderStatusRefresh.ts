@@ -30,7 +30,7 @@ export function useRefreshProviderStatusesNow(): () => void {
       .catch((error) => {
         toastManager.add({
           type: "error",
-          title: "Unable to refresh provider status",
+          title: "无法刷新提供商状态",
           description:
             error instanceof Error ? error.message : "Unknown error refreshing provider status.",
         });

@@ -173,14 +173,14 @@ export const DiffPanelToolbar = memo(function DiffPanelToolbar(props: DiffPanelT
   );
   const turnsMenuLabel =
     props.viewSource.kind === "turn" && props.selectedTurnId === null
-      ? "All turns"
+      ? "全部轮次"
       : props.viewSource.kind === "turn" && props.selectedTurnId
-        ? `Turn ${
+        ? `第 ${
             selectedTurnSummary
               ? resolveTurnNumber(selectedTurnSummary, props.inferredCheckpointTurnCountByTurnId)
               : (props.inferredCheckpointTurnCountByTurnId[props.selectedTurnId] ?? "?")
-          }`
-        : "Turns";
+          } 轮`
+        : "轮次";
 
   const latestTurnId = props.orderedTurnDiffSummaries[0]?.turnId ?? null;
   const scopePickerValue = resolveDiffPanelScopePickerValue({
@@ -216,7 +216,7 @@ export const DiffPanelToolbar = memo(function DiffPanelToolbar(props: DiffPanelT
             <button
               type="button"
               className={DIFF_PANEL_PICKER_TRIGGER_CLASS_NAME}
-              aria-label="Choose diff source"
+              aria-label="选择差异来源"
             />
           }
         >
@@ -239,7 +239,7 @@ export const DiffPanelToolbar = memo(function DiffPanelToolbar(props: DiffPanelT
           className="w-56 min-w-56"
         >
           <MenuGroup>
-            <MenuGroupLabel>Diff source</MenuGroupLabel>
+            <MenuGroupLabel>差异来源</MenuGroupLabel>
             <MenuRadioGroup
               value={scopePickerValue ?? ""}
               onValueChange={(value) => {
@@ -270,11 +270,11 @@ export const DiffPanelToolbar = memo(function DiffPanelToolbar(props: DiffPanelT
               ))}
               <MenuRadioItem value="allTurns">
                 <GitCommitIcon className={DIFF_PANEL_MENU_ICON_CLASS_NAME} />
-                <span className="min-w-0 flex-1 truncate">All turns</span>
+                <span className="min-w-0 flex-1 truncate">全部轮次</span>
               </MenuRadioItem>
               <MenuRadioItem value="lastTurn">
                 {resolveScopeMenuIcon("lastTurn")}
-                <span className="min-w-0 flex-1 truncate">Last turn</span>
+                <span className="min-w-0 flex-1 truncate">上一轮</span>
               </MenuRadioItem>
             </MenuRadioGroup>
           </MenuGroup>
@@ -298,8 +298,8 @@ export const DiffPanelToolbar = memo(function DiffPanelToolbar(props: DiffPanelT
                   variant="ghost"
                   size="icon-xs"
                   className={DIFF_PANEL_TOOLBAR_ICON_BUTTON_CLASS_NAME}
-                  label="Diff view options"
-                  title="Diff view options"
+                  label="差异视图选项"
+                  title="差异视图选项"
                 >
                   <EllipsisIcon className="size-3.5" />
                 </IconButton>
@@ -312,11 +312,11 @@ export const DiffPanelToolbar = memo(function DiffPanelToolbar(props: DiffPanelT
               className="w-60 min-w-60"
             >
               <MenuGroup>
-                <MenuGroupLabel>View</MenuGroupLabel>
+                <MenuGroupLabel>视图</MenuGroupLabel>
                 <div
                   className="mx-2 mb-1 grid grid-cols-2 rounded-lg bg-[var(--color-background-elevated-secondary)] p-0.5"
                   role="radiogroup"
-                  aria-label="Diff view"
+                  aria-label="差异视图"
                 >
                   {(["stacked", "split"] as const).map((mode) => {
                     const selected = props.diffRenderMode === mode;
@@ -339,7 +339,7 @@ export const DiffPanelToolbar = memo(function DiffPanelToolbar(props: DiffPanelT
                         ) : (
                           <Columns2Icon className="size-3.5 shrink-0" />
                         )}
-                        <span className="truncate">{mode === "stacked" ? "Stacked" : "Split"}</span>
+                        <span className="truncate">{mode === "stacked" ? "堆叠" : "分栏"}</span>
                       </button>
                     );
                   })}
@@ -351,7 +351,7 @@ export const DiffPanelToolbar = memo(function DiffPanelToolbar(props: DiffPanelT
                     props.onDiffIgnoreWhitespaceChange(checked === true);
                   }}
                 >
-                  Ignore whitespace-only changes
+                  忽略仅含空白的变更
                 </MenuCheckboxItem>
                 <MenuCheckboxItem
                   checked={props.diffWordWrap}
@@ -360,7 +360,7 @@ export const DiffPanelToolbar = memo(function DiffPanelToolbar(props: DiffPanelT
                     props.onDiffWordWrapChange(checked === true);
                   }}
                 >
-                  Wrap long lines
+                  长行自动换行
                 </MenuCheckboxItem>
                 {props.diffCopyText ? (
                   <MenuItem
@@ -369,7 +369,7 @@ export const DiffPanelToolbar = memo(function DiffPanelToolbar(props: DiffPanelT
                     }}
                   >
                     <CopyIcon className={DIFF_PANEL_MENU_ICON_CLASS_NAME} />
-                    <span>{props.isDiffCopied ? "Copied diff" : "Copy diff"}</span>
+                    <span>{props.isDiffCopied ? "已复制差异" : "复制差异"}</span>
                   </MenuItem>
                 ) : null}
                 {props.renderableFiles.length > 0 ? (
@@ -379,9 +379,7 @@ export const DiffPanelToolbar = memo(function DiffPanelToolbar(props: DiffPanelT
                     }}
                   >
                     <FolderIcon className={DIFF_PANEL_MENU_ICON_CLASS_NAME} />
-                    <span>
-                      {props.allFilesCollapsed ? "Expand all files" : "Collapse all files"}
-                    </span>
+                    <span>{props.allFilesCollapsed ? "展开全部文件" : "折叠全部文件"}</span>
                   </MenuItem>
                 ) : null}
               </MenuGroup>
@@ -412,7 +410,7 @@ export const DiffPanelToolbar = memo(function DiffPanelToolbar(props: DiffPanelT
               <button
                 type="button"
                 className={cn(DIFF_PANEL_PICKER_TRIGGER_CLASS_NAME, "max-w-[min(32%,9.5rem)]")}
-                aria-label="Choose turn diff"
+                aria-label="选择轮次差异"
               />
             }
           >
@@ -430,7 +428,7 @@ export const DiffPanelToolbar = memo(function DiffPanelToolbar(props: DiffPanelT
             className="w-60 min-w-60"
           >
             <MenuGroup>
-              <MenuGroupLabel>Turns</MenuGroupLabel>
+              <MenuGroupLabel>轮次</MenuGroupLabel>
               <MenuRadioGroup
                 value={props.selectedTurnId ?? "all-turns"}
                 onValueChange={(value) => {
@@ -443,13 +441,13 @@ export const DiffPanelToolbar = memo(function DiffPanelToolbar(props: DiffPanelT
               >
                 <MenuRadioItem value="all-turns">
                   <GitCommitIcon className={DIFF_PANEL_MENU_ICON_CLASS_NAME} />
-                  <span className="min-w-0 flex-1 truncate">All turns</span>
+                  <span className="min-w-0 flex-1 truncate">全部轮次</span>
                 </MenuRadioItem>
                 {visibleTurnSummaries.map((summary) => (
                   <MenuRadioItem key={summary.turnId} value={summary.turnId}>
                     <FaPlusMinus className="size-2.5 shrink-0 text-muted-foreground" />
                     <span className="min-w-0 flex-1 truncate">
-                      Turn {resolveTurnNumber(summary, props.inferredCheckpointTurnCountByTurnId)}
+                      第 {resolveTurnNumber(summary, props.inferredCheckpointTurnCountByTurnId)} 轮
                     </span>
                     <span className="shrink-0 text-[10px] text-muted-foreground tabular-nums">
                       {formatShortTimestamp(summary.completedAt, props.timestampFormat)}
@@ -466,7 +464,7 @@ export const DiffPanelToolbar = memo(function DiffPanelToolbar(props: DiffPanelT
                   )}
                   onClick={() => setVisibleTurnCount(nextVisibleTurnCount)}
                 >
-                  Show {Math.min(TURN_SHOW_MORE_INCREMENT, hiddenTurnCount)} more
+                  再显示 {Math.min(TURN_SHOW_MORE_INCREMENT, hiddenTurnCount)} 个
                 </button>
               ) : null}
             </MenuGroup>
@@ -479,7 +477,7 @@ export const DiffPanelToolbar = memo(function DiffPanelToolbar(props: DiffPanelT
             <IconButton
               variant="chrome"
               size="icon-xs"
-              label="Close file view"
+              label="关闭文件视图"
               className={DOCK_HEADER_ICON_BUTTON_CLASS}
               onClick={(event) => {
                 event.stopPropagation();

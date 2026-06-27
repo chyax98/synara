@@ -178,7 +178,7 @@ function createThemeCommandItem(
 
   return {
     id: `theme-command:${mode}`,
-    label: `Switch to ${mode} theme`,
+    label: mode === "light" ? "切换到浅色主题" : "切换到深色主题",
     description: mode === "light" ? "浅色" : "深色",
     mode,
     isActive: activeMode === mode,
@@ -275,10 +275,10 @@ function threadMatchLabel(input: {
   messageMatchCount: number;
 }): string | null {
   if (input.matchKind === "message") {
-    return input.messageMatchCount > 1 ? `${input.messageMatchCount} chat hits` : "Chat match";
+    return input.messageMatchCount > 1 ? `${input.messageMatchCount} 条聊天匹配` : "聊天匹配";
   }
   if (input.matchKind === "project") {
-    return "Project match";
+    return "项目匹配";
   }
   return null;
 }
@@ -434,7 +434,8 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
         id: `theme-code:${resolvedTheme}:${option.id}`,
         type: "code-theme",
         label: option.label,
-        description: `Apply to the current ${resolvedTheme} theme slot.`,
+        description:
+          resolvedTheme === "dark" ? "应用到当前深色主题槽位。" : "应用到当前浅色主题槽位。",
         keywords: ["appearance", "theme", resolvedTheme, option.id],
         codeThemeId: option.id,
         variant: resolvedTheme,
@@ -487,7 +488,7 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
     exactBrowseEntry === null &&
     !isBrowseFetching;
 
-  const browseSubmitLabel = willCreateMissingFolder ? "Create & Add" : "Add";
+  const browseSubmitLabel = willCreateMissingFolder ? "创建并添加" : "添加";
 
   const resolveBrowseSubmitPath = (): string => {
     if (highlightedFolderPath) {
@@ -593,7 +594,7 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
                   <LuArrowLeft className="size-4" />
                 </Button>
                 <div>
-                  <p className="text-sm font-medium text-foreground">Import thread from provider</p>
+                  <p className="text-sm font-medium text-foreground">从 Provider 导入会话</p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     Create a local app thread and resume it from an existing provider id.
                   </p>
@@ -689,7 +690,7 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
                   }
                   onClick={submitImport}
                 >
-                  {isImporting ? "Importing..." : "Import"}
+                  {isImporting ? "导入中…" : "导入"}
                 </Button>
               </div>
             </div>
@@ -750,7 +751,7 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
                       <span>{browseSubmitLabel}</span>
                       <KbdGroup className="pointer-events-none -me-0.5 items-center gap-1">
                         <Kbd>
-                          {hasHighlightedFolderItem ? `${submitModifierLabel} Enter` : "Enter"}
+                          {hasHighlightedFolderItem ? `${submitModifierLabel}+Enter` : "按 Enter"}
                         </Kbd>
                       </KbdGroup>
                     </Button>
@@ -815,7 +816,11 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
                             project.
                           </div>
                         ) : null}
-                        {addProjectError ? <div className="最近">{addProjectError}</div> : null}
+                        {addProjectError ? (
+                          <div className="px-3 py-2 text-sm text-destructive">
+                            {addProjectError}
+                          </div>
+                        ) : null}
                       </>
                     )
                   ) : null}
@@ -876,7 +881,7 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
                   {!isBrowsing && matchedThreads.length > 0 ? (
                     <CommandGroup>
                       <CommandGroupLabel className="py-1.5 pl-3">
-                        {query ? "会话" : "Recent"}
+                        {query ? "会话" : "最近"}
                       </CommandGroupLabel>
                       {matchedThreads.map(
                         ({ id, matchKind, messageMatchCount, snippet, thread }) => (
@@ -963,7 +968,9 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
                         >
                           <PaletteIcon icon={HiOutlineFolderOpen} />
                           <div className="min-w-0 flex-1">
-                            <div className="浅色主题">{project.name || "Untitled project"}</div>
+                            <div className="truncate text-sm text-foreground">
+                              {project.name || "未命名项目"}
+                            </div>
                             <div className="truncate text-[length:var(--app-font-size-ui-meta,10px)] text-muted-foreground/79">
                               {project.localName
                                 ? `${project.folderName} · ${project.cwd}`
@@ -1015,7 +1022,7 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
                       {matchedCurrentThemes.length > 0 ? (
                         <CommandGroup>
                           <CommandGroupLabel className="py-1.5 pl-3">
-                            {resolvedTheme === "dark" ? "Dark themes" : "Light themes"}
+                            {resolvedTheme === "dark" ? "深色代码主题" : "浅色代码主题"}
                           </CommandGroupLabel>
                           {matchedCurrentThemes.map((themeItem) => {
                             const seed =
@@ -1046,10 +1053,8 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
                                 <span className="min-w-0 flex-1 truncate text-[length:var(--app-font-size-ui,12px)] text-foreground">
                                   {themeItem.label}
                                 </span>
-                                <span className="输入路径，↑↓ 浏览文件夹。">
-                                  {resolvedTheme === "dark"
-                                    ? "按 Enter 添加项目"
-                                    : "Light color theme"}
+                                <span className="shrink-0 text-[length:var(--app-font-size-ui-meta,10px)] text-muted-foreground/58">
+                                  {resolvedTheme === "dark" ? "深色配色主题" : "浅色配色主题"}
                                 </span>
                                 <span
                                   className="flex size-3.5 shrink-0 items-center justify-center"
@@ -1071,7 +1076,7 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
                     <CommandEmpty className="py-10">
                       <div className="flex flex-col items-center justify-center gap-2 text-center text-sm text-muted-foreground/79">
                         <SearchIcon className="size-4 opacity-70" />
-                        <div>No matches.</div>
+                        <div>无匹配结果。</div>
                       </div>
                     </CommandEmpty>
                   ) : null}
@@ -1096,8 +1101,8 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
                   </>
                 ) : (
                   <>
-                    <span>Jump to threads, projects, actions, or appearance.</span>
-                    <span>Enter to open</span>
+                    <span>跳转到会话、项目、操作或外观。</span>
+                    <span>按 Enter 打开</span>
                   </>
                 )}
               </CommandFooter>

@@ -121,7 +121,7 @@ function ProfileContent({
       {/* Stat tiles */}
       <div className="grid grid-cols-2 divide-x divide-y divide-border/50 overflow-hidden rounded-2xl border border-border/60 sm:grid-cols-3 lg:grid-cols-5 lg:divide-y-0">
         <StatTile
-          label="累计 Token"
+          label="累计词元"
           value={tokensPending ? null : formatCompact(tokenStats?.lifetimeTotalTokens ?? null)}
         />
         <StatTile
@@ -154,7 +154,7 @@ function ProfileContent({
           <h3 className="text-sm font-medium">活动洞察</h3>
           <dl className="flex flex-col gap-2.5">
             <InsightRow
-              label="最常用 Provider"
+              label="最常用提供商"
               value={
                 stats.insights.topProvider
                   ? `${formatProviderLabel(stats.insights.topProvider)}${
@@ -180,10 +180,7 @@ function ProfileContent({
             <InsightRow label="最活跃时段" value={peakHourLabel} />
             <InsightRow label="最常工作项目" value={mostWorkedProjectLabel} />
             <InsightRow label="已探索 Skill" value={formatNumber(stats.insights.skillsExplored)} />
-            <InsightRow
-              label="Skill 使用总数"
-              value={formatNumber(stats.insights.totalSkillsUsed)}
-            />
+            <InsightRow label="技能使用总数" value={formatNumber(stats.insights.totalSkillsUsed)} />
             <InsightRow label="Total threads" value={formatNumber(stats.activity.totalThreads)} />
           </dl>
         </section>

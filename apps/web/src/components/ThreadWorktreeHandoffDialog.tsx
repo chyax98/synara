@@ -60,10 +60,8 @@ export function ThreadWorktreeHandoffDialog({
     >
       <DialogPopup className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Hand off to worktree</DialogTitle>
-          <DialogDescription>
-            Create a detached worktree from the current branch to continue working in parallel.
-          </DialogDescription>
+          <DialogTitle>移交到工作树</DialogTitle>
+          <DialogDescription>从当前分支创建独立工作树，以便并行继续工作。</DialogDescription>
         </DialogHeader>
         <DialogPanel>
           <form
@@ -73,7 +71,7 @@ export function ThreadWorktreeHandoffDialog({
             }}
           >
             <label className="grid gap-1.5">
-              <span className="text-xs font-medium text-foreground">Worktree name</span>
+              <span className="text-xs font-medium text-foreground">工作树名称</span>
               <Input
                 ref={worktreeInputRef}
                 value={worktreeName}
@@ -85,7 +83,7 @@ export function ThreadWorktreeHandoffDialog({
                     onOpenChange(false);
                   }
                 }}
-                placeholder="synara/feature-name"
+                placeholder="Synara/功能名称"
               />
             </label>
           </form>
@@ -95,7 +93,7 @@ export function ThreadWorktreeHandoffDialog({
             Cancel
           </Button>
           <Button size="sm" onClick={handleSubmit} disabled={!canSubmit}>
-            {busy ? "Handing off..." : "Hand off"}
+            {busy ? "正在移交…" : "移交"}
           </Button>
         </DialogFooter>
       </DialogPopup>

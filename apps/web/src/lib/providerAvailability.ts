@@ -4,6 +4,11 @@ import {
   type ServerProviderStatus,
 } from "@t3tools/contracts";
 
+const PROVIDER_RUNTIME_STATUS = {
+  ready: "ready",
+  warning: "warning",
+} as const;
+
 export interface ProviderSendAvailability {
   readonly provider: ProviderKind;
   readonly status: ServerProviderStatus | null;
@@ -44,7 +49,7 @@ export function normalizeProviderStatusForLocalConfig(input: {
     return {
       provider: status.provider,
       available: true,
-      status: "ready",
+      status: PROVIDER_RUNTIME_STATUS.ready,
       authStatus: status.authStatus,
       checkedAt: status.checkedAt,
       ...(status.authType ? { authType: status.authType } : {}),
@@ -58,8 +63,8 @@ export function normalizeProviderStatusForLocalConfig(input: {
   return {
     ...status,
     available: true,
-    status: "warning",
-    message: `${PROVIDER_DISPLAY_NAMES[input.provider]} uses a custom local binary path in this app. Availability will be confirmed when you start a session.`,
+    status: PROVIDER_RUNTIME_STATUS.warning,
+    message: `${PROVIDER_DISPLAY_NAMES[input.provider]} 在本应用中使用了自定义本地二进制路径。启动会话后将确认可用性。`,
   };
 }
 

@@ -105,7 +105,7 @@ export function useKanbanTaskSubmit(input: UseKanbanTaskSubmitInput) {
       createKanbanDraftTask(taskInput);
       toastManager.add({
         type: "success",
-        title: "Task added to Drafts",
+        title: "任务已添加到草稿",
         description: truncatedPrompt,
       });
       onOpenChange(false);
@@ -137,7 +137,7 @@ export function useKanbanTaskSubmit(input: UseKanbanTaskSubmitInput) {
         if (result.kind === "dispatched") {
           toastManager.add({
             type: "success",
-            title: "Task started",
+            title: "任务已启动",
             description: truncatedPrompt,
           });
           onOpenChange(false);
@@ -146,7 +146,7 @@ export function useKanbanTaskSubmit(input: UseKanbanTaskSubmitInput) {
         if (result.kind === "open-thread") {
           toastManager.add({
             type: "info",
-            title: "Finish this task in the chat",
+            title: "请在聊天中完成此任务",
             description:
               result.reason === "worktree-pending"
                 ? "Worktree setup stays on the normal composer send path."
@@ -160,7 +160,7 @@ export function useKanbanTaskSubmit(input: UseKanbanTaskSubmitInput) {
         // exists on the board, so surface the failure and keep the dialog open.
         toastManager.add({
           type: "error",
-          title: "Couldn't start the task",
+          title: "无法启动任务",
           description:
             result.kind === "error"
               ? result.message
@@ -172,7 +172,7 @@ export function useKanbanTaskSubmit(input: UseKanbanTaskSubmitInput) {
       .catch((error: unknown) => {
         toastManager.add({
           type: "error",
-          title: "Couldn't start the task",
+          title: "无法启动任务",
           description: error instanceof Error ? error.message : "Unexpected error.",
         });
         isCreatingRef.current = false;

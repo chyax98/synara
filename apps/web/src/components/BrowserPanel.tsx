@@ -367,7 +367,7 @@ function BrowserRuntimePreview(props: { title: string; detail: string }) {
           </div>
         </div>
         <div className="mt-4 min-w-0 text-center">
-          <p className="text-xs font-medium text-foreground">Restoring browser</p>
+          <p className="text-xs font-medium text-foreground">正在恢复浏览器</p>
           <p className="mt-1 truncate text-[11px] text-muted-foreground" title={props.detail}>
             {props.title}
           </p>
@@ -458,14 +458,14 @@ function BrowserLocalServersHome({
             {loading ? (
               <>
                 <RefreshCwIcon className="mb-4 size-12 animate-spin text-white/20" />
-                <p className="text-base font-semibold text-white">Scanning local servers</p>
-                <p className="mt-2 text-sm text-white/35">Checking localhost ports</p>
+                <p className="text-base font-semibold text-white">正在扫描本地服务器</p>
+                <p className="mt-2 text-sm text-white/35">正在检查本机端口</p>
               </>
             ) : (
               <>
                 <GlobeIcon className="mb-4 size-16 stroke-[1.5] text-white/30" />
-                <p className="text-base font-semibold text-white">No local servers</p>
-                <p className="mt-2 text-sm text-white/35">Try another browser URL</p>
+                <p className="text-base font-semibold text-white">无本地服务器</p>
+                <p className="mt-2 text-sm text-white/35">尝试其他浏览器地址</p>
               </>
             )}
           </div>
@@ -1307,7 +1307,7 @@ export function BrowserPanel({
             }}
           >
             <ArrowLeftIcon className="size-3.5" />
-            <span className="sr-only">Go back</span>
+            <span className="sr-only">后退</span>
           </Button>
           <Button
             type="button"
@@ -1328,7 +1328,7 @@ export function BrowserPanel({
             }}
           >
             <ArrowRightIcon className="size-3.5" />
-            <span className="sr-only">Go forward</span>
+            <span className="sr-only">前进</span>
           </Button>
           <Button
             type="button"
@@ -1443,7 +1443,7 @@ export function BrowserPanel({
           onClick={onCopyScreenshotToClipboard}
         >
           <CameraIcon className="size-3.5" />
-          <span className="sr-only">Copy screenshot</span>
+          <span className="sr-only">复制截图</span>
         </Button>
         <Button
           type="button"
@@ -1456,7 +1456,7 @@ export function BrowserPanel({
           onClick={copyActiveTabLink}
         >
           <LinkIcon className="size-3.5" />
-          <span className="sr-only">Copy link</span>
+          <span className="sr-only">复制链接</span>
         </Button>
         <Menu modal={false}>
           <MenuTrigger
@@ -1466,7 +1466,7 @@ export function BrowserPanel({
                 variant="ghost"
                 size="icon-sm"
                 className="size-7"
-                aria-label="Browser actions"
+                aria-label="浏览器操作"
               />
             }
           >
@@ -1479,7 +1479,7 @@ export function BrowserPanel({
           >
             <MenuItem className={BROWSER_ACTION_MENU_ITEM_CLASS_NAME} onClick={onCreateTab}>
               <BrowserActionMenuIcon icon={PlusIcon} />
-              <span>New tab</span>
+              <span>新建标签页</span>
             </MenuItem>
             <MenuItem
               className={BROWSER_ACTION_MENU_ITEM_CLASS_NAME}
@@ -1487,7 +1487,7 @@ export function BrowserPanel({
               onClick={onCaptureScreenshot}
             >
               <BrowserActionMenuIcon icon={CameraIcon} />
-              <span>Capture screenshot</span>
+              <span>截取屏幕截图</span>
             </MenuItem>
             <MenuItem
               className={BROWSER_ACTION_MENU_ITEM_CLASS_NAME}
@@ -1499,12 +1499,12 @@ export function BrowserPanel({
               }}
             >
               <BrowserActionMenuIcon icon={ExternalLinkIcon} />
-              <span>Open externally</span>
+              <span>在外部打开</span>
             </MenuItem>
             <MenuSeparator />
             <MenuItem className={BROWSER_ACTION_MENU_ITEM_CLASS_NAME} onClick={onClosePanel}>
               <BrowserActionMenuIcon icon={XIcon} />
-              <span>Close browser panel</span>
+              <span>关闭浏览器面板</span>
             </MenuItem>
           </ComposerPickerMenuPopup>
         </Menu>
@@ -1583,7 +1583,7 @@ export function BrowserPanel({
                     }}
                   >
                     <XIcon className="size-3" />
-                    <span className="sr-only">Close tab</span>
+                    <span className="sr-only">关闭标签页</span>
                   </Button>
                 </div>
               );

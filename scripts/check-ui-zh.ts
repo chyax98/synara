@@ -11,32 +11,14 @@ const ROOT = join(import.meta.dirname, "..");
 const SCRATCH = process.env.GROK_GOAL_SCRATCH ?? join(ROOT, ".synara-zh-check");
 const VIOLATIONS_PATH = join(SCRATCH, "ui-zh-violations.txt");
 
-const SCAN_ROOTS = [
-  "apps/web/src/components/ChatView.tsx",
-  "apps/web/src/components/Sidebar.tsx",
-  "apps/web/src/components/ComposerPromptEditor.tsx",
-  "apps/web/src/components/EditorWorkspaceView.tsx",
-  "apps/web/src/routes/_chat.settings.tsx",
-  "apps/web/src/routes/_chat.automations.$automationId.tsx",
-  "apps/web/src/routes/_chat.automations.index.tsx",
-  "apps/web/src/routes/-automations.shared.tsx",
-  "apps/web/src/components/settings",
-  "apps/web/src/components/chat",
-  "apps/web/src/components/SettingsSidebarNav.tsx",
-  "apps/web/src/settingsNavigation.ts",
-  "apps/web/src/settingsSearchIndex.ts",
-  "apps/desktop/src/main.ts",
-];
+/** Whole-tree scan roots — exhaustive, not hand-picked files. */
+const SCAN_ROOTS = ["apps/web/src", "apps/desktop/src/main.ts"];
 
 const ALLOW_PATH_SUBSTRINGS = [
   "theme.seed.generated.ts",
   "theme.logic.ts",
   "index.css",
   "/lib/icons",
-  "confirmDialogFallback",
-  "contextMenuFallback",
-  ".browser.tsx",
-  ".test.tsx",
 ];
 
 const BRAND_ALLOWLIST = new Set([
@@ -57,31 +39,13 @@ const BRAND_ALLOWLIST = new Set([
   "T3CODE_",
   "macOS",
   "OS",
-  "UI",
-  "CLI",
-  "Diff",
-  "Terminal",
-  "Skill",
-  "Environment",
-  "Recap",
-  "Git",
   "Codex",
   "ChatGPT",
   "Finder",
   "Markdown",
-  "Mac",
   "Ctrl",
-  "Kanban",
   "npm run dev",
-  "provider",
-  "Provider",
-  "worktree",
-  "plan",
-  "token",
-  "streaming",
-  "agent",
-  "about",
-  "confirm",
+  "keybindings.json",
 ]);
 
 const STATUS_ENUM_VALUES = new Set([
@@ -111,7 +75,7 @@ function hasCjk(text: string): boolean {
 }
 
 function isTestFile(path: string): boolean {
-  return /\.(test|spec|browser)\.[cm]?[jt]sx?$/.test(path);
+  return /\.(test|spec|browser)\.[cm]?[jt]sx?$/.test(path) || path.includes(".browser.");
 }
 
 function isAllowedPath(path: string): boolean {
@@ -197,12 +161,14 @@ function collectScanFiles(): string[] {
     const full = join(ROOT, rel);
     const stat = statSync(full);
     if (stat.isFile()) {
-      files.push(full);
+      if (!isTestFile(full) && !isAllowedPath(full)) {
+        files.push(full);
+      }
       continue;
     }
     walk(full, files);
   }
-  return files;
+  return files.sort();
 }
 
 function walk(dir: string, files: string[] = []): string[] {
@@ -213,9 +179,9 @@ function walk(dir: string, files: string[] = []): string[] {
       walk(full, files);
       continue;
     }
-    if (/\.[cm]?[jt]sx?$/.test(entry)) {
-      files.push(full);
-    }
+    if (!/\.[cm]?[jt]sx?$/.test(entry)) continue;
+    if (isTestFile(full) || isAllowedPath(full)) continue;
+    files.push(full);
   }
   return files;
 }

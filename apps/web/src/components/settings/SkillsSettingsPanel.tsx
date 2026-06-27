@@ -113,8 +113,8 @@ export function SkillsSettingsPanel() {
     <div className="space-y-8">
       <SettingsSection title="可移植 Skill">
         <SettingsRow
-          title="Synara Skill 文件夹"
-          description="放在此处的 Skill 可在所有 Provider 中使用。若某 Provider 已自带同名 Skill，则优先使用该副本；否则回退到 Synara 副本。"
+          title="Synara 技能文件夹"
+          description="放在此处的技能可在所有提供商中使用。若某提供商已自带同名技能，则优先使用该副本；否则回退到 Synara 副本。"
           status={
             synaraSkillsDir ? (
               <code className="break-all text-[11px] text-muted-foreground">{synaraSkillsDir}</code>
@@ -133,8 +133,8 @@ export function SkillsSettingsPanel() {
       {catalogQuery.isError ? (
         <SettingsSection title="Skill">
           <SettingsRow
-            title="Skill 发现失败"
-            description="Synara 无法扫描 Skill 文件夹。请确认服务器正在运行后重试。"
+            title="技能发现失败"
+            description="Synara 无法扫描技能文件夹。请确认服务器正在运行后重试。"
           />
         </SettingsSection>
       ) : null}
@@ -142,7 +142,7 @@ export function SkillsSettingsPanel() {
       {!catalogQuery.isLoading && !catalogQuery.isError && totalSkills === 0 ? (
         <SettingsSection title="Skill">
           <SettingsRow
-            title="未找到 Skill"
+            title="未找到技能"
             description="请在上方 Synara Skill 文件夹中添加包含 SKILL.md 的 Skill 文件夹，或为支持的 Provider 安装 Skill。"
           />
         </SettingsSection>
@@ -190,7 +190,7 @@ export function SkillsSettingsPanel() {
                       onCheckedChange={(checked) =>
                         setSkillEnabled(group.primarySkill.name, Boolean(checked))
                       }
-                      aria-label={`启用 ${group.displayName} Skill`}
+                      aria-label={`启用 ${group.displayName} 技能`}
                     />
                   }
                 />

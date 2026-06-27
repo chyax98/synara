@@ -124,7 +124,7 @@ export function useComposerVoiceController(
     if (pendingUserInputCount > 0) {
       toastManager.add({
         type: "error",
-        title: "先回答 plan 问题，再录制语音便签。",
+        title: "先回答计划问题，再录制语音便签。",
       });
       return;
     }

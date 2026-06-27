@@ -121,7 +121,7 @@ export function formatFileCommentPreview(text: string): string {
 }
 
 export function formatFileCommentTitleSeed(commentCount: number): string {
-  return commentCount === 1 ? "File comment" : "File comments";
+  return commentCount === 1 ? "文件注释" : "文件注释";
 }
 
 export function buildFileCommentsPromptBlock(

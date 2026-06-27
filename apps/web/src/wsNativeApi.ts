@@ -133,12 +133,14 @@ async function requestAuthJson<T>(
   return payload as T;
 }
 
+const BROWSER_TAB_STATUS_LIVE = "live" as const;
+
 function createFallbackTab(url = "about:blank") {
   return {
     id: crypto.randomUUID(),
     url,
     title: defaultBrowserTitle(url),
-    status: "live" as const,
+    status: BROWSER_TAB_STATUS_LIVE,
     isLoading: false,
     canGoBack: false,
     canGoForward: false,
@@ -582,7 +584,7 @@ export function createWsNativeApi(): NativeApi {
       getEnvironment: () => transport.request(WS_METHODS.serverGetEnvironment),
       getSettings: () => transport.request(WS_METHODS.serverGetSettings),
       updateSettings: (input) => transport.request(WS_METHODS.serverUpdateSettings, input),
-      getAuthSession: () => requestAuthJson<AuthSessionState>("/api/auth/session"),
+      getAuthSession: (): Promise<AuthSessionState> => requestAuthJson("/api/auth/session"),
       bootstrapAuth: (input: AuthBootstrapInput) =>
         requestAuthJson<AuthBootstrapResult>("/api/auth/bootstrap", {
           method: "POST",
@@ -607,7 +609,8 @@ export function createWsNativeApi(): NativeApi {
           method: "POST",
           body: input,
         }),
-      listAuthClients: () => requestAuthJson<ReadonlyArray<AuthClientSession>>("/api/auth/clients"),
+      listAuthClients: (): Promise<ReadonlyArray<AuthClientSession>> =>
+        requestAuthJson("/api/auth/clients"),
       revokeAuthClient: (input: AuthRevokeClientSessionInput) =>
         requestAuthJson<{ revoked: boolean }>("/api/auth/clients/revoke", {
           method: "POST",

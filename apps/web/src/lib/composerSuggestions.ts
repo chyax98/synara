@@ -50,10 +50,7 @@ function compactPromptLines(lines: readonly string[]): string {
 
 function projectLabel(project: Project | null | undefined): string {
   return (
-    project?.localName?.trim() ||
-    project?.name?.trim() ||
-    project?.folderName?.trim() ||
-    "this project"
+    project?.localName?.trim() || project?.name?.trim() || project?.folderName?.trim() || "此项目"
   );
 }
 
@@ -77,7 +74,7 @@ function threadTopic(thread: Thread): string {
     return truncateText(title, MAX_TOPIC_LENGTH);
   }
   const prompt = latestUserPrompt(thread);
-  return prompt ? truncateText(prompt, MAX_TOPIC_LENGTH) : "the recent chat";
+  return prompt ? truncateText(prompt, MAX_TOPIC_LENGTH) : "最近的聊天";
 }
 
 function threadFreshnessTime(thread: Thread): number {
@@ -136,12 +133,12 @@ export function deriveComposerSuggestions(
     const topic = threadTopic(latestThread);
     pushUniqueSuggestion(suggestions, {
       id: `continue:${latestThread.id}`,
-      label: `Continue ${topic}`,
-      description: "Pick up from the latest related conversation",
+      label: `继续「${topic}」`,
+      description: "从最近的相关对话继续推进",
       prompt: compactPromptLines([
-        `Continue the recent work on ${topic}.`,
-        "Use the existing project state and the latest chat context.",
-        "Identify the next concrete step, then implement it cleanly.",
+        `继续推进「${topic}」的近期工作。`,
+        "结合当前项目状态与最新聊天上下文。",
+        "确定下一步具体行动，并干净地实现它。",
       ]),
       sourceThreadId: latestThread.id,
     });
@@ -151,12 +148,12 @@ export function deriveComposerSuggestions(
     const topic = threadTopic(secondThread);
     pushUniqueSuggestion(suggestions, {
       id: `review:${secondThread.id}`,
-      label: `Review ${topic} for gaps`,
-      description: "Check the previous thread for missing edges",
+      label: `审查「${topic}」的遗漏`,
+      description: "检查上一轮对话中可能遗漏的边界情况",
       prompt: compactPromptLines([
-        `Review the recent ${topic} work in ${label}.`,
-        "Look for regressions, missing edge cases, and tests that would catch them.",
-        "Fix the highest-impact issue first.",
+        `审查 ${label} 中「${topic}」的近期工作。`,
+        "查找回归、遗漏的边界情况，以及能覆盖它们的测试。",
+        "优先修复影响最大的问题。",
       ]),
       sourceThreadId: secondThread.id,
     });
@@ -165,12 +162,12 @@ export function deriveComposerSuggestions(
   if (latestThread && secondThread) {
     pushUniqueSuggestion(suggestions, {
       id: `connect:${latestThread.id}:${secondThread.id}`,
-      label: `Connect the last two ${label} threads`,
-      description: "Turn recent context into one next step",
+      label: `串联最近两个 ${label} 会话`,
+      description: "把近期上下文整合成下一步行动",
       prompt: compactPromptLines([
-        `Use the latest ${label} chats as context.`,
-        `Connect "${threadTopic(latestThread)}" with "${threadTopic(secondThread)}".`,
-        "Summarize the shared goal, then propose and start the next coherent step.",
+        `以 ${label} 的最新聊天为上下文。`,
+        `串联「${threadTopic(latestThread)}」与「${threadTopic(secondThread)}」。`,
+        "总结共同目标，然后提出并开始下一个连贯步骤。",
       ]),
       sourceThreadId: latestThread.id,
     });
@@ -178,22 +175,22 @@ export function deriveComposerSuggestions(
 
   pushUniqueSuggestion(suggestions, {
     id: "project-next-step",
-    label: `Find the next best ${label} task`,
-    description: "Scan recent work and choose the highest-leverage move",
+    label: `找出 ${label} 的下一个最佳任务`,
+    description: "浏览近期工作并选择收益最高的行动",
     prompt: compactPromptLines([
-      `Look across the recent ${label} work and current repo state.`,
-      "Pick the next high-leverage task, explain why it matters, and start with the safest small change.",
+      `查看 ${label} 的近期工作与当前仓库状态。`,
+      "选出下一个高收益任务，说明其重要性，并从最安全的小改动开始。",
     ]),
   });
 
   pushUniqueSuggestion(suggestions, {
     id: "project-quality-pass",
-    label: `Do a focused quality pass on ${label}`,
-    description: "Tighten behavior, polish, and failure states",
+    label: `对 ${label} 做一次聚焦质量检查`,
+    description: "收紧行为、打磨细节并完善失败状态",
     prompt: compactPromptLines([
-      `Audit ${label} for the most likely rough edge from recent work.`,
-      "Check UI behavior, data flow, and failure states before changing code.",
-      "Then fix the smallest thing that improves reliability.",
+      `审查 ${label} 中近期工作最可能出现的粗糙边界。`,
+      "在改代码前先检查界面行为、数据流和失败状态。",
+      "然后修复能提升可靠性的最小问题。",
     ]),
   });
 
@@ -203,30 +200,24 @@ export function deriveComposerSuggestions(
       id: `starter:${index}`,
       label:
         index === 1
-          ? `Plan the next ${label} improvement`
+          ? `规划 ${label} 的下一项改进`
           : index === 2
-            ? `Inspect ${label} for a quick win`
-            : `Prepare a clean ${label} handoff`,
+            ? `检查 ${label} 的快速收益点`
+            : `准备清晰的 ${label} 交接`,
       description:
         index === 1
-          ? "Choose a clear next step"
+          ? "选择一个明确的下一步"
           : index === 2
-            ? "Find one small useful improvement"
-            : "Capture context and risks",
+            ? "找一个小而实用的改进"
+            : "记录上下文与风险",
       prompt:
         index === 1
-          ? compactPromptLines([
-              `Review the current ${label} state.`,
-              "Suggest a concise next step and begin implementing it.",
-            ])
+          ? compactPromptLines([`查看 ${label} 的当前状态。`, "提出简洁的下一步并开始实现。"])
           : index === 2
-            ? compactPromptLines([
-                `Find one small improvement in ${label}.`,
-                "Prefer reliability, polish, or workflow speed.",
-              ])
+            ? compactPromptLines([`在 ${label} 中找一个小改进。`, "优先可靠性、打磨或工作流速度。"])
             : compactPromptLines([
-                `Summarize what matters in ${label} right now.`,
-                "Call out risks, open decisions, and the next implementation step.",
+                `总结 ${label} 当前最重要的事项。`,
+                "列出风险、待决事项和下一个实现步骤。",
               ]),
     });
   }

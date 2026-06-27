@@ -93,8 +93,8 @@ describe("fileComments", () => {
     expect(formatFileCommentPreview("first line\nsecond line")).toBe("first line");
     expect(formatFileCommentPreview("   ")).toBe("Comment");
     expect(formatFileCommentPreview("x".repeat(60))).toMatch(/…$/);
-    expect(formatFileCommentTitleSeed(1)).toBe("File comment");
-    expect(formatFileCommentTitleSeed(2)).toBe("File comments");
+    expect(formatFileCommentTitleSeed(1)).toBe("文件注释");
+    expect(formatFileCommentTitleSeed(2)).toBe("文件注释");
   });
 
   it("builds a numbered prompt block and skips invalid entries", () => {

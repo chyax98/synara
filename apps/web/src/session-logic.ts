@@ -1328,7 +1328,7 @@ function summarizeSubagentAction(tool: string, count: number): string {
     case "sendinput":
       return `Updating ${pluralize(effectiveCount, "agent")}`;
     default:
-      return effectiveCount === 1 ? "Agent activity" : `Agent activity (${effectiveCount})`;
+      return effectiveCount === 1 ? "代理活动" : `代理活动（${effectiveCount}）`;
   }
 }
 
@@ -1682,16 +1682,16 @@ function deriveCommandActionDisplay(
   switch (normalizeCommandActionType(action.type)) {
     case "read":
     case "readfile":
-      return makeCommandActionDisplay(running ? "Reading" : "Read", commandActionTarget(action));
+      return makeCommandActionDisplay(running ? "正在读取" : "已读取", commandActionTarget(action));
     case "search":
     case "find":
       return makeCommandActionDisplay(
-        running ? "Searching" : "Searched",
+        running ? "正在搜索" : "已搜索",
         commandActionSearchPreview(action),
       );
     case "listfiles":
       return makeCommandActionDisplay(
-        running ? "Listing" : "Listed",
+        running ? "正在列出" : "已列出",
         commandActionListPreview(action),
       );
     default:

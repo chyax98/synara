@@ -514,12 +514,12 @@ export function PluginLibrary() {
           <SidebarHeaderNavigationControls />
           <div className="flex items-end gap-3">
             <TabButton
-              label="Plugins"
+              label="插件"
               active={selectedTab === "plugins"}
               onClick={() => setSelectedTab("plugins")}
             />
             <TabButton
-              label="Skills"
+              label="技能"
               active={selectedTab === "skills"}
               onClick={() => setSelectedTab("skills")}
             />
@@ -556,7 +556,7 @@ export function PluginLibrary() {
           {/* Hero */}
           <div className="px-6 py-10 text-center">
             <h1 className="text-[28px] font-semibold text-foreground">
-              Make {providerLabel} work your way
+              让 {providerLabel} 按你的方式工作
             </h1>
           </div>
 
@@ -565,7 +565,7 @@ export function PluginLibrary() {
             <InputGroup className="rounded-xl bg-background/70 shadow-xs">
               <InputGroupAddon>
                 <InputGroupText>
-                  <SearchIcon className="搜索插件" />
+                  <SearchIcon className="size-4" />
                 </InputGroupText>
               </InputGroupAddon>
               <InputGroupInput
@@ -574,7 +574,7 @@ export function PluginLibrary() {
                   if (selectedTab === "plugins") setPluginSearch(e.target.value);
                   else setSkillSearch(e.target.value);
                 }}
-                placeholder={selectedTab === "plugins" ? "Search plugins" : "Search skills"}
+                placeholder={selectedTab === "plugins" ? "搜索插件" : "搜索技能"}
                 className="text-sm"
               />
             </InputGroup>
@@ -612,8 +612,8 @@ export function PluginLibrary() {
                 {!canListPlugins ? (
                   <div className="mx-auto max-w-2xl">
                     <EmptyPanel
-                      title={`Plugins unavailable for ${providerLabel}`}
-                      description="This provider does not expose plugin discovery."
+                      title={`${providerLabel} 不可用插件发现`}
+                      description="该提供商未暴露插件发现能力。"
                     />
                   </div>
                 ) : pluginsQuery.isLoading && pluginEntries.length === 0 ? (
@@ -623,10 +623,7 @@ export function PluginLibrary() {
                     ))}
                   </div>
                 ) : filteredPluginEntries.length === 0 ? (
-                  <EmptyPanel
-                    title="No installed plugins found"
-                    description="该 provider 未暴露技能发现能力。"
-                  />
+                  <EmptyPanel title="未找到已安装的插件" description="当前没有匹配的已安装插件。" />
                 ) : (
                   <div className="space-y-6">
                     {marketplaceSections.map((section) => (
@@ -647,8 +644,8 @@ export function PluginLibrary() {
                 {!canListSkills ? (
                   <div className="mx-auto max-w-2xl">
                     <EmptyPanel
-                      title={`Skills unavailable for ${providerLabel}`}
-                      description="This provider does not expose skill discovery."
+                      title={`${providerLabel} 不可用技能发现`}
+                      description="该提供商未暴露技能发现能力。"
                     />
                   </div>
                 ) : skillsQuery.isLoading && discoveredSkills.length === 0 ? (

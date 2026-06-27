@@ -115,7 +115,7 @@ describe("groupCommandItems", () => {
       },
       {
         id: "provider",
-        label: "Provider",
+        label: "提供商",
         items: [items[1]],
       },
       {

@@ -6,9 +6,9 @@ export interface StateStorage<R = unknown> {
   removeItem: (name: string) => R;
 }
 
-export interface DebouncedStorage<R = unknown> extends StateStorage<R> {
+export type DebouncedStorage<R = unknown> = StateStorage<R> & {
   flush: () => void;
-}
+};
 
 export function createMemoryStorage(): StateStorage {
   const store = new Map<string, string>();

@@ -185,7 +185,7 @@ export class WsTransport {
         (input: unknown) => Effect.Effect<unknown, WsTransportRpcError, never>
       >
     )[method];
-    if (!call) throw new WsTransportRpcError({ message: `Unknown RPC method: ${method}` });
+    if (!call) throw new WsTransportRpcError({ message: `未知的 RPC 方法：${method}` });
     return (await this.runtime.runPromise(call(normalizedRpcInput))) as T;
   }
 

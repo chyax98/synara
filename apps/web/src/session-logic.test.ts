@@ -1119,7 +1119,7 @@ describe("deriveWorkLogEntries", () => {
     const [entry] = deriveWorkLogEntries(activities, undefined);
     expect(entry?.toolDetails).toEqual({
       kind: "command",
-      title: "Searched",
+      title: "已搜索",
       command: `/bin/zsh -lc 'rg -n "toolDetails" apps/web/src'`,
       output: {
         stdout: "apps/web/src/session-logic.ts:55: toolDetails\nsecond line",
@@ -1151,7 +1151,7 @@ describe("deriveWorkLogEntries", () => {
     const [entry] = deriveWorkLogEntries(activities, undefined);
     expect(entry?.toolDetails).toEqual({
       kind: "command",
-      title: "Ran",
+      title: "已运行",
       command: "gemini --version",
       output: {
         output: "gemini 1.2.3\n",
@@ -1221,7 +1221,7 @@ describe("deriveWorkLogEntries", () => {
     expect(entry?.command).toBe(
       `/bin/zsh -lc "sed -n '240,520p' src/components/provider-card.tsx"`,
     );
-    expect(entry?.toolTitle).toBe("Read");
+    expect(entry?.toolTitle).toBe("已读取");
   });
 
   it("humanizes generic command titles for better readability", () => {
@@ -1243,7 +1243,7 @@ describe("deriveWorkLogEntries", () => {
     ];
 
     const [entry] = deriveWorkLogEntries(activities, undefined);
-    expect(entry?.toolTitle).toBe("Searched");
+    expect(entry?.toolTitle).toBe("已搜索");
   });
 
   it("recovers Cursor tool details from stored rawOutput when rawInput is empty", () => {
@@ -1372,7 +1372,7 @@ describe("deriveWorkLogEntries", () => {
         payload: {
           itemType: "dynamic_tool_call",
           status: "completed",
-          title: "Searched",
+          title: "已搜索",
           data: {
             toolCallId: "cursor-find-1",
             kind: "search",
@@ -1388,7 +1388,7 @@ describe("deriveWorkLogEntries", () => {
     expect(deriveWorkLogEntries(activities, undefined)).toMatchObject([
       {
         id: "cursor-searched",
-        toolTitle: "Searched",
+        toolTitle: "已搜索",
         detail: "52 files found",
         itemType: "dynamic_tool_call",
       },
@@ -1467,7 +1467,7 @@ describe("deriveWorkLogEntries", () => {
       {
         id: "codex-command-json-args",
         command: 'rg -n "thread.create" apps/server/src',
-        toolTitle: "Searching",
+        toolTitle: "正在搜索",
       },
     ]);
   });
@@ -1494,7 +1494,7 @@ describe("deriveWorkLogEntries", () => {
       {
         id: "codex-command-raw-input",
         command: "git status --short",
-        toolTitle: "Checked",
+        toolTitle: "已检查",
       },
     ]);
   });
@@ -1533,7 +1533,7 @@ describe("deriveWorkLogEntries", () => {
         id: "codex-command-actions",
         command: "sed -n '1,220p' README.md",
         rawCommand: `/bin/zsh -lc "sed -n '1,220p' README.md"`,
-        toolTitle: "Reading",
+        toolTitle: "正在读取",
         preview: "README.md",
       },
     ]);
@@ -1573,7 +1573,7 @@ describe("deriveWorkLogEntries", () => {
         id: "codex-search-action",
         command: "find apps packages -maxdepth 2 -name package.json -print",
         rawCommand: "/bin/zsh -lc 'find apps packages -maxdepth 2 -name package.json -print'",
-        toolTitle: "Searched",
+        toolTitle: "已搜索",
         preview: "for package.json in apps",
       },
     ]);
@@ -1607,7 +1607,7 @@ describe("deriveWorkLogEntries", () => {
         id: "codex-unknown-action",
         command: "git status --short",
         rawCommand: "/bin/zsh -lc 'git status --short'",
-        toolTitle: "Checked",
+        toolTitle: "已检查",
       },
     ]);
   });
@@ -1647,7 +1647,7 @@ describe("deriveWorkLogEntries", () => {
         id: "codex-full-db-shape",
         command: "git status --short",
         rawCommand: "/bin/zsh -lc 'git status --short'",
-        toolTitle: "Checked",
+        toolTitle: "已检查",
       },
     ]);
   });
@@ -1700,7 +1700,7 @@ describe("deriveWorkLogEntries", () => {
         id: "codex-completed-rich",
         command: "git status --short",
         rawCommand: "/bin/zsh -lc 'git status --short'",
-        toolTitle: "Checked",
+        toolTitle: "已检查",
       },
     ]);
   });
@@ -1759,7 +1759,7 @@ describe("deriveWorkLogEntries", () => {
         id: "codex-direct-command-actions",
         command: "ls -la",
         rawCommand: `/bin/zsh -lc "ls -la"`,
-        toolTitle: "Listing",
+        toolTitle: "正在列出",
         preview: "current directory",
       },
     ]);
@@ -1977,7 +1977,7 @@ describe("deriveWorkLogEntries", () => {
         summary: "Searched",
         payload: {
           itemType: "dynamic_tool_call",
-          title: "Searched",
+          title: "已搜索",
           data: {
             kind: "search",
             rawOutput: {
@@ -2157,7 +2157,7 @@ describe("deriveWorkLogEntries", () => {
     ];
 
     const [entry] = deriveWorkLogEntries(activities, undefined);
-    expect(entry?.toolTitle).toBe("Searching");
+    expect(entry?.toolTitle).toBe("正在搜索");
   });
 
   it("collapses Claude-style partial tool-input updates into the final lifecycle row", () => {
@@ -3274,7 +3274,7 @@ describe("PROVIDER_OPTIONS", () => {
     expect(entries).toHaveLength(1);
     const [entry] = entries;
     expect(entry).toMatchObject({
-      toolTitle: "Searched",
+      toolTitle: "已搜索",
       command:
         "find apps packages -maxdepth 2 -name package.json -print -exec sed -n '1,120p' '{}' \";\"",
       preview: "for package.json in apps",

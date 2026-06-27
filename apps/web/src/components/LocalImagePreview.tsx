@@ -114,7 +114,7 @@ export function LocalImageErrorCard(props: {
         <TriangleAlertIcon className="size-4" />
       </span>
       <span className="local-image-error__body">
-        <span className="local-image-error__title">Couldn’t open this image</span>
+        <span className="local-image-error__title">无法打开此图片</span>
         <span className="local-image-error__subtitle">
           The file may have moved or be unavailable.
         </span>
@@ -124,10 +124,10 @@ export function LocalImageErrorCard(props: {
         download={props.downloadName}
         onClick={props.onDownloadClick}
         className="local-image-error__action"
-        aria-label={props.downloadAriaLabel ?? "Download image"}
+        aria-label={props.downloadAriaLabel ?? "下载图片"}
       >
         <DownloadIcon className="size-3.5" aria-hidden="true" />
-        <span>Download</span>
+        <span>下载</span>
       </a>
     </span>
   );
@@ -174,8 +174,8 @@ export function LocalImagePreview(props: {
         download={downloadName}
         onClick={handleDownloadClick}
         className="local-image-preview__download"
-        aria-label="Download image"
-        title="Download"
+        aria-label="下载图片"
+        title="下载"
       >
         <DownloadIcon className="size-3.5" aria-hidden="true" />
       </a>

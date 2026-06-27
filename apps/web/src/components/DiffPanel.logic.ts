@@ -172,7 +172,7 @@ export function resolveDiffPanelPickerLabel(
     if (source.turnId !== null) {
       return "Turn diff";
     }
-    return turnScopeIntent === "last" ? "Last turn" : "All turns";
+    return turnScopeIntent === "last" ? "上一轮" : "所有轮次";
   }
   return REPO_DIFF_SCOPE_LABELS[source.scope];
 }

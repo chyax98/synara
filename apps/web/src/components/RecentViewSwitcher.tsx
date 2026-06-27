@@ -101,7 +101,7 @@ export function RecentViewSwitcher(props: {
     <div className="pointer-events-none fixed inset-0 z-[90] flex items-start justify-center pt-[14vh]">
       <div
         role="listbox"
-        aria-label="Recent views"
+        aria-label="最近视图"
         aria-activedescendant={`recent-view-switcher-${selectedIndex}`}
         className="w-[min(34rem,calc(100vw-2rem))] overflow-hidden rounded-xl border border-border/70 bg-popover/95 text-popover-foreground shadow-2xl shadow-black/30 backdrop-blur-xl"
       >
@@ -139,9 +139,9 @@ export function RecentViewSwitcher(props: {
                 </div>
                 <div className="flex shrink-0 items-center gap-1.5 text-muted-foreground">
                   {entry.isSplit ? (
-                    <PanelLeftIcon className="size-3.5" aria-label="Split view" />
+                    <PanelLeftIcon className="size-3.5" aria-label="分屏视图" />
                   ) : null}
-                  {entry.isPinned ? <PinIcon className="size-3.5" aria-label="Pinned" /> : null}
+                  {entry.isPinned ? <PinIcon className="size-3.5" aria-label="已固定" /> : null}
                 </div>
               </div>
             );

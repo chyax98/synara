@@ -100,7 +100,7 @@ export const PdfPageView = memo(function PdfPageView({
       <canvas
         ref={canvasRef}
         className="pdf-viewer-page__canvas"
-        aria-label={`Page ${pageNumber}`}
+        aria-label={`第 ${pageNumber} 页`}
       />
       <div
         ref={textLayerRef}
@@ -161,7 +161,7 @@ function PdfLinkAnchor({
       type="button"
       className="pdf-viewer-page__link"
       style={style}
-      aria-label={`Go to page ${link.targetPageNumber}`}
+      aria-label={`跳转到第 ${link.targetPageNumber} 页`}
       onClick={() => {
         if (link.targetPageNumber != null) {
           onJumpToPage(link.targetPageNumber);

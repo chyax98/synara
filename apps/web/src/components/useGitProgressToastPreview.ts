@@ -19,13 +19,13 @@ interface PreviewStage {
 
 const PREVIEW_STAGES: PreviewStage[] = [
   { type: "loading", title: "正在生成提交信息..." },
-  { type: "loading", title: "Pushing..." },
-  { type: "success", title: "已提交到 codex/redesign" },
-  { type: "success", title: "已推送 3a1f2c 到 main" },
+  { type: "loading", title: "正在推送…" },
+  { type: "success", title: "已提交到 Codex/重构分支" },
+  { type: "success", title: "已推送 3a1f2c 到主分支" },
   {
     type: "success",
-    title: "Chat 完成",
-    description: "修复 auth 流程 — 已更新 3 个文件",
+    title: "聊天完成",
+    description: "修复认证流程 — 已更新 3 个文件",
     hasAction: true,
   },
   {
@@ -37,11 +37,11 @@ const PREVIEW_STAGES: PreviewStage[] = [
   {
     type: "error",
     title: "操作失败",
-    description: "fatal: 无法访问 upstream remote",
-    copyText: "fatal: 无法访问 upstream remote",
+    description: "错误：无法访问上游远程仓库",
+    copyText: "错误：无法访问上游远程仓库",
   },
-  { type: "info", title: "已是最新", description: "main 已同步。" },
-  { type: "warning", title: "branch 落后上游" },
+  { type: "info", title: "已是最新", description: "主分支已同步。" },
+  { type: "warning", title: "分支落后上游" },
 ];
 
 const STAGE_DURATION_MS = 3_000;

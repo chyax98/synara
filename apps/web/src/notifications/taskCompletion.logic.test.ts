@@ -476,7 +476,7 @@ describe("buildInputNeededCopy", () => {
         requestKind: "command",
       }),
     ).toEqual({
-      title: "Input needed",
+      title: "需要输入",
       body: "Polish notifications: Command approval requested.",
     });
   });
@@ -492,7 +492,7 @@ describe("buildInputNeededCopy", () => {
         requestId: ApprovalRequestId.makeUnsafe("user-input-request-1"),
       }),
     ).toEqual({
-      title: "Input needed",
+      title: "需要输入",
       body: "Polish notifications: User input requested.",
     });
   });

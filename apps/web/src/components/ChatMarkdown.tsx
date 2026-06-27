@@ -820,8 +820,8 @@ function MarkdownCodeBlock({
           <IconButton
             className="chat-markdown-codeblock__action"
             onClick={toggleWrap}
-            title={wrap ? "Disable soft wrap" : "Enable soft wrap"}
-            label={wrap ? "Disable soft wrap" : "Enable soft wrap"}
+            title={wrap ? "关闭自动换行" : "开启自动换行"}
+            label={wrap ? "关闭自动换行" : "开启自动换行"}
             aria-pressed={wrap}
             data-active={wrap ? "true" : "false"}
             size="icon-xs"
@@ -832,8 +832,8 @@ function MarkdownCodeBlock({
           <IconButton
             className="chat-markdown-codeblock__action"
             onClick={handleCopy}
-            title={copied ? "Copied" : "Copy code"}
-            label={copied ? "Copied" : "Copy code"}
+            title={copied ? "已复制" : "复制代码"}
+            label={copied ? "已复制" : "复制代码"}
             size="icon-xs"
             variant="ghost"
           >

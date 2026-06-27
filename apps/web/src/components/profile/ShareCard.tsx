@@ -38,10 +38,10 @@ export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(function Sha
   ref,
 ) {
   const tiles: Tile[] = [
-    { value: formatCompact(tokenStats?.lifetimeTotalTokens ?? null), label: "lifetime tokens" },
-    { value: formatCompact(tokenStats?.peakDayTokens ?? null), label: "peak day" },
-    { value: formatDays(stats.activity.currentStreakDays), label: "current streak" },
-    { value: formatDays(stats.activity.longestStreakDays), label: "longest streak" },
+    { value: formatCompact(tokenStats?.lifetimeTotalTokens ?? null), label: "累计词元" },
+    { value: formatCompact(tokenStats?.peakDayTokens ?? null), label: "峰值日" },
+    { value: formatDays(stats.activity.currentStreakDays), label: "当前连续天数" },
+    { value: formatDays(stats.activity.longestStreakDays), label: "最长连续天数" },
   ];
 
   const heatmapCells = stats.activity.heatmap.slice(-CARD_HEATMAP_DAYS);

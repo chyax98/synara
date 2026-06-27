@@ -231,8 +231,8 @@ describe("automation shared route helpers", () => {
   it("labels non-minute interval cadences without rounding", () => {
     const schedule = { type: "interval", everySeconds: 90 } as const;
 
-    expect(formatSchedule(schedule)).toBe("Every 90 sec");
-    expect(formatCadence(schedule)).toBe("Every 90s");
+    expect(formatSchedule(schedule)).toBe("每 90 秒");
+    expect(formatCadence(schedule)).toBe("每 90 秒");
   });
 
   it("requires a hard iteration cap for sub-minute interval forms", () => {
@@ -247,7 +247,7 @@ describe("automation shared route helpers", () => {
     const cappedForm = { ...form, maxIterations: "10" };
 
     expect(automationFastIntervalLimitMessage(form)).toBe(
-      "Intervals under one minute need max iterations set to 10 runs or fewer.",
+      "间隔低于 1 分钟时，最大迭代次数需设为 10 次或更少。",
     );
     expect(isFormSubmittable(form)).toBe(false);
     expect(automationFastIntervalLimitMessage(cappedForm)).toBeNull();

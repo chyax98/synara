@@ -201,17 +201,17 @@ function ToastActions({
     <div className="mt-2 flex flex-wrap items-center gap-1.5">
       {copyText && (
         <Button
-          aria-label={isCopied ? "Copied error message" : "Copy error message"}
+          aria-label={isCopied ? "已复制错误信息" : "复制错误信息"}
           className="self-start rounded-md border-[var(--notification-fg)]/20 bg-[var(--notification-fg)]/10 text-[var(--notification-fg)] hover:bg-[var(--notification-fg)]/20"
           onClick={() => {
             copyToClipboard(copyText, undefined);
           }}
           size="xs"
-          title={isCopied ? "Copied error message" : "Copy error message"}
+          title={isCopied ? "已复制错误信息" : "复制错误信息"}
           variant="outline"
         >
           {isCopied ? <CheckIcon className="size-3" /> : <CopyIcon className="size-3" />}
-          <span>{isCopied ? "Copied" : "Copy"}</span>
+          <span>{isCopied ? "已复制" : "复制"}</span>
         </Button>
       )}
       {actionProps && (
@@ -254,7 +254,7 @@ function ToastCloseButton({
   return (
     <button
       type="button"
-      aria-label="Dismiss toast"
+      aria-label="关闭提示"
       className={cn(
         // pointer-events-auto keeps the X clickable even when a stacked/collapsed
         // toast still gates its content with pointer-events-none.
@@ -266,7 +266,7 @@ function ToastCloseButton({
         onClose?.();
         onDismiss();
       }}
-      title="Dismiss toast"
+      title="关闭提示"
     >
       <XIcon className={compact ? "size-3" : "size-3.5"} />
     </button>

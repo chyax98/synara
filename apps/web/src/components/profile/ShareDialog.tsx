@@ -124,7 +124,7 @@ export function ShareDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogPopup surface="solid" className="sm:max-w-[560px]">
-        <DialogTitle className="text-center text-xl">Share your activity</DialogTitle>
+        <DialogTitle className="text-center text-xl">分享你的活动</DialogTitle>
         <div className="mt-5 flex flex-col items-center gap-7 px-2 pb-3">
           <div
             ref={previewRef}
@@ -155,14 +155,14 @@ export function ShareDialog({
               <SiX className="size-5" />
             </ShareButton>
             <ShareButton
-              label="LinkedIn"
+              label="领英"
               busy={busy === "linkedin"}
               onClick={() => void handleShare("linkedin")}
             >
               <FaLinkedinIn className="size-5" />
             </ShareButton>
             <ShareButton
-              label="Reddit"
+              label="红迪"
               busy={busy === "reddit"}
               onClick={() => void handleShare("reddit")}
             >
@@ -194,7 +194,7 @@ function ShareButton({ label, busy, onClick, children }: ShareButtonProps) {
         type="button"
         onClick={onClick}
         disabled={busy}
-        aria-label={`Share to ${label}`}
+        aria-label={`分享到 ${label}`}
         className={cn(
           "flex size-14 items-center justify-center rounded-full bg-foreground text-background transition-opacity",
           "hover:opacity-90 disabled:opacity-50",

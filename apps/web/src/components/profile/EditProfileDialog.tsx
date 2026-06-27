@@ -102,7 +102,7 @@ export function EditProfileDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogPopup surface="solid" showCloseButton={false} className="sm:max-w-[500px]">
-        <DialogTitle className="px-4 pt-4 text-lg">Edit profile</DialogTitle>
+        <DialogTitle className="px-4 pt-4 text-lg">编辑资料</DialogTitle>
 
         <div className="flex flex-col gap-4 px-4 pt-3">
           {/* Avatar */}
@@ -118,7 +118,7 @@ export function EditProfileDialog({
               <button
                 type="button"
                 onClick={() => setShowEditor((value) => !value)}
-                aria-label="Edit avatar"
+                aria-label="编辑头像"
                 className={cn(
                   "absolute bottom-0 end-0 flex size-7 items-center justify-center rounded-full",
                   "bg-black/45 text-white backdrop-blur-sm transition-colors hover:bg-black/60",
@@ -151,7 +151,7 @@ export function EditProfileDialog({
                     onClick={() => fileInputRef.current?.click()}
                   >
                     <CentralIcon name="add-image" className="size-3.5" />
-                    {processing ? "Processing…" : draftImage ? "Replace photo" : "Upload photo"}
+                    {processing ? "处理中…" : draftImage ? "更换照片" : "上传照片"}
                   </Button>
                   {draftImage && (
                     <Button
@@ -176,7 +176,7 @@ export function EditProfileDialog({
                       key={color}
                       type="button"
                       onClick={() => setDraftColor(color)}
-                      aria-label={`Use ${color}`}
+                      aria-label={`使用 ${color}`}
                       className={cn(
                         "size-5 rounded-full transition-transform hover:scale-110",
                         !draftImage &&
@@ -206,7 +206,7 @@ export function EditProfileDialog({
                 <InputGroupInput
                   value={draftName}
                   onChange={(event) => setDraftName(event.target.value)}
-                  placeholder="Your name"
+                  placeholder="你的姓名"
                 />
               </InputGroup>
             </Field>
@@ -220,7 +220,7 @@ export function EditProfileDialog({
                   onChange={(event) =>
                     setDraftHandle(event.target.value.replace(/^@+/, "").replace(/\s+/g, ""))
                   }
-                  placeholder="username"
+                  placeholder="用户名"
                 />
               </InputGroup>
             </Field>

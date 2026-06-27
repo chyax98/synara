@@ -2809,8 +2809,8 @@ export default function ChatView({
           id: "fork-target:worktree",
           type: "fork-target" as const,
           target: "worktree" as const,
-          label: "分叉到新 worktree",
-          description: "在新 worktree 中继续",
+          label: "分叉到新工作树",
+          description: "在新工作树中继续",
         },
         {
           id: "fork-target:local",
@@ -5327,7 +5327,7 @@ export default function ChatView({
     if (pendingUserInputs.length > 0) {
       toastManager.add({
         type: "error",
-        title: "先回答 plan 问题，再录制语音便签。",
+        title: "先回答计划问题，再录制语音便签。",
       });
       return;
     }
@@ -5501,7 +5501,7 @@ export default function ChatView({
       if (pendingUserInputs.length > 0) {
         toastManager.add({
           type: "error",
-          title: "请先回答 plan 问题，再附加图片。",
+          title: "请先回答计划问题，再附加图片。",
         });
         return;
       }
@@ -5545,7 +5545,7 @@ export default function ChatView({
       if (pendingUserInputs.length > 0) {
         toastManager.add({
           type: "error",
-          title: "请先回答 plan 问题，再附加文件。",
+          title: "请先回答计划问题，再附加文件。",
         });
         return;
       }

@@ -43,7 +43,7 @@ describe("buildTerminalCloseConfirmationMessage", () => {
       }),
     ).toBe(
       [
-        'Close terminal "Deploy shell"?',
+        "Close 终端「Deploy shell」?",
         "This permanently clears the terminal history for this tab.",
       ].join("\n"),
     );
@@ -57,7 +57,7 @@ describe("buildTerminalCloseConfirmationMessage", () => {
       }),
     ).toBe(
       [
-        'Close terminal "Codex 1"?',
+        "Close 终端「Codex 1」?",
         "This permanently clears the terminal history for this tab and deletes the empty terminal thread.",
       ].join("\n"),
     );
@@ -91,7 +91,7 @@ describe("confirmTerminalTabClose", () => {
     ).resolves.toBe(true);
     expect(confirm).toHaveBeenCalledWith(
       [
-        'Close terminal "Deploy shell"?',
+        "Close 终端「Deploy shell」?",
         "This permanently clears the terminal history for this tab and deletes the empty terminal thread.",
       ].join("\n"),
     );

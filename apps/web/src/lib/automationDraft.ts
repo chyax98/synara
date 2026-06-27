@@ -74,33 +74,32 @@ export function buildAutomationDraftWarnings(input: {
   if (input.hasEphemeralContext) {
     warnings.push({
       id: "attachments-not-persisted",
-      title: "Composer context is not persisted",
-      detail:
-        "Attachments, provider mentions, pasted context, and terminal snippets will not be replayed on scheduled runs.",
+      title: "输入区上下文不会保留",
+      detail: "附件、提供商提及、粘贴的上下文和终端片段不会在定时运行时重放。",
       requiresAcknowledgement: true,
     });
   }
   if (input.schedule.type === "manual") {
     warnings.push({
       id: "missing-schedule",
-      title: "Schedule needs review",
-      detail: "Choose when this automation should run before creating it.",
+      title: "需要确认计划",
+      detail: "创建前请选择此自动化的运行时间。",
       requiresAcknowledgement: false,
     });
   }
   if (input.schedule.type === "interval" && input.schedule.everySeconds < 60) {
     warnings.push({
       id: "fast-recurring-interval",
-      title: "Fast recurring loop",
-      detail: "Intervals under one minute can create noisy unattended runs.",
+      title: "高频循环",
+      detail: "低于一分钟的间隔可能产生嘈杂的无人值守运行。",
       requiresAcknowledgement: true,
     });
   }
   if (input.runtimeMode === "full-access") {
     warnings.push({
       id: "full-access",
-      title: "Full access",
-      detail: "Scheduled full-access runs can make changes without per-step approval.",
+      title: "完整访问",
+      detail: "定时完整访问运行可在无逐步审批的情况下进行修改。",
       requiresAcknowledgement: true,
     });
   }
@@ -110,12 +109,11 @@ export function buildAutomationDraftWarnings(input: {
   ) {
     warnings.push({
       id: "local-checkout",
-      title:
-        input.worktreeMode === "auto" ? "Auto fallback may use local checkout" : "Local checkout",
+      title: input.worktreeMode === "auto" ? "自动回退可能使用本地检出" : "本地检出",
       detail:
         input.worktreeMode === "auto"
-          ? "If Synara cannot create a worktree, runs may fall back to editing the active project checkout."
-          : "Runs may edit files in the active project checkout.",
+          ? "若 Synara 无法创建工作树，运行可能会回退到编辑当前项目检出。"
+          : "运行可能会编辑当前项目检出中的文件。",
       requiresAcknowledgement: true,
     });
   }
@@ -125,8 +123,8 @@ export function buildAutomationDraftWarnings(input: {
   ) {
     warnings.push({
       id: "worktree-cleanup",
-      title: "Worktree cleanup",
-      detail: "Generated worktrees or branches are kept after archiving until you remove them.",
+      title: "工作树清理",
+      detail: "生成的工作树或分支在归档后会保留，直到你手动移除。",
       requiresAcknowledgement: false,
     });
   }
@@ -136,17 +134,16 @@ export function buildAutomationDraftWarnings(input: {
   ) {
     warnings.push({
       id: "generated-low-confidence",
-      title: "Review generated fields",
-      detail: "Synara was not fully confident about the parsed automation fields.",
+      title: "请检查生成的字段",
+      detail: "Synara 对解析出的自动化字段信心不足。",
       requiresAcknowledgement: false,
     });
   }
   if (containsAutomationSkillReference(input.prompt)) {
     warnings.push({
       id: "skill-reference",
-      title: "Skill reference kept in prompt",
-      detail:
-        "Skill tokens stay as prompt text unless the selected provider can resolve them at run time.",
+      title: "提示中保留了技能引用",
+      detail: "除非所选提供商能在运行时解析，否则技能标记会保留为提示文本。",
       requiresAcknowledgement: false,
     });
   }

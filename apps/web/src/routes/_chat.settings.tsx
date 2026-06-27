@@ -1243,7 +1243,7 @@ function SettingsRouteView() {
           />
 
           <SettingsRow
-            title="Terminal 字体"
+            title="终端字体"
             description="输入本机已安装的等宽字体名称。留空则使用默认字体；未安装的字体将回退到系统等宽字体。"
             resetAction={
               settings.terminalFontFamily !== defaults.terminalFontFamily ? (
@@ -1419,14 +1419,14 @@ function SettingsRouteView() {
         {renderBooleanSettingRow({
           settingKey: "enableAssistantStreaming",
           title: "助手输出",
-          description: "在回复进行中逐 token 显示输出。",
+          description: "在回复进行中逐词元显示输出。",
           resetLabel: "助手输出",
           ariaLabel: "流式显示助手消息",
         })}
 
         {renderBooleanSettingRow({
           settingKey: "diffWordWrap",
-          title: "Diff 自动换行",
+          title: "差异自动换行",
           description: "设置打开差异面板时的默认换行状态。面板内换行开关仅影响当前差异会话。",
           resetLabel: "差异自动换行",
           ariaLabel: "默认换行显示差异",

@@ -46,11 +46,11 @@ export async function showFileReferenceContextMenu(input: {
         ? [
             {
               id: "ask-why-in-chat" as const,
-              label: rangeLabel ? `Ask why ${rangeLabel} changed` : "Ask why this changed",
+              label: rangeLabel ? `询问 ${rangeLabel} 为何变更` : "询问为何变更",
             },
           ]
         : []),
-      { id: "copy-path" as const, label: "Copy path" },
+      { id: "copy-path" as const, label: "复制路径" },
     ],
     input.position,
   );

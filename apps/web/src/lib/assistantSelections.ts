@@ -90,7 +90,7 @@ export function formatAssistantSelectionPreview(text: string): string {
 }
 
 export function formatAssistantSelectionQueuePreview(selectionCount: number): string {
-  return selectionCount === 1 ? "1 referenced selection" : "Referenced selections";
+  return selectionCount === 1 ? "1 个引用选择" : "引用的选择";
 }
 
 export function formatAssistantSelectionTitleSeed(selectionCount: number): string {

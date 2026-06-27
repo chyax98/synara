@@ -203,7 +203,7 @@ function ComboboxItem({
       data-slot="combobox-item"
       {...props}
     >
-      <div className={hideIndicator ? "col-start-1 col-span-full" : "col-start-1 min-w-0"}>
+      <div className={cn("col-start-1", hideIndicator ? "col-span-full" : "min-w-0")}>
         {children}
       </div>
       <ComboboxPrimitive.ItemIndicator
@@ -349,7 +349,7 @@ function ComboboxChip({ children, ...props }: ComboboxPrimitive.Chip.Props) {
 function ComboboxChipRemove(props: ComboboxPrimitive.ChipRemove.Props) {
   return (
     <ComboboxPrimitive.ChipRemove
-      aria-label="Remove"
+      aria-label="移除"
       className="h-full shrink-0 cursor-pointer px-1.5 opacity-80 hover:opacity-100 [&_svg:not([class*='size-'])]:size-4 sm:[&_svg:not([class*='size-'])]:size-3.5"
       data-slot="combobox-chip-remove"
       {...props}

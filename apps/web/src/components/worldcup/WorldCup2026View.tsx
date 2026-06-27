@@ -311,7 +311,7 @@ export function WorldCup2026View() {
               ref={ballRef}
               role="button"
               tabIndex={0}
-              aria-label="Drag and throw the ball"
+              aria-label="拖动并投掷足球"
               onPointerDown={handlePointerDown}
               onPointerMove={handlePointerMove}
               onPointerUp={endDrag}
@@ -333,7 +333,7 @@ export function WorldCup2026View() {
                   variant="ghost"
                   size="icon-sm"
                   className="size-9 rounded-full text-white/90 hover:bg-white/15 hover:text-white"
-                  aria-label="Spin counter-clockwise"
+                  aria-label="逆时针旋转"
                   onClick={() => applySpin(-1)}
                 >
                   <IoIosArrowRoundBack className="size-7" />
@@ -343,7 +343,7 @@ export function WorldCup2026View() {
                   variant="ghost"
                   size="icon-sm"
                   className="size-9 rounded-full text-white/90 hover:bg-white/15 hover:text-white"
-                  aria-label="Reset ball to center"
+                  aria-label="将足球重置到中心"
                   onClick={resetBall}
                 >
                   <RotateCcwIcon className="size-4" />
@@ -353,7 +353,7 @@ export function WorldCup2026View() {
                   variant="ghost"
                   size="icon-sm"
                   className="size-9 rounded-full text-white/90 hover:bg-white/15 hover:text-white"
-                  aria-label="Spin clockwise"
+                  aria-label="顺时针旋转"
                   onClick={() => applySpin(1)}
                 >
                   <IoIosArrowRoundForward className="size-7" />

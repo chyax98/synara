@@ -141,11 +141,11 @@ export function useCopyToClipboard<TContext = void>({
 export function useCopyPathToClipboard(): (path: string) => void {
   const { copyToClipboard } = useCopyToClipboard<{ path: string }>({
     onCopy: (ctx) =>
-      toastManager.add({ type: "success", title: "Path copied", description: ctx.path }),
+      toastManager.add({ type: "success", title: "路径已复制", description: ctx.path }),
     onError: (error) =>
       toastManager.add({
         type: "error",
-        title: "Failed to copy path",
+        title: "复制路径失败",
         description: error instanceof Error ? error.message : "An error occurred.",
       }),
   });
@@ -156,11 +156,11 @@ export function useCopyPathToClipboard(): (path: string) => void {
 export function useCopyThreadIdToClipboard(): (threadId: string) => void {
   const { copyToClipboard } = useCopyToClipboard<{ threadId: string }>({
     onCopy: (ctx) =>
-      toastManager.add({ type: "success", title: "Thread ID copied", description: ctx.threadId }),
+      toastManager.add({ type: "success", title: "会话 ID 已复制", description: ctx.threadId }),
     onError: (error) =>
       toastManager.add({
         type: "error",
-        title: "Failed to copy thread ID",
+        title: "复制会话 ID 失败",
         description: error instanceof Error ? error.message : "An error occurred.",
       }),
   });

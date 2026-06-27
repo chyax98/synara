@@ -139,8 +139,8 @@ export function RuntimeUsageControls({
                 )}
                 title={
                   runtimeMode === "full-access"
-                    ? "Full access — click to change permissions"
-                    : "Default permissions — click to change permissions"
+                    ? "完整访问 — 点击更改权限"
+                    : "默认权限 — 点击更改权限"
                 }
               />
             }
@@ -152,7 +152,7 @@ export function RuntimeUsageControls({
                 <HiOutlineHandRaised className="size-3.5 shrink-0" />
               )}
               <span className={cn("truncate", hideLabel ? "sr-only" : "@max-[480px]:sr-only")}>
-                {runtimeMode === "full-access" ? "Full access" : "Default permissions"}
+                {runtimeMode === "full-access" ? "完整访问" : "默认权限"}
               </span>
               <ChevronDownIcon
                 className={cn(
@@ -182,13 +182,13 @@ export function RuntimeUsageControls({
               >
                 <span className="inline-flex items-center gap-2">
                   <CentralIcon name="shield-access" className="size-4 shrink-0" />
-                  Full access
+                  完整访问
                 </span>
               </MenuRadioItem>
               <MenuRadioItem value="approval-required">
                 <span className="inline-flex items-center gap-2">
                   <HiOutlineHandRaised className="size-4 shrink-0" />
-                  Default permissions
+                  默认权限
                 </span>
               </MenuRadioItem>
             </MenuRadioGroup>
@@ -391,7 +391,7 @@ export default function BranchToolbar({
               className="w-60 min-w-60"
             >
               <MenuGroup>
-                <MenuGroupLabel>Continue in</MenuGroupLabel>
+                <MenuGroupLabel>继续在</MenuGroupLabel>
                 {environmentPresentation.mode === "local" ? (
                   <ContinueInMenuItem
                     icon={<CentralIcon name="macbook-air" className={ENV_MENU_ICON_CLASS_NAME} />}
@@ -408,7 +408,7 @@ export default function BranchToolbar({
                 {canSwitchToWorktree ? (
                   <ContinueInMenuItem
                     icon={<WorktreeGlyph className={ENV_MENU_ICON_CLASS_NAME} />}
-                    label="New worktree"
+                    label="新建工作树"
                     onSelect={() => onEnvModeChange("worktree")}
                   />
                 ) : null}
@@ -422,7 +422,7 @@ export default function BranchToolbar({
                 {canHandoffToWorktree && onHandoffToWorktree ? (
                   <ContinueInMenuItem
                     icon={<WorktreeGlyph className={ENV_MENU_ICON_CLASS_NAME} />}
-                    label="Hand off to new worktree"
+                    label="交接至新工作树"
                     disabled={handoffBusy}
                     onSelect={() => onHandoffToWorktree()}
                   />
@@ -430,7 +430,7 @@ export default function BranchToolbar({
                 {canHandoffToLocal && onHandoffToLocal ? (
                   <ContinueInMenuItem
                     icon={<HandoffIcon className={ENV_MENU_ICON_CLASS_NAME} />}
-                    label="Hand off to local"
+                    label="交接至本地"
                     disabled={handoffBusy}
                     onSelect={() => onHandoffToLocal()}
                   />

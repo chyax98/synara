@@ -25,9 +25,9 @@ import { toastManager } from "./ui/toast";
 // Triggers local-only toast scenarios that are awkward to reproduce through real Git failures.
 function triggerActionFailedToasts(values: Record<ToggleFeatureFlagId, boolean>): void {
   const copyText =
-    "Error: Git command failed in /Users/ibrahime/Documents/Projects/synara\n\n" +
-    "Command: git push upstream main\n" +
-    "fatal: unable to access upstream remote for local debug toast preview";
+    "错误：Git 命令在 /用户/开发者/项目/Synara 中执行失败\n\n" +
+    "命令：git push 上游 主分支\n" +
+    "错误：无法访问上游远程仓库（本地调试提示预览）";
   const toastData = {
     copyText,
     ...(values["persist-action-failed-debug-toasts"] ? {} : { dismissAfterVisibleMs: 30_000 }),
@@ -36,13 +36,13 @@ function triggerActionFailedToasts(values: Record<ToggleFeatureFlagId, boolean>)
   toastManager.add({
     type: "error",
     title: "操作失败",
-    description: "Error: Git command failed in /Users/ibrahime/Documents/Projects/synara",
+    description: "错误：Git 命令在 /用户/开发者/项目/Synara 中执行失败",
     data: toastData,
   });
   toastManager.add({
     type: "error",
     title: "操作失败",
-    description: "Error: Git command failed in /Users/ibrahime/Documents/Projects/synara",
+    description: "错误：Git 命令在 /用户/开发者/项目/Synara 中执行失败",
     data: toastData,
   });
 }
@@ -61,7 +61,7 @@ export function DebugFeatureFlagsMenu() {
         }
       >
         <FlagIcon className="size-[15px]" />
-        <span>Feature flags</span>
+        <span>功能开关</span>
       </MenuTrigger>
       <MenuPopup
         align="start"
@@ -69,7 +69,7 @@ export function DebugFeatureFlagsMenu() {
         className="min-w-72 rounded-lg border-[color:var(--color-border)] bg-[var(--color-background-elevated-primary-opaque)] shadow-lg"
       >
         <MenuGroup>
-          <MenuGroupLabel>Local feature flags</MenuGroupLabel>
+          <MenuGroupLabel>本地功能开关</MenuGroupLabel>
           {FEATURE_FLAGS.map((flag) => {
             if (flag.kind === "action") {
               return (

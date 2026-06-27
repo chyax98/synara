@@ -717,13 +717,13 @@ function deriveSubagentStatus(thread: Thread | undefined): {
   if (thread.error || thread.session?.status === "error") {
     return {
       isActive: false,
-      label: "Error",
+      label: "错误",
     };
   }
   if (thread.session?.status === "connecting") {
     return {
       isActive: true,
-      label: "Connecting",
+      label: "连接中",
     };
   }
   if (
@@ -737,13 +737,13 @@ function deriveSubagentStatus(thread: Thread | undefined): {
   ) {
     return {
       isActive: true,
-      label: "Running",
+      label: "运行中",
     };
   }
   if (thread.session?.status === "closed") {
     return {
       isActive: false,
-      label: "Closed",
+      label: "已关闭",
     };
   }
 

@@ -270,7 +270,7 @@ function FilePreviewLoadingState() {
     <div
       className="min-h-0 flex-1 space-y-2.5 overflow-hidden px-3 py-3"
       role="status"
-      aria-label="Loading file..."
+      aria-label="正在加载文件..."
     >
       {FILE_PREVIEW_SKELETON_LINES.map((line) => (
         <div key={`${line.indent}-${line.width}`} className="flex h-3 items-center gap-2">
@@ -281,7 +281,7 @@ function FilePreviewLoadingState() {
           />
         </div>
       ))}
-      <span className="sr-only">Loading file...</span>
+      <span className="sr-only">正在加载文件...</span>
     </div>
   );
 }
@@ -473,7 +473,7 @@ export function WorkspaceFilePreview(props: WorkspaceFilePreviewProps) {
   if (!props.workspaceRoot && !fileIsScratchBinaryPreview) {
     return (
       <PanelStateMessage density="compact" fill="flex">
-        <p>No workspace is attached to this chat.</p>
+        <p>当前聊天未关联工作区。</p>
       </PanelStateMessage>
     );
   }
@@ -482,7 +482,7 @@ export function WorkspaceFilePreview(props: WorkspaceFilePreviewProps) {
     return (
       props.emptyState ?? (
         <PanelStateMessage density="compact" fill="flex">
-          <p>Select a file from the explorer.</p>
+          <p>从文件浏览器中选择一个文件。</p>
         </PanelStateMessage>
       )
     );
@@ -581,8 +581,8 @@ export function WorkspaceFilePreview(props: WorkspaceFilePreviewProps) {
                 left: hoveredCommentLine.left,
                 height: hoveredCommentLine.height,
               }}
-              aria-label={`Comment on line ${hoveredCommentLine.lineNumber}`}
-              title="Comment"
+              aria-label={`在第 ${hoveredCommentLine.lineNumber} 行评论`}
+              title="评论"
               onMouseDown={(event) => event.preventDefault()}
               onClick={(event) => {
                 event.preventDefault();

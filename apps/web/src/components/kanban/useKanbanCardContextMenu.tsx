@@ -78,7 +78,7 @@ export function useKanbanCardContextMenu(): KanbanCardContextMenuController {
       toastManager.add({
         type: "error",
         title: "无法归档",
-        description: "先停止运行中的会话，再归档此 thread。",
+        description: "先停止运行中的会话，再归档此会话。",
       });
       return;
     }
@@ -125,10 +125,10 @@ export function useKanbanCardContextMenu(): KanbanCardContextMenuController {
         project !== null &&
         (await api.dialogs.confirm(
           [
-            "此 thread 是唯一关联到该 worktree 的会话：",
+            "此会话是唯一关联到该工作树的会话：",
             displayWorktreePath ?? orphanedWorktreePath,
             "",
-            "同时删除 worktree 吗？",
+            "同时删除工作树吗？",
           ].join("\n"),
         ));
 
@@ -173,8 +173,8 @@ export function useKanbanCardContextMenu(): KanbanCardContextMenuController {
       } catch (error) {
         toastManager.add({
           type: "error",
-          title: "thread 已删除，但 worktree 移除失败",
-          description: `Could not remove ${displayWorktreePath ?? orphanedWorktreePath}. ${
+          title: "会话已删除，但工作树移除失败",
+          description: `无法移除 ${displayWorktreePath ?? orphanedWorktreePath}。${
             error instanceof Error ? error.message : "未知错误。"
           }`,
         });
@@ -218,23 +218,23 @@ export function useKanbanCardContextMenu(): KanbanCardContextMenuController {
           [
             ...(isThreadActionCard
               ? [
-                  { id: "rename", label: "重命名 thread" },
+                  { id: "rename", label: "重命名会话" },
                   {
                     id: "toggle-pin",
-                    label: card.thread?.isPinned ? "取消置顶 thread" : "置顶 thread",
+                    label: card.thread?.isPinned ? "取消置顶会话" : "置顶会话",
                   },
                 ]
               : []),
             ...(workspacePath
               ? [{ id: "copy-path", label: "复制路径", separatorBefore: true }]
               : []),
-            ...(isThreadBacked ? [{ id: "copy-thread-id", label: "复制 Thread ID" }] : []),
+            ...(isThreadBacked ? [{ id: "copy-thread-id", label: "复制会话 ID" }] : []),
             ...(isThreadActionCard
-              ? [{ id: "archive", label: "Archive", separatorBefore: true }]
+              ? [{ id: "archive", label: "归档", separatorBefore: true }]
               : []),
             {
               id: "delete",
-              label: deletesOnlyDraft ? "删除草稿" : "Delete",
+              label: deletesOnlyDraft ? "删除草稿" : "删除",
               destructive: true,
               separatorBefore: !isThreadActionCard,
             },
@@ -251,7 +251,7 @@ export function useKanbanCardContextMenu(): KanbanCardContextMenuController {
           void setThreadPinned(card.threadId, next).catch(() => {
             toastManager.add({
               type: "error",
-              title: next ? "无法置顶 thread" : "无法取消置顶 thread",
+              title: next ? "无法置顶会话" : "无法取消置顶会话",
             });
           });
           return;
@@ -269,10 +269,9 @@ export function useKanbanCardContextMenu(): KanbanCardContextMenuController {
           if (!isThreadActionCard) return;
           if (settings.confirmThreadArchive) {
             const confirmed = await api.dialogs.confirm(
-              [
-                `Archive thread "${card.title}"?`,
-                "归档后的 thread 会从侧边栏隐藏，但以后可以恢复。",
-              ].join("\n"),
+              [`归档会话「${card.title}」？`, "已归档的会话会从侧边栏隐藏，但以后可以恢复。"].join(
+                "\n",
+              ),
             );
             if (!confirmed) return;
           }
@@ -283,8 +282,8 @@ export function useKanbanCardContextMenu(): KanbanCardContextMenuController {
         if (settings.confirmThreadDelete) {
           const confirmed = await api.dialogs.confirm(
             deletesOnlyDraft
-              ? `Delete this draft? This removes its unsent prompt.`
-              : [`Delete thread "${card.title}"?`, "这会永久清除该 thread 的对话记录。"].join("\n"),
+              ? "删除此草稿？这将移除其中未发送的提示词。"
+              : [`删除会话「${card.title}」？`, "这会永久清除该会话的对话记录。"].join("\n"),
           );
           if (!confirmed) return;
         }

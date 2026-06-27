@@ -129,7 +129,7 @@ export const SETTINGS_NAV_ITEMS: readonly SettingsNavItem[] = [
     label: "技能",
     description: "跨提供商发现的所有技能，可开关可用性。",
     icon: "building-blocks",
-    eyebrow: "Agent 技能",
+    eyebrow: "代理技能",
   },
   {
     id: "advanced",

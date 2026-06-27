@@ -179,7 +179,7 @@ export default function TerminalViewportPane({
 
               {onNewTerminalTab ? (
                 <PaneActionButton
-                  label="New terminal tab"
+                  label="新建终端标签页"
                   onClick={() => onNewTerminalTab(activePaneTerminalId)}
                 >
                   <Plus className="size-3.5" />
@@ -189,16 +189,13 @@ export default function TerminalViewportPane({
 
             <div className="flex shrink-0 items-center gap-0.5">
               {canMoveActiveTerminalToGroup ? (
-                <PaneActionButton
-                  label="Move to its own terminal tab"
-                  onClick={moveActiveTerminalToGroup}
-                >
+                <PaneActionButton label="移到独立终端标签页" onClick={moveActiveTerminalToGroup}>
                   <TerminalSquareIcon className="size-3.5" />
                 </PaneActionButton>
               ) : null}
               {onSplitTerminalRight ? (
                 <PaneActionButton
-                  label="Split right"
+                  label="向右拆分"
                   onClick={() => onSplitTerminalRight(activePaneTerminalId)}
                 >
                   <SquareSplitHorizontal className="size-3.5" />
@@ -206,7 +203,7 @@ export default function TerminalViewportPane({
               ) : null}
               {onSplitTerminalDown ? (
                 <PaneActionButton
-                  label="Split down"
+                  label="向下拆分"
                   onClick={() => onSplitTerminalDown(activePaneTerminalId)}
                 >
                   <SquareSplitVertical className="size-3.5" />
@@ -230,7 +227,7 @@ export default function TerminalViewportPane({
               ) : null}
               {onTogglePanel ? (
                 <PaneActionButton
-                  label={isPanelOpen ? "Collapse side panel" : "Open side panel"}
+                  label={isPanelOpen ? "折叠侧边面板" : "打开侧边面板"}
                   onClick={onTogglePanel}
                 >
                   <PanelRightCloseIcon />
@@ -238,7 +235,7 @@ export default function TerminalViewportPane({
               ) : null}
               {onCloseTerminal ? (
                 <PaneActionButton
-                  label="Close active terminal tab"
+                  label="关闭当前终端标签页"
                   onClick={() => onCloseTerminal(activePaneTerminalId)}
                 >
                   <Trash2 className="size-3.5" />

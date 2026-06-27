@@ -153,7 +153,7 @@ function KanbanColumnComponent({
         <span className="text-xs text-muted-foreground/70">{cards.length}</span>
         <span className="ml-auto flex shrink-0 items-center gap-1.5">
           {dispatchTarget ? (
-            <span className="text-[11px] text-sky-600 dark:text-sky-300/90">Drop to send</span>
+            <span className="text-[11px] text-sky-600 dark:text-sky-300/90">拖放以发送</span>
           ) : null}
           {onNewCard ? (
             <Button

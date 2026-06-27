@@ -341,8 +341,7 @@ export function KanbanNewTaskDialog({
         toastManager.add({
           type: "warning",
           title: "新任务只能附加图片。",
-          description:
-            files.length === 1 ? "该文件未添加。" : `${files.length} files were not added.`,
+          description: files.length === 1 ? "该文件未添加。" : `${files.length} 个文件未添加。`,
         });
       },
     },
@@ -459,7 +458,7 @@ export function KanbanNewTaskDialog({
               terminalContexts={composerTerminalContexts}
               mentionReferences={composerMentions}
               disabled={voice.isVoiceTranscribing}
-              placeholder="描述任务，用 @ 标记文件/文件夹，粘贴图片，或用 / 选择 skill"
+              placeholder="描述任务，用 @ 标记文件/文件夹，粘贴图片，或用 / 选择技能"
               className={cn(
                 COMPOSER_EDITOR_MIN_HEIGHT_CLASS_NAME,
                 COMPOSER_EDITOR_TYPOGRAPHY_CLASS_NAME,
@@ -578,7 +577,7 @@ export function KanbanNewTaskDialog({
                 Send as draft
               </label>
               <Button size="sm" onClick={handleCreate} disabled={!canCreate}>
-                {isCreating ? "Creating..." : "创建任务"}
+                {isCreating ? "正在创建…" : "创建任务"}
               </Button>
             </div>
           </div>

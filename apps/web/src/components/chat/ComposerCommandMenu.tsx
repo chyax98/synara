@@ -277,7 +277,7 @@ export function groupCommandItems(
     groups.push({ id: "built-in", label: "内置", items: builtInItems });
   }
   if (providerItems.length > 0) {
-    groups.push({ id: "provider", label: "Provider", items: providerItems });
+    groups.push({ id: "provider", label: "提供商", items: providerItems });
   }
   if (skillItems.length > 0) {
     groups.push({ id: "skills", label: "技能", items: skillItems });

@@ -271,7 +271,7 @@ export function deriveReadableCommandDisplay(
     case "less":
     case "more":
       return {
-        verb: isRunning ? "Reading" : "Read",
+        verb: isRunning ? "正在读取" : "已读取",
         target: lastPathComponents(args, "file"),
         fullCommand: rawCommand,
       };
@@ -280,32 +280,32 @@ export function deriveReadableCommandDisplay(
     case "ag":
     case "ack":
       return {
-        verb: isRunning ? "Searching" : "Searched",
+        verb: isRunning ? "正在搜索" : "已搜索",
         target: searchSummary(args),
         fullCommand: rawCommand,
       };
     case "ls":
       return {
-        verb: isRunning ? "Listing" : "Listed",
+        verb: isRunning ? "正在列出" : "已列出",
         target: lastPathComponents(args, "directory"),
         fullCommand: rawCommand,
       };
     case "find":
     case "fd":
       return {
-        verb: isRunning ? "Finding" : "Found",
+        verb: isRunning ? "正在查找" : "已找到",
         target: lastPathComponents(args, "files"),
         fullCommand: rawCommand,
       };
     case "mkdir":
       return {
-        verb: isRunning ? "Creating" : "Created",
+        verb: isRunning ? "正在创建" : "已创建",
         target: lastPathComponents(args, "directory"),
         fullCommand: rawCommand,
       };
     case "rm":
       return {
-        verb: isRunning ? "Removing" : "Removed",
+        verb: isRunning ? "正在删除" : "已删除",
         target: lastPathComponents(args, "file"),
         fullCommand: rawCommand,
       };
@@ -314,11 +314,11 @@ export function deriveReadableCommandDisplay(
       return {
         verb: isRunning
           ? tool === "cp"
-            ? "Copying"
-            : "Moving"
+            ? "正在复制"
+            : "正在移动"
           : tool === "cp"
-            ? "Copied"
-            : "Moved",
+            ? "已复制"
+            : "已移动",
         target: lastPathComponents(args, "file"),
         fullCommand: rawCommand,
       };
@@ -326,7 +326,7 @@ export function deriveReadableCommandDisplay(
       return humanizeGitCommand(args, rawCommand, isRunning);
     default:
       return {
-        verb: isRunning ? "Running" : "Ran",
+        verb: isRunning ? "正在运行" : "已运行",
         target: command,
         fullCommand: rawCommand,
       };
@@ -346,62 +346,62 @@ function humanizeGitCommand(
   switch (subcommand) {
     case "status":
       return {
-        verb: isRunning ? "Checking" : "Checked",
+        verb: isRunning ? "正在检查" : "已检查",
         target: "git status",
         fullCommand: rawCommand,
       };
     case "diff":
       return {
-        verb: isRunning ? "Comparing" : "Compared",
+        verb: isRunning ? "正在比较" : "已比较",
         target: "changes",
         fullCommand: rawCommand,
       };
     case "show":
       return {
-        verb: isRunning ? "Inspecting" : "Inspected",
+        verb: isRunning ? "正在查看" : "已查看",
         target: "commit",
         fullCommand: rawCommand,
       };
     case "log":
       return {
-        verb: isRunning ? "Reviewing" : "Reviewed",
+        verb: isRunning ? "正在审阅" : "已审阅",
         target: "git history",
         fullCommand: rawCommand,
       };
     case "add":
       return {
-        verb: isRunning ? "Staging" : "Staged",
+        verb: isRunning ? "正在暂存" : "已暂存",
         target: "changes",
         fullCommand: rawCommand,
       };
     case "commit":
       return {
-        verb: isRunning ? "Committing" : "Committed",
+        verb: isRunning ? "正在提交" : "已提交",
         target: "changes",
         fullCommand: rawCommand,
       };
     case "push":
       return {
-        verb: isRunning ? "Pushing" : "Pushed",
+        verb: isRunning ? "正在推送" : "已推送",
         target: "to remote",
         fullCommand: rawCommand,
       };
     case "pull":
       return {
-        verb: isRunning ? "Pulling" : "Pulled",
+        verb: isRunning ? "正在拉取" : "已拉取",
         target: "from remote",
         fullCommand: rawCommand,
       };
     case "checkout":
     case "switch":
       return {
-        verb: isRunning ? "Switching to" : "Switched to",
+        verb: isRunning ? "正在切换到" : "已切换到",
         target: checkoutTarget(args),
         fullCommand: rawCommand,
       };
     default:
       return {
-        verb: isRunning ? "Running" : "Ran",
+        verb: isRunning ? "正在运行" : "已运行",
         target: `git ${args}`.trim(),
         fullCommand: rawCommand,
       };

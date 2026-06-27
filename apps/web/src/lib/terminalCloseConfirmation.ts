@@ -7,7 +7,7 @@ import type { NativeApi } from "@t3tools/contracts";
 
 function formatTerminalCloseSubject(terminalTitle: string | null | undefined): string {
   const trimmedTitle = terminalTitle?.trim();
-  return trimmedTitle && trimmedTitle.length > 0 ? `terminal "${trimmedTitle}"` : "this terminal";
+  return trimmedTitle && trimmedTitle.length > 0 ? `终端「${trimmedTitle}」` : "此终端";
 }
 
 // Prefer title overrides, then persisted labels, so confirmation copy matches visible tab names.

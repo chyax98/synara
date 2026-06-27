@@ -135,7 +135,7 @@ export function useComposerCommandMenuItems(input: {
                 id: "local-root",
                 type: "local-root" as const,
                 label: `@${LOCAL_FOLDER_MENTION_NAME}`,
-                description: "Browse folders on this computer",
+                description: "浏览此电脑上的文件夹",
               },
             ]
           : [];

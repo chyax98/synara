@@ -138,8 +138,8 @@ function EditorDiffOptionsMenu(props: {
             variant="ghost"
             size="icon-xs"
             className="text-muted-foreground hover:text-foreground"
-            label="Diff options"
-            title="Diff options"
+            label="差异选项"
+            title="差异选项"
             onClick={() => {
               setOptionsOpen(true);
             }}
@@ -158,7 +158,7 @@ function EditorDiffOptionsMenu(props: {
       />
       <ComposerPickerMenuPopup align="end" side="bottom" sideOffset={6} className="w-64 min-w-64">
         <MenuGroup>
-          <MenuGroupLabel>Source</MenuGroupLabel>
+          <MenuGroupLabel>来源</MenuGroupLabel>
           <MenuRadioGroup
             value={props.scopePickerValue ?? ""}
             onValueChange={(value) => {
@@ -187,17 +187,17 @@ function EditorDiffOptionsMenu(props: {
               </MenuRadioItem>
             ))}
             <MenuRadioItem value="allTurns">
-              <span className="min-w-0 flex-1 truncate">All turns</span>
+              <span className="min-w-0 flex-1 truncate">全部轮次</span>
             </MenuRadioItem>
             <MenuRadioItem value="lastTurn">
-              <span className="min-w-0 flex-1 truncate">Last turn</span>
+              <span className="min-w-0 flex-1 truncate">上一轮</span>
             </MenuRadioItem>
           </MenuRadioGroup>
         </MenuGroup>
 
         {props.orderedTurnDiffSummaries.length > 0 ? (
           <MenuGroup>
-            <MenuGroupLabel>Turns</MenuGroupLabel>
+            <MenuGroupLabel>轮次</MenuGroupLabel>
             <MenuRadioGroup
               value={props.selectedTurnId ?? "all-turns"}
               onValueChange={(value) => {
@@ -205,7 +205,7 @@ function EditorDiffOptionsMenu(props: {
               }}
             >
               <MenuRadioItem value="all-turns">
-                <span className="min-w-0 flex-1 truncate">All turns</span>
+                <span className="min-w-0 flex-1 truncate">全部轮次</span>
               </MenuRadioItem>
               {props.orderedTurnDiffSummaries.map((summary) => {
                 const turnNumber =
@@ -214,7 +214,7 @@ function EditorDiffOptionsMenu(props: {
                   "?";
                 return (
                   <MenuRadioItem key={summary.turnId} value={summary.turnId}>
-                    <span className="min-w-0 flex-1 truncate">Turn {turnNumber}</span>
+                    <span className="min-w-0 flex-1 truncate">第 {turnNumber} 轮</span>
                     <span className="shrink-0 text-[10px] text-muted-foreground tabular-nums">
                       {formatShortTimestamp(summary.completedAt, props.timestampFormat)}
                     </span>
@@ -226,7 +226,7 @@ function EditorDiffOptionsMenu(props: {
         ) : null}
 
         <MenuGroup>
-          <MenuGroupLabel>View</MenuGroupLabel>
+          <MenuGroupLabel>视图</MenuGroupLabel>
           <MenuRadioGroup
             value={props.diffRenderMode}
             onValueChange={(value) => {
@@ -237,11 +237,11 @@ function EditorDiffOptionsMenu(props: {
           >
             <MenuRadioItem value="stacked">
               <Rows3Icon className={EDITOR_DIFF_OPTIONS_MENU_ICON_CLASS_NAME} />
-              <span>Stacked diff</span>
+              <span>堆叠</span>
             </MenuRadioItem>
             <MenuRadioItem value="split">
               <Columns2Icon className={EDITOR_DIFF_OPTIONS_MENU_ICON_CLASS_NAME} />
-              <span>Split diff</span>
+              <span>分栏</span>
             </MenuRadioItem>
           </MenuRadioGroup>
           <MenuCheckboxItem
@@ -251,7 +251,7 @@ function EditorDiffOptionsMenu(props: {
               props.onDiffIgnoreWhitespaceChange(checked === true);
             }}
           >
-            Ignore whitespace-only changes
+            忽略仅含空白的变更
           </MenuCheckboxItem>
           <MenuCheckboxItem
             checked={props.diffWordWrap}
@@ -260,7 +260,7 @@ function EditorDiffOptionsMenu(props: {
               props.onDiffWordWrapChange(checked === true);
             }}
           >
-            Wrap long lines
+            长行自动换行
           </MenuCheckboxItem>
           {props.diffCopyText ? (
             <MenuItem
@@ -269,7 +269,7 @@ function EditorDiffOptionsMenu(props: {
               }}
             >
               <CopyIcon className={EDITOR_DIFF_OPTIONS_MENU_ICON_CLASS_NAME} />
-              <span>{props.isDiffCopied ? "Copied diff" : "Copy diff"}</span>
+              <span>{props.isDiffCopied ? "已复制差异" : "复制差异"}</span>
             </MenuItem>
           ) : null}
           {props.renderableFiles.length > 0 ? (
@@ -279,7 +279,7 @@ function EditorDiffOptionsMenu(props: {
               }}
             >
               <FolderIcon className={EDITOR_DIFF_OPTIONS_MENU_ICON_CLASS_NAME} />
-              <span>{props.allFilesCollapsed ? "Expand all files" : "Collapse all files"}</span>
+              <span>{props.allFilesCollapsed ? "展开全部文件" : "折叠全部文件"}</span>
             </MenuItem>
           ) : null}
         </MenuGroup>
@@ -1050,7 +1050,7 @@ export default function DiffPanel({
           <IconButton
             variant="chrome"
             size="icon-xs"
-            label="Close file view"
+            label="关闭文件视图"
             className={DOCK_HEADER_ICON_BUTTON_CLASS}
             onClick={(event) => {
               event.stopPropagation();

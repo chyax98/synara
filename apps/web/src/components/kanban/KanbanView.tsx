@@ -192,7 +192,7 @@ export default function KanbanView({ projectId }: { projectId: string | null }) 
                   size="icon-xs"
                   variant="ghost"
                   onClick={handleBackToOverview}
-                  aria-label="Back to all projects"
+                  aria-label="返回所有项目"
                 >
                   <ArrowLeftIcon className="size-3.5" />
                 </Button>

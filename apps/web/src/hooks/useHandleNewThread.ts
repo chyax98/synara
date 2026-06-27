@@ -170,7 +170,7 @@ export function useHandleNewThread() {
             commandId: newCommandId(),
             threadId,
             projectId,
-            title: "New terminal",
+            title: "新终端",
             modelSelection: creationState.modelSelection,
             runtimeMode: creationState.runtimeMode,
             interactionMode: creationState.interactionMode,

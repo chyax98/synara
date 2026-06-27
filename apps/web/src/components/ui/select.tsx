@@ -255,7 +255,8 @@ function SelectItem({
     <SelectPrimitive.Item
       className={cn(
         optionBaseClassName,
-        hideIndicator ? "grid-cols-[1fr] ps-3 pe-3" : "grid-cols-[1fr_auto] gap-3 px-2.5",
+        hideIndicator && "grid-cols-[1fr] ps-3 pe-3",
+        !hideIndicator && "grid-cols-[1fr_auto] gap-3 px-2.5",
         className,
       )}
       data-slot="select-item"

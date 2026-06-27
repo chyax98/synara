@@ -345,7 +345,7 @@ export function buildThreadAttentionCopy(candidate: ThreadAttentionCandidate): {
       : "User input requested.");
 
   return {
-    title: "Input needed",
+    title: "需要输入",
     body: `${threadLabel}: ${summary}`,
   };
 }
@@ -356,7 +356,7 @@ export function buildTerminalCompletionCopy(candidate: CompletedTerminalCandidat
 } {
   const terminalLabel = candidate.title.trim() || "Terminal";
   return {
-    title: "Terminal task completed",
+    title: "终端任务已完成",
     body: `${terminalLabel} finished working.`,
   };
 }

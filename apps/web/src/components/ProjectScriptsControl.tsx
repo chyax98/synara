@@ -68,12 +68,12 @@ import { Switch } from "./ui/switch";
 import { Textarea } from "./ui/textarea";
 
 const SCRIPT_ICONS: Array<{ id: ProjectScriptIcon; label: string }> = [
-  { id: "play", label: "Play" },
-  { id: "test", label: "Test" },
-  { id: "lint", label: "Lint" },
-  { id: "configure", label: "Configure" },
-  { id: "build", label: "Build" },
-  { id: "debug", label: "Debug" },
+  { id: "play", label: "运行" },
+  { id: "test", label: "测试" },
+  { id: "lint", label: "检查" },
+  { id: "configure", label: "配置" },
+  { id: "build", label: "构建" },
+  { id: "debug", label: "调试" },
 ];
 
 function ScriptIcon({
@@ -300,7 +300,7 @@ export default function ProjectScriptsControl({
   return (
     <>
       {showInlineControls && primaryScript ? (
-        <Group aria-label="Project scripts">
+        <Group aria-label="项目脚本">
           <Button
             size="xs"
             variant="outline"
@@ -329,7 +329,7 @@ export default function ProjectScriptsControl({
                     CHAT_HEADER_ICON_CONTROL_CLASS_NAME,
                     CHAT_HEADER_ICON_STRENGTH_CLASS_NAME,
                   )}
-                  aria-label="Script actions"
+                  aria-label="脚本操作"
                 />
               }
             >
@@ -362,7 +362,7 @@ export default function ProjectScriptsControl({
                         variant="ghost"
                         size="icon-xs"
                         className="absolute right-0 top-1/2 size-6 -translate-y-1/2 opacity-0 pointer-events-none transition-opacity group-hover:opacity-100 group-hover:pointer-events-auto group-focus-visible:opacity-100 group-focus-visible:pointer-events-auto"
-                        aria-label={`Edit ${script.name}`}
+                        aria-label={`编辑 ${script.name}`}
                         onPointerDown={(event) => {
                           event.preventDefault();
                           event.stopPropagation();
@@ -381,7 +381,7 @@ export default function ProjectScriptsControl({
               })}
               <MenuItem className={dropdownItemClassName} onClick={openAddDialog}>
                 <PlusIcon className="size-4" />
-                Add action
+                添加操作
               </MenuItem>
             </MenuPopup>
           </Menu>
@@ -409,10 +409,8 @@ export default function ProjectScriptsControl({
       >
         <DialogPopup>
           <DialogHeader>
-            <DialogTitle>{isEditing ? "Edit Action" : "Add Action"}</DialogTitle>
-            <DialogDescription>
-              Actions are project-scoped commands you can run from the top bar or keybindings.
-            </DialogDescription>
+            <DialogTitle>{isEditing ? "编辑操作" : "添加操作"}</DialogTitle>
+            <DialogDescription>操作是项目范围内的命令，可从顶部栏或快捷键运行。</DialogDescription>
           </DialogHeader>
           <DialogPanel>
             <form id={addScriptFormId} className="space-y-4" onSubmit={submitAddScript}>
@@ -426,7 +424,7 @@ export default function ProjectScriptsControl({
                           type="button"
                           variant="outline"
                           className="size-9 shrink-0 hover:bg-popover active:bg-popover data-pressed:bg-popover"
-                          aria-label="Choose icon"
+                          aria-label="选择图标"
                         />
                       }
                     >
@@ -461,7 +459,7 @@ export default function ProjectScriptsControl({
                   <Input
                     id="script-name"
                     autoFocus
-                    placeholder="Test"
+                    placeholder="测试"
                     value={name}
                     onChange={(event) => setName(event.target.value)}
                   />
@@ -471,7 +469,7 @@ export default function ProjectScriptsControl({
                 <Label htmlFor="script-keybinding">Keybinding</Label>
                 <Input
                   id="script-keybinding"
-                  placeholder="Press shortcut"
+                  placeholder="按下快捷键"
                   value={keybinding}
                   readOnly
                   onKeyDown={captureKeybinding}
@@ -484,13 +482,13 @@ export default function ProjectScriptsControl({
                 <Label htmlFor="script-command">Command</Label>
                 <Textarea
                   id="script-command"
-                  placeholder="bun test"
+                  placeholder="bun 测试"
                   value={command}
                   onChange={(event) => setCommand(event.target.value)}
                 />
               </div>
               <label className="flex items-center justify-between gap-3 rounded-md border border-border/70 px-3 py-2 text-sm">
-                <span>Run automatically on worktree creation</span>
+                <span>创建工作树时自动运行</span>
                 <Switch
                   checked={runOnWorktreeCreate}
                   onCheckedChange={(checked) => setRunOnWorktreeCreate(Boolean(checked))}
@@ -521,7 +519,7 @@ export default function ProjectScriptsControl({
               Cancel
             </Button>
             <Button form={addScriptFormId} type="submit" size="sm">
-              {isEditing ? "Save changes" : "Save action"}
+              {isEditing ? "保存更改" : "保存操作"}
             </Button>
           </DialogFooter>
         </DialogPopup>
@@ -531,7 +529,7 @@ export default function ProjectScriptsControl({
         <AlertDialogPopup>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete action "{name}"?</AlertDialogTitle>
-            <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+            <AlertDialogDescription>此操作无法撤销。</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogClose render={<Button variant="outline" size="sm" />}>

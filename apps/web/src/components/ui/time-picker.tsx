@@ -41,14 +41,14 @@ export function TimePicker({
   return (
     <div className={cn("flex h-44 items-stretch gap-1", className)} data-slot="time-picker">
       <TimeColumn
-        ariaLabel="Hour"
+        ariaLabel="小时"
         selected={hour}
         values={HOURS}
         onSelect={(next) => onChange(`${pad(next)}:${pad(minute)}`)}
       />
       <div className="w-px shrink-0 self-stretch bg-border" />
       <TimeColumn
-        ariaLabel="Minute"
+        ariaLabel="分钟"
         selected={minute}
         values={MINUTES}
         onSelect={(next) => onChange(`${pad(hour)}:${pad(next)}`)}

@@ -31,7 +31,7 @@ export interface ChatFileReference {
 export const CHAT_FILE_REFERENCE_DRAG_TYPE = "application/x-synara-file-reference";
 
 export function formatLineRangeLabel(startLine: number, endLine: number): string {
-  return endLine !== startLine ? `lines ${startLine}-${endLine}` : `line ${startLine}`;
+  return endLine !== startLine ? `第 ${startLine}-${endLine} 行` : `第 ${startLine} 行`;
 }
 
 // Wrap a snippet in a fenced block whose fence is longer than any backtick run

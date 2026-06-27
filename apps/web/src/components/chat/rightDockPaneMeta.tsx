@@ -30,11 +30,11 @@ export interface RightDockPaneMeta {
 
 export const RIGHT_DOCK_PANE_META: Record<RightDockPaneKind, RightDockPaneMeta> = {
   browser: { label: "浏览器", Icon: GlobeIcon },
-  diff: { label: "Diff", Icon: DiffIcon },
+  diff: { label: "差异", Icon: DiffIcon },
   file: { label: "文件", Icon: FileIcon },
-  terminal: { label: "Terminal", Icon: TerminalIcon },
+  terminal: { label: "终端", Icon: TerminalIcon },
   sidechat: { label: "侧栏", Icon: MessageCircleIcon },
-  git: { label: "Git", Icon: GitCommitIcon },
+  git: { label: "版本控制", Icon: GitCommitIcon },
 };
 
 // Neutral fallback for any pane kind we no longer recognize (e.g. stale

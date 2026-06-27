@@ -70,7 +70,7 @@ export default function ShortcutsDialog(props: {
     <Dialog open={props.open} onOpenChange={props.onOpenChange}>
       <DialogPopup className="max-w-xl">
         <DialogHeader className="pb-2">
-          <DialogTitle className="text-base">Keyboard shortcuts</DialogTitle>
+          <DialogTitle className="text-base">键盘快捷键</DialogTitle>
           <DialogDescription className="text-xs">
             Reflects the bindings active in your current context.
           </DialogDescription>
@@ -79,7 +79,7 @@ export default function ShortcutsDialog(props: {
               ref={inputRef}
               type="search"
               size="sm"
-              placeholder="Search shortcuts..."
+              placeholder="搜索快捷键…"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               onKeyDown={(event) => {
@@ -91,7 +91,7 @@ export default function ShortcutsDialog(props: {
               }}
               className="rounded-md"
               nativeInput
-              aria-label="Search shortcuts"
+              aria-label="搜索快捷键"
             />
           </div>
         </DialogHeader>

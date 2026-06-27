@@ -57,14 +57,14 @@ export type ScheduleKind =
 export type IntervalUnit = "seconds" | "minutes";
 
 export const SCHEDULE_KIND_OPTIONS: readonly { value: ScheduleKind; label: string }[] = [
-  { value: "manual", label: "手动排序" },
-  { value: "once", label: "Once" },
-  { value: "hourly", label: "Hourly" },
-  { value: "daily", label: "Daily" },
-  { value: "weekdays", label: "Weekdays" },
-  { value: "weekly", label: "Weekly" },
-  { value: "custom", label: "Custom" },
-  { value: "cron", label: "Cron" },
+  { value: "manual", label: "手动" },
+  { value: "once", label: "一次" },
+  { value: "hourly", label: "每小时" },
+  { value: "daily", label: "每日" },
+  { value: "weekdays", label: "工作日" },
+  { value: "weekly", label: "每周" },
+  { value: "custom", label: "自定义" },
+  { value: "cron", label: `${"Cron"} 表达式` },
 ];
 
 export type AutomationFormState = {
@@ -233,30 +233,30 @@ function timezoneSuffix(schedule: AutomationSchedule): string {
 }
 
 function formatIntervalSchedule(seconds: number): string {
-  return seconds % 60 === 0 ? `Every ${seconds / 60} min` : `Every ${seconds} sec`;
+  return seconds % 60 === 0 ? `每 ${seconds / 60} 分钟` : `每 ${seconds} 秒`;
 }
 
 function formatIntervalCadence(seconds: number): string {
-  if (seconds === 3600) return "Hourly";
-  if (seconds % 3600 === 0) return `Every ${seconds / 3600}h`;
-  if (seconds % 60 === 0) return `Every ${seconds / 60}m`;
-  return `Every ${seconds}s`;
+  if (seconds === 3600) return "每小时";
+  if (seconds % 3600 === 0) return `每 ${seconds / 3600} 小时`;
+  if (seconds % 60 === 0) return `每 ${seconds / 60} 分钟`;
+  return `每 ${seconds} 秒`;
 }
 
 export function formatSchedule(schedule: AutomationSchedule): string {
   switch (schedule.type) {
     case "manual":
-      return "手动排序";
+      return "手动";
     case "once":
-      return `Once ${formatDateTime(schedule.runAt)}`;
+      return `一次 ${formatDateTime(schedule.runAt)}`;
     case "interval":
       return formatIntervalSchedule(schedule.everySeconds);
     case "daily":
-      return `Daily ${schedule.timeOfDay}${timezoneSuffix(schedule)}`;
+      return `每日 ${schedule.timeOfDay}${timezoneSuffix(schedule)}`;
     case "weekdays":
-      return `Weekdays ${schedule.timeOfDay}${timezoneSuffix(schedule)}`;
+      return `工作日 ${schedule.timeOfDay}${timezoneSuffix(schedule)}`;
     case "weekly":
-      return `Weekly ${weekdayLabel(schedule.dayOfWeek)} ${schedule.timeOfDay}${timezoneSuffix(schedule)}`;
+      return `每周 ${weekdayLabel(schedule.dayOfWeek)} ${schedule.timeOfDay}${timezoneSuffix(schedule)}`;
     case "cron":
       return `Cron ${schedule.expression} ${schedule.timezone}`;
   }
@@ -273,24 +273,24 @@ export function formatClockTime(timeOfDay: string): string {
 export function formatCadence(schedule: AutomationSchedule): string {
   switch (schedule.type) {
     case "manual":
-      return "手动排序";
+      return "手动";
     case "once":
       return formatDateTime(schedule.runAt);
     case "interval":
       return formatIntervalCadence(schedule.everySeconds);
     case "daily":
-      return `Daily at ${formatClockTime(schedule.timeOfDay)}`;
+      return `每日 ${formatClockTime(schedule.timeOfDay)}`;
     case "weekdays":
-      return `Weekdays at ${formatClockTime(schedule.timeOfDay)}`;
+      return `工作日 ${formatClockTime(schedule.timeOfDay)}`;
     case "weekly":
-      return `${weekdayLabel(schedule.dayOfWeek)} at ${formatClockTime(schedule.timeOfDay)}`;
+      return `每周${weekdayLabel(schedule.dayOfWeek)} ${formatClockTime(schedule.timeOfDay)}`;
     case "cron":
       return `Cron ${schedule.expression}`;
   }
 }
 
 export function weekdayLabel(value: number): string {
-  return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][value] ?? "Sun";
+  return ["周日", "周一", "周二", "周三", "周四", "周五", "周六"][value] ?? "周日";
 }
 
 // --- Thread automation lookups ---------------------------------------------
@@ -470,7 +470,7 @@ export function automationFastIntervalLimitMessage(form: AutomationFormState): s
     schedule.everySeconds < DEFAULT_AUTOMATION_MINIMUM_INTERVAL_SECONDS &&
     (maxIterations === null || maxIterations > DEFAULT_AUTOMATION_FAST_INTERVAL_MAX_ITERATIONS)
   ) {
-    return `Intervals under one minute need max iterations set to ${DEFAULT_AUTOMATION_FAST_INTERVAL_MAX_ITERATIONS} runs or fewer.`;
+    return `间隔低于 1 分钟时，最大迭代次数需设为 ${DEFAULT_AUTOMATION_FAST_INTERVAL_MAX_ITERATIONS} 次或更少。`;
   }
   return null;
 }

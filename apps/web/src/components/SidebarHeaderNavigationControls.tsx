@@ -24,14 +24,14 @@ function WorldCupButton() {
             variant="ghost"
             size="icon-sm"
             className="size-7 shrink-0 rounded-lg text-muted-foreground/75 hover:text-foreground"
-            aria-label="World Cup 2026"
+            aria-label="2026 世界杯"
             onClick={() => void navigate({ to: "/worldcup" })}
           />
         }
       >
         <FaFutbol className="size-4" />
       </TooltipTrigger>
-      <TooltipPopup side="bottom">World Cup 2026</TooltipPopup>
+      <TooltipPopup side="bottom">2026 世界杯</TooltipPopup>
     </Tooltip>
   );
 }

@@ -96,7 +96,7 @@ export default function WorkspaceSettingsSheet(props: {
     <Sheet open={props.open} onOpenChange={props.onOpenChange}>
       <SheetPopup side="right" className="w-[min(92vw,420px)] max-w-[420px]" keepMounted>
         <SheetHeader>
-          <SheetTitle>Workspace settings</SheetTitle>
+          <SheetTitle>工作区设置</SheetTitle>
           <SheetDescription>
             Choose how terminals are arranged inside {props.workspaceTitle}.
           </SheetDescription>
@@ -105,7 +105,7 @@ export default function WorkspaceSettingsSheet(props: {
         <SheetPanel className="space-y-6">
           <section className="space-y-3">
             <div>
-              <div className="text-sm font-medium text-foreground">Layout preset</div>
+              <div className="text-sm font-medium text-foreground">布局预设</div>
               <div className="mt-1 text-sm text-muted-foreground">
                 Changes apply immediately to this workspace. Extra terminals stay available as tabs.
               </div>

@@ -49,6 +49,8 @@ import { getThreadFromState, getThreadsFromState } from "./threadDerivation";
 import { toAttachmentPreviewUrl } from "./lib/wsHttpUrl";
 import { isStalePendingRequestFailureDetail } from "./lib/pendingInteraction";
 
+const ORCHESTRATION_SESSION_STATUS_CLOSED = "closed" satisfies ThreadSession["status"];
+
 // ── State ────────────────────────────────────────────────────────────
 
 export interface AppState {
@@ -3522,7 +3524,7 @@ function applyOrchestrationEvent(
             ...thread,
             session: {
               ...thread.session,
-              status: "closed",
+              status: ORCHESTRATION_SESSION_STATUS_CLOSED,
               orchestrationStatus: "stopped",
               activeTurnId: undefined,
               updatedAt: event.payload.createdAt,

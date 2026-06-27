@@ -388,7 +388,7 @@ export default function WorkspaceView({ workspaceId }: { workspaceId: string }) 
           {!homeDir ? (
             <div className="flex h-full items-center justify-center px-6">
               <div className="max-w-sm text-center">
-                <div className="text-sm font-medium text-foreground/85">Loading workspace</div>
+                <div className="text-sm font-medium text-foreground/85">正在加载工作区</div>
                 <div className="mt-1 text-sm text-muted-foreground">
                   Waiting for the renderer to resolve your home directory.
                 </div>

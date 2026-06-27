@@ -61,8 +61,8 @@ const OverviewProjectColumn = memo(function OverviewProjectColumn({
           size="icon-xs"
           variant="ghost"
           className="shrink-0 text-muted-foreground/70 hover:text-foreground"
-          aria-label={`New task in ${projectBoard.projectName}`}
-          title={`New task in ${projectBoard.projectName}`}
+          aria-label={`在 ${projectBoard.projectName} 中新建任务`}
+          title={`在 ${projectBoard.projectName} 中新建任务`}
           onClick={() => onNewTask(projectBoard.projectId)}
         >
           <PlusIcon className="size-3.5" />
@@ -118,7 +118,7 @@ export function KanbanOverview({
     return (
       <div className="flex h-full items-center justify-center px-6">
         <div className="max-w-sm text-center">
-          <div className="text-sm font-medium text-foreground/85">Nothing on the board yet</div>
+          <div className="text-sm font-medium text-foreground/85">看板上还没有内容</div>
           <div className="mt-1 text-sm text-muted-foreground">
             Drafted prompts, running turns, and completed chats will show up here automatically.
           </div>

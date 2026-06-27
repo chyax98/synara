@@ -253,7 +253,7 @@ function RootRouteErrorView({ error, reset }: ErrorComponentProps) {
         <p className="text-[11px] font-semibold tracking-[0.18em] text-muted-foreground uppercase">
           {APP_DISPLAY_NAME}
         </p>
-        <h1 className="mt-3 text-2xl font-semibold sm:text-3xl">Something went wrong.</h1>
+        <h1 className="mt-3 text-2xl font-semibold sm:text-3xl">出了点问题。</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{message}</p>
 
         <div className="mt-5 flex flex-wrap gap-2">
@@ -272,8 +272,8 @@ function RootRouteErrorView({ error, reset }: ErrorComponentProps) {
 
         <details className="group mt-5 overflow-hidden rounded-lg border border-border/70 bg-background/55">
           <summary className="cursor-pointer list-none px-3 py-2 text-xs font-medium text-muted-foreground">
-            <span className="group-open:hidden">Show error details</span>
-            <span className="hidden group-open:inline">Hide error details</span>
+            <span className="group-open:hidden">显示错误详情</span>
+            <span className="hidden group-open:inline">隐藏错误详情</span>
           </summary>
           <pre className="max-h-56 overflow-auto border-t border-border/70 bg-background/80 px-3 py-2 text-xs text-foreground/85">
             {details}
@@ -975,7 +975,7 @@ function EventRouter() {
               .catch((error) => {
                 toastManager.add({
                   type: "error",
-                  title: "Unable to open keybindings file",
+                  title: "无法打开快捷键配置文件",
                   description:
                     error instanceof Error ? error.message : "Unknown error opening file.",
                 });

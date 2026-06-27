@@ -305,7 +305,7 @@ function Sidebar({
           >
             <SheetHeader className="sr-only">
               <SheetTitle>Sidebar</SheetTitle>
-              <SheetDescription>Displays the mobile sidebar.</SheetDescription>
+              <SheetDescription>显示移动端侧边栏。</SheetDescription>
             </SheetHeader>
             <div className={cn("flex h-full w-full flex-col", innerClassName)}>{children}</div>
           </SheetPopup>
@@ -393,7 +393,7 @@ function SidebarTrigger({ className, onClick, ...props }: React.ComponentProps<t
       {...props}
     >
       <CentralIcon name="sidebar-hidden-left-wide" />
-      <span className="sr-only">Toggle Sidebar</span>
+      <span className="sr-only">切换侧边栏</span>
     </Button>
   );
 }
@@ -456,8 +456,8 @@ function SidebarRail({
   } | null>(null);
   const resolvedResizable = sidebarInstance?.resizable ?? null;
   const canResize = resolvedResizable !== null && open;
-  const railLabel = canResize ? "Resize Sidebar" : "Toggle Sidebar";
-  const railTitle = canResize ? "Drag to resize sidebar" : "Toggle Sidebar";
+  const railLabel = canResize ? "调整侧边栏大小" : "切换侧边栏";
+  const railTitle = canResize ? "拖动以调整侧边栏大小" : "切换侧边栏";
 
   const stopResize = React.useCallback(
     (pointerId: number) => {
@@ -681,7 +681,8 @@ function SidebarRail({
                  body cursor used during the drag — else `pointer` for the toggle. */
               "absolute inset-y-0 z-[25] hidden w-4 sm:flex",
               canResize ? "cursor-col-resize" : "cursor-pointer",
-              side === "left" ? "left-0 -translate-x-1/2" : "right-0 translate-x-1/2",
+              side === "left" && "left-0 -translate-x-1/2",
+              side === "right" && "right-0 translate-x-1/2",
             ]
           : [
               /* Legacy: rail anchored to the sidebar shell (right dock, etc.). */

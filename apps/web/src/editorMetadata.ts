@@ -118,13 +118,13 @@ function resolveNativeEditorIcon(editorId: EditorId): Icon {
 // duplicating the editor list across multiple UI components.
 export function resolveEditorLabel(editorId: EditorId, platform: string): string {
   if (editorId === "file-manager") {
-    return isMacPlatform(platform) ? "Finder" : isWindowsPlatform(platform) ? "Explorer" : "Files";
+    return isMacPlatform(platform) ? "Finder" : isWindowsPlatform(platform) ? "资源管理器" : "文件";
   }
 
   if (editorId === "system-default") {
     // macOS PDFs open in Preview by default; Windows/Linux use whatever viewer is
     // registered as the system handler, so keep the label generic off-Mac.
-    return isMacPlatform(platform) ? "Preview" : "Default app";
+    return isMacPlatform(platform) ? "预览" : "默认应用";
   }
 
   return EDITORS.find((editor) => editor.id === editorId)?.label ?? editorId;

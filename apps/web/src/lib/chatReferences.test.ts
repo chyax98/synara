@@ -28,13 +28,13 @@ describe("formatChatFileReference", () => {
 
   it("appends a single-line suffix", () => {
     expect(formatChatFileReference({ path: "src/a.ts", startLine: 12 })).toBe(
-      "@src/a.ts (line 12)",
+      "@src/a.ts (第 12 行)",
     );
   });
 
   it("appends a line-range suffix", () => {
     expect(formatChatFileReference({ path: "src/a.ts", startLine: 3, endLine: 9 })).toBe(
-      "@src/a.ts (lines 3-9)",
+      "@src/a.ts (第 3-9 行)",
     );
   });
 
@@ -75,7 +75,7 @@ describe("formatChatFileReference", () => {
   });
 
   it("falls back to the line label when columns are missing", () => {
-    expect(formatChatFileReference({ path: "src/a.ts", startLine: 5 })).toBe("@src/a.ts (line 5)");
+    expect(formatChatFileReference({ path: "src/a.ts", startLine: 5 })).toBe("@src/a.ts (第 5 行)");
   });
 
   it("quotes a snippet as a fenced block when there is no line info", () => {
@@ -87,7 +87,7 @@ describe("formatChatFileReference", () => {
   it("prefers the line label over a snippet", () => {
     expect(
       formatChatFileReference({ path: "src/a.ts", startLine: 3, snippet: "const a = 1;" }),
-    ).toBe("@src/a.ts (line 3)");
+    ).toBe("@src/a.ts (第 3 行)");
   });
 
   it("ignores whitespace-only snippets", () => {
@@ -131,7 +131,7 @@ describe("buildWhyLinesPrompt", () => {
 
   it("asks about the selected line range", () => {
     const prompt = buildWhyLinesPrompt({ path: "src/a.ts", startLine: 3, endLine: 9 });
-    expect(prompt).toContain("lines 3-9");
+    expect(prompt).toContain("第 3-9 行");
     expect(prompt).toContain("@src/a.ts");
     expect(prompt).toContain("git blame");
   });

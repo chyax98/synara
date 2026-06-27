@@ -133,7 +133,7 @@ async function fixupHomeChatProject(input: ServerWorkspacePaths): Promise<void> 
       commandId: newCommandId(),
       projectId: canonicalProjectId,
       kind: "chat",
-      title: "Home",
+      title: "主页",
     });
   }
 
@@ -192,7 +192,7 @@ export async function ensureHomeChatProject(
       commandId: newCommandId(),
       projectId,
       kind: "chat",
-      title: "Home",
+      title: "主页",
       workspaceRoot: placeholderWorkspaceRoot,
       createdAt: new Date().toISOString(),
     });

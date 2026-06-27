@@ -284,7 +284,7 @@ function resolveGitQuickActionGlyph(quickAction: GitQuickAction): GitGlyphName |
   if (quickAction.kind === "run_action") {
     return quickAction.action === "commit" ? "commit" : "push";
   }
-  if (quickAction.label === "Commit") return "commit";
+  if (quickAction.label === "提交") return "commit";
   return null;
 }
 
@@ -992,8 +992,8 @@ export default function GitActionsControl({
         }
         toastManager.add({
           type: "success",
-          title: `Keeping ${trimmedName}`,
-          description: "branch 名称已确认。",
+          title: `保留 ${trimmedName}`,
+          description: "分支名称已确认。",
           data: threadToastData,
         });
         return;
@@ -1001,7 +1001,7 @@ export default function GitActionsControl({
 
       const toastId = toastManager.add({
         type: "loading",
-        title: "正在创建 branch...",
+        title: "正在创建分支...",
         timeout: 0,
         data: threadToastData,
       });
@@ -1037,14 +1037,14 @@ export default function GitActionsControl({
 
         toastManager.update(toastId, {
           type: "success",
-          title: `Switched to ${trimmedName}`,
-          description: "branch 已创建并检出。",
+          title: `已切换到 ${trimmedName}`,
+          description: "分支已创建并检出。",
           data: threadToastData,
         });
       } catch (error) {
         toastManager.update(toastId, {
           type: "error",
-          title: "创建 branch 失败",
+          title: "创建分支失败",
           description: error instanceof Error ? error.message : "发生错误。",
           data: threadToastData,
         });
@@ -1132,7 +1132,7 @@ export default function GitActionsControl({
 
     items.push({
       id: "sync",
-      label: "Pull",
+      label: "拉取",
       disabled: !pullAvailability.canRun,
       disabledReason: pullAvailability.hint,
       icon: "sync",
@@ -1173,7 +1173,7 @@ export default function GitActionsControl({
 
     items.push({
       id: "create_branch",
-      label: "创建 Branch",
+      label: "创建分支",
       disabled: createBranchDisabled,
       disabledReason: createBranchDisabled
         ? isGitActionRunning
@@ -1222,7 +1222,7 @@ export default function GitActionsControl({
       if (!api || !gitCwd) {
         toastManager.add({
           type: "error",
-          title: "Editor opening is unavailable.",
+          title: "无法打开编辑器。",
           data: threadToastData,
         });
         return;
@@ -1252,7 +1252,7 @@ export default function GitActionsControl({
   const gitMenuContent = (
     <>
       <MenuGroup>
-        <MenuGroupLabel>Git actions</MenuGroupLabel>
+        <MenuGroupLabel>Git 操作</MenuGroupLabel>
         {gitPickerMenuItems.map((item) => {
           const menuRow = <GitPickerMenuRow item={item} />;
           if (item.disabled && item.disabledReason) {
@@ -1292,10 +1292,10 @@ export default function GitActionsControl({
         !gitStatusForActions.hasWorkingTreeChanges &&
         gitStatusForActions.behindCount > 0 &&
         gitStatusForActions.aheadCount === 0 && (
-          <p className="px-3 py-1.5 text-xs text-warning">Behind upstream. Pull/rebase first.</p>
+          <p className="px-3 py-1.5 text-xs text-warning">落后上游，请先拉取/rebase。</p>
         )}
       {isGitStatusOutOfSync && (
-        <p className="px-3 py-1.5 text-xs text-muted-foreground">Refreshing git status...</p>
+        <p className="px-3 py-1.5 text-xs text-muted-foreground">正在刷新 Git 状态...</p>
       )}
       {gitStatusError && (
         <p className="px-3 py-1.5 text-xs text-destructive">{gitStatusError.message}</p>
@@ -1331,7 +1331,7 @@ export default function GitActionsControl({
                     {gitStatusForActions?.branch ?? "（分离 HEAD）"}
                   </span>
                   {isDefaultBranch && (
-                    <span className="text-right text-warning text-xs">Warning: default branch</span>
+                    <span className="text-right text-warning text-xs">警告：默认分支</span>
                   )}
                 </span>
               </div>
@@ -1362,12 +1362,12 @@ export default function GitActionsControl({
                       size="xs"
                       onClick={() => setIsEditingFiles((prev) => !prev)}
                     >
-                      {isEditingFiles ? "Done" : "Edit"}
+                      {isEditingFiles ? "完成" : "编辑"}
                     </Button>
                   )}
                 </div>
                 {!gitStatusForActions || allFiles.length === 0 ? (
-                  <p className="font-medium">none</p>
+                  <p className="font-medium">无</p>
                 ) : (
                   <div className="space-y-2">
                     <ScrollArea className="h-44 rounded-md border border-[color:var(--color-border)] bg-[var(--color-background-elevated-primary-opaque)]">
@@ -1520,10 +1520,9 @@ export default function GitActionsControl({
       >
         <DialogPopup className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Create Branch</DialogTitle>
+            <DialogTitle>创建分支</DialogTitle>
             <DialogDescription>
-              Create and switch to a branch from the current HEAD. Future commits, pushes, and PRs
-              will use it.
+              从当前 HEAD 创建并切换到新分支。此后的提交、推送和 PR 都将使用该分支。
             </DialogDescription>
           </DialogHeader>
           <DialogPanel className="space-y-3">
@@ -1545,13 +1544,13 @@ export default function GitActionsControl({
                 <Input
                   autoFocus
                   id="create-branch-name"
-                  placeholder="feature/my-change"
+                  placeholder="功能/我的更改"
                   value={createBranchName}
                   onChange={(event) => setCreateBranchName(event.target.value)}
                 />
               </div>
               {createBranchNameConflicts ? (
-                <p className="text-destructive text-sm">A branch with this name already exists.</p>
+                <p className="text-destructive text-sm">已存在同名分支。</p>
               ) : null}
               <DialogFooter variant="bare">
                 <Button
@@ -1586,7 +1585,7 @@ export default function GitActionsControl({
         {!isRepo ? (
           <EnvironmentRow
             icon={<GitActionGlyph name="branch" className={ENVIRONMENT_ROW_ICON_CLASS_NAME} />}
-            label={initMutation.isPending ? "Initializing..." : "初始化 Git"}
+            label={initMutation.isPending ? "初始化中..." : "初始化 Git"}
             disabled={initMutation.isPending}
             onClick={() => initMutation.mutate()}
           />
@@ -1643,7 +1642,7 @@ export default function GitActionsControl({
           disabled={initMutation.isPending}
           onClick={() => initMutation.mutate()}
         >
-          {initMutation.isPending ? "Initializing..." : "初始化 Git"}
+          {initMutation.isPending ? "初始化中..." : "初始化 Git"}
         </Button>
       ) : (
         <ChatHeaderSplitGroup label="Git 操作">
@@ -1709,7 +1708,7 @@ export default function GitActionsControl({
             <MenuTrigger
               render={
                 <Button
-                  aria-label="Git action options"
+                  aria-label="Git 操作选项"
                   size="icon-xs"
                   variant="chrome-outline"
                   className={cn(

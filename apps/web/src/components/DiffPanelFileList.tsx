@@ -36,8 +36,8 @@ function DiffFileHeaderActionsMenu(props: { filePath: string; chatActions: DiffF
           <IconButton
             variant="ghost"
             size="icon-xs"
-            label="File actions"
-            title="File actions"
+            label="文件操作"
+            title="文件操作"
             className="text-muted-foreground hover:text-foreground"
           >
             <EllipsisIcon className="size-3.5" />
@@ -51,7 +51,7 @@ function DiffFileHeaderActionsMenu(props: { filePath: string; chatActions: DiffF
           }}
         >
           <MessageCircleIcon className={DIFF_FILE_ACTIONS_MENU_ICON_CLASS_NAME} />
-          <span>Reference in chat</span>
+          <span>在聊天中引用</span>
         </MenuItem>
         <MenuItem
           onClick={() => {
@@ -59,7 +59,7 @@ function DiffFileHeaderActionsMenu(props: { filePath: string; chatActions: DiffF
           }}
         >
           <MessageCircleIcon className={DIFF_FILE_ACTIONS_MENU_ICON_CLASS_NAME} />
-          <span>Ask why this changed</span>
+          <span>询问为何变更</span>
         </MenuItem>
         <MenuItem
           onClick={() => {
@@ -67,7 +67,7 @@ function DiffFileHeaderActionsMenu(props: { filePath: string; chatActions: DiffF
           }}
         >
           <CopyIcon className={DIFF_FILE_ACTIONS_MENU_ICON_CLASS_NAME} />
-          <span>Copy path</span>
+          <span>复制路径</span>
         </MenuItem>
       </ComposerPickerMenuPopup>
     </Menu>
@@ -203,7 +203,7 @@ export const DiffPanelFileList = memo(
       return (
         <FileDiffSurface className="h-full min-h-0 overflow-auto px-2 pb-2">
           <PanelStateMessage density="compact" fill="flex">
-            <p>No files in this diff.</p>
+            <p>此差异中没有文件。</p>
           </PanelStateMessage>
         </FileDiffSurface>
       );

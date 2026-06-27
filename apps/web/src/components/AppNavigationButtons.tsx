@@ -14,8 +14,8 @@ export function AppNavigationButtons({ className }: { className?: string }) {
   const { canGoBack, canGoForward } = useAppNavigationState();
   const platform = typeof navigator === "undefined" ? "" : navigator.platform;
   const isMac = /Mac|iPhone|iPad|iPod/i.test(platform);
-  const backShortcutLabel = isMac ? "⌘[" : "Alt+Left";
-  const forwardShortcutLabel = isMac ? "⌘]" : "Alt+Right";
+  const backShortcutLabel = isMac ? "⌘[" : "Alt+左方向键";
+  const forwardShortcutLabel = isMac ? "⌘]" : "Alt+右方向键";
 
   if (!isElectron) {
     return null;
@@ -36,7 +36,7 @@ export function AppNavigationButtons({ className }: { className?: string }) {
               variant="ghost"
               size="icon-sm"
               className="size-8 rounded-lg"
-              aria-label="Back"
+              aria-label="后退"
               disabled={!canGoBack}
               onClick={() => goBackInAppHistory()}
             />
@@ -44,7 +44,7 @@ export function AppNavigationButtons({ className }: { className?: string }) {
         >
           <IoIosArrowRoundBack className="size-6" />
         </TooltipTrigger>
-        <TooltipPopup side="bottom">Back ({backShortcutLabel})</TooltipPopup>
+        <TooltipPopup side="bottom">后退（{backShortcutLabel}）</TooltipPopup>
       </Tooltip>
       <Tooltip>
         <TooltipTrigger
@@ -54,7 +54,7 @@ export function AppNavigationButtons({ className }: { className?: string }) {
               variant="ghost"
               size="icon-sm"
               className="size-8 rounded-lg"
-              aria-label="Forward"
+              aria-label="前进"
               disabled={!canGoForward}
               onClick={() => goForwardInAppHistory()}
             />
@@ -62,7 +62,7 @@ export function AppNavigationButtons({ className }: { className?: string }) {
         >
           <IoIosArrowRoundForward className="size-6" />
         </TooltipTrigger>
-        <TooltipPopup side="bottom">Forward ({forwardShortcutLabel})</TooltipPopup>
+        <TooltipPopup side="bottom">前进（{forwardShortcutLabel}）</TooltipPopup>
       </Tooltip>
     </div>
   );

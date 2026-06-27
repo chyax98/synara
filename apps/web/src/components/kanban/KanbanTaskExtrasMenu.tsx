@@ -45,7 +45,7 @@ export function KanbanTaskExtrasMenu({
             size="icon-sm"
             variant="chrome"
             className="shrink-0 rounded-md"
-            aria-label="Task options"
+            aria-label="任务选项"
           />
         }
       >

@@ -219,8 +219,8 @@ const PROVIDER_CUSTOM_MODEL_CONFIG: Record<ProviderKind, ProviderCustomModelConf
     settingsKey: "customOpenCodeModels",
     defaultSettingsKey: "customOpenCodeModels",
     title: "OpenCode",
-    description: "为选择器与 provider 运行时保存额外的 OpenCode model 代号。",
-    placeholder: "provider/model",
+    description: "为选择器与提供商运行时保存额外的 OpenCode 模型代号。",
+    placeholder: "提供商/模型",
     example: "openai/gpt-5",
   },
 } as Record<ProviderKind, ProviderCustomModelConfig>;

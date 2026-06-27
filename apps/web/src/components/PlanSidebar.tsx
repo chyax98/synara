@@ -92,7 +92,7 @@ const PlanSidebar = memo(function PlanSidebar({
             size="icon-xs"
             variant="ghost"
             onClick={onClose}
-            aria-label="Close plan sidebar"
+            aria-label="关闭计划侧边栏"
             className="text-muted-foreground/50 hover:text-foreground/70"
           >
             <PanelRightCloseIcon className="size-3.5" />
@@ -177,7 +177,7 @@ const PlanSidebar = memo(function PlanSidebar({
           {/* Empty state */}
           {!activeTaskList && !planMarkdown ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
-              <p className="text-[13px] text-muted-foreground/40">No active plan yet.</p>
+              <p className="text-[13px] text-muted-foreground/40">尚无活跃计划。</p>
               <p className="mt-1 text-[11px] text-muted-foreground/30">
                 Plans will appear here when generated.
               </p>

@@ -365,7 +365,7 @@ function TerminalViewport({
     selectionActionOpenRef.current = true;
     try {
       const clicked = await api.contextMenu.show(
-        [{ id: "add-to-chat", label: "添加到 chat" }],
+        [{ id: "add-to-chat", label: "添加到聊天" }],
         nextAction.position,
       );
       if (requestId !== selectionActionRequestIdRef.current || clicked !== "add-to-chat") {

@@ -5494,7 +5494,7 @@ export default function Sidebar() {
       {
         id: "import-thread",
         label: "从…导入会话",
-        description: "将本地会话关联到已有的 Provider 会话。",
+        description: "将本地会话关联到已有的提供商会话。",
         keywords: ["import", "resume", "thread", "session", "opencode", "opencode"],
         shortcutLabel: importThreadShortcutLabel,
       },

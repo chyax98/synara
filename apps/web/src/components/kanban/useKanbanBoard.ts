@@ -130,8 +130,8 @@ export function useKanbanBoard(): KanbanBoard {
       if (outcome === "failed") {
         toastManager.add({
           type: "error",
-          title: "Task didn't start",
-          description: thread.session?.lastError ?? `${entry.title} was moved back to Draft.`,
+          title: "任务未能启动",
+          description: thread.session?.lastError ?? `${entry.title} 已移回草稿。`,
         });
       }
     }
@@ -165,8 +165,8 @@ export function useKanbanBoard(): KanbanBoard {
         }
         toastManager.add({
           type: "error",
-          title: "Task didn't start",
-          description: `${entry.title} was moved back to Draft.`,
+          title: "任务未能启动",
+          description: `${entry.title} 已移回草稿。`,
         });
       }
     }, OPTIMISTIC_DISPATCH_EXPIRY_CHECK_MS);

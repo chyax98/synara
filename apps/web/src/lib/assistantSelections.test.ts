@@ -160,8 +160,8 @@ describe("assistantSelections", () => {
   });
 
   it("formats shared assistant selection labels", () => {
-    expect(formatAssistantSelectionQueuePreview(1)).toBe("1 referenced selection");
-    expect(formatAssistantSelectionQueuePreview(2)).toBe("Referenced selections");
+    expect(formatAssistantSelectionQueuePreview(1)).toBe("1 个引用选择");
+    expect(formatAssistantSelectionQueuePreview(2)).toBe("引用的选择");
     expect(formatAssistantSelectionTitleSeed(1)).toBe("Referenced assistant selection");
     expect(formatAssistantSelectionTitleSeed(2)).toBe("Referenced assistant selections");
   });

@@ -1061,7 +1061,7 @@ export function createRuntimeEntry(config: TerminalRuntimeConfig): TerminalRunti
           .join(", ");
         writeSystemMessage(
           terminal,
-          details.length > 0 ? `Process exited (${details})` : "Process exited",
+          details.length > 0 ? `进程已退出（${details}）` : "进程已退出",
         );
         if (entry.hasHandledExit) {
           return;

@@ -160,10 +160,10 @@ function isGitIndexWriteError(error: unknown): boolean {
 function formatDirtyWorktreeDescription(files: string[]): string {
   const basenames = files.map((file) => file.split("/").pop() ?? file);
   if (basenames.length <= 3) {
-    return `${basenames.join(", ")} ${pluralize(basenames.length, "has", "have")} uncommitted changes. Commit or stash before switching.`;
+    return `${basenames.join("、")} 有未提交的更改。请先提交或暂存后再切换。`;
   }
   const remaining = basenames.length - 2;
-  return `${basenames.slice(0, 2).join(", ")} and ${remaining} other ${pluralize(remaining, "file")} have uncommitted changes. Commit or stash before switching.`;
+  return `${basenames.slice(0, 2).join("、")} 及其他 ${remaining} 个文件有未提交的更改。请先提交或暂存后再切换。`;
 }
 
 function handleCheckoutError(
@@ -194,7 +194,7 @@ function handleCheckoutError(
     addBranchRecoveryToast({
       type: "error",
       title: "Git 无法更新仓库索引。请等待当前 Git 操作完成后再重试。",
-      description: `${lockFileLabel} already exists. Close any running Git operation, remove the stale lock file if none is running, then retry.`,
+      description: `${lockFileLabel} 已存在。请关闭正在运行的 Git 操作；若未在运行，请删除过期的锁文件后重试。`,
       data: { copyText: toBranchActionErrorMessage(error) },
       actionProps: {
         children: "重试暂存并切换",
@@ -219,7 +219,7 @@ function handleCheckoutError(
       description: "暂存并切换",
       data: { copyText: toBranchActionErrorMessage(error) },
       actionProps: {
-        children: "Retry stash & switch",
+        children: "重试暂存并切换",
         onClick: () => {
           input.runBranchAction(async () => {
             try {
@@ -238,11 +238,11 @@ function handleCheckoutError(
     const copyText = toBranchActionErrorMessage(error);
     const dirtyToastId = addBranchRecoveryToast({
       type: "warning",
-      title: "Synara 已切换分支，并将你的更改保留在 stash 中，因为它们无法干净地还原到该分支。",
+      title: "未提交的更改阻止了切换。",
       description: formatDirtyWorktreeDescription(dirtyWorktree.files),
       data: { copyText },
       actionProps: {
-        children: "丢弃 stash",
+        children: "暂存并切换",
         onClick: () => {
           closeActiveBranchRecoveryToast();
           input.runBranchAction(async () => {
@@ -262,12 +262,11 @@ function handleCheckoutError(
                 input.onSuccess();
                 const stashConflictToastId = addBranchRecoveryToast({
                   type: "warning",
-                  title: "Changes saved, but not reapplied.",
+                  title: "更改已保存，但未重新应用。",
                   description: "无法切换分支。",
                   data: { copyText: toBranchActionErrorMessage(stashError) },
                   actionProps: {
-                    children:
-                      "某些冲突文件不在 git stash 覆盖范围内，例如被忽略的文件。请在切换前移动或删除它们。",
+                    children: "丢弃 stash",
                     className:
                       "border-destructive bg-destructive text-white shadow-destructive/24 hover:bg-destructive/90",
                     onClick: () => {
@@ -281,7 +280,7 @@ function handleCheckoutError(
               if (parseDirtyWorktreeError(stashError)) {
                 addBranchRecoveryToast({
                   type: "error",
-                  title: "Cannot switch branches.",
+                  title: "无法切换分支。",
                   description: "仓库中存在未解决的冲突。",
                   data: { copyText: toBranchActionErrorMessage(stashError) },
                 });
@@ -289,7 +288,7 @@ function handleCheckoutError(
               }
               addBranchRecoveryToast({
                 type: "error",
-                title: "Failed to stash and switch.",
+                title: "暂存并切换失败。",
                 description: toBranchActionErrorMessage(stashError),
                 data: { copyText: toBranchActionErrorMessage(stashError) },
               });
@@ -634,7 +633,7 @@ export function BranchToolbarBranchSelector({
       } catch (error) {
         toastManager.add({
           type: "error",
-          title: "Failed to create branch.",
+          title: "创建分支失败。",
           description: toBranchActionErrorMessage(error),
         });
         return;
@@ -751,7 +750,7 @@ export function BranchToolbarBranchSelector({
           }}
         >
           <div className="flex min-w-0 flex-col items-start py-1">
-            <span className="truncate font-medium">Checkout Pull Request</span>
+            <span className="truncate font-medium">检出 Pull Request</span>
             <span className="truncate text-muted-foreground text-xs">{prReference}</span>
           </div>
         </ComboboxItem>
@@ -858,14 +857,14 @@ export function BranchToolbarBranchSelector({
           <ComboboxInput
             className="rounded-xl border-[color:var(--color-border)] bg-[var(--color-background-control-opaque)] shadow-none before:hidden has-focus-visible:border-[color:var(--color-border-focus)] has-focus-visible:ring-0 [&_input]:font-sans"
             inputClassName="ring-0"
-            placeholder="Search branches..."
+            placeholder="搜索分支…"
             showTrigger={false}
             size="sm"
             value={branchQuery}
             onChange={(event) => setBranchQuery(event.target.value)}
           />
         </div>
-        <ComboboxEmpty>No branches found.</ComboboxEmpty>
+        <ComboboxEmpty>未找到分支。</ComboboxEmpty>
 
         <ComboboxList ref={setBranchListRef} className="max-h-56">
           {shouldVirtualizeBranchList ? (
@@ -916,9 +915,9 @@ export function BranchToolbarBranchSelector({
       >
         <DialogPopup className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Create Branch</DialogTitle>
+            <DialogTitle>创建分支</DialogTitle>
             <DialogDescription>
-              {`Create and switch to a new branch from ${resolvedActiveBranch ?? currentGitBranch ?? "the current HEAD"}.`}
+              {`从 ${resolvedActiveBranch ?? currentGitBranch ?? "当前 HEAD"} 创建并切换到新分支。`}
             </DialogDescription>
           </DialogHeader>
           <DialogPanel className="space-y-3">
@@ -936,18 +935,18 @@ export function BranchToolbarBranchSelector({
             >
               <div className="space-y-1.5">
                 <label className="block font-medium text-sm" htmlFor="branch-create-name">
-                  Branch name
+                  分支名称
                 </label>
                 <Input
                   autoFocus
                   id="branch-create-name"
-                  placeholder="feature/my-change"
+                  placeholder="功能/我的改动"
                   value={createBranchName}
                   onChange={(event) => setCreateBranchName(event.target.value)}
                 />
               </div>
               {branchByName.has(createBranchName.trim()) ? (
-                <p className="text-destructive text-sm">A branch with this name already exists.</p>
+                <p className="text-destructive text-sm">已存在同名分支。</p>
               ) : null}
               <DialogFooter variant="bare">
                 <Button
@@ -959,7 +958,7 @@ export function BranchToolbarBranchSelector({
                     setCreateBranchName("");
                   }}
                 >
-                  Cancel
+                  取消
                 </Button>
                 <Button
                   type="submit"
@@ -969,7 +968,7 @@ export function BranchToolbarBranchSelector({
                     branchByName.has(createBranchName.trim())
                   }
                 >
-                  Create and switch
+                  创建并切换
                 </Button>
               </DialogFooter>
             </form>
@@ -987,14 +986,12 @@ export function BranchToolbarBranchSelector({
       >
         <DialogPopup className="max-w-xl">
           <DialogHeader>
-            <DialogTitle>Discard saved stash?</DialogTitle>
-            <DialogDescription>
-              This will permanently drop the stash entry that preserved your uncommitted changes.
-            </DialogDescription>
+            <DialogTitle>丢弃已保存的 stash？</DialogTitle>
+            <DialogDescription>这将永久删除用于保留未提交更改的 stash 条目。</DialogDescription>
           </DialogHeader>
           <DialogPanel className="space-y-4">
             {stashDiscardDialog?.loading ? (
-              <p className="text-muted-foreground text-sm">Loading stash details...</p>
+              <p className="text-muted-foreground text-sm">正在加载 stash 详情…</p>
             ) : stashDiscardDialog?.error ? (
               <p className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-destructive text-sm">
                 {stashDiscardDialog.error}
@@ -1032,7 +1029,11 @@ export function BranchToolbarBranchSelector({
                   {stashDiscardDialog.info.files.length > 0 ? (
                     <ul className="max-h-48 overflow-auto rounded-lg border border-[color:var(--color-border-light)] bg-[var(--color-background-control-opaque)] py-1">
                       {stashDiscardDialog.info.files.map((file) => (
-                        <li className="正在丢弃…" key={file} title={file}>
+                        <li
+                          className="truncate px-3 py-1 font-mono text-xs"
+                          key={file}
+                          title={file}
+                        >
                           {file}
                         </li>
                       ))}
@@ -1055,7 +1056,7 @@ export function BranchToolbarBranchSelector({
                 setIsDroppingStash(false);
               }}
             >
-              Keep stash
+              保留 stash
             </Button>
             <Button
               variant="destructive"
@@ -1063,9 +1064,7 @@ export function BranchToolbarBranchSelector({
               disabled={!stashDiscardDialog?.info || isDroppingStash}
               onClick={discardStashFromDialog}
             >
-              {isDroppingStash
-                ? "Discarding..."
-                : "某些冲突文件不在 git stash 覆盖范围内，例如被忽略的文件。请在切换前移动或删除它们。"}
+              {isDroppingStash ? "正在丢弃…" : "丢弃暂存"}
             </Button>
           </DialogFooter>
         </DialogPopup>

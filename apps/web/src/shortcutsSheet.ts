@@ -82,23 +82,23 @@ const AVAILABLE_NOW_DEFINITIONS: readonly ShortcutDefinition[] = [
   },
   {
     command: "chat.newClaude",
-    label: "新建 Claude 会话",
-    description: "以 Claude 为 provider 新建会话。",
+    label: `新建 ${"Claude"} 会话`,
+    description: `以 ${"Claude"} 为提供商新建会话。`,
   },
   {
     command: "chat.newCodex",
     label: "新建 Codex 会话",
-    description: "以 Codex 为 provider 新建会话。",
+    description: "以 Codex 为提供商新建会话。",
   },
   {
     command: "chat.newCursor",
-    label: "新建 Cursor 会话",
-    description: "以 Cursor 为 provider 新建会话。",
+    label: `新建 ${"Cursor"} 会话`,
+    description: `以 ${"Cursor"} 为提供商新建会话。`,
   },
   {
     command: "chat.newGemini",
-    label: "新建 Gemini 会话",
-    description: "以 Gemini 为 provider 新建会话。",
+    label: `新建 ${"Gemini"} 会话`,
+    description: `以 ${"Gemini"} 为提供商新建会话。`,
   },
   {
     command: "chat.split",
@@ -118,7 +118,7 @@ const AVAILABLE_NOW_DEFINITIONS: readonly ShortcutDefinition[] = [
   {
     command: "modelPicker.toggle",
     label: "模型选择器",
-    description: "打开输入区 provider 与模型选择器。",
+    description: "打开输入区提供商与模型选择器。",
   },
   {
     command: "traitsPicker.toggle",
@@ -137,8 +137,8 @@ const AVAILABLE_NOW_DEFINITIONS: readonly ShortcutDefinition[] = [
   },
   {
     command: "diff.toggle",
-    label: "切换 diff",
-    description: "打开或关闭工作树 diff 面板。",
+    label: "切换差异",
+    description: "打开或关闭工作树差异面板。",
   },
   {
     command: "browser.toggle",

@@ -73,8 +73,8 @@ export function DesktopWindowControls({ className }: { className?: string }) {
     <div className={cn("flex h-[46px] items-stretch [-webkit-app-region:no-drag]", className)}>
       <button
         type="button"
-        aria-label="Minimize"
-        title="Minimize"
+        aria-label="最小化"
+        title="最小化"
         className={CAPTION_BUTTON_CLASS}
         onClick={() => {
           void controls.minimize();
@@ -84,8 +84,8 @@ export function DesktopWindowControls({ className }: { className?: string }) {
       </button>
       <button
         type="button"
-        aria-label={isMaximized ? "Restore" : "Maximize"}
-        title={isMaximized ? "Restore" : "Maximize"}
+        aria-label={isMaximized ? "还原" : "最大化"}
+        title={isMaximized ? "还原" : "最大化"}
         className={CAPTION_BUTTON_CLASS}
         onClick={() => {
           void controls.toggleMaximize().then(setWindowState);

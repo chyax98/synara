@@ -13,7 +13,7 @@ export type ComposerSlashCommand = BuiltInComposerSlashCommand;
 
 export interface ComposerSlashCommandDefinition {
   command: ComposerSlashCommand;
-  label: `/${ComposerSlashCommand}`;
+  label: string;
   description: string;
   source: "app" | "shared";
 }
@@ -97,73 +97,73 @@ const COMPOSER_SLASH_COMMAND_DEFINITIONS: Record<
 > = {
   clear: {
     command: "clear",
-    label: "/clear",
+    label: "/清除",
     description: "开启新会话并清除当前对话上下文",
     source: "shared",
   },
   compact: {
     command: "compact",
-    label: "/compact",
+    label: "/压缩",
     description: "压缩当前会话上下文以释放空间",
     source: "app",
   },
   model: {
     command: "model",
-    label: "/model",
+    label: "/模型",
     description: "切换此会话的回复模型",
     source: "shared",
   },
   plan: {
     command: "plan",
-    label: "/plan",
+    label: "/计划",
     description: "将此会话切换为计划模式",
     source: "app",
   },
   default: {
     command: "default",
-    label: "/default",
+    label: "/默认",
     description: "将此会话切换回普通聊天模式",
     source: "app",
   },
   review: {
     command: "review",
-    label: "/review",
+    label: "/审查",
     description: "对当前变更开始代码审查",
     source: "app",
   },
   fork: {
     command: "fork",
-    label: "/fork",
-    description: "将此会话分叉到本地或新 worktree",
+    label: "/分叉",
+    description: "将此会话分叉到本地或新工作树",
     source: "app",
   },
   side: {
     command: "side",
-    label: "/side",
-    description: "从此会话打开受保护的 Side",
+    label: "/旁聊",
+    description: "从此会话打开受保护的旁聊",
     source: "app",
   },
   status: {
     command: "status",
-    label: "/status",
+    label: "/状态",
     description: "显示上下文用量与速率限制状态",
     source: "app",
   },
   subagents: {
     command: "subagents",
-    label: "/subagents",
+    label: "/子代理",
     description: "插入提示，让助手委派工作",
     source: "app",
   },
   fast: {
     command: "fast",
-    label: "/fast",
+    label: "/快速",
     description: "为此会话开启或关闭快速模式",
     source: "app",
   },
   automation: {
     command: "automation",
-    label: "/automation",
+    label: "/自动化",
     description: "根据此提示创建定时自动化",
     source: "app",
   },

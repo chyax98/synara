@@ -443,8 +443,8 @@ function EditorRailTabs(props: {
           {terminalTabVisible ? (
             <SurfaceTabChip
               active={props.activeSurface === "terminal"}
-              title="Terminal"
-              label="Terminal"
+              title="终端"
+              label="终端"
               labelClassName="max-w-24"
               icon={<TerminalIcon className="size-3 shrink-0 text-[var(--color-text-accent)]" />}
               trailing={

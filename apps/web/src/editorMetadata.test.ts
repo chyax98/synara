@@ -10,8 +10,8 @@ import {
 describe("resolveEditorLabel", () => {
   it("uses platform-specific labels for the file manager option", () => {
     expect(resolveEditorLabel("file-manager", "MacIntel")).toBe("Finder");
-    expect(resolveEditorLabel("file-manager", "Win32")).toBe("Explorer");
-    expect(resolveEditorLabel("file-manager", "Linux x86_64")).toBe("Files");
+    expect(resolveEditorLabel("file-manager", "Win32")).toBe("资源管理器");
+    expect(resolveEditorLabel("file-manager", "Linux x86_64")).toBe("文件");
   });
 });
 

@@ -144,8 +144,8 @@ export function useComposerSlashCommands(input: {
     ) {
       toastManager.add({
         type: "warning",
-        title: "Compact is unavailable",
-        description: "Open an active supported server thread before compacting context.",
+        title: "无法压缩上下文",
+        description: "请先打开一个受支持的服务端会话，再压缩上下文。",
       });
       return false;
     }
@@ -158,20 +158,16 @@ export function useComposerSlashCommands(input: {
         .catch((error) => {
           toastManager.add({
             type: "error",
-            title: "Could not compact thread",
-            description:
-              error instanceof Error
-                ? error.message
-                : "An error occurred while compacting context.",
+            title: "无法压缩会话",
+            description: error instanceof Error ? error.message : "压缩上下文时发生错误。",
           });
         });
       return true;
     } catch (error) {
       toastManager.add({
         type: "error",
-        title: "Could not compact thread",
-        description:
-          error instanceof Error ? error.message : "An error occurred while compacting context.",
+        title: "无法压缩会话",
+        description: error instanceof Error ? error.message : "压缩上下文时发生错误。",
       });
       return false;
     }
@@ -202,23 +198,23 @@ export function useComposerSlashCommands(input: {
       if (!supportsFastSlashCommand) {
         toastManager.add({
           type: "warning",
-          title: "Fast mode is unavailable",
-          description: "The selected model does not support Fast mode.",
+          title: "快速模式不可用",
+          description: "所选模型不支持快速模式。",
         });
         return true;
       }
       if (action === "invalid") {
         toastManager.add({
           type: "warning",
-          title: "Invalid /fast command",
-          description: "Use /fast, /fast on, /fast off, or /fast status.",
+          title: "无效的快捷命令",
+          description: "可用形式：开启、关闭或查看状态。",
         });
         return true;
       }
       if (action === "status") {
         toastManager.add({
           type: "info",
-          title: `Fast mode is ${fastModeEnabled ? "on" : "off"}`,
+          title: `快速模式已${fastModeEnabled ? "开启" : "关闭"}`,
         });
         return true;
       }
@@ -226,7 +222,7 @@ export function useComposerSlashCommands(input: {
       setFastModeFromSlashCommand(nextEnabled);
       toastManager.add({
         type: "success",
-        title: `Fast mode ${nextEnabled ? "enabled" : "disabled"}`,
+        title: `快速模式已${nextEnabled ? "启用" : "禁用"}`,
       });
       return true;
     },
@@ -239,8 +235,8 @@ export function useComposerSlashCommands(input: {
       if (!api || !activeProject || !activeThread || !isServerThread) {
         toastManager.add({
           type: "warning",
-          title: "Fork is unavailable",
-          description: "Only existing server-backed threads can be forked right now.",
+          title: "分叉不可用",
+          description: "目前只能分叉已有的服务端会话。",
         });
         return true;
       }
@@ -299,8 +295,8 @@ export function useComposerSlashCommands(input: {
       if (!api || !activeProject || !activeThread || !isServerThread || !canOfferSideCommand) {
         toastManager.add({
           type: "warning",
-          title: "Side is unavailable",
-          description: "Open a server-backed main thread before starting Side.",
+          title: "侧聊不可用",
+          description: "请先打开服务端主会话，再启动侧聊。",
         });
         return true;
       }
@@ -321,7 +317,7 @@ export function useComposerSlashCommands(input: {
         sourceThreadId: activeThread.id,
         sidechatSourceThreadId: activeThread.id,
         projectId: activeProject.id,
-        title: `Sidechat: ${titleSeed}`,
+        title: `侧聊：${titleSeed}`,
         modelSelection: selectedModelSelection,
         runtimeMode: "approval-required",
         interactionMode: "default",
@@ -388,8 +384,8 @@ export function useComposerSlashCommands(input: {
       if (!api || !activeThread || !activeProject) {
         toastManager.add({
           type: "warning",
-          title: "Review is unavailable",
-          description: "Open a project thread before starting a native review.",
+          title: "审查不可用",
+          description: "请先打开项目会话，再开始原生审查。",
         });
         return false;
       }
@@ -397,8 +393,8 @@ export function useComposerSlashCommands(input: {
       if (target === "base-branch" && !activeRootBranch) {
         toastManager.add({
           type: "warning",
-          title: "Base branch unavailable",
-          description: "Select or detect a base branch before starting this review.",
+          title: "基分支不可用",
+          description: "请先选择或检测基分支，再开始此次审查。",
         });
         return false;
       }
@@ -411,7 +407,7 @@ export function useComposerSlashCommands(input: {
       const nextThreadId = newThreadId();
       const createdAt = new Date().toISOString();
       const nextThreadTitle =
-        target === "base-branch" ? `${activeThread.title} Review` : `${activeThread.title} Review`;
+        target === "base-branch" ? `${activeThread.title} 审查` : `${activeThread.title} 审查`;
       const associatedWorktree = deriveAssociatedWorktreeMetadata({
         branch: activeThread.branch,
         worktreePath: activeThread.worktreePath,
@@ -469,9 +465,8 @@ export function useComposerSlashCommands(input: {
       } catch (error) {
         toastManager.add({
           type: "error",
-          title: "Could not start review",
-          description:
-            error instanceof Error ? error.message : "An error occurred while starting review.",
+          title: "无法开始审查",
+          description: error instanceof Error ? error.message : "开始审查时发生错误。",
         });
         return false;
       }
@@ -503,11 +498,8 @@ export function useComposerSlashCommands(input: {
       } catch (error) {
         toastManager.add({
           type: "error",
-          title: "Could not fork thread",
-          description:
-            error instanceof Error
-              ? error.message
-              : "An error occurred while creating the forked thread.",
+          title: "无法分叉会话",
+          description: error instanceof Error ? error.message : "创建分叉会话时发生错误。",
         });
       }
     },
@@ -520,8 +512,8 @@ export function useComposerSlashCommands(input: {
       editorActions.clearComposerSlashDraft();
       toastManager.add({
         type: "warning",
-        title: "Fast mode could not be checked",
-        description: "Claude command discovery is unavailable right now.",
+        title: "无法检查快速模式",
+        description: "当前无法发现 OpenCode 命令。",
       });
       return false;
     }
@@ -546,8 +538,8 @@ export function useComposerSlashCommands(input: {
       editorActions.clearComposerSlashDraft();
       toastManager.add({
         type: "warning",
-        title: "Fast mode could not be checked",
-        description: "Claude command discovery failed. Please try again.",
+        title: "无法检查快速模式",
+        description: "OpenCode 命令发现失败，请重试。",
       });
       return false;
     }
@@ -555,8 +547,8 @@ export function useComposerSlashCommands(input: {
     editorActions.clearComposerSlashDraft();
     toastManager.add({
       type: "info",
-      title: "Fast mode is unavailable",
-      description: "Claude did not expose /fast for this account or environment.",
+      title: "快速模式不可用",
+      description: "当前账户或环境未暴露快速模式命令。",
     });
     return false;
   }, [editorActions, providerCommandDiscoveryCwd, threadId]);
@@ -624,8 +616,8 @@ export function useComposerSlashCommands(input: {
         if (invalid) {
           toastManager.add({
             type: "warning",
-            title: "Invalid /fork command",
-            description: "Use /fork and then choose Local or New Worktree.",
+            title: "无效的分叉命令",
+            description: "请使用分叉命令，然后选择「本地」或「新工作树」。",
           });
           return true;
         }
@@ -642,11 +634,8 @@ export function useComposerSlashCommands(input: {
         } catch (error) {
           toastManager.add({
             type: "error",
-            title: "Could not fork thread",
-            description:
-              error instanceof Error
-                ? error.message
-                : "An error occurred while creating the forked thread.",
+            title: "无法分叉会话",
+            description: error instanceof Error ? error.message : "创建分叉会话时发生错误。",
           });
         }
         return true;
@@ -658,9 +647,8 @@ export function useComposerSlashCommands(input: {
         } catch (error) {
           toastManager.add({
             type: "error",
-            title: "Could not start Side",
-            description:
-              error instanceof Error ? error.message : "An error occurred while creating Side.",
+            title: "无法启动侧聊",
+            description: error instanceof Error ? error.message : "创建侧聊时发生错误。",
           });
         }
         return true;
@@ -849,9 +837,8 @@ export function useComposerSlashCommands(input: {
         void createSidechatFromSlashCommand().catch((error) => {
           toastManager.add({
             type: "error",
-            title: "Could not start Side",
-            description:
-              error instanceof Error ? error.message : "An error occurred while creating Side.",
+            title: "无法启动侧聊",
+            description: error instanceof Error ? error.message : "创建侧聊时发生错误。",
           });
         });
       }

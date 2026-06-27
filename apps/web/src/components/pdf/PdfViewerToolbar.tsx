@@ -78,7 +78,7 @@ export const PdfViewerToolbar = memo(function PdfViewerToolbar(props: PdfViewerT
 
       <div className="flex shrink-0 items-center gap-0.5">
         <ChatHeaderIconButton
-          label="Previous page"
+          label="上一页"
           tone="plain"
           disabled={props.currentPage <= 1}
           onClick={() => props.onJumpToPage(props.currentPage - 1)}
@@ -91,7 +91,7 @@ export const PdfViewerToolbar = memo(function PdfViewerToolbar(props: PdfViewerT
           onJumpToPage={props.onJumpToPage}
         />
         <ChatHeaderIconButton
-          label="Next page"
+          label="下一页"
           tone="plain"
           disabled={props.currentPage >= props.numPages}
           onClick={() => props.onJumpToPage(props.currentPage + 1)}
@@ -130,8 +130,8 @@ export const PdfViewerToolbar = memo(function PdfViewerToolbar(props: PdfViewerT
                   }
                 }}
               >
-                <MenuRadioItem value="fit-width">Fit width</MenuRadioItem>
-                <MenuRadioItem value="fit-page">Fit page</MenuRadioItem>
+                <MenuRadioItem value="fit-width">适应宽度</MenuRadioItem>
+                <MenuRadioItem value="fit-page">适应页面</MenuRadioItem>
                 <MenuSeparator className="mx-1" />
                 {PDF_ZOOM_PRESETS.map((preset) => {
                   const percent = String(Math.round(preset * 100));
@@ -187,7 +187,7 @@ function PdfPageIndicator({
       <input
         value={draft}
         inputMode="numeric"
-        aria-label="Current page"
+        aria-label="当前页"
         className="h-6 w-8 rounded-sm border border-border/60 bg-transparent text-center text-[11px] text-foreground tabular-nums outline-none focus-visible:border-[color:var(--color-border-focus)]"
         onChange={(event) => setDraft(event.target.value.replace(/[^0-9]/g, ""))}
         onBlur={commit}

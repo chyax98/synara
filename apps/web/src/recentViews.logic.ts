@@ -299,14 +299,14 @@ export function buildRecentViewDisplayEntries(input: {
         return {
           ...base,
           icon: { kind: "settings" },
-          title: "Settings",
+          title: "设置",
           subtitle: view.section ? (SETTINGS_LABELS[view.section] ?? view.section) : "App settings",
         };
       case "plugins":
         return {
           ...base,
           icon: { kind: "plugins" },
-          title: "Plugins",
+          title: "插件",
           subtitle: "Extensions and integrations",
         };
     }

@@ -28,8 +28,7 @@ describe("normalizeProviderStatusForLocalConfig", () => {
       ...BASE_STATUS,
       available: true,
       status: "warning",
-      message:
-        "OpenCode uses a custom local binary path in this app. Availability will be confirmed when you start a session.",
+      message: "OpenCode 在本应用中使用了自定义本地二进制路径。启动会话后将确认可用性。",
     });
   });
 
@@ -49,8 +48,7 @@ describe("normalizeProviderStatusForLocalConfig", () => {
       provider: "opencode",
       available: true,
       status: "warning",
-      message:
-        "OpenCode uses a custom local binary path in this app. Availability will be confirmed when you start a session.",
+      message: "OpenCode 在本应用中使用了自定义本地二进制路径。启动会话后将确认可用性。",
     });
   });
 
@@ -92,8 +90,7 @@ describe("normalizeProviderStatusForLocalConfig", () => {
       provider: "opencode",
       available: true,
       status: "warning",
-      message:
-        "OpenCode uses a custom local binary path in this app. Availability will be confirmed when you start a session.",
+      message: "OpenCode 在本应用中使用了自定义本地二进制路径。启动会话后将确认可用性。",
     });
   });
 

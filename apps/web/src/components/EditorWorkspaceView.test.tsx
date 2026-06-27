@@ -246,7 +246,7 @@ describe("EditorWorkspaceView", () => {
     // The custom viewer renders its own surface (here the initial loading state
     // since document fetch runs in an effect) rather than the browser iframe or
     // the text preview.
-    expect(markup).toContain('aria-label="Loading PDF..."');
+    expect(markup).toContain('aria-label="正在加载 PDF…"');
     expect(markup).not.toContain("<iframe");
     expect(markup).not.toContain("editor-file-viewer__plain");
     expect(markup).not.toContain("editor-file-viewer__highlight");
@@ -275,7 +275,7 @@ describe("EditorWorkspaceView", () => {
       </QueryClientProvider>,
     );
 
-    expect(markup).toContain('aria-label="Loading PDF..."');
+    expect(markup).toContain('aria-label="正在加载 PDF…"');
     expect(markup).not.toContain("No workspace is attached");
   });
 

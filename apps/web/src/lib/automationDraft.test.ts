@@ -49,7 +49,7 @@ describe("automation draft warnings", () => {
         requiresAcknowledgement: true,
       },
     ]);
-    expect(warnings[0]?.detail).toContain("provider mentions");
+    expect(warnings[0]?.detail).toContain("提供商提及");
     expect(hasBlockingAutomationDraftWarnings(warnings, new Set())).toBe(true);
   });
 

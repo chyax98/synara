@@ -23,10 +23,10 @@ export function GitProgressToastPreviewToggle() {
       onClick={() => {
         setFeatureFlagEnabled("pin-git-progress-toast-preview", !enabled);
       }}
-      title="Keep a looping git progress toast visible for styling"
+      title="保持循环显示的 Git 进度提示，便于调整样式"
     >
       <LoaderCircleIcon className={cn("size-[15px]", enabled && "animate-spin")} />
-      <span>{enabled ? "Git toast preview on" : "Git toast preview"}</span>
+      <span>{enabled ? "Git 提示预览已开启" : "Git 提示预览"}</span>
     </SidebarMenuButton>
   );
 }
