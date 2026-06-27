@@ -36,59 +36,59 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   {
     id: "general:default-provider",
     section: "general",
-    title: "Default provider",
+    title: "默认 provider",
     keywords: "Choose the provider used for new chats. agent codex claude",
   },
   {
     id: "general:new-threads",
     section: "general",
-    title: "New threads",
+    title: "新会话",
     keywords:
       "Pick the default workspace mode for newly created draft threads. local worktree environment",
   },
   {
     id: "general:project-order",
     section: "general",
-    title: "Project order",
+    title: "项目排序",
     keywords: "Controls how projects are arranged in the main sidebar. sort updated created manual",
   },
   {
     id: "general:thread-order",
     section: "general",
-    title: "Thread order",
+    title: "会话排序",
     keywords:
       "Controls how threads are arranged inside each project in the main sidebar. sort updated created",
   },
   {
     id: "general:chats-section",
     section: "general",
-    title: "Chats",
+    title: "会话列表",
     keywords:
       "Show the standalone Chats list in the sidebar footer chats not tied to a project. sidebar section",
   },
   {
     id: "general:workspace-section",
     section: "general",
-    title: "Workspace",
+    title: "工作区",
     keywords:
       "Show the Workspace tab in the sidebar switcher. The Threads tab always stays visible. sidebar section",
   },
   {
     id: "general:environment-usage",
     section: "general",
-    title: "Usage",
+    title: "用量",
     keywords: "Show the provider usage row in the chat Environment panel.",
   },
   {
     id: "general:environment-repository",
     section: "general",
-    title: "Repository",
+    title: "仓库",
     keywords: "Show the GitHub repository link in the chat Environment panel. git changes worktree",
   },
   {
     id: "general:environment-editor",
     section: "general",
-    title: "Editor",
+    title: "编辑器",
     keywords:
       "Show the Editor section in-app editor view and Open in editor picker in the chat Environment panel.",
   },
@@ -101,19 +101,19 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   {
     id: "general:environment-pinned",
     section: "general",
-    title: "Pinned messages",
+    title: "置顶消息",
     keywords: "Show the pinned-messages checklist in the Environment panel.",
   },
   {
     id: "general:environment-markers",
     section: "general",
-    title: "Text markers",
+    title: "文本标记",
     keywords: "Show highlighted and underlined transcript text in the Environment panel.",
   },
   {
     id: "general:environment-notepad",
     section: "general",
-    title: "Notepad",
+    title: "记事本",
     keywords: "Show the per-thread notepad in the Environment panel.",
   },
 
@@ -121,47 +121,47 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   {
     id: "appearance:theme",
     section: "appearance",
-    title: "Theme",
+    title: "主题",
     keywords: "Choose how Synara looks across the app. dark light system color",
   },
   {
     id: "appearance:ui-density",
     section: "appearance",
-    title: "UI density",
+    title: "UI 密度",
     keywords:
       "Control spacing in the sidebar, composer, chat gutters, and settings rows without changing font size. compact comfortable",
   },
   {
     id: "appearance:base-font-size",
     section: "appearance",
-    title: "Base font size",
+    title: "基础字号",
     keywords:
       "Adjust the app text base in pixels. Chat and UI typography scale proportionally. font",
   },
   {
     id: "appearance:terminal-font-size",
     section: "appearance",
-    title: "Terminal font size",
+    title: "Terminal 字号",
     keywords: "Adjust terminal text independently from the app and chat font size.",
   },
   {
     id: "appearance:terminal-font",
     section: "appearance",
-    title: "Terminal font",
+    title: "Terminal 字体",
     keywords:
       "Type any monospace font installed on this device e.g. Fira Code. system monospace family",
   },
   {
     id: "appearance:font-smoothing",
     section: "appearance",
-    title: "Font smoothing",
+    title: "字体平滑",
     keywords: "Use macOS-style antialiasing for lighter, crisper text rendering.",
     target: null,
   },
   {
     id: "appearance:time-format",
     section: "appearance",
-    title: "Time format",
+    title: "时间格式",
     keywords:
       "System default follows your browser or OS clock preference. timestamp 12-hour 24-hour locale",
   },
@@ -170,14 +170,14 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   {
     id: "notifications:activity-toasts",
     section: "notifications",
-    title: "Activity toasts",
+    title: "活动通知",
     keywords:
       "Show an in-app toast when a chat or managed terminal agent finishes or needs input. alerts",
   },
   {
     id: "notifications:desktop-notifications",
     section: "notifications",
-    title: "Desktop notifications",
+    title: "桌面通知",
     keywords:
       "Show an OS notification when a chat or managed terminal agent finishes or needs input while the app is in the background. alerts toast",
   },
@@ -186,38 +186,38 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   {
     id: "behavior:assistant-output",
     section: "behavior",
-    title: "Assistant output",
+    title: "助手输出",
     keywords: "Show token-by-token output while a response is in progress. streaming",
   },
   {
     id: "behavior:diff-line-wrapping",
     section: "behavior",
-    title: "Diff line wrapping",
+    title: "Diff 自动换行",
     keywords: "Set the default wrap state when the diff panel opens. word wrap",
   },
   {
     id: "behavior:prompt-suggestions",
     section: "behavior",
-    title: "Prompt suggestions",
+    title: "提示建议",
     keywords:
       "Show suggested prompts under the composer when starting a new thread. composer suggestions",
   },
   {
     id: "behavior:delete-confirmation",
     section: "behavior",
-    title: "Delete confirmation",
+    title: "删除确认",
     keywords: "Ask before deleting a thread and its chat history. safety confirm",
   },
   {
     id: "behavior:archive-confirmation",
     section: "behavior",
-    title: "Archive confirmation",
+    title: "归档确认",
     keywords: "Ask before archiving a thread. safety confirm",
   },
   {
     id: "behavior:terminal-close-confirmation",
     section: "behavior",
-    title: "Terminal close confirmation",
+    title: "关闭 Terminal 确认",
     keywords: "Ask before closing a terminal tab and clearing its history. safety confirm",
   },
 
@@ -225,7 +225,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   {
     id: "worktrees:managed-worktrees",
     section: "worktrees",
-    title: "Managed worktrees",
+    title: "托管 worktree",
     keywords: "Review and clean up the worktrees created by Synara. git branch remove",
     target: null,
   },
@@ -234,7 +234,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   {
     id: "archived:archived-threads",
     section: "archived",
-    title: "Archived threads",
+    title: "已归档会话",
     keywords: "View and restore archived threads. unarchive history",
     target: null,
   },
@@ -243,13 +243,13 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   {
     id: "models:git-writing-model",
     section: "models",
-    title: "Git writing model",
+    title: "Git 文案模型",
     keywords: "Used for generated commit messages, PR titles, and branch names.",
   },
   {
     id: "models:saved-model-slugs",
     section: "models",
-    title: "Saved model slugs",
+    title: "已保存 model 代号",
     keywords: "Add custom model slugs for supported providers. custom model",
   },
 
@@ -257,20 +257,20 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   {
     id: "providers:visible-providers",
     section: "providers",
-    title: "Visible providers",
+    title: "可见 provider",
     keywords:
       "Drag providers into your preferred picker order and hide the ones you don't use. visibility order",
   },
   {
     id: "providers:provider-updates",
     section: "providers",
-    title: "Provider updates",
+    title: "Provider 更新",
     keywords: "Update installed provider tools that Synara can safely update. upgrade cli",
   },
   {
     id: "providers:installed-clis",
     section: "providers",
-    title: "Installed CLIs",
+    title: "已安装 CLI",
     keywords: "Review provider versions and update tools. binary overrides path install",
   },
 
@@ -278,7 +278,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   {
     id: "skills:skills",
     section: "skills",
-    title: "Skills",
+    title: "Skill",
     keywords: "Every skill found across providers, with toggles to control availability. agent",
     target: null,
   },
@@ -287,7 +287,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   {
     id: "usage:usage",
     section: "usage",
-    title: "Usage and billing",
+    title: "用量与计费",
     keywords: "Remaining quota and credits for each signed-in provider. limits credits",
     target: null,
   },
@@ -296,27 +296,27 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   {
     id: "advanced:keybindings",
     section: "advanced",
-    title: "Keybindings",
+    title: "快捷键",
     keywords:
       "Open the persisted keybindings.json file to edit advanced bindings directly. shortcuts",
   },
   {
     id: "advanced:recovery-tools",
     section: "advanced",
-    title: "Recovery tools",
+    title: "恢复工具",
     keywords:
       "Rebuild local project indexes without clearing existing chats when the local state gets out of sync.",
   },
   {
     id: "advanced:version",
     section: "advanced",
-    title: "Version",
+    title: "版本",
     keywords: "Current application version. about",
   },
   {
     id: "advanced:release-history",
     section: "advanced",
-    title: "Release history",
+    title: "发布历史",
     keywords:
       "A running log of every update, newest first. changelog what's new about release notes",
   },

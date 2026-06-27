@@ -77,8 +77,8 @@ export function useKanbanCardContextMenu(): KanbanCardContextMenuController {
     if (thread.session?.status === "running" && thread.session.activeTurnId != null) {
       toastManager.add({
         type: "error",
-        title: "Cannot archive",
-        description: "Stop the running session before archiving this thread.",
+        title: "无法归档",
+        description: "先停止运行中的会话，再归档此 thread。",
       });
       return;
     }
@@ -125,10 +125,10 @@ export function useKanbanCardContextMenu(): KanbanCardContextMenuController {
         project !== null &&
         (await api.dialogs.confirm(
           [
-            "This thread is the only one linked to this worktree:",
+            "此 thread 是唯一关联到该 worktree 的会话：",
             displayWorktreePath ?? orphanedWorktreePath,
             "",
-            "Delete the worktree too?",
+            "同时删除 worktree 吗？",
           ].join("\n"),
         ));
 
@@ -173,9 +173,9 @@ export function useKanbanCardContextMenu(): KanbanCardContextMenuController {
       } catch (error) {
         toastManager.add({
           type: "error",
-          title: "Thread deleted, but worktree removal failed",
+          title: "thread 已删除，但 worktree 移除失败",
           description: `Could not remove ${displayWorktreePath ?? orphanedWorktreePath}. ${
-            error instanceof Error ? error.message : "Unknown error."
+            error instanceof Error ? error.message : "未知错误。"
           }`,
         });
       }
@@ -218,23 +218,23 @@ export function useKanbanCardContextMenu(): KanbanCardContextMenuController {
           [
             ...(isThreadActionCard
               ? [
-                  { id: "rename", label: "Rename thread" },
+                  { id: "rename", label: "重命名 thread" },
                   {
                     id: "toggle-pin",
-                    label: card.thread?.isPinned ? "Unpin thread" : "Pin thread",
+                    label: card.thread?.isPinned ? "取消置顶 thread" : "置顶 thread",
                   },
                 ]
               : []),
             ...(workspacePath
-              ? [{ id: "copy-path", label: "Copy Path", separatorBefore: true }]
+              ? [{ id: "copy-path", label: "复制路径", separatorBefore: true }]
               : []),
-            ...(isThreadBacked ? [{ id: "copy-thread-id", label: "Copy Thread ID" }] : []),
+            ...(isThreadBacked ? [{ id: "copy-thread-id", label: "复制 Thread ID" }] : []),
             ...(isThreadActionCard
               ? [{ id: "archive", label: "Archive", separatorBefore: true }]
               : []),
             {
               id: "delete",
-              label: deletesOnlyDraft ? "Delete draft" : "Delete",
+              label: deletesOnlyDraft ? "删除草稿" : "Delete",
               destructive: true,
               separatorBefore: !isThreadActionCard,
             },
@@ -251,7 +251,7 @@ export function useKanbanCardContextMenu(): KanbanCardContextMenuController {
           void setThreadPinned(card.threadId, next).catch(() => {
             toastManager.add({
               type: "error",
-              title: next ? "Unable to pin thread" : "Unable to unpin thread",
+              title: next ? "无法置顶 thread" : "无法取消置顶 thread",
             });
           });
           return;
@@ -271,7 +271,7 @@ export function useKanbanCardContextMenu(): KanbanCardContextMenuController {
             const confirmed = await api.dialogs.confirm(
               [
                 `Archive thread "${card.title}"?`,
-                "Archived threads are hidden from the sidebar but can be restored later.",
+                "归档后的 thread 会从侧边栏隐藏，但以后可以恢复。",
               ].join("\n"),
             );
             if (!confirmed) return;
@@ -286,7 +286,7 @@ export function useKanbanCardContextMenu(): KanbanCardContextMenuController {
               ? `Delete this draft? This removes its unsent prompt.`
               : [
                   `Delete thread "${card.title}"?`,
-                  "This permanently clears conversation history for this thread.",
+                  "这会永久清除该 thread 的对话记录。",
                 ].join("\n"),
           );
           if (!confirmed) return;
@@ -324,8 +324,8 @@ export function useKanbanCardContextMenu(): KanbanCardContextMenuController {
           if (outcome === "unavailable") {
             toastManager.add({
               type: "error",
-              title: "Not connected",
-              description: "Reconnect to the server before renaming.",
+              title: "未连接",
+              description: "重命名前请先重新连接服务器。",
             });
             return;
           }

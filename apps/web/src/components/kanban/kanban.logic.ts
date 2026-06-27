@@ -23,7 +23,7 @@ export const KANBAN_COLUMN_LABELS: Record<KanbanColumnKey, string> = {
   done: "Done",
 };
 
-export const KANBAN_FALLBACK_DRAFT_TITLE = "New thread";
+export const KANBAN_FALLBACK_DRAFT_TITLE = "新会话";
 
 /** Pending composer content for one thread, projected from the composer draft store. */
 export interface KanbanComposerDraftSnapshot {

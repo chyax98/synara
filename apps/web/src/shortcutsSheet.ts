@@ -47,118 +47,118 @@ interface ShortcutDefinition {
 const AVAILABLE_NOW_DEFINITIONS: readonly ShortcutDefinition[] = [
   {
     command: "sidebar.addProject",
-    label: "Add project",
-    description: "Open the folder picker to import a local project into the sidebar.",
+    label: "添加项目",
+    description: "打开文件夹选择器，将本地项目导入侧边栏。",
   },
   {
     command: "sidebar.search",
-    label: "Search projects and threads",
-    description: "Open the sidebar search palette from anywhere in the app.",
+    label: "搜索项目与会话",
+    description: "在应用任意位置打开侧边栏搜索面板。",
   },
   {
     command: "sidebar.importThread",
-    label: "Import thread",
-    description: "Bring an existing conversation into the current workspace.",
+    label: "导入会话",
+    description: "将已有对话导入当前工作区。",
   },
   {
     command: "chat.new",
-    label: "New thread",
-    description: "Start a fresh thread in the current project.",
+    label: "新会话",
+    description: "在当前项目中新建会话。",
   },
   {
     command: "chat.newLatestProject",
-    label: "New thread in latest project",
-    description: "Jump back into the most recently used project with a new thread.",
+    label: "在最近项目中新建会话",
+    description: "在最近使用的项目中新建会话。",
   },
   {
     command: ["chat.newChat", "chat.newLocal"],
-    label: "New chat",
-    description: "Open the empty chat landing view.",
+    label: "新聊天",
+    description: "打开空白聊天起始页。",
   },
   {
     command: "chat.newTerminal",
-    label: "New terminal thread",
-    description: "Create a thread that opens directly into terminal mode.",
+    label: "新建终端会话",
+    description: "创建直接进入终端模式的会话。",
   },
   {
     command: "chat.newClaude",
-    label: "New Claude thread",
-    description: "Start a fresh thread with Claude selected.",
+    label: "新建 Claude 会话",
+    description: "以 Claude 为 provider 新建会话。",
   },
   {
     command: "chat.newCodex",
-    label: "New Codex thread",
-    description: "Start a fresh thread with Codex selected.",
+    label: "新建 Codex 会话",
+    description: "以 Codex 为 provider 新建会话。",
   },
   {
     command: "chat.newCursor",
-    label: "New Cursor thread",
-    description: "Start a fresh thread with Cursor selected.",
+    label: "新建 Cursor 会话",
+    description: "以 Cursor 为 provider 新建会话。",
   },
   {
     command: "chat.newGemini",
-    label: "New Gemini thread",
-    description: "Start a fresh thread with Gemini selected.",
+    label: "新建 Gemini 会话",
+    description: "以 Gemini 为 provider 新建会话。",
   },
   {
     command: "chat.split",
-    label: "Split chat",
-    description: "Open the current conversation in a second pane.",
+    label: "分屏聊天",
+    description: "在第二个窗格中打开当前对话。",
   },
   {
     command: "view.recent.previous",
-    label: "Previous recent view",
-    description: "Cycle backward through recently opened primary views.",
+    label: "上一个最近视图",
+    description: "向后切换最近打开的主视图。",
   },
   {
     command: "view.recent.next",
-    label: "Next recent view",
-    description: "Cycle forward through recently opened primary views.",
+    label: "下一个最近视图",
+    description: "向前切换最近打开的主视图。",
   },
   {
     command: "modelPicker.toggle",
-    label: "Model picker",
-    description: "Open the composer provider and model picker.",
+    label: "模型选择器",
+    description: "打开输入区 provider 与模型选择器。",
   },
   {
     command: "traitsPicker.toggle",
-    label: "Reasoning picker",
-    description: "Open the composer reasoning and trait controls.",
+    label: "推理选择器",
+    description: "打开输入区推理与特性控件。",
   },
   {
     command: "composer.focus.toggle",
-    label: "Focus composer",
-    description: "Focus or blur the chat prompt composer.",
+    label: "聚焦输入区",
+    description: "聚焦或取消聚焦聊天输入框。",
   },
   {
     command: "terminal.toggle",
-    label: "Toggle terminal",
-    description: "Show or hide the terminal surface for the active thread.",
+    label: "切换终端",
+    description: "显示或隐藏当前会话的终端界面。",
   },
   {
     command: "diff.toggle",
-    label: "Toggle diff",
-    description: "Open or close the working tree diff panel.",
+    label: "切换 diff",
+    description: "打开或关闭工作树 diff 面板。",
   },
   {
     command: "browser.toggle",
-    label: "Toggle browser",
-    description: "Reveal the built-in browser panel for the active thread.",
+    label: "切换浏览器",
+    description: "显示当前会话的内置浏览器面板。",
   },
   {
     command: "chat.visible.previous",
-    label: "Previous visible thread",
-    description: "Cycle to the previous thread that is currently visible in the sidebar.",
+    label: "上一个可见会话",
+    description: "切换到侧边栏中上一个当前可见的会话。",
   },
   {
     command: "chat.visible.next",
-    label: "Next visible thread",
-    description: "Cycle to the next thread that is currently visible in the sidebar.",
+    label: "下一个可见会话",
+    description: "切换到侧边栏中下一个当前可见的会话。",
   },
   {
     command: "editor.openFavorite",
-    label: "Open in favorite editor",
-    description: "Send the current thread or workspace target to your preferred editor.",
+    label: "在偏好编辑器中打开",
+    description: "将当前会话或工作区目标发送到偏好编辑器。",
   },
 ] as const;
 
@@ -166,31 +166,31 @@ const THREAD_JUMP_DEFINITIONS: readonly ShortcutDefinition[] = Array.from(
   { length: 9 },
   (_, index) => ({
     command: `thread.jump.${index + 1}` as KeybindingCommand,
-    label: `Jump to visible thread ${index + 1}`,
-    description: "Focus a visible thread directly from the sidebar number row.",
+    label: `跳转到可见会话 ${index + 1}`,
+    description: "通过侧边栏数字行直接聚焦可见会话。",
   }),
 );
 
 const WORKSPACE_DEFINITIONS: readonly ShortcutDefinition[] = [
   {
     command: "terminal.workspace.newFullWidth",
-    label: "Open full-width terminal workspace",
-    description: "Expand the active thread into the workspace terminal layout.",
+    label: "打开全宽终端工作区",
+    description: "将当前会话展开为工作区终端布局。",
   },
   {
     command: "terminal.workspace.terminal",
-    label: "Focus terminal tab",
-    description: "Switch the workspace to the terminal tab.",
+    label: "聚焦终端标签",
+    description: "将工作区切换到终端标签。",
   },
   {
     command: "terminal.workspace.chat",
-    label: "Focus chat tab",
-    description: "Switch the workspace back to the chat tab.",
+    label: "聚焦聊天标签",
+    description: "将工作区切换回聊天标签。",
   },
   {
     command: "terminal.workspace.closeActive",
-    label: "Close active workspace panel",
-    description: "Close the currently focused workspace panel or tab.",
+    label: "关闭当前工作区面板",
+    description: "关闭当前聚焦的工作区面板或标签。",
   },
 ] as const;
 
@@ -240,8 +240,8 @@ export function buildShortcutSheetSections(
   const currentEntries: ShortcutSheetEntry[] = [
     {
       id: "shortcuts.show",
-      label: "Show keyboard shortcuts",
-      description: "Open this sheet from anywhere without leaving your current context.",
+      label: "显示键盘快捷键",
+      description: "在任意位置打开此面板，无需离开当前上下文。",
       shortcutLabel: modSlashLabel(options.platform),
     },
     ...definitionsToEntries(
@@ -255,8 +255,8 @@ export function buildShortcutSheetSections(
   const sidebarToggle = definitionToEntry(
     {
       command: "sidebar.toggle",
-      label: "Toggle sidebar",
-      description: "Collapse or reveal the sidebar shell.",
+      label: "切换侧边栏",
+      description: "折叠或展开侧边栏外壳。",
     },
     options.keybindings,
     options.platform,
@@ -282,10 +282,10 @@ export function buildShortcutSheetSections(
 
   sections.push({
     id: "available-now",
-    title: "Available now",
+    title: "当前可用",
     description: options.context.terminalWorkspaceOpen
-      ? "These reflect the active workspace-terminal context."
-      : "These reflect the current chat and sidebar context.",
+      ? "反映当前工作区终端上下文。"
+      : "反映当前聊天与侧边栏上下文。",
     entries: [...currentEntries, ...currentNavigationEntries],
   });
 
@@ -308,10 +308,10 @@ export function buildShortcutSheetSections(
   if (alternateEntries.length > 0) {
     sections.push({
       id: "alternate-context",
-      title: options.context.terminalWorkspaceOpen ? "Outside workspace mode" : "In workspace mode",
+      title: options.context.terminalWorkspaceOpen ? "工作区模式外" : "工作区模式中",
       description: options.context.terminalWorkspaceOpen
-        ? "Number-row jumps return when the terminal workspace is closed."
-        : "These bindings take over when the terminal switches into workspace mode.",
+        ? "关闭终端工作区后，数字行跳转将恢复。"
+        : "终端切换到工作区模式时，这些绑定生效。",
       tone: "muted",
       entries: alternateEntries,
     });
@@ -327,10 +327,10 @@ export function buildShortcutSheetSections(
       if (!shortcutLabel) return null;
       return {
         id: script.id,
-        label: script.runOnWorktreeCreate ? `${script.name} setup script` : script.name,
+        label: script.runOnWorktreeCreate ? `${script.name} 安装脚本` : script.name,
         description: script.runOnWorktreeCreate
-          ? "Run the project setup script directly from the keyboard."
-          : "Run this project script without opening the scripts menu.",
+          ? "直接从键盘运行项目安装脚本。"
+          : "无需打开脚本菜单即可运行此项目脚本。",
         shortcutLabel,
       } satisfies ShortcutSheetEntry;
     })
@@ -339,8 +339,8 @@ export function buildShortcutSheetSections(
   if (projectScriptEntries.length > 0) {
     sections.push({
       id: "project-scripts",
-      title: "Project scripts",
-      description: "Custom shortcuts defined for the active project's scripts.",
+      title: "项目脚本",
+      description: "为当前项目脚本定义的自定义快捷键。",
       entries: projectScriptEntries,
     });
   }

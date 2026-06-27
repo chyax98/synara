@@ -125,7 +125,7 @@ function AutomationListRow({
       {onDelete ? (
         <button
           type="button"
-          aria-label="Delete automation"
+          aria-label="删除自动化"
           title="Delete"
           onClick={(event) => {
             event.stopPropagation();
@@ -141,12 +141,12 @@ function AutomationListRow({
   );
 }
 
-/** Right-aligned meta for an automation row: live status, triage outcome, cadence, or "Paused". */
+/** Right-aligned meta for an automation row: live status, triage outcome, cadence, or "已暂停". */
 function rowMeta(definition: AutomationDefinition, latestRun: AutomationRun | null): string {
   if (isLiveRun(latestRun)) return runStatusLabel(latestRun.status);
   if (latestRun && isTriageRun(latestRun)) return triageRunLabel(latestRun);
   if (!definition.enabled) {
-    return automationLifecycleState(definition) === "done" ? "Done" : "Paused";
+    return automationLifecycleState(definition) === "done" ? "Done" : "已暂停";
   }
   return formatCadence(definition.schedule);
 }
@@ -316,7 +316,7 @@ function AutomationsRouteView() {
       <AutomationListRow
         key={run.id}
         // A run row opens its automation; the run's thread is opened from inside the
-        // automation detail's "Previous runs" sidebar (orphan runs fall back to the thread).
+        // automation detail's "历史运行" sidebar (orphan runs fall back to the thread).
         onClick={() =>
           definition
             ? void navigate({
@@ -400,8 +400,8 @@ function AutomationsRouteView() {
                 type="button"
                 size="icon-sm"
                 variant="ghost"
-                aria-label="Refresh"
-                title="Refresh"
+                aria-label="刷新"
+                title="刷新"
                 onClick={() => void refetch()}
               >
                 <CentralIcon name="arrow-rotate-clockwise" className="size-4" />
@@ -439,7 +439,7 @@ function AutomationsRouteView() {
               <div className="flex flex-col gap-6">
                 {renderTriage()}
                 {renderSection("Current", active)}
-                {renderSection("Paused", inactive)}
+                {renderSection("已暂停", inactive)}
               </div>
             )}
           </div>

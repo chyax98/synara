@@ -30,11 +30,11 @@ export function GeneratedMarkdownImage(props: GeneratedMarkdownImageProps) {
   const { src, alt, cwd, onImageExpand } = props;
   const { previewUrl, downloadUrl, fileName, downloadName, status, imgProps } =
     useLocalImagePreview({ src, cwd });
-  const accessibleName = alt?.trim() || "Generated image";
+  const accessibleName = alt?.trim() || "生成的图片";
   const downloadImage = useLocalImageDownloadClick({
     downloadUrl,
     downloadName,
-    errorTitle: "Could not download generated image",
+    errorTitle: "无法下载生成的图片",
   });
 
   const expandImage = useCallback(

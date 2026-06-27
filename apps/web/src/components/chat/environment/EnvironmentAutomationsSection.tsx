@@ -35,7 +35,7 @@ export function EnvironmentAutomationsSection({
     <div className="flex flex-col gap-0.5">
       <EnvironmentSectionLabel>Automations</EnvironmentSectionLabel>
       {automations.map(({ definition }) => {
-        const cadence = definition.enabled ? formatCadence(definition.schedule) : "Paused";
+        const cadence = definition.enabled ? formatCadence(definition.schedule) : "已暂停";
         return (
           <EnvironmentRow
             key={definition.id}

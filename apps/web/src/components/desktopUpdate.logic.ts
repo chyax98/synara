@@ -149,7 +149,7 @@ export function getDesktopUpdateButtonPresentation(
   }
   if (action === "check") {
     return {
-      label: "Check updates",
+      label: "检查更新",
       secondaryLabel: null,
       progressPercent: null,
     };
@@ -167,17 +167,17 @@ export function getDesktopUpdateButtonLabel(state: DesktopUpdateState | null): s
 
 export function getArm64IntelBuildWarningDescription(state: DesktopUpdateState): string {
   if (!shouldShowArm64IntelBuildWarning(state)) {
-    return "This install is using the correct architecture.";
+    return "当前安装使用了正确的架构。";
   }
 
   const action = resolveDesktopUpdateButtonAction(state);
   if (action === "download") {
-    return "This Mac has Apple Silicon, but Synara is still running the Intel build under Rosetta. Synara is preparing the native Apple Silicon update.";
+    return "这台 Mac 使用 Apple Silicon，但 Synara 仍在 Rosetta 下运行 Intel 版本。Synara 正在准备原生 Apple Silicon 更新。";
   }
   if (action === "install") {
-    return "This Mac has Apple Silicon, but Synara is still running the Intel build under Rosetta. Click Update to restart into the native Apple Silicon build.";
+    return "这台 Mac 使用 Apple Silicon，但 Synara 仍在 Rosetta 下运行 Intel 版本。点击更新以重启进入原生 Apple Silicon 版本。";
   }
-  return "This Mac has Apple Silicon, but Synara is still running the Intel build under Rosetta. The next app update will replace it with the native Apple Silicon build.";
+  return "这台 Mac 使用 Apple Silicon，但 Synara 仍在 Rosetta 下运行 Intel 版本。下次应用更新会将其替换为原生 Apple Silicon 版本。";
 }
 
 export function getDesktopUpdateButtonTooltip(
@@ -185,13 +185,13 @@ export function getDesktopUpdateButtonTooltip(
   options?: { installing?: boolean },
 ): string {
   if (options?.installing) {
-    return "Applying update...";
+    return "正在应用更新...";
   }
   if (state.status === "idle") {
-    return "Check for updates";
+    return "检查更新";
   }
   if (state.status === "checking") {
-    return "Checking for updates...";
+    return "正在检查更新...";
   }
   if (state.status === "up-to-date") {
     return `You're up to date on ${state.currentVersion}. Click to check again.`;
@@ -217,7 +217,7 @@ export function getDesktopUpdateButtonTooltip(
     if (state.errorContext === "check") {
       return state.message
         ? `${state.message}. Click to check again.`
-        : "Update check failed. Click to try again.";
+        : "更新检查失败。点击重试。";
     }
     if (state.errorContext === "download" && state.availableVersion) {
       return `Could not prepare update ${state.availableVersion}. Click to retry.`;
@@ -225,9 +225,9 @@ export function getDesktopUpdateButtonTooltip(
     if (state.errorContext === "install" && state.downloadedVersion) {
       return `Could not install update ${state.downloadedVersion}. Click to retry.`;
     }
-    return state.message ?? "Update failed";
+    return state.message ?? "更新失败";
   }
-  return "Update available";
+  return "有可用更新";
 }
 
 export function getDesktopUpdateActionError(result: DesktopUpdateActionResult): string | null {

@@ -273,7 +273,7 @@ export function buildRecentViewDisplayEntries(input: {
         const thread = summary ?? input.draftThreadsById?.[view.threadId];
         const projectName = thread ? projectNameById.get(thread.projectId) : null;
         const provider = summary?.modelSelection.provider;
-        const title = normalizeOptionalId(thread?.title) ?? "New chat";
+        const title = normalizeOptionalId(thread?.title) ?? "新聊天";
         const subtitleParts = [
           projectName ?? "Chat",
           base.isTerminal ? "Terminal" : "Chat",

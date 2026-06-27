@@ -340,7 +340,7 @@ export function humanizeSubagentStatus(
     case "running":
       return "Running";
     case "completed":
-      return "Completed";
+      return "已完成";
     case "failed":
       return "Failed";
     case "stopped":

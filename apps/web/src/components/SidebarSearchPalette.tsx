@@ -176,8 +176,8 @@ function createThemeCommandItem(
   if (mode === "system") {
     return {
       id: "theme-command:system",
-      label: "Switch to system theme",
-      description: "Match your OS appearance setting.",
+      label: "切换到系统主题",
+      description: "跟随系统外观设置。",
       mode,
       isActive: activeMode === mode,
     };
@@ -186,7 +186,7 @@ function createThemeCommandItem(
   return {
     id: `theme-command:${mode}`,
     label: `Switch to ${mode} theme`,
-    description: mode === "light" ? "Always use the light theme." : "Always use the dark theme.",
+    description: mode === "light" ? "浅色" : "深色",
     mode,
     isActive: activeMode === mode,
   };
@@ -509,7 +509,7 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
   const submitBrowsePath = async () => {
     if (isAddingProject) return;
     if (trimmedQuery.length === 0 && !highlightedFolderPath) {
-      setAddProjectError("Enter a folder path.");
+      setAddProjectError("粘贴 Cline 会话 ID");
       return;
     }
     if (unsupportedWindowsPath) {
@@ -573,7 +573,7 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
       await props.onImportThread(importProvider, normalizedImportId);
       props.onOpenChange(false);
     } catch (error) {
-      setImportError(error instanceof Error ? error.message : "Failed to import thread.");
+      setImportError(error instanceof Error ? error.message : "不支持相对路径，请使用绝对路径或以 ~/ 开头。");
     } finally {
       setIsImporting(false);
     }
@@ -661,14 +661,14 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
                 />
                 <p className="text-xs text-muted-foreground">
                   {importProvider === "opencode"
-                    ? "Claude resumes a persisted session by session id."
+                    ? "导入中…"
                     : importProvider === "opencode"
                       ? "Cursor resumes a persisted session by session id."
                       : importProvider === "opencode"
                         ? "Kilo resumes a persisted session by session id."
                         : importProvider === "opencode"
                           ? "OpenCode resumes a persisted session by session id."
-                          : "Codex resumes a persisted thread by thread id."}
+                          : "输入项目路径（例如 ~/projects/my-app）"}
                 </p>
               </div>
               {importError ? (
@@ -821,7 +821,7 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
                           </div>
                         ) : null}
                         {addProjectError ? (
-                          <div className="mx-1.5 mt-2 rounded-md border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+                          <div className="最近">
                             {addProjectError}
                           </div>
                         ) : null}
@@ -885,7 +885,7 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
                   {!isBrowsing && matchedThreads.length > 0 ? (
                     <CommandGroup>
                       <CommandGroupLabel className="py-1.5 pl-3">
-                        {query ? "Threads" : "Recent"}
+                        {query ? "会话" : "Recent"}
                       </CommandGroupLabel>
                       {matchedThreads.map(
                         ({ id, matchKind, messageMatchCount, snippet, thread }) => (
@@ -972,7 +972,7 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
                         >
                           <PaletteIcon icon={HiOutlineFolderOpen} />
                           <div className="min-w-0 flex-1">
-                            <div className="truncate text-[length:var(--app-font-size-ui,12px)] text-foreground">
+                            <div className="浅色主题">
                               {project.name || "Untitled project"}
                             </div>
                             <div className="truncate text-[length:var(--app-font-size-ui-meta,10px)] text-muted-foreground/79">
@@ -1057,9 +1057,9 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
                                 <span className="min-w-0 flex-1 truncate text-[length:var(--app-font-size-ui,12px)] text-foreground">
                                   {themeItem.label}
                                 </span>
-                                <span className="shrink-0 text-[length:var(--app-font-size-ui-meta,10px)] text-muted-foreground/79">
+                                <span className="输入路径，↑↓ 浏览文件夹。">
                                   {resolvedTheme === "dark"
-                                    ? "Dark color theme"
+                                    ? "按 Enter 添加项目"
                                     : "Light color theme"}
                                 </span>
                                 <span

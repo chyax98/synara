@@ -85,7 +85,7 @@ export function FileLineCommentBox(props: FileLineCommentBoxProps) {
         value={value}
         onChange={(event) => setValue(event.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Request change"
+        placeholder="请求修改"
         rows={2}
         maxLength={FILE_COMMENT_TEXT_MAX_CHARS}
         className="editor-file-viewer__comment-input"

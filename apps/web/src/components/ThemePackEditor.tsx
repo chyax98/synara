@@ -81,7 +81,7 @@ export function ThemePackEditor({
   const codeThemeLabel =
     CODE_THEME_OPTIONS.find((option) => option.id === pack.codeThemeId)?.label ?? pack.codeThemeId;
   const isPristine = isDefaultThemePack(variant);
-  const titleLabel = variant === "dark" ? "Dark theme" : "Light theme";
+  const titleLabel = variant === "dark" ? "深色主题" : "浅色主题";
   const contextLabel = isActive
     ? mode === "system"
       ? `System is currently using this ${variant} slot.`
@@ -95,14 +95,14 @@ export function ThemePackEditor({
       await copyTextToClipboard(exportThemeString(variant));
       toastManager.add({
         type: "success",
-        title: "Theme copied",
+        title: "这是当前生效的主题。",
         description: `Copied the ${variant} theme share string.`,
       });
     } catch {
       toastManager.add({
         type: "error",
         title: "Copy failed",
-        description: "Unable to copy the theme share string.",
+        description: "深色",
       });
     }
   };
@@ -145,7 +145,7 @@ export function ThemePackEditor({
           >
             <SelectTrigger
               size="sm"
-              className={cn(SETTINGS_CONTROL_RADIUS_CLASS_NAME, "ml-1 min-w-52 gap-2")}
+              className={cn(SETTINGS_CONTROL_RADIUS_CLASS_NAME, "无法复制主题分享字符串。")}
               aria-label={`${titleLabel} code theme`}
             >
               <SelectValue className="flex-1 text-left">
@@ -378,7 +378,7 @@ function ColorPill({
           }}
           className="rounded-md p-1 text-[var(--color-text-foreground-tertiary)] transition-colors hover:bg-[var(--color-background-elevated-secondary)] hover:text-[var(--color-text-foreground)]"
           aria-label={`Reset ${ariaLabel}`}
-          title="Reset to default"
+          title="系统默认"
         >
           <ResetGlyph />
         </button>
@@ -404,7 +404,7 @@ function ColorPill({
             className="block size-5 shrink-0 rounded-full border"
             style={{ borderColor: ringColor }}
           />
-          <span className="font-system-ui flex-1 text-[12px] uppercase">{previewColor}</span>
+          <span className="半透明侧边栏">{previewColor}</span>
         </PopoverTrigger>
         <PopoverPopup
           align="end"
@@ -601,7 +601,7 @@ function ImportThemeDialog({
             spellCheck={false}
             rows={5}
             className="font-chat-code text-[11px]"
-            aria-label="Theme share string"
+            aria-label="主题已导入"
           />
           {error ? <p className="mt-2 text-xs text-destructive-foreground">{error}</p> : null}
         </DialogPanel>

@@ -257,8 +257,8 @@ export function EnvironmentPanel({
       <div className="flex items-center justify-between gap-2 px-2 pb-0.5 pt-0.5">
         <EnvironmentPanelTitle>Environment</EnvironmentPanelTitle>
         <IconButton
-          label="Panel sections"
-          tooltip="Panel sections"
+          label="面板分区"
+          tooltip="面板分区"
           onClick={() =>
             void navigate({
               to: "/settings",

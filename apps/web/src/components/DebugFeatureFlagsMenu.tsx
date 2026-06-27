@@ -35,13 +35,13 @@ function triggerActionFailedToasts(values: Record<ToggleFeatureFlagId, boolean>)
 
   toastManager.add({
     type: "error",
-    title: "Action failed",
+    title: "操作失败",
     description: "Error: Git command failed in /Users/ibrahime/Documents/Projects/synara",
     data: toastData,
   });
   toastManager.add({
     type: "error",
-    title: "Action failed",
+    title: "操作失败",
     description: "Error: Git command failed in /Users/ibrahime/Documents/Projects/synara",
     data: toastData,
   });

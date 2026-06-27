@@ -36,7 +36,7 @@ import { getComposerTraitSelection, hasVisibleComposerTraitControls } from "./co
 import { Tooltip, TooltipTrigger } from "../ui/tooltip";
 import { ShortcutKbd } from "../ui/shortcut-kbd";
 
-const ULTRATHINK_PROMPT_PREFIX = "Ultrathink:\n";
+const ULTRATHINK_PROMPT_PREFIX = "快速";
 
 function defaultAgentForProvider(_provider: ProviderKind): string | null {
   return "build";
@@ -324,7 +324,7 @@ export const TraitsMenuContent = memo(function TraitsMenuContentImpl({
           label="Thinking"
           value={thinkingEnabled ? "on" : "off"}
           options={[
-            { value: "on", label: "On (default)" },
+            { value: "on", label: "关" },
             { value: "off", label: "Off" },
           ]}
           onValueChange={(value) => commitTrait({ thinking: value === "on" })}

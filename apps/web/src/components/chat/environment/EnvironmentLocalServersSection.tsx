@@ -44,7 +44,7 @@ function LocalServersRefreshButton({
       disabled={refreshing}
       onClick={onRefresh}
       aria-label="Refresh local servers"
-      title="Refresh"
+      title="刷新"
       className="inline-flex size-5 items-center justify-center rounded-md p-0 text-muted-foreground/60 transition-colors hover:bg-[var(--color-background-button-secondary-hover)] hover:text-[var(--color-text-foreground)] data-highlighted:bg-[var(--color-background-button-secondary-hover)] data-highlighted:text-[var(--color-text-foreground)]"
     >
       <RefreshCwIcon className={cn("size-3", refreshing && "animate-spin")} />

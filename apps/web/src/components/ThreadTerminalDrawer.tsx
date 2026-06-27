@@ -365,7 +365,7 @@ function TerminalViewport({
     selectionActionOpenRef.current = true;
     try {
       const clicked = await api.contextMenu.show(
-        [{ id: "add-to-chat", label: "Add to chat" }],
+        [{ id: "add-to-chat", label: "添加到 chat" }],
         nextAction.position,
       );
       if (requestId !== selectionActionRequestIdRef.current || clicked !== "add-to-chat") {
@@ -592,21 +592,21 @@ export default function ThreadTerminalDrawer({
     ? `Split Terminal (max ${MAX_TERMINALS_PER_GROUP} per group)`
     : splitShortcutLabel
       ? `Split Right (${splitShortcutLabel})`
-      : "Split Right";
+      : "向右分屏";
   const splitTerminalDownActionLabel = hasReachedSplitLimit
     ? `Split Down (max ${MAX_TERMINALS_PER_GROUP} per group)`
     : splitDownShortcutLabel
       ? `Split Down (${splitDownShortcutLabel})`
-      : "Split Down";
+      : "向下分屏";
   const newTerminalActionLabel = newShortcutLabel
     ? `New Terminal (${newShortcutLabel})`
-    : "New Terminal";
+    : "新建 Terminal";
   const resolvedCloseShortcutLabel = isWorkspaceMode
     ? (workspaceCloseShortcutLabel ?? closeShortcutLabel)
     : closeShortcutLabel;
   const closeTerminalActionLabel = resolvedCloseShortcutLabel
     ? `Close Terminal (${resolvedCloseShortcutLabel})`
-    : "Close Terminal";
+    : "关闭 Terminal";
   const onSplitTerminalAction = useCallback(() => {
     if (hasReachedSplitLimit) return;
     onSplitTerminal();

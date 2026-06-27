@@ -18,30 +18,30 @@ interface PreviewStage {
 }
 
 const PREVIEW_STAGES: PreviewStage[] = [
-  { type: "loading", title: "Generating commit message..." },
+  { type: "loading", title: "正在生成提交信息..." },
   { type: "loading", title: "Pushing..." },
-  { type: "success", title: "Committed to codex/redesign" },
-  { type: "success", title: "Pushed 3a1f2c to main" },
+  { type: "success", title: "已提交到 codex/redesign" },
+  { type: "success", title: "已推送 3a1f2c 到 main" },
   {
     type: "success",
-    title: "Chat completed",
-    description: "Fix auth flow — updated 3 files",
+    title: "Chat 完成",
+    description: "修复 auth 流程 — 已更新 3 个文件",
     hasAction: true,
   },
   {
     type: "warning",
-    title: "Awaiting input",
-    description: "Refactor DB layer — needs confirmation",
+    title: "等待输入",
+    description: "重构 DB 层 — 需要确认",
     hasAction: true,
   },
   {
     type: "error",
-    title: "Action failed",
-    description: "fatal: unable to access upstream remote",
-    copyText: "fatal: unable to access upstream remote",
+    title: "操作失败",
+    description: "fatal: 无法访问 upstream remote",
+    copyText: "fatal: 无法访问 upstream remote",
   },
-  { type: "info", title: "Already up to date", description: "main is already synchronized." },
-  { type: "warning", title: "Branch is behind upstream" },
+  { type: "info", title: "已是最新", description: "main 已同步。" },
+  { type: "warning", title: "branch 落后上游" },
 ];
 
 const STAGE_DURATION_MS = 3_000;

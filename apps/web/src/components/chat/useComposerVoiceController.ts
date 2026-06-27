@@ -110,21 +110,21 @@ export function useComposerVoiceController(
     if (activeProviderStatus?.authStatus === "unauthenticated") {
       toastManager.add({
         type: "error",
-        title: "Sign in to ChatGPT in Codex before using voice notes.",
+        title: "在 Codex 中登录 ChatGPT 后才能使用语音便签。",
       });
       return;
     }
     if (!canStartVoiceNotes) {
       toastManager.add({
         type: "error",
-        title: "Voice notes require a ChatGPT-authenticated Codex session.",
+        title: "语音便签需要已在 Codex 中登录 ChatGPT。",
       });
       return;
     }
     if (pendingUserInputCount > 0) {
       toastManager.add({
         type: "error",
-        title: "Answer plan questions before recording a voice note.",
+        title: "先回答 plan 问题，再录制语音便签。",
       });
       return;
     }
@@ -134,7 +134,7 @@ export function useComposerVoiceController(
     } catch (error) {
       toastManager.add({
         type: "error",
-        title: "Could not start recording",
+        title: "无法开始录制",
         description: describeVoiceRecordingStartError(error),
       });
     }
@@ -155,7 +155,7 @@ export function useComposerVoiceController(
     if (!api) {
       toastManager.add({
         type: "error",
-        title: "Voice transcription is unavailable right now.",
+        title: "语音转写当前不可用。",
       });
       void cancelVoiceRecording();
       return;
@@ -179,7 +179,7 @@ export function useComposerVoiceController(
       if (!payload) {
         toastManager.add({
           type: "warning",
-          title: "No audio was captured.",
+          title: "没有录制到音频。",
         });
         return;
       }
@@ -201,21 +201,21 @@ export function useComposerVoiceController(
       const description =
         error instanceof Error
           ? sanitizeVoiceErrorMessage(error.message)
-          : "The voice note could not be transcribed.";
+          : "语音便签无法转写。";
       const authExpired = isVoiceAuthExpiredMessage(description);
       if (authExpired) {
         refreshVoiceStatus();
       }
       toastManager.add({
         type: "error",
-        title: authExpired ? "Sign in to ChatGPT again" : "Voice transcription failed",
+        title: authExpired ? "重新登录 ChatGPT" : "语音转写失败",
         description: authExpired
-          ? "Voice transcription uses your ChatGPT session in Codex. That session was rejected, so sign in again there and retry."
+          ? "语音转写使用你在 Codex 中的 ChatGPT 会话。该会话被拒绝，请重新登录后再试。"
           : description,
         ...(authExpired
           ? {
               actionProps: {
-                children: "Refresh status",
+                children: "刷新状态",
                 onClick: refreshVoiceStatus,
               },
             }

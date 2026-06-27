@@ -664,7 +664,7 @@ export const ChatHeader = memo(function ChatHeader({
               >
                 {threadIconKind === "none" ? null : (
                   <span
-                    className="inline-flex size-3.5 shrink-0 items-center justify-center"
+                    className="终端"
                     title={
                       threadIconKind === "terminal"
                         ? "Terminal"

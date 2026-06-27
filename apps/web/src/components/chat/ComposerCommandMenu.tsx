@@ -64,23 +64,23 @@ function commandMenuTitle(
     case "clear":
       return "Clear";
     case "compact":
-      return "Compact Context";
+      return "压缩上下文";
     case "model":
       return "Model";
     case "fast":
-      return "Fast Mode";
+      return "快速模式";
     case "plan":
-      return "Plan Mode";
+      return "计划模式";
     case "default":
-      return "Default Mode";
+      return "默认模式";
     case "review":
-      return "Code Review";
+      return "代码审查";
     case "fork":
       return "Fork";
     case "side":
       return "Sidechat";
     case "status":
-      return "Status";
+      return "状态";
     case "subagents":
       return "Subagents";
     default:
@@ -90,7 +90,7 @@ function commandMenuTitle(
 
 function commandMenuTrailingMeta(item: ComposerCommandItem): string | null {
   if (item.type === "agent") {
-    return "delegate task to subagent";
+    return "委派任务给子代理";
   }
 
   if (item.type === "plugin") {
@@ -377,16 +377,16 @@ export const ComposerCommandMenu = memo(function ComposerCommandMenu(props: {
           <p className="px-2 py-1.5 text-muted-foreground/50 text-[11px]">
             {props.isLoading
               ? props.triggerKind === "mention"
-                ? "Searching mentions..."
+                ? "正在搜索 mentions…"
                 : props.triggerKind === "skill"
-                  ? "Loading skills..."
-                  : "Loading commands..."
+                  ? "正在加载 skills…"
+                  : "正在加载命令…"
               : (props.emptyStateText ??
                 (props.triggerKind === "mention"
-                  ? "No matching plugin or file."
+                  ? "没有匹配的插件或文件。"
                   : props.triggerKind === "skill"
-                    ? "No matching skill."
-                    : "No matching command."))}
+                    ? "没有匹配的 skill。"
+                    : "没有匹配的命令。"))}
           </p>
         )}
       </div>

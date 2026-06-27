@@ -80,8 +80,8 @@ export const ActiveTaskListCard = memo(function ActiveTaskListCard({
             size="icon-xs"
             className={COMPOSER_STACKED_PANEL_ICON_BUTTON_CLASS_NAME}
             onClick={onOpenSidebar}
-            aria-label="Open tasks sidebar"
-            title="Open tasks sidebar"
+            aria-label="打开任务侧边栏"
+            title="打开任务侧边栏"
           >
             <PiSidebarSimple className="size-3" />
           </Button>
@@ -91,8 +91,8 @@ export const ActiveTaskListCard = memo(function ActiveTaskListCard({
             size="icon-xs"
             className={COMPOSER_STACKED_PANEL_ICON_BUTTON_CLASS_NAME}
             onClick={() => onCompactChange(!compact)}
-            aria-label={compact ? "Expand task banner" : "Collapse task banner"}
-            title={compact ? "Expand task banner" : "Collapse task banner"}
+            aria-label={compact ? "收起任务横幅" : "展开任务横幅"}
+            title={compact ? "收起任务横幅" : "展开任务横幅"}
           >
             {compact ? (
               <PiArrowsOutSimple className="size-3" />

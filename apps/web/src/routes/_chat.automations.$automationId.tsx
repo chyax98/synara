@@ -103,7 +103,7 @@ function formatRunTimestamp(value: string | null): string {
   if (!value) return "—";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  const time = new Intl.DateTimeFormat(undefined, {
+  const time = new Intl.DateTimeFormat("zh-CN", {
     hour: "2-digit",
     minute: "2-digit",
   }).format(date);
@@ -111,7 +111,7 @@ function formatRunTimestamp(value: string | null): string {
   if (dayDelta === 0) return `Today at ${time}`;
   if (dayDelta === 1) return `Tomorrow at ${time}`;
   if (dayDelta === -1) return `Yesterday at ${time}`;
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat("zh-CN", {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -130,7 +130,7 @@ function automationStatusDisplay(definition: AutomationDefinition): {
     case "active":
       return { label: "Active", dotClassName: "bg-emerald-500" };
     case "paused":
-      return { label: "Paused", dotClassName: "bg-amber-500" };
+      return { label: "已暂停", dotClassName: "bg-amber-500" };
     case "scheduled":
       return { label: "Scheduled", dotClassName: "bg-sky-500" };
     case "done":
@@ -191,7 +191,7 @@ function AutomationDetailView() {
     archiveRunMutation,
     runsByAutomationId,
     // Running an automation keeps the user on this info page; the live run surfaces in
-    // "Previous runs" (click a run there to open its thread), matching the reference UX.
+    // "历史运行" (click a run there to open its thread), matching the reference UX.
   } = useAutomations();
 
   const definition = data.definitions.find((candidate) => candidate.id === automationId) ?? null;
@@ -496,14 +496,14 @@ function AutomationDetailView() {
                 onApprove={() => void approveAutomationRisks().catch(() => undefined)}
                 onApproveAndRun={() => void handleApproveAndRunNow()}
               />
-              <DetailGroup title="Status">
-                <DetailRow label="Status">
+              <DetailGroup title="状态">
+                <DetailRow label="状态">
                   <StatusValue>
                     <span className={cn("size-1.5 rounded-full", status.dotClassName)} />
                     {status.label}
                   </StatusValue>
                 </DetailRow>
-                <DetailRow label="Next run">
+                <DetailRow label="下次运行">
                   {definition.enabled && definition.nextRunAt ? (
                     <StatusValue tone="muted">
                       {formatRunTimestamp(definition.nextRunAt)}
@@ -512,7 +512,7 @@ function AutomationDetailView() {
                     "—"
                   )}
                 </DetailRow>
-                <DetailRow label="Last ran">
+                <DetailRow label="上次运行">
                   {lastRun ? (
                     <StatusValue tone="muted">
                       {formatRunTimestamp(lastRun.finishedAt ?? lastRun.startedAt)}
@@ -523,9 +523,9 @@ function AutomationDetailView() {
                 </DetailRow>
               </DetailGroup>
 
-              <DetailGroup title="Details">
+              <DetailGroup title="详情">
                 {definition.mode === "heartbeat" ? (
-                  <DetailRow label="Runs in">Thread</DetailRow>
+                  <DetailRow label="运行于">Thread</DetailRow>
                 ) : (
                   <EditRow
                     label={
@@ -534,7 +534,7 @@ function AutomationDetailView() {
                         <CentralIcon
                           name="info-simple"
                           className="size-3 text-muted-foreground/60"
-                          aria-label="Where the automation runs: a worktree, a local checkout, or auto"
+                          aria-label="自动化运行位置：worktree、本地检出或自动"
                         />
                       </>
                     }
@@ -569,7 +569,7 @@ function AutomationDetailView() {
                   </EditRow>
                 )}
                 {definition.sourceThreadId ? (
-                  <DetailRow label="Created from">
+                  <DetailRow label="创建于">
                     {sourceThread ? (
                       <button
                         type="button"
@@ -588,7 +588,7 @@ function AutomationDetailView() {
                     )}
                   </DetailRow>
                 ) : null}
-                <EditRow label="Repeats">
+                <EditRow label="重复">
                   <InlineSelect
                     value={scheduleKindFromSchedule(schedule)}
                     options={SCHEDULE_KIND_OPTIONS}
@@ -603,7 +603,7 @@ function AutomationDetailView() {
                   />
                 </EditRow>
                 {schedule.type === "interval" && schedule.everySeconds !== 3600 ? (
-                  <EditRow label="Every">
+                  <EditRow label="每隔">
                     <InlineSelect
                       value={String(schedule.everySeconds)}
                       options={intervalOptions(schedule.everySeconds)}
@@ -616,7 +616,7 @@ function AutomationDetailView() {
                   </EditRow>
                 ) : null}
                 {schedule.type === "once" ? (
-                  <EditRow label="Run at">
+                  <EditRow label="运行于">
                     <input
                       type="datetime-local"
                       value={datetimeLocalFromIso(schedule.runAt)}
@@ -652,7 +652,7 @@ function AutomationDetailView() {
                   </EditRow>
                 ) : null}
                 {schedule.type === "daily" || schedule.type === "weekdays" ? (
-                  <EditRow label="Time">
+                  <EditRow label="时间">
                     <InlineTime
                       value={schedule.timeOfDay}
                       onChange={(value) =>
@@ -663,7 +663,7 @@ function AutomationDetailView() {
                 ) : null}
                 {schedule.type === "weekly" ? (
                   <>
-                    <EditRow label="Day">
+                    <EditRow label="日期">
                       <InlineSelect
                         value={String(schedule.dayOfWeek)}
                         options={[0, 1, 2, 3, 4, 5, 6].map((day) => ({
@@ -677,7 +677,7 @@ function AutomationDetailView() {
                         }
                       />
                     </EditRow>
-                    <EditRow label="Time">
+                    <EditRow label="时间">
                       <InlineTime
                         value={schedule.timeOfDay}
                         onChange={(value) =>
@@ -696,7 +696,7 @@ function AutomationDetailView() {
                   schedule.type === "weekly" ||
                   schedule.type === "cron") &&
                 schedule.timezone ? (
-                  <EditRow label="Timezone">
+                  <EditRow label="时区">
                     <InlineCommitTextInput
                       value={schedule.timezone}
                       onCommit={(value) => patch({ schedule: { ...schedule, timezone: value } })}
@@ -718,10 +718,10 @@ function AutomationDetailView() {
                   {definition.mode === "heartbeat" ? "Heartbeat" : "Standalone"}
                 </DetailRow>
                 {definition.mode === "heartbeat" ? (
-                  <EditRow label="Stop when">
+                  <EditRow label="停止条件">
                     <InlineCommitTextInput
                       value={stopWhen}
-                      placeholder="Never"
+                      placeholder="永不"
                       onCommit={(value) =>
                         patch({
                           completionPolicy: completionPolicyFromStopWhen(value),
@@ -730,7 +730,7 @@ function AutomationDetailView() {
                     />
                   </EditRow>
                 ) : null}
-                <EditRow label="Max iterations">
+                <EditRow label="最大迭代次数">
                   <InlineSelect
                     value={definition.maxIterations == null ? "" : String(definition.maxIterations)}
                     options={maxIterationOptions(definition.maxIterations)}
@@ -740,7 +740,7 @@ function AutomationDetailView() {
                   />
                 </EditRow>
                 {definition.mode === "heartbeat" ? (
-                  <DetailRow label="Thread">
+                  <DetailRow label="会话">
                     {targetThread
                       ? resolveThreadPickerTitle(targetThread.title)
                       : "Thread unavailable"}
@@ -748,7 +748,7 @@ function AutomationDetailView() {
                 ) : null}
               </DetailGroup>
 
-              <DetailGroup title="Previous runs">
+              <DetailGroup title="历史运行">
                 {runs.length === 0 ? (
                   <div className="px-1.5 py-1 text-xs text-muted-foreground">No runs yet.</div>
                 ) : (
@@ -1124,7 +1124,7 @@ function RunRow({
           type="button"
           size="icon-chip"
           variant="ghost"
-          aria-label="Cancel run"
+          aria-label="取消运行"
           onClick={(event) => {
             event.stopPropagation();
             onCancel();

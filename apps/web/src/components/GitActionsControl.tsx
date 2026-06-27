@@ -103,7 +103,7 @@ interface GitActionsControlProps {
   activeThreadId: ThreadId | null;
   hideQuickActionLabel?: boolean;
   // `header` renders the split quick-action button; `panel` collapses every git
-  // action into a single "Commit and Push" Environment panel row + dropdown.
+  // action into a single "提交并推送" Environment panel row + dropdown.
   variant?: "header" | "panel";
 }
 
@@ -178,8 +178,8 @@ function getMenuActionDisabledReason({
   hasOriginRemote: boolean;
 }): string | null {
   if (!item.disabled) return null;
-  if (isBusy) return "Git action in progress.";
-  if (!gitStatus) return "Git status is unavailable.";
+  if (isBusy) return "Git 操作进行中。";
+  if (!gitStatus) return "Git 状态不可用。";
 
   const hasBranch = gitStatus.branch !== null;
   const hasChanges = gitStatus.hasWorkingTreeChanges;
@@ -189,70 +189,70 @@ function getMenuActionDisabledReason({
 
   if (item.id === "commit") {
     if (!hasChanges) {
-      return "Worktree is clean. Make changes before committing.";
+      return "worktree 没有变更。先修改文件再提交。";
     }
-    return "Commit is currently unavailable.";
+    return "当前无法提交。";
   }
 
   if (item.id === "push") {
     if (!hasBranch) {
-      return "Detached HEAD: checkout a branch before pushing.";
+      return "分离 HEAD：先切换到一个 branch 再推送。";
     }
     if (hasChanges) {
-      return "Commit or stash local changes before pushing.";
+      return "先提交或 stash 本地变更再推送。";
     }
     if (isBehind) {
-      return "Branch is behind upstream. Pull/rebase before pushing.";
+      return "branch 落后上游。先拉取/rebase 再推送。";
     }
     if (!gitStatus.hasUpstream && !hasOriginRemote) {
-      return 'Add an "origin" remote before pushing.';
+      return '先添加 "origin" remote 再推送。';
     }
     if (!isAhead) {
-      return "No local commits to push.";
+      return "没有可推送的本地 commit。";
     }
-    return "Push is currently unavailable.";
+    return "当前无法推送。";
   }
 
   if (item.id === "commit_push") {
     if (!hasBranch) {
-      return "Detached HEAD: checkout a branch before committing and pushing.";
+      return "分离 HEAD：先切换到一个 branch 再提交并推送。";
     }
     if (isBehind) {
-      return "Branch is behind upstream. Pull/rebase before committing and pushing.";
+      return "branch 落后上游。先拉取/rebase 再提交并推送。";
     }
     if (!gitStatus.hasUpstream && !hasOriginRemote) {
-      return 'Add an "origin" remote before committing and pushing.';
+      return '先添加 "origin" remote 再提交并推送。';
     }
     if (!hasChanges && !isAhead) {
-      return "No local changes or commits to push.";
+      return "没有可推送的本地变更或 commit。";
     }
-    return "Commit & push is currently unavailable.";
+    return "当前无法提交并推送。";
   }
 
   if (hasOpenPr) {
-    return "View PR is currently unavailable.";
+    return "当前无法查看 PR。";
   }
   if (!hasBranch) {
-    return "Detached HEAD: checkout a branch before creating a PR.";
+    return "分离 HEAD：先切换到一个 branch 再创建 PR。";
   }
   if (hasChanges) {
-    return "Commit local changes before creating a PR.";
+    return "先提交本地变更再创建 PR。";
   }
   if (!gitStatus.hasUpstream && !hasOriginRemote) {
-    return 'Add an "origin" remote before creating a PR.';
+    return '先添加 "origin" remote 再创建 PR。';
   }
   if (!isAhead) {
-    return "No local commits to include in a PR.";
+    return "没有可纳入 PR 的本地 commit。";
   }
   if (isBehind) {
-    return "Branch is behind upstream. Pull/rebase before creating a PR.";
+    return "branch 落后上游。先拉取/rebase 再创建 PR。";
   }
-  return "Create PR is currently unavailable.";
+  return "当前无法创建 PR。";
 }
 
-const COMMIT_DIALOG_TITLE = "Commit changes";
+const COMMIT_DIALOG_TITLE = "提交更改";
 const COMMIT_DIALOG_DESCRIPTION =
-  "Review and confirm your commit. Leave the message blank to auto-generate one.";
+  "检查并确认你的提交。留空提交信息会自动生成。";
 
 // Central icons render as masked spans (not <svg>), so size them explicitly here
 // rather than relying on parent `[&>svg]` selectors.
@@ -586,7 +586,7 @@ export default function GitActionsControl({
     if (!api) {
       toastManager.add({
         type: "error",
-        title: "Link opening is unavailable.",
+        title: "无法打开链接。",
         data: threadToastData,
       });
       return;
@@ -595,7 +595,7 @@ export default function GitActionsControl({
     if (!prUrl) {
       toastManager.add({
         type: "error",
-        title: "No open PR found.",
+        title: "没有打开的 PR。",
         data: threadToastData,
       });
       return;
@@ -603,8 +603,8 @@ export default function GitActionsControl({
     void api.shell.openExternal(prUrl).catch((err) => {
       toastManager.add({
         type: "error",
-        title: "Unable to open PR link",
-        description: err instanceof Error ? err.message : "An error occurred.",
+        title: "无法打开 PR 链接",
+        description: err instanceof Error ? err.message : "发生错误。",
         data: threadToastData,
       });
     });
@@ -613,9 +613,9 @@ export default function GitActionsControl({
   const runSyncWithRemote = useCallback(() => {
     const promise = pullMutation.mutateAsync();
     toastManager.promise(promise, {
-      loading: { title: "Syncing with remote...", data: threadToastData },
+      loading: { title: "正在与远程同步...", data: threadToastData },
       success: (result) => ({
-        title: result.status === "pulled" ? "Remote synced" : "Already up to date",
+        title: result.status === "pulled" ? "远程已同步" : "已是最新",
         description:
           result.status === "pulled"
             ? `Updated ${result.branch} from ${result.upstreamBranch ?? "upstream"}`
@@ -623,8 +623,8 @@ export default function GitActionsControl({
         data: threadToastData,
       }),
       error: (err) => ({
-        title: "Sync failed",
-        description: err instanceof Error ? err.message : "An error occurred.",
+        title: "同步失败",
+        description: err instanceof Error ? err.message : "发生错误。",
         data: threadToastData,
       }),
     });
@@ -682,8 +682,8 @@ export default function GitActionsControl({
         if (!createPrAvailability.canRun) {
           toastManager.add({
             type: "info",
-            title: "Create PR unavailable",
-            description: createPrAvailability.hint ?? "No branch changes to include in a PR.",
+            title: "无法创建 PR",
+            description: createPrAvailability.hint ?? "没有可纳入 PR 的分支变更。",
             data: threadToastData,
           });
           return;
@@ -704,8 +704,8 @@ export default function GitActionsControl({
         progressToastId ??
         toastManager.add({
           type: "loading",
-          title: progressStages[0] ?? "Running git action...",
-          description: "Waiting for Git...",
+          title: progressStages[0] ?? "正在运行 Git 操作...",
+          description: "正在等待 Git...",
           timeout: 0,
           data: threadToastData,
         });
@@ -713,19 +713,19 @@ export default function GitActionsControl({
       activeGitActionProgressRef.current = {
         toastId: resolvedProgressToastId,
         actionId,
-        title: progressStages[0] ?? "Running git action...",
+        title: progressStages[0] ?? "正在运行 Git 操作...",
         phaseStartedAtMs: null,
         hookStartedAtMs: null,
         hookName: null,
         lastOutputLine: null,
-        currentPhaseLabel: progressStages[0] ?? "Running git action...",
+        currentPhaseLabel: progressStages[0] ?? "正在运行 Git 操作...",
       };
 
       if (progressToastId) {
         toastManager.update(progressToastId, {
           type: "loading",
-          title: progressStages[0] ?? "Running git action...",
-          description: "Waiting for Git...",
+          title: progressStages[0] ?? "正在运行 Git 操作...",
+          description: "正在等待 Git...",
           timeout: 0,
           data: threadToastData,
         });
@@ -830,7 +830,7 @@ export default function GitActionsControl({
             : shouldOfferOpenPrCta
               ? {
                   actionProps: {
-                    children: "View PR",
+                    children: "查看 PR",
                     onClick: () => {
                       const api = readNativeApi();
                       if (!api) return;
@@ -842,7 +842,7 @@ export default function GitActionsControl({
               : shouldOfferCreatePrCta
                 ? {
                     actionProps: {
-                      children: "Create PR",
+                      children: "创建 PR",
                       onClick: () => {
                         closeResultToast();
                         void runGitActionWithToast({
@@ -859,8 +859,8 @@ export default function GitActionsControl({
         activeGitActionProgressRef.current = null;
         toastManager.update(resolvedProgressToastId, {
           type: "error",
-          title: "Action failed",
-          description: err instanceof Error ? err.message : "An error occurred.",
+          title: "操作失败",
+          description: err instanceof Error ? err.message : "发生错误。",
           data: threadToastData,
         });
       }
@@ -994,7 +994,7 @@ export default function GitActionsControl({
         toastManager.add({
           type: "success",
           title: `Keeping ${trimmedName}`,
-          description: "Branch name confirmed.",
+          description: "branch 名称已确认。",
           data: threadToastData,
         });
         return;
@@ -1002,7 +1002,7 @@ export default function GitActionsControl({
 
       const toastId = toastManager.add({
         type: "loading",
-        title: "Creating branch...",
+        title: "正在创建 branch...",
         timeout: 0,
         data: threadToastData,
       });
@@ -1039,14 +1039,14 @@ export default function GitActionsControl({
         toastManager.update(toastId, {
           type: "success",
           title: `Switched to ${trimmedName}`,
-          description: "Branch created and checked out.",
+          description: "branch 已创建并检出。",
           data: threadToastData,
         });
       } catch (error) {
         toastManager.update(toastId, {
           type: "error",
-          title: "Failed to create branch",
-          description: error instanceof Error ? error.message : "An error occurred.",
+          title: "创建 branch 失败",
+          description: error instanceof Error ? error.message : "发生错误。",
           data: threadToastData,
         });
       }
@@ -1174,12 +1174,12 @@ export default function GitActionsControl({
 
     items.push({
       id: "create_branch",
-      label: "Create Branch",
+      label: "创建 Branch",
       disabled: createBranchDisabled,
       disabledReason: createBranchDisabled
         ? isGitActionRunning
-          ? "Git action in progress."
-          : "Git status is unavailable."
+          ? "Git 操作进行中。"
+          : "Git 状态不可用。"
         : null,
       icon: "branch",
       onSelect: openCreateBranchDialog,
@@ -1232,8 +1232,8 @@ export default function GitActionsControl({
       void openInPreferredEditor(api, target).catch((error) => {
         toastManager.add({
           type: "error",
-          title: "Unable to open file",
-          description: error instanceof Error ? error.message : "An error occurred.",
+          title: "无法打开文件",
+          description: error instanceof Error ? error.message : "发生错误。",
           data: threadToastData,
         });
       });
@@ -1249,7 +1249,7 @@ export default function GitActionsControl({
   const shouldDimPanelCommitPushRow = isGitActionRunning || !hasRunnableCommitPushAction;
 
   // Shared dropdown body — the picker rows plus the contextual git-status warnings.
-  // Rendered identically by the header split button and the panel "Commit and Push" row.
+  // Rendered identically by the header split button and the panel "提交并推送" row.
   const gitMenuContent = (
     <>
       <MenuGroup>
@@ -1329,7 +1329,7 @@ export default function GitActionsControl({
                 <span className="text-muted-foreground">Branch</span>
                 <span className="flex items-center justify-between gap-2">
                   <span className="font-medium">
-                    {gitStatusForActions?.branch ?? "(detached HEAD)"}
+                    {gitStatusForActions?.branch ?? "（分离 HEAD）"}
                   </span>
                   {isDefaultBranch && (
                     <span className="text-right text-warning text-xs">Warning: default branch</span>
@@ -1442,7 +1442,7 @@ export default function GitActionsControl({
               <Textarea
                 value={dialogCommitMessage}
                 onChange={(event) => setDialogCommitMessage(event.target.value)}
-                placeholder="Leave empty to auto-generate"
+                placeholder="留空以自动生成"
                 size="sm"
               />
             </div>
@@ -1486,7 +1486,7 @@ export default function GitActionsControl({
         <DialogPopup className="max-w-xl">
           <DialogHeader>
             <DialogTitle>
-              {pendingDefaultBranchActionCopy?.title ?? "Run action on default branch?"}
+              {pendingDefaultBranchActionCopy?.title ?? "在默认 branch 上运行操作？"}
             </DialogTitle>
             <DialogDescription>{pendingDefaultBranchActionCopy?.description}</DialogDescription>
           </DialogHeader>
@@ -1497,7 +1497,7 @@ export default function GitActionsControl({
             <Button variant="outline" size="sm" onClick={continuePendingDefaultBranchAction}>
               {pendingDefaultBranchAction &&
               requiresFeatureBranchForDefaultBranchAction(pendingDefaultBranchAction.action)
-                ? "Create feature branch & continue"
+                ? "创建 feature branch 并继续"
                 : (pendingDefaultBranchActionCopy?.continueLabel ?? "Continue")}
             </Button>
             {pendingDefaultBranchAction &&
@@ -1587,7 +1587,7 @@ export default function GitActionsControl({
         {!isRepo ? (
           <EnvironmentRow
             icon={<GitActionGlyph name="branch" className={ENVIRONMENT_ROW_ICON_CLASS_NAME} />}
-            label={initMutation.isPending ? "Initializing..." : "Initialize Git"}
+            label={initMutation.isPending ? "Initializing..." : "初始化 Git"}
             disabled={initMutation.isPending}
             onClick={() => initMutation.mutate()}
           />
@@ -1608,19 +1608,19 @@ export default function GitActionsControl({
                   aria-label={
                     shouldDimPanelCommitPushRow
                       ? "Commit and Push unavailable; open Git actions menu"
-                      : "Commit and Push"
+                      : "提交并推送"
                   }
                   title={
                     shouldDimPanelCommitPushRow
-                      ? "Commit and Push unavailable. Open for more Git actions."
-                      : "Commit and Push"
+                      ? "提交并推送不可用。打开以查看更多 Git 操作。"
+                      : "提交并推送"
                   }
                 />
               }
             >
               <EnvironmentRowBody
                 icon={<GitActionGlyph name="push" className={ENVIRONMENT_ROW_ICON_CLASS_NAME} />}
-                label="Commit and Push"
+                label="提交并推送"
                 trailing={<EnvironmentRowChevron />}
               />
             </MenuTrigger>
@@ -1644,10 +1644,10 @@ export default function GitActionsControl({
           disabled={initMutation.isPending}
           onClick={() => initMutation.mutate()}
         >
-          {initMutation.isPending ? "Initializing..." : "Initialize Git"}
+          {initMutation.isPending ? "Initializing..." : "初始化 Git"}
         </Button>
       ) : (
-        <ChatHeaderSplitGroup label="Git actions">
+        <ChatHeaderSplitGroup label="Git 操作">
           {quickActionDisabledReason ? (
             <Popover>
               <PopoverTrigger

@@ -258,7 +258,7 @@ function ProviderUpdateNotifications() {
         trackedToast?.toastId ??
         toastManager.add({
           type: "loading",
-          title: "Updating providers...",
+          title: "正在更新 provider...",
           description:
             providers.length === 1
               ? `Updating ${PROVIDER_DISPLAY_NAMES[providers[0]!.provider]}.`
@@ -276,7 +276,7 @@ function ProviderUpdateNotifications() {
 
       toastManager.update(toastId, {
         type: "loading",
-        title: "Updating providers...",
+        title: "正在更新 provider...",
         description:
           providers.length === 1
             ? `Updating ${PROVIDER_DISPLAY_NAMES[providers[0]!.provider]}.`
@@ -300,18 +300,18 @@ function ProviderUpdateNotifications() {
             if (updateState?.status === "failed" || updateState?.status === "unchanged") {
               failures.push({
                 provider,
-                reason: updateState.message ?? "The update command did not complete successfully.",
+                reason: updateState.message ?? "更新命令未成功完成。",
               });
             } else if (refreshed?.versionAdvisory?.status === "behind_latest") {
               failures.push({
                 provider,
-                reason: "The provider still appears outdated after updating.",
+                reason: "更新后 provider 似乎仍过时。",
               });
             }
           } catch (error) {
             failures.push({
               provider,
-              reason: error instanceof Error ? error.message : "The update request failed.",
+              reason: error instanceof Error ? error.message : "更新请求失败。",
             });
           }
         }
@@ -322,7 +322,7 @@ function ProviderUpdateNotifications() {
             reason:
               error instanceof Error
                 ? error.message
-                : "The provider update request could not start.",
+                : "provider 更新请求无法启动。",
           });
         }
       } finally {
@@ -360,8 +360,8 @@ function ProviderUpdateNotifications() {
           type: "error",
           title:
             failures.length === providers.length
-              ? "Provider updates failed"
-              : "Some provider updates failed",
+              ? "Provider 更新失败"
+              : "部分 provider 更新失败",
           description:
             manualCommands.length > 0
               ? `${failureLines}\n\nCopy the command${manualCommands.length === 1 ? "" : "s"} below to update manually in a terminal.`
@@ -570,7 +570,7 @@ function errorMessage(error: unknown): string {
     return error;
   }
 
-  return "An unexpected router error occurred.";
+  return "没有更多可用错误详情。";
 }
 
 function errorDetails(error: unknown): string {
@@ -1235,7 +1235,7 @@ function EventRouter() {
 
       toastManager.add({
         type: "warning",
-        title: "Invalid keybindings configuration",
+        title: "未找到可用的编辑器。",
         description: issue.message,
         actionProps: {
           children: "Open keybindings.json",
@@ -1245,7 +1245,7 @@ function EventRouter() {
               .then((config) => {
                 const editor = resolveAndPersistPreferredEditor(config.availableEditors);
                 if (!editor) {
-                  throw new Error("No available editors found.");
+                  throw new Error("无法打开快捷键文件");
                 }
                 return api.shell.openInEditor(config.keybindingsConfigPath, editor);
               })

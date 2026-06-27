@@ -97,7 +97,7 @@ function fileAttachmentTypeLabel(file: ChatFileAttachment): string {
 }
 
 function fileAttachmentDetail(file: ChatFileAttachment): string {
-  const mimeType = file.mimeType.trim() || "Unknown type";
+  const mimeType = file.mimeType.trim() || "未知类型";
   return `${mimeType} - ${formatBytes(file.sizeBytes)}`;
 }
 

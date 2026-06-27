@@ -185,12 +185,12 @@ function closeButtonClassName(isActive: boolean) {
 
 function formatBrowserActionError(error: unknown): string | null {
   if (!(error instanceof Error)) {
-    return "Couldn't complete that browser action.";
+    return "无法完成该浏览器操作。";
   }
   if (/ERR_ABORTED|\(-3\)/i.test(error.message)) {
     return null;
   }
-  return "Couldn't complete that browser action.";
+  return "无法完成该浏览器操作。";
 }
 
 function ignoreBrowserBoundsSyncError(): void {
@@ -446,8 +446,8 @@ function BrowserLocalServersHome({
             className="size-8 text-white/35 hover:bg-white/[0.06] hover:text-white/70"
             disabled={loading}
             onClick={onRefresh}
-            aria-label="Refresh local servers"
-            title="Refresh local servers"
+            aria-label="刷新本地服务器"
+            title="刷新本地服务器"
           >
             <RefreshCwIcon className={cn("size-4", loading && "animate-spin")} />
           </Button>
@@ -1175,14 +1175,14 @@ export function BrowserPanel({
             anchor,
           },
           timeout: 1_200,
-          title: "Browser screenshot copied",
+          title: "浏览器截图已复制",
         });
         return;
       }
 
       toastManager.add({
         type: "success",
-        title: "Browser screenshot copied",
+        title: "浏览器截图已复制",
       });
     });
   }, [activeTab, api, ensureLiveRuntime, runBrowserAction, threadId]);
@@ -1388,7 +1388,7 @@ export function BrowserPanel({
               isAddressEditingRef.current = false;
               setIsAddressFocused(false);
             }}
-            placeholder="Search or enter a URL"
+            placeholder="搜索或输入 URL"
             className={cn(
               "font-mono min-w-0 [-webkit-app-region:no-drag]",
               BROWSER_CHROME_CONTROL_CLASS_NAME,
@@ -1438,8 +1438,8 @@ export function BrowserPanel({
           size="icon-sm"
           className="size-7"
           disabled={!activeTab}
-          aria-label="Copy screenshot"
-          title="Copy screenshot"
+          aria-label="复制截图"
+          title="复制截图"
           onClick={onCopyScreenshotToClipboard}
         >
           <CameraIcon className="size-3.5" />
@@ -1451,8 +1451,8 @@ export function BrowserPanel({
           size="icon-sm"
           className="size-7"
           disabled={!activeTab}
-          aria-label="Copy link"
-          title="Copy link"
+          aria-label="复制链接"
+          title="复制链接"
           onClick={copyActiveTabLink}
         >
           <LinkIcon className="size-3.5" />
@@ -1515,7 +1515,7 @@ export function BrowserPanel({
   if (!api && isLiveRuntime) {
     return (
       <DiffPanelShell mode={mode} header={header}>
-        <DiffPanelLoadingState label="Browser is unavailable." />
+        <DiffPanelLoadingState label="浏览器不可用。" />
       </DiffPanelShell>
     );
   }
@@ -1606,12 +1606,12 @@ export function BrowserPanel({
         <div className="relative min-h-0 flex-1 bg-transparent">
           {!isLiveRuntime ? (
             <BrowserRuntimePreview
-              title={activeTab?.title || "Browser is sleeping"}
-              detail={activeTab?.lastCommittedUrl ?? activeTab?.url ?? "Restoring cached browser"}
+              title={activeTab?.title || "浏览器正在休眠"}
+              detail={activeTab?.lastCommittedUrl ?? activeTab?.url ?? "正在恢复缓存的浏览器"}
             />
           ) : !workspaceReady ? (
             <div className="absolute inset-0 z-10">
-              <DiffPanelLoadingState label="Starting browser..." />
+              <DiffPanelLoadingState label="正在启动浏览器..." />
             </div>
           ) : null}
           {isLiveRuntime ? (

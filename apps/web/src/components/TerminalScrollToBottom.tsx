@@ -64,7 +64,7 @@ export function TerminalScrollToBottom({ terminal }: TerminalScrollToBottomProps
       <IconButton
         onClick={handleClick}
         className="size-7 rounded-full border-border bg-background text-muted-foreground shadow-sm hover:bg-muted hover:text-foreground sm:size-7"
-        label="Scroll to bottom"
+        label="滚动到底部"
         size="icon-xs"
         variant="outline"
       >

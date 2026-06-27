@@ -16,7 +16,7 @@ import { cn } from "~/lib/utils";
 export const DRAFT_ATTACHMENT_WARNING_LABEL = "Draft attachment may not persist";
 /** Explanatory copy shown in the hover tooltip / detail row. */
 export const DRAFT_ATTACHMENT_WARNING_DESCRIPTION =
-  "Draft attachment is kept in memory and may be lost on navigation.";
+  "草稿附件仅保存在内存中，切换页面后可能会丢失。";
 
 // `inline` sits in a card's detail row; `badge` floats over an image thumbnail
 // (opaque surface + shadow so it stays legible on any preview).

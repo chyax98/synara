@@ -93,7 +93,7 @@ function normalizeEditorRailChatTabs(
     seen.add(tab.id);
     normalized.push({
       id: tab.id,
-      title: tab.title.trim() || "New thread",
+      title: tab.title.trim() || "新会话",
       provider: tab.provider,
     });
     if (normalized.length >= MAX_EDITOR_RAIL_CHAT_TABS) {

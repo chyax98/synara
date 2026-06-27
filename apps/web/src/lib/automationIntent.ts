@@ -451,7 +451,7 @@ export function formatAutomationIntentCadence(schedule: AutomationSchedule): str
   if (schedule.type === "weekly") {
     return `Weekly at ${schedule.timeOfDay}`;
   }
-  return "Manual";
+  return "手动排序";
 }
 
 function parseIntervalSchedule(searchText: string): ParsedSchedule | null {

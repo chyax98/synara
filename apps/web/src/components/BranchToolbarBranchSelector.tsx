@@ -193,11 +193,11 @@ function handleCheckoutError(
       : ".git/index.lock";
     addBranchRecoveryToast({
       type: "error",
-      title: "Git index is locked.",
+      title: "Git 无法更新仓库索引。请等待当前 Git 操作完成后再重试。",
       description: `${lockFileLabel} already exists. Close any running Git operation, remove the stale lock file if none is running, then retry.`,
       data: { copyText: toBranchActionErrorMessage(error) },
       actionProps: {
-        children: "Remove lock & retry",
+        children: "重试暂存并切换",
         onClick: () => {
           input.runBranchAction(async () => {
             try {
@@ -215,9 +215,9 @@ function handleCheckoutError(
   const addGitIndexWriteToast = (error: unknown): void => {
     addBranchRecoveryToast({
       type: "error",
-      title: "Git index could not be written.",
+      title: "未提交的更改阻止了切换。",
       description:
-        "Git could not update the repository index. Retry after any current Git operation finishes.",
+        "暂存并切换",
       data: { copyText: toBranchActionErrorMessage(error) },
       actionProps: {
         children: "Retry stash & switch",
@@ -239,11 +239,11 @@ function handleCheckoutError(
     const copyText = toBranchActionErrorMessage(error);
     const dirtyToastId = addBranchRecoveryToast({
       type: "warning",
-      title: "Uncommitted changes block checkout.",
+      title: "Synara 已切换分支，并将你的更改保留在 stash 中，因为它们无法干净地还原到该分支。",
       description: formatDirtyWorktreeDescription(dirtyWorktree.files),
       data: { copyText },
       actionProps: {
-        children: "Stash & Switch",
+        children: "丢弃 stash",
         onClick: () => {
           closeActiveBranchRecoveryToast();
           input.runBranchAction(async () => {
@@ -265,10 +265,10 @@ function handleCheckoutError(
                   type: "warning",
                   title: "Changes saved, but not reapplied.",
                   description:
-                    "Synara switched branches and kept your changes in a stash because they could not be restored onto this branch cleanly.",
+                    "无法切换分支。",
                   data: { copyText: toBranchActionErrorMessage(stashError) },
                   actionProps: {
-                    children: "Discard stash",
+                    children: "某些冲突文件不在 git stash 覆盖范围内，例如被忽略的文件。请在切换前移动或删除它们。",
                     className:
                       "border-destructive bg-destructive text-white shadow-destructive/24 hover:bg-destructive/90",
                     onClick: () => {
@@ -284,7 +284,7 @@ function handleCheckoutError(
                   type: "error",
                   title: "Cannot switch branches.",
                   description:
-                    "Some conflicting files are not covered by git stash, such as ignored files. Move or remove them before switching.",
+                    "仓库中存在未解决的冲突。",
                   data: { copyText: toBranchActionErrorMessage(stashError) },
                 });
                 return;
@@ -479,7 +479,7 @@ export function BranchToolbarBranchSelector({
     const api = readNativeApi();
     setStashDiscardDialog({
       cwd: input.cwd,
-      error: api ? null : "Native API is unavailable.",
+      error: api ? null : "创建分支失败。",
       info: null,
       loading: Boolean(api),
     });
@@ -1035,7 +1035,7 @@ export function BranchToolbarBranchSelector({
                     <ul className="max-h-48 overflow-auto rounded-lg border border-[color:var(--color-border-light)] bg-[var(--color-background-control-opaque)] py-1">
                       {stashDiscardDialog.info.files.map((file) => (
                         <li
-                          className="truncate px-3 py-1 font-mono text-muted-foreground text-xs"
+                          className="正在丢弃…"
                           key={file}
                           title={file}
                         >
@@ -1069,7 +1069,7 @@ export function BranchToolbarBranchSelector({
               disabled={!stashDiscardDialog?.info || isDroppingStash}
               onClick={discardStashFromDialog}
             >
-              {isDroppingStash ? "Discarding..." : "Discard stash"}
+              {isDroppingStash ? "Discarding..." : "某些冲突文件不在 git stash 覆盖范围内，例如被忽略的文件。请在切换前移动或删除它们。"}
             </Button>
           </DialogFooter>
         </DialogPopup>

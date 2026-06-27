@@ -16,7 +16,7 @@ interface PastedTextCardMetrics {
 }
 
 // Shared underlined affordance under the card title ("Show in text field" /
-// "Show text"). Callers supply the content and behavior; the treatment is fixed.
+// "显示文本"). Callers supply the content and behavior; the treatment is fixed.
 function PastedTextCardAction({ children, ...props }: ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
@@ -108,7 +108,7 @@ export function UserMessagePastedTextCard({ text, metrics }: UserMessagePastedTe
             aria-expanded={expanded}
             onClick={() => setExpanded((value) => !value)}
           >
-            {expanded ? "Hide text" : "Show text"}
+            {expanded ? "隐藏文本" : "显示文本"}
             <span className="opacity-65">· {formatPastedTextCountLabel(metrics)}</span>
           </PastedTextCardAction>
         }

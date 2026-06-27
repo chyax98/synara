@@ -339,7 +339,7 @@ function PluginGridItem({ entry }: { entry: PluginEntry }) {
 
 function SkillGridItem({ skill }: { skill: ProviderSkillDescriptor }) {
   const description =
-    skill.interface?.shortDescription ?? skill.description ?? "No description available.";
+    skill.interface?.shortDescription ?? skill.description ?? "暂无描述。";
 
   return (
     <div className="flex items-center gap-3 rounded-xl px-3 py-3 transition-colors hover:bg-[var(--sidebar-accent)]">
@@ -566,7 +566,7 @@ export function PluginLibrary() {
             <InputGroup className="rounded-xl bg-background/70 shadow-xs">
               <InputGroupAddon>
                 <InputGroupText>
-                  <SearchIcon className="size-4 text-muted-foreground/60" />
+                  <SearchIcon className="搜索插件" />
                 </InputGroupText>
               </InputGroupAddon>
               <InputGroupInput
@@ -626,7 +626,7 @@ export function PluginLibrary() {
                 ) : filteredPluginEntries.length === 0 ? (
                   <EmptyPanel
                     title="No installed plugins found"
-                    description="This view only shows plugins already available in your Codex setup."
+                    description="该 provider 未暴露技能发现能力。"
                   />
                 ) : (
                   <div className="space-y-6">

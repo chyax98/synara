@@ -349,7 +349,7 @@ const EMPTY_SHORTCUT_PARTS: readonly string[] = [];
 const ADD_PROJECT_SNAPSHOT_CATCH_UP_MAX_ATTEMPTS = 6;
 const ADD_PROJECT_SNAPSHOT_CATCH_UP_DELAY_MS = 50;
 const ADD_PROJECT_EXISTING_SYNC_ERROR =
-  "This folder is already linked, but the existing project has not synced into the sidebar yet. Try again in a moment.";
+  "该文件夹已关联，但对应项目尚未同步到侧边栏。请稍后再试。";
 const DebugFeatureFlagsMenu = import.meta.env.DEV
   ? lazy(() =>
       import("./DebugFeatureFlagsMenu").then((module) => ({
@@ -499,7 +499,7 @@ function WorktreeBadgeGlyph({ className }: { className?: string }) {
 // check when completed, otherwise a colored status dot. Replaces the relative
 // timestamp whenever the thread has an active/unseen status.
 function ThreadStatusTrailingGlyph({ threadStatus }: { threadStatus: ThreadStatusPill }) {
-  if (threadStatus.label === "Completed") {
+  if (threadStatus.label === "已完成") {
     return (
       <HiOutlineCheckCircle
         aria-hidden="true"
@@ -523,7 +523,7 @@ function ProjectRunIndicatorDot({ className }: { className?: string }) {
   return (
     <span
       aria-hidden="true"
-      title="Dev server running"
+      title="开发服务器运行中"
       className={cn(
         "size-1.5 shrink-0 rounded-full bg-emerald-400 motion-safe:animate-pulse",
         className,
@@ -590,7 +590,7 @@ function resolveThreadRowMetaChips(input: {
     const tooltip =
       threadAutomations.length === 1
         ? `${firstAutomation.name} · ${
-            firstAutomation.enabled ? formatCadence(firstAutomation.schedule) : "Paused"
+            firstAutomation.enabled ? formatCadence(firstAutomation.schedule) : "已暂停"
           }`
         : `${threadAutomations.length} automations`;
     chips.push({
@@ -609,7 +609,7 @@ function resolveThreadRowMetaChips(input: {
   if (input.thread.forkSourceThreadId && !isSidechatThread) {
     chips.push({
       id: "fork",
-      tooltip: "Forked thread",
+      tooltip: "分叉会话",
       icon: (
         <SidebarGlyph
           icon={GoRepoForked}
@@ -645,7 +645,7 @@ function ProviderAvatarWithTerminal({
   const badgeTooltip =
     terminalCount > 1
       ? `${terminalCount} ${pluralize(terminalCount, "terminal")} open`
-      : (terminalStatus?.label ?? "Terminal open");
+      : (terminalStatus?.label ?? "终端已打开");
   const badgeColorClass = terminalStatus?.colorClass ?? "text-muted-foreground/55";
 
   const wrappedAvatar = (
@@ -762,13 +762,13 @@ function SidebarSubagentLabel(props: {
 }
 
 interface TerminalStatusIndicator {
-  label: "Terminal input needed" | "Terminal task completed" | "Terminal process running";
+  label: "终端需要输入" | "终端任务已完成" | "终端进程运行中";
   colorClass: string;
   pulse: boolean;
 }
 
 interface PrStatusIndicator {
-  label: "PR open" | "PR closed" | "PR merged";
+  label: "PR 开启" | "PR 已关闭" | "PR 已合并";
   colorClass: string;
   icon: LucideIcon;
   tooltip: string;
@@ -806,21 +806,21 @@ function terminalStatusFromThreadState(input: {
   const terminalAttentionStates = Object.values(input.terminalAttentionStatesById ?? {});
   if (terminalAttentionStates.includes("attention")) {
     return {
-      label: "Terminal input needed",
+      label: "终端需要输入",
       colorClass: "text-amber-600 dark:text-amber-300/90",
       pulse: false,
     };
   }
   if ((input.runningTerminalIds?.length ?? 0) > 0) {
     return {
-      label: "Terminal process running",
+      label: "终端进程运行中",
       colorClass: "text-teal-600 dark:text-teal-300/90",
       pulse: true,
     };
   }
   if (terminalAttentionStates.includes("review")) {
     return {
-      label: "Terminal task completed",
+      label: "终端任务已完成",
       colorClass: "text-emerald-600 dark:text-emerald-300/90",
       pulse: false,
     };
@@ -893,8 +893,8 @@ function ProjectSortMenu({
       <SidebarIconButton
         render={<MenuTrigger />}
         icon={IoFilter}
-        label="Sort projects"
-        tooltip="Sort projects"
+        label="排序项目"
+        tooltip="排序项目"
         tooltipSide="right"
       />
       <MenuPopup
@@ -1121,7 +1121,7 @@ function SidebarSegmentedPicker({
               )}
               onClick={() => onSelectView(view)}
             >
-              {view === "threads" ? "Threads" : "Workspace"}
+              {view === "threads" ? "会话" : "Workspace"}
             </button>
           );
         })}
@@ -1504,7 +1504,7 @@ export default function Sidebar() {
       if (!threadStatus?.dismissible) {
         return;
       }
-      if (threadStatus.label === "Completed") {
+      if (threadStatus.label === "已完成") {
         markThreadVisited(threadId, thread.latestTurn?.completedAt ?? undefined);
         return;
       }
@@ -3169,7 +3169,7 @@ export default function Sidebar() {
           { id: "copy-thread-id", label: "Copy Thread ID" },
           ...(options?.extraItems ?? []),
           { id: "archive", label: "Archive", separatorBefore: true },
-          { id: "delete", label: "Delete", destructive: true },
+          { id: "delete", label: "删除", destructive: true },
         ],
         position,
       );
@@ -4451,8 +4451,8 @@ export default function Sidebar() {
       return (
         <button
           type="button"
-          aria-label="Confirm archive"
-          title="Confirm archive"
+          aria-label="确认归档"
+          title="确认归档"
           className={cn(
             "pointer-events-auto inline-flex h-5 items-center rounded-full px-2.5 text-[10px] font-normal leading-none tracking-[-0.01em] opacity-100 transition-colors",
             "bg-red-400/12 text-red-400 hover:bg-red-400/16 hover:text-red-300",
@@ -4477,8 +4477,8 @@ export default function Sidebar() {
     return (
       <SidebarIconButton
         icon={HiOutlineArchiveBox}
-        label="Archive thread"
-        title="Archive thread"
+        label="归档会话"
+        title="归档会话"
         data-testid={`thread-archive-${threadId}`}
         size={compact ? "sm" : "md"}
         // Match the pin and the right-side meta chips (shared trailing-icon size); subagent
@@ -4514,8 +4514,8 @@ export default function Sidebar() {
         {isPendingConfirmation ? (
           <button
             type="button"
-            aria-label="Confirm archive"
-            title="Confirm archive"
+            aria-label="确认归档"
+            title="确认归档"
             className={cn(
               "pointer-events-auto inline-flex h-5 items-center rounded-full px-2.5 text-[10px] font-normal leading-none tracking-[-0.01em] opacity-100 transition-colors",
               "bg-red-400/12 text-red-400 hover:bg-red-400/16 hover:text-red-300",
@@ -4727,7 +4727,7 @@ export default function Sidebar() {
                 {thread.title}
               </TooltipPopup>
             </Tooltip>
-            {!isSubagentThread && threadStatus?.label === "Pending Approval" ? (
+            {!isSubagentThread && threadStatus?.label === "等待确认" ? (
               <span
                 aria-label="Pending approval"
                 className={cn("shrink-0 text-[10px] font-medium", threadStatus.colorClass)}
@@ -4966,7 +4966,7 @@ export default function Sidebar() {
                 thread.title
               )}
             </span>
-            {!isSubagentThread && threadStatus?.label === "Pending Approval" ? (
+            {!isSubagentThread && threadStatus?.label === "等待确认" ? (
               <span
                 aria-label="Pending approval"
                 className={cn("shrink-0 text-[10px] font-medium", threadStatus.colorClass)}
@@ -5198,7 +5198,7 @@ export default function Sidebar() {
               icon={NewThreadIcon}
               label={`Create new thread in ${project.name}`}
               tooltip={
-                newThreadShortcutLabel ? `New thread (${newThreadShortcutLabel})` : "New thread"
+                newThreadShortcutLabel ? `New thread (${newThreadShortcutLabel})` : "新会话"
               }
               tooltipSide="top"
               data-testid="new-thread-button"
@@ -5674,14 +5674,14 @@ export default function Sidebar() {
       },
       {
         id: "new-thread",
-        label: "New thread",
+        label: "新会话",
         description: "Start a fresh thread in the current project.",
         keywords: ["thread", "new", "project"],
         shortcutLabel: newThreadShortcutLabel,
       },
       {
         id: "add-project",
-        label: "Add project",
+        label: "添加项目",
         description: "Open a repository or folder in the sidebar.",
         keywords: ["folder", "repo", "repository", "open"],
         shortcutLabel: addProjectShortcutLabel,
@@ -5995,10 +5995,10 @@ export default function Sidebar() {
                     onClick={handleDesktopUpdateButtonClick}
                   >
                     {desktopUpdateButtonAction === "download"
-                      ? "Preparing ARM build"
+                      ? "正在准备 ARM 版本"
                       : desktopUpdateButtonAction === "install"
                         ? "Update ARM build"
-                        : "Check for ARM build update"}
+                        : "检查 ARM 版本更新"}
                   </Button>
                 </AlertAction>
               ) : null}
@@ -6035,19 +6035,19 @@ export default function Sidebar() {
                 {isOnWorkspace ? (
                   <SidebarPrimaryAction
                     icon={TerminalIcon}
-                    label="New workspace"
+                    label="新建工作区"
                     onClick={handleCreateWorkspace}
                   />
                 ) : (
                   <>
                     <SidebarPrimaryAction
                       icon={NewThreadIcon}
-                      label="New thread"
+                      label="新会话"
                       onClick={handlePrimaryNewThread}
                     />
                     <SidebarPrimaryAction
                       icon={SearchIcon}
-                      label="Search"
+                      label="搜索"
                       active={searchPaletteOpen}
                       onClick={() => {
                         setSearchPaletteOpen(true);
@@ -6056,7 +6056,7 @@ export default function Sidebar() {
                     />
                     <SidebarPrimaryAction
                       icon={KanbanIcon}
-                      label="Kanban"
+                      label="看板"
                       active={isOnKanban}
                       onClick={() => {
                         void navigate({ to: "/kanban" });
@@ -6154,10 +6154,10 @@ export default function Sidebar() {
                                       <span
                                         className={cn(
                                           "inline-flex size-1.5 shrink-0 rounded-full",
-                                          workspace.terminalStatus.label === "Terminal input needed"
+                                          workspace.terminalStatus.label === "终端需要输入"
                                             ? "bg-amber-500 dark:bg-amber-300/90"
                                             : workspace.terminalStatus.label ===
-                                                "Terminal process running"
+                                                "终端进程运行中"
                                               ? "bg-teal-500 dark:bg-teal-300/90"
                                               : "bg-emerald-500 dark:bg-emerald-300/90",
                                         )}
@@ -6245,10 +6245,10 @@ export default function Sidebar() {
                     />
                     <SidebarIconButton
                       icon={FiPlus}
-                      label={shouldShowProjectPathEntry ? "Cancel add project" : "Add project"}
+                      label={shouldShowProjectPathEntry ? "Cancel add project" : "添加项目"}
                       aria-pressed={shouldShowProjectPathEntry}
                       onClick={handleStartAddProject}
-                      tooltip={shouldShowProjectPathEntry ? "Cancel add project" : "Add project"}
+                      tooltip={shouldShowProjectPathEntry ? "Cancel add project" : "添加项目"}
                       tooltipSide="right"
                     />
                   </SidebarSectionToolbar>
@@ -6267,10 +6267,10 @@ export default function Sidebar() {
                           >
                             <SidebarGlyph icon={FolderIcon} variant="chrome" />
                             {isPickingFolder
-                              ? "Opening..."
+                              ? "打开中…"
                               : isAddingProject
-                                ? "Adding..."
-                                : "Browse"}
+                                ? "添加中…"
+                                : "浏览"}
                           </button>
                         )}
                         <button
@@ -6313,7 +6313,7 @@ export default function Sidebar() {
                           className="shrink-0 px-2.5 py-1.5 text-xs font-medium text-muted-foreground/50 transition-colors hover:text-foreground disabled:opacity-40"
                           onClick={handleAddProject}
                           disabled={!canAddProject}
-                          aria-label="Add project"
+                          aria-label="添加项目"
                         >
                           {isAddingProject ? "..." : "↵"}
                         </button>
@@ -6740,7 +6740,7 @@ export default function Sidebar() {
               autoComplete="off"
               autoCapitalize="off"
               autoCorrect="off"
-              placeholder="e.g. npm run dev"
+              placeholder="例如 npm run dev"
               className="font-mono"
               value={projectRunDialogCommandDraft}
               aria-invalid={projectRunDialogCommandIsValid ? undefined : true}

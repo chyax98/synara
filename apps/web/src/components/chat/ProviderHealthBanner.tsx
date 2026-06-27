@@ -52,8 +52,8 @@ export const ProviderHealthBanner = memo(function ProviderHealthBanner({
           <AlertAction className="absolute top-2 right-2">
             <IconButton
               className="size-6 rounded-full text-[var(--notification-fg)]/65 hover:bg-[var(--notification-fg)]/10 hover:text-[var(--notification-fg)] focus-visible:ring-[var(--notification-fg)]/35 sm:size-6"
-              label="Dismiss provider status"
-              title="Dismiss provider status"
+              label="关闭提供商状态提示"
+              title="关闭提供商状态提示"
               onClick={onDismiss}
             >
               <XIcon className="size-3.5" />

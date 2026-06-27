@@ -180,14 +180,14 @@ export function resolveBrowserChromeStatus(input: {
   if (!input.hasActiveTab) {
     return {
       tone: "default",
-      label: input.workspaceReady ? "No tabs open" : "Starting browser...",
+      label: input.workspaceReady ? "没有打开的标签页" : "正在启动浏览器...",
     };
   }
 
   if (input.activeTabStatus === "suspended") {
     return {
       tone: "default",
-      label: "Restoring tab...",
+      label: "正在恢复标签页...",
     };
   }
 

@@ -63,9 +63,9 @@ function KanbanCardColumnLabel({ card }: { card: KanbanCard }) {
 
 // Pills that merely restate the card's column add nothing, so we drop them and
 // let the column label speak: "Working"/"Connecting" duplicate the "In Progress"
-// column, and "Completed" duplicates "Done". Distinct, actionable states
+// column, and "已完成" duplicates "Done". Distinct, actionable states
 // (Pending Approval, Awaiting Input, Plan Ready) still surface as pills.
-const REDUNDANT_COLUMN_PILL_LABELS = new Set(["Working", "Connecting", "Completed"]);
+const REDUNDANT_COLUMN_PILL_LABELS = new Set(["Working", "Connecting", "已完成"]);
 
 function KanbanCardStatusPill({ card }: { card: KanbanCard }) {
   const pill = card.thread
@@ -191,7 +191,7 @@ function KanbanCardViewComponent({
           </span>
         ) : null}
         {isForked ? (
-          <span title="Forked thread" className="flex shrink-0 items-center">
+          <span title="Fork 的 thread" className="flex shrink-0 items-center">
             <GoRepoForked
               className="size-3 text-emerald-600 dark:text-emerald-300/90"
               aria-hidden

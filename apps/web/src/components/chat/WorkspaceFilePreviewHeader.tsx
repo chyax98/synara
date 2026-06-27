@@ -41,13 +41,13 @@ const MARKDOWN_VIEW_SEGMENTS = [
   {
     rendered: false,
     label: "Source",
-    title: "Source view — select text to reference exact lines in chat",
+    title: "源码视图 — 选中文字可在聊天中引用精确行号",
     Icon: FileIcon,
   },
   {
     rendered: true,
     label: "Preview",
-    title: "Rendered preview — browse and toggle task lists",
+    title: "渲染预览 — 浏览并切换任务列表",
     Icon: EyeIcon,
   },
 ] as const;

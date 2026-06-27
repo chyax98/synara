@@ -1107,7 +1107,7 @@ export const MessagesTimeline = memo(function MessagesTimeline({
                       <span>
                         {row.collapsedWorkElapsed
                           ? `Worked for ${row.collapsedWorkElapsed}`
-                          : "Details"}
+                          : "详情"}
                       </span>
                       <DisclosureChevron
                         open={isCollapsedWorkExpanded}

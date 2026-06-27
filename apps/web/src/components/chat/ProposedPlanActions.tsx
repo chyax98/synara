@@ -35,12 +35,12 @@ export const ProposedPlanActions = memo(function ProposedPlanActions({
   const markdown = useMemo(() => normalizePlanMarkdownForExport(planMarkdown), [planMarkdown]);
   const { copyToClipboard, isCopied } = useCopyToClipboard<void>({
     onCopy: () => {
-      toastManager.add({ type: "success", title: "Plan copied as markdown" });
+      toastManager.add({ type: "success", title: "计划已复制为 Markdown" });
     },
     onError: (error) => {
       toastManager.add({
         type: "error",
-        title: "Could not copy plan",
+        title: "无法复制计划",
         description: error.message,
       });
     },
@@ -55,8 +55,8 @@ export const ProposedPlanActions = memo(function ProposedPlanActions({
     if (!api || !workspaceRoot) {
       toastManager.add({
         type: "error",
-        title: "Workspace path is unavailable",
-        description: "This thread does not have a workspace path to download into.",
+        title: "工作区路径不可用",
+        description: "该会话没有可用于下载的工作区路径。",
       });
       return;
     }

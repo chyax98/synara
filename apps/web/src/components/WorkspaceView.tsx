@@ -355,7 +355,7 @@ export default function WorkspaceView({ workspaceId }: { workspaceId: string }) 
               ) : (
                 <h2
                   className="max-w-[clamp(16rem,50vw,40rem)] cursor-default truncate text-sm font-medium text-foreground"
-                  title="Double-click to rename"
+                  title="双击重命名"
                   onDoubleClick={() => setRenaming(true)}
                 >
                   {workspace?.title ?? "Workspace"}
@@ -376,7 +376,7 @@ export default function WorkspaceView({ workspaceId }: { workspaceId: string }) 
                 size="icon-xs"
                 variant="outline"
                 onClick={() => setSettingsOpen(true)}
-                aria-label="Workspace settings"
+                aria-label="工作区设置"
               >
                 <SettingsIcon className="size-3" />
               </Button>

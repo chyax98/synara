@@ -352,7 +352,7 @@ function ExplorerLoadingRows(props: { depth: number }) {
       className="space-y-1.5 py-1.5 pr-2"
       style={{ paddingLeft: `${0.5 + props.depth * 0.75}rem` }}
       role="status"
-      aria-label="Loading directory..."
+      aria-label="正在加载目录…"
     >
       {EXPLORER_SKELETON_ROW_WIDTHS.map((width) => (
         <div key={width} className="flex h-5 items-center gap-1.5">
@@ -512,7 +512,7 @@ const DIFF_FILE_SKELETON_ROW_WIDTHS = ["w-10/12", "w-7/12", "w-9/12", "w-6/12", 
 
 function DiffFilesLoadingRows() {
   return (
-    <div className="space-y-1 px-1 py-1" role="status" aria-label="Loading changed files...">
+    <div className="space-y-1 px-1 py-1" role="status" aria-label="正在加载变更文件…">
       {DIFF_FILE_SKELETON_ROW_WIDTHS.map((width) => (
         <div key={width} className="flex h-8 items-center gap-1.5 px-2">
           <Skeleton className="size-3.5 shrink-0 rounded-sm" />
@@ -760,8 +760,8 @@ export function WorkspaceSearchSidebar(props: {
           spellCheck={false}
           autoCorrect="off"
           autoCapitalize="off"
-          placeholder="Search files..."
-          aria-label="Search files"
+          placeholder="搜索文件..."
+          aria-label="搜索文件"
           onChange={(event) => onQueryChange(event.target.value)}
           onKeyDown={handleInputKeyDown}
         />
@@ -785,7 +785,7 @@ export function WorkspaceSearchSidebar(props: {
             <p className="text-destructive/85">
               {entriesQuery.error instanceof Error
                 ? entriesQuery.error.message
-                : "Could not search files."}
+                : "无法搜索文件。"}
             </p>
           </PanelStateMessage>
         ) : fileMatches.length === 0 ? (
@@ -870,7 +870,7 @@ function EditorActivityBar(props: {
       aria-label="Editor activity bar"
     >
       <EditorActivityBarButton
-        label={filesActive ? "Hide files sidebar" : "Files"}
+        label={filesActive ? "隐藏文件侧边栏" : "Files"}
         active={filesActive}
         onClick={() => props.onSelectItem("file")}
       >
@@ -882,14 +882,14 @@ function EditorActivityBar(props: {
         />
       </EditorActivityBarButton>
       <EditorActivityBarButton
-        label={diffActive ? "Hide diff sidebar" : "Diff"}
+        label={diffActive ? "隐藏 diff 侧边栏" : "Diff"}
         active={diffActive}
         onClick={() => props.onSelectItem("diff")}
       >
         <ChangesIcon className="size-5" />
       </EditorActivityBarButton>
       <EditorActivityBarButton
-        label={searchActive ? "Hide search sidebar" : "Search files"}
+        label={searchActive ? "隐藏搜索侧边栏" : "搜索文件"}
         active={searchActive}
         onClick={() => props.onSelectItem("search")}
       >
@@ -1085,7 +1085,7 @@ export function EditorWorkspaceView(props: EditorWorkspaceViewProps) {
               {props.projectName ?? "Workspace"}
             </span>
             <span className="hidden truncate text-[11px] text-muted-foreground/70 sm:inline">
-              {props.workspaceRoot ?? "No workspace"}
+              {props.workspaceRoot ?? "没有 workspace"}
             </span>
           </div>
           {props.onSelectProject && (props.projectOptions?.length ?? 0) > 0 ? (
@@ -1097,8 +1097,8 @@ export function EditorWorkspaceView(props: EditorWorkspaceViewProps) {
                 <ChatHeaderIconButton
                   type="button"
                   tone="plain"
-                  label="Switch project"
-                  title="Switch project"
+                  label="切换项目"
+                  title="切换项目"
                   className="size-6"
                 >
                   <ChevronDownIcon className="size-3.5" />
@@ -1111,18 +1111,18 @@ export function EditorWorkspaceView(props: EditorWorkspaceViewProps) {
           type="button"
           tone="outline"
           aria-pressed={chatPaneVisible}
-          title={chatPaneVisible ? "Hide chat panel" : "Show chat panel"}
+          title={chatPaneVisible ? "隐藏 chat 面板" : "显示 chat 面板"}
           className="gap-1.5"
           onClick={toggleChatPaneVisible}
         >
           <PanelRightCloseIcon className="size-3.5" />
-          <span className="sr-only">{chatPaneVisible ? "Hide chat panel" : "Show chat panel"}</span>
+          <span className="sr-only">{chatPaneVisible ? "隐藏 chat 面板" : "显示 chat 面板"}</span>
         </ChatHeaderButton>
         <ChatHeaderButton
           type="button"
           tone="outline"
           aria-pressed={true}
-          title="Switch to chat view"
+          title="切换到 chat 视图"
           className="w-[5.5rem] gap-1.5"
           onClick={props.onExitEditorView}
         >
@@ -1194,7 +1194,7 @@ export function EditorWorkspaceView(props: EditorWorkspaceViewProps) {
             aria-valuemax={EDITOR_CHAT_PANE_MAX_WIDTH}
             aria-valuenow={chatPaneWidth}
             tabIndex={0}
-            title="Drag to resize chat panel"
+            title="拖动以调整 chat 面板大小"
             className={cn(
               "group relative z-10 w-0 shrink-0 cursor-col-resize outline-none",
               chatPaneVisible ? "hidden lg:block" : "hidden",

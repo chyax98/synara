@@ -71,7 +71,7 @@ export function formatShortDate(day: string | null): string | null {
   if (!year || !month || !date) {
     return null;
   }
-  return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(
+  return new Intl.DateTimeFormat("zh-CN", { month: "short", day: "numeric" }).format(
     new Date(Date.UTC(year, month - 1, date)),
   );
 }

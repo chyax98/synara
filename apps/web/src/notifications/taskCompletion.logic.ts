@@ -367,7 +367,7 @@ export function buildTerminalAttentionCopy(candidate: TerminalAttentionCandidate
 } {
   const terminalLabel = candidate.title.trim() || "Terminal";
   return {
-    title: "Terminal input needed",
+    title: "终端需要输入",
     body: `${terminalLabel} needs your attention.`,
   };
 }

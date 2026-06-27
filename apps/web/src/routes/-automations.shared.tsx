@@ -137,21 +137,21 @@ export const AUTOMATION_TEMPLATES: readonly {
   readonly prompt: string;
 }[] = [
   {
-    label: "Triage new crashes",
-    name: "Triage crashes",
-    prompt: "Look for new crashes in $sentry and open a fix PR for the most impactful one.",
+    label: "分类新崩溃",
+    name: "分类崩溃",
+    prompt: "在 $sentry 中查找新的崩溃，并为影响最大的一个打开修复 PR。",
   },
   {
-    label: "Update dependencies",
-    name: "Update dependencies",
+    label: "更新依赖",
+    name: "更新依赖",
     prompt:
-      "Check for outdated dependencies, bump the safe minor and patch versions, then run the tests.",
+      "检查过时的依赖，提升安全的 minor 和 patch 版本，然后运行测试。",
   },
   {
-    label: "Daily standup summary",
-    name: "Daily summary",
+    label: "每日站会总结",
+    name: "每日总结",
     prompt:
-      "Summarize what changed on the main branch in the last 24 hours as a short standup update.",
+      "总结过去 24 小时 main branch 上的变更，生成一段简短的站会更新。",
   },
 ];
 
@@ -160,7 +160,7 @@ export function formatRelativeTime(iso: string | null): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return "";
   const seconds = Math.max(0, Math.round((Date.now() - date.getTime()) / 1000));
-  if (seconds < 60) return "now";
+  if (seconds < 60) return "刚刚";
   const minutes = Math.floor(seconds / 60);
   if (minutes < 60) return `${minutes}m`;
   const hours = Math.floor(minutes / 60);
@@ -298,9 +298,9 @@ export function runStatusLabel(status: AutomationRun["status"]): string {
     case "running":
       return "Running";
     case "waiting-for-approval":
-      return "Waiting for approval";
+      return "等待确认";
     case "succeeded":
-      return "Completed";
+      return "已完成";
     case "failed":
       return "Failed";
     case "cancelled":
@@ -317,15 +317,15 @@ export function runResultSummary(run: AutomationRun): string {
   if (run.error) return run.error;
   switch (run.result?.outcome) {
     case "findings":
-      return "Found something to review";
+      return "发现待 review 的内容";
     case "no-findings":
-      return "No findings";
+      return "未发现异常";
     case "changed-files":
-      return "Changed files";
+      return "已更改文件";
     case "needs-attention":
-      return "Needs attention";
+      return "需要注意";
     case "unknown":
-      return run.threadId ? "Completed; open the thread for the reply" : "Completed";
+      return run.threadId ? "已完成；打开 thread 查看回复" : "已完成";
     case undefined:
       return runStatusLabel(run.status);
   }
@@ -605,12 +605,12 @@ type IntervalCadenceOption = {
 
 /** Interval cadence presets shown by default; second-level intervals are preserved when present. */
 const INTERVAL_PRESETS: readonly IntervalCadenceOption[] = [
-  { amount: "15", unit: "minutes", label: "Every 15 min" },
-  { amount: "30", unit: "minutes", label: "Every 30 min" },
-  { amount: "120", unit: "minutes", label: "Every 2 hours" },
-  { amount: "360", unit: "minutes", label: "Every 6 hours" },
-  { amount: "720", unit: "minutes", label: "Every 12 hours" },
-  { amount: "1440", unit: "minutes", label: "Every 24 hours" },
+  { amount: "15", unit: "minutes", label: "每 15 分钟" },
+  { amount: "30", unit: "minutes", label: "每 30 分钟" },
+  { amount: "120", unit: "minutes", label: "每 2 小时" },
+  { amount: "360", unit: "minutes", label: "每 6 小时" },
+  { amount: "720", unit: "minutes", label: "每 12 小时" },
+  { amount: "1440", unit: "minutes", label: "每 24 小时" },
 ];
 
 function intervalOptionValue(option: Pick<IntervalCadenceOption, "amount" | "unit">): string {
@@ -624,15 +624,15 @@ function intervalOptionLabel(amount: string, unit: IntervalUnit): string {
 /** Heartbeat run-count presets ("" = unlimited). */
 const MAX_ITERATION_PRESETS: readonly CadenceOption[] = [
   { value: "", label: "Unlimited" },
-  { value: "10", label: "10 runs" },
-  { value: "25", label: "25 runs" },
-  { value: "50", label: "50 runs" },
-  { value: "100", label: "100 runs" },
-  { value: "250", label: "250 runs" },
+  { value: "10", label: "10 次运行" },
+  { value: "25", label: "25 次运行" },
+  { value: "50", label: "50 次运行" },
+  { value: "100", label: "100 次运行" },
+  { value: "250", label: "250 次运行" },
 ];
 
 function maxIterationLabel(value: string): string {
-  return value === "1" ? "1 run" : `${value} runs`;
+  return value === "1" ? "1 次运行" : `${value} runs`;
 }
 
 export function maxIterationOptions(
@@ -827,15 +827,15 @@ export function AutomationDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogPopup surface="solid" showCloseButton={false} className="max-w-3xl">
         <DialogTitle className="sr-only">
-          {editing ? "Edit automation" : "New automation"}
+          {editing ? "编辑 automation" : "新建 automation"}
         </DialogTitle>
 
         <div className="flex items-start gap-3 px-5 pt-5">
           <input
             value={form.name}
             onChange={(event) => setField("name", event.target.value)}
-            placeholder="Automation title"
-            aria-label="Automation title"
+            placeholder="Automation 标题"
+            aria-label="Automation 标题"
             autoFocus
             className="min-w-0 flex-1 bg-transparent py-1 font-system-ui text-lg font-medium text-foreground outline-none placeholder:text-muted-foreground/50"
           />
@@ -845,7 +845,7 @@ export function AutomationDialog({
               variant="ghost"
               size="icon-sm"
               aria-label="About automations"
-              title="Automations run this prompt on a schedule and open the result as a thread."
+              title="Automation 会按 schedule 运行这段 prompt，并将结果作为一个 thread 打开。"
             >
               <CentralIcon name="info-simple" className="size-4" />
             </Button>
@@ -865,7 +865,7 @@ export function AutomationDialog({
               type="button"
               variant="ghost"
               size="icon-sm"
-              aria-label="Close"
+              aria-label="关闭"
               disabled={busy}
               onClick={() => onOpenChange(false)}
             >
@@ -884,7 +884,7 @@ export function AutomationDialog({
                 submit();
               }
             }}
-            placeholder="Add prompt e.g. look for crashes in $sentry"
+            placeholder="输入 prompt，例如：在 $sentry 中查找崩溃"
             aria-label="Automation prompt"
             className="min-h-[15rem] w-full flex-1 resize-none overflow-y-auto bg-transparent font-system-ui text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground/50"
           />
@@ -928,7 +928,7 @@ export function AutomationDialog({
                 <MenuTrigger render={<Button variant="ghost" size="sm" className={CHIP_CLASS} />}>
                   <WorktreeIcon className="size-4" />
                   <span className="capitalize">{form.worktreeMode}</span>
-                  <CentralIcon name="chevron-down-small" className="size-3.5 opacity-60" />
+                  <CentralIcon name="chevron-down-small" className="自动" />
                 </MenuTrigger>
                 <ComposerPickerMenuPopup align="start" className="w-40">
                   <MenuRadioGroup
@@ -953,7 +953,7 @@ export function AutomationDialog({
                 <span className="max-w-[10rem] truncate">
                   {selectedProject?.name ?? "Select project"}
                 </span>
-                <CentralIcon name="chevron-down-small" className="size-3.5 opacity-60" />
+                <CentralIcon name="chevron-down-small" className="自动" />
               </MenuTrigger>
               <ComposerPickerMenuPopup align="start" className="w-56">
                 <MenuRadioGroup value={form.projectId} onValueChange={chooseProject}>
@@ -976,7 +976,7 @@ export function AutomationDialog({
               <MenuTrigger render={<Button variant="ghost" size="sm" className={CHIP_CLASS} />}>
                 <CentralIcon name="clock" className="size-4" />
                 <span>{formatCadence(schedule)}</span>
-                <CentralIcon name="chevron-down-small" className="size-3.5 opacity-60" />
+                <CentralIcon name="chevron-down-small" className="自动" />
               </MenuTrigger>
               <ComposerPickerMenuPopup align="start" className="w-56">
                 <MenuGroup>
@@ -1125,8 +1125,8 @@ export function AutomationDialog({
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    aria-label="Run mode"
-                    title="Run mode"
+                    aria-label="运行模式"
+                    title="运行模式"
                     className="rounded-lg text-[var(--color-text-foreground-secondary)]"
                   />
                 }
@@ -1210,8 +1210,8 @@ export function AutomationDialog({
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    aria-label="Permissions"
-                    title="Permissions"
+                    aria-label="权限"
+                    title="权限"
                     className="rounded-lg text-[var(--color-text-foreground-secondary)]"
                   />
                 }

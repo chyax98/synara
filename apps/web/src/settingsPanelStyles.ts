@@ -18,7 +18,7 @@ export const SETTINGS_CONTROL_BORDER_CLASS_NAME = "border border-[color:var(--co
  *  so cards/rows read as outline-only on the same background as the chat. */
 export const SETTINGS_PAGE_BACKGROUND_CLASS_NAME = "app-settings-surface";
 
-/** Section label above a settings card — same tone as sidebar "Threads"/"Pinned". */
+/** Section label above a settings card — same tone as sidebar "会话"/"Pinned". */
 export const SETTINGS_SECTION_LABEL_CLASS_NAME = `px-2 py-1 ${SIDEBAR_SECTION_LABEL_CLASS_NAME}`;
 
 /** Vertical rhythm between stacked settings groups in the content panel. */

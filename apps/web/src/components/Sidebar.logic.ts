@@ -109,12 +109,12 @@ const THREAD_JUMP_COMMANDS = [
 
 export interface ThreadStatusPill {
   label:
-    | "Working"
-    | "Connecting"
-    | "Completed"
-    | "Pending Approval"
-    | "Awaiting Input"
-    | "Plan Ready";
+    | "运行中"
+    | "连接中"
+    | "已完成"
+    | "等待确认"
+    | "等待输入"
+    | "计划就绪";
   colorClass: string;
   dotClass: string;
   pulse: boolean;
@@ -123,12 +123,12 @@ export interface ThreadStatusPill {
 }
 
 const THREAD_STATUS_PRIORITY: Record<ThreadStatusPill["label"], number> = {
-  "Pending Approval": 5,
-  "Awaiting Input": 4,
-  Working: 3,
-  Connecting: 3,
-  "Plan Ready": 2,
-  Completed: 1,
+  "等待确认": 5,
+  "等待输入": 4,
+  运行中: 3,
+  连接中: 3,
+  计划就绪: 2,
+  已完成: 1,
 };
 
 type ThreadStatusInput = Pick<
@@ -142,7 +142,7 @@ type ThreadStatusInput = Pick<
 };
 
 function createThreadStatusDismissalKey(
-  label: Extract<ThreadStatusPill["label"], "Pending Approval" | "Awaiting Input" | "Plan Ready">,
+  label: Extract<ThreadStatusPill["label"], "等待确认" | "等待输入" | "计划就绪">,
   thread: ThreadStatusInput,
 ): string {
   return [
@@ -159,7 +159,7 @@ function createCompletedDismissalKey(thread: ThreadStatusInput): string | null {
     return null;
   }
 
-  return ["Completed", thread.latestTurn.turnId, thread.latestTurn.completedAt].join(":");
+  return ["已完成", thread.latestTurn.turnId, thread.latestTurn.completedAt].join(":");
 }
 
 export function hasUnseenCompletion(thread: ThreadStatusInput): boolean {
@@ -344,12 +344,12 @@ export function resolveThreadStatusPill(input: {
   const hasPendingUserInput = input.hasPendingUserInput && canAnswerPendingRequests;
 
   if (hasPendingApprovals) {
-    const dismissalKey = createThreadStatusDismissalKey("Pending Approval", thread);
+    const dismissalKey = createThreadStatusDismissalKey("等待确认", thread);
     if (thread.dismissedStatusKey === dismissalKey) {
       return null;
     }
     return {
-      label: "Pending Approval",
+      label: "等待确认",
       colorClass: "text-amber-600 dark:text-amber-300/90",
       dotClass: "bg-amber-500 dark:bg-amber-300/90",
       pulse: false,
@@ -359,12 +359,12 @@ export function resolveThreadStatusPill(input: {
   }
 
   if (hasPendingUserInput) {
-    const dismissalKey = createThreadStatusDismissalKey("Awaiting Input", thread);
+    const dismissalKey = createThreadStatusDismissalKey("等待输入", thread);
     if (thread.dismissedStatusKey === dismissalKey) {
       return null;
     }
     return {
-      label: "Awaiting Input",
+      label: "等待输入",
       colorClass: "text-indigo-600 dark:text-indigo-300/90",
       dotClass: "bg-indigo-500 dark:bg-indigo-300/90",
       pulse: false,
@@ -375,7 +375,7 @@ export function resolveThreadStatusPill(input: {
 
   if (thread.hasLiveTailWork) {
     return {
-      label: "Working",
+      label: "运行中",
       colorClass: "text-sky-600 dark:text-sky-300/80",
       dotClass: "bg-sky-500 dark:bg-sky-300/80",
       pulse: true,
@@ -388,7 +388,7 @@ export function resolveThreadStatusPill(input: {
     (thread.latestTurn === null || hasLiveLatestTurn(thread.latestTurn, thread.session))
   ) {
     return {
-      label: "Working",
+      label: "运行中",
       colorClass: "text-sky-600 dark:text-sky-300/80",
       dotClass: "bg-sky-500 dark:bg-sky-300/80",
       pulse: true,
@@ -398,7 +398,7 @@ export function resolveThreadStatusPill(input: {
 
   if (thread.session?.status === "connecting") {
     return {
-      label: "Connecting",
+      label: "连接中",
       colorClass: "text-sky-600 dark:text-sky-300/80",
       dotClass: "bg-sky-500 dark:bg-sky-300/80",
       pulse: true,
@@ -416,12 +416,12 @@ export function resolveThreadStatusPill(input: {
         findLatestProposedPlan(thread.proposedPlans ?? [], thread.latestTurn?.turnId ?? null),
       ));
   if (hasPlanReadyPrompt) {
-    const dismissalKey = createThreadStatusDismissalKey("Plan Ready", thread);
+    const dismissalKey = createThreadStatusDismissalKey("计划就绪", thread);
     if (thread.dismissedStatusKey === dismissalKey) {
       return null;
     }
     return {
-      label: "Plan Ready",
+      label: "计划就绪",
       colorClass: "text-violet-600 dark:text-violet-300/90",
       dotClass: "bg-violet-500 dark:bg-violet-300/90",
       pulse: false,
@@ -436,7 +436,7 @@ export function resolveThreadStatusPill(input: {
       return null;
     }
     return {
-      label: "Completed",
+      label: "已完成",
       colorClass: "text-emerald-600 dark:text-emerald-300/90",
       dotClass: "bg-emerald-500 dark:bg-emerald-300/90",
       pulse: false,
@@ -1279,7 +1279,7 @@ export function deriveSidebarProjectData(input: {
 
 /** Shared PR-state presentation so sidebar badges and kanban cards color PRs identically. */
 export interface PrStatePresentation {
-  label: "PR open" | "PR closed" | "PR merged";
+  label: "PR 开启" | "PR 已关闭" | "PR 已合并";
   colorClass: string;
   iconKind: "pull-request" | "merged-simple";
 }
@@ -1289,7 +1289,7 @@ export function resolvePrStatePresentation(
 ): PrStatePresentation {
   if (state === "open") {
     return {
-      label: "PR open",
+      label: "PR 开启",
       // Match the diff "+" green so an opened PR reads as the same positive signal.
       colorClass: "text-[var(--color-decoration-added)]",
       iconKind: "pull-request",
@@ -1297,13 +1297,13 @@ export function resolvePrStatePresentation(
   }
   if (state === "closed") {
     return {
-      label: "PR closed",
+      label: "PR 已关闭",
       colorClass: "text-zinc-500 dark:text-zinc-400/80",
       iconKind: "pull-request",
     };
   }
   return {
-    label: "PR merged",
+    label: "PR 已合并",
     colorClass: "text-violet-500 dark:text-violet-400",
     iconKind: "merged-simple",
   };

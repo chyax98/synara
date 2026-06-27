@@ -51,7 +51,7 @@ export function ToolCallDetailsDialog({
               <DialogDescription>
                 {details?.kind === "file-change"
                   ? "Edit payload captured for this tool call."
-                  : "Command payload captured for this tool call."}
+                  : "工具调用"}
               </DialogDescription>
             </div>
           </div>
@@ -122,7 +122,7 @@ export function ToolCallDetailsDialog({
               ) : null}
 
               {details.content ? (
-                <ToolDetailSection title="Written Content">
+                <ToolDetailSection title="修改前">
                   <ToolCodeBlock>{details.content}</ToolCodeBlock>
                 </ToolDetailSection>
               ) : null}

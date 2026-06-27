@@ -83,7 +83,7 @@ function ThreadRetentionMaintenanceToast() {
       if (state === "started") {
         toastIdRef.current = toastManager.add({
           type: "loading",
-          title: "Hiding old chats...",
+          title: "正在隐藏旧会话...",
           description: "Preparing background maintenance.",
           timeout: 0,
           data: { allowCrossThreadVisibility: true },
@@ -96,14 +96,14 @@ function ThreadRetentionMaintenanceToast() {
           toastIdRef.current ??
           toastManager.add({
             type: "loading",
-            title: "Hiding old chats...",
+            title: "正在隐藏旧会话...",
             timeout: 0,
             data: { allowCrossThreadVisibility: true },
           });
         toastIdRef.current = toastId;
         toastManager.update(toastId, {
           type: "loading",
-          title: "Hiding old chats...",
+          title: "正在隐藏旧会话...",
           description:
             totalCount && totalCount > 0
               ? `${deletedCount ?? 0} of ${totalCount} chats hidden.`
@@ -121,7 +121,7 @@ function ThreadRetentionMaintenanceToast() {
           toastManager.update(toastId, {
             type: "warning",
             title: "Chat maintenance paused",
-            description: error ?? "Old chats will be retried later.",
+            description: error ?? "旧会话已隐藏",
             timeout: 6000,
             data: { allowCrossThreadVisibility: true },
           });
@@ -130,7 +130,7 @@ function ThreadRetentionMaintenanceToast() {
         toastManager.add({
           type: "warning",
           title: "Chat maintenance paused",
-          description: error ?? "Old chats will be retried later.",
+          description: error ?? "旧会话已隐藏",
           timeout: 6000,
           data: { allowCrossThreadVisibility: true },
         });

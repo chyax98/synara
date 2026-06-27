@@ -169,18 +169,18 @@ import {
 const UI_DENSITY_OPTIONS = [
   {
     value: "compact",
-    label: "Compact",
-    description: "Tighter spacing in the sidebar, composer, and settings rows.",
+    label: "紧凑",
+    description: "侧边栏、输入区与设置行间距更紧。",
   },
   {
     value: "comfortable",
-    label: "Comfortable",
-    description: "Balanced spacing for everyday use.",
+    label: "舒适",
+    description: "日常使用的均衡间距。",
   },
   {
     value: "spacious",
-    label: "Spacious",
-    description: "More breathing room across the main workspace surfaces.",
+    label: "宽松",
+    description: "主工作区各界面留白更多。",
   },
 ] as const satisfies ReadonlyArray<{
   value: UiDensity;
@@ -191,20 +191,20 @@ const UI_DENSITY_OPTIONS = [
 const THEME_OPTIONS = [
   {
     value: "light",
-    label: "Light",
-    description: "Always use the light theme.",
+    label: "浅色",
+    description: "始终使用浅色主题。",
     icon: <SunIcon />,
   },
   {
     value: "dark",
-    label: "Dark",
-    description: "Always use the dark theme.",
+    label: "深色",
+    description: "始终使用深色主题。",
     icon: <MoonIcon />,
   },
   {
     value: "system",
-    label: "System",
-    description: "Match your OS appearance setting.",
+    label: "跟随系统",
+    description: "与操作系统外观设置一致。",
     icon: <DeviceLaptopIcon />,
   },
 ] as const;
@@ -212,20 +212,20 @@ const THEME_OPTIONS = [
 const PROVIDER_SELECT_OPTIONS = ["opencode"] as const satisfies readonly ProviderKind[];
 
 const TIMESTAMP_FORMAT_LABELS = {
-  locale: "System default",
-  "12-hour": "12-hour",
-  "24-hour": "24-hour",
+  locale: "系统默认",
+  "12-hour": "12 小时制",
+  "24-hour": "24 小时制",
 } as const;
 
 const SIDEBAR_PROJECT_SORT_ORDER_LABELS = {
-  updated_at: "Recently active",
-  created_at: "Recently added",
-  manual: "Manual order",
+  updated_at: "最近活跃",
+  created_at: "最近添加",
+  manual: "手动排序",
 } as const;
 
 const SIDEBAR_THREAD_SORT_ORDER_LABELS = {
-  updated_at: "Recently active",
-  created_at: "Newest first",
+  updated_at: "最近活跃",
+  created_at: "最新优先",
 } as const;
 
 type InstallBinarySettingsKey =
@@ -338,9 +338,9 @@ const INSTALL_PROVIDER_SETTINGS: readonly InstallProviderSettings[] = [
     provider: "opencode",
     title: "OpenCode",
     docs: [
-      { label: "Install", href: "https://opencode.ai/docs/" },
-      { label: "Update", href: "https://opencode.ai/docs/cli/" },
-      { label: "Config", href: "https://opencode.ai/docs/config/" },
+      { label: "安装", href: "https://opencode.ai/docs/" },
+      { label: "更新", href: "https://opencode.ai/docs/cli/" },
+      { label: "配置", href: "https://opencode.ai/docs/config/" },
     ],
     binaryPathKey: "openCodeBinaryPath",
     binaryPlaceholder: "OpenCode binary path",
@@ -425,7 +425,7 @@ function providerUpdateStatusLabel(provider: ServerProviderStatus): string | nul
     return "Update failed";
   }
   if (state === "unchanged") {
-    return "Still outdated";
+    return "安装";
   }
   const advisory = provider.versionAdvisory;
   if (advisory?.status === "behind_latest" && advisory.latestVersion) {
@@ -442,7 +442,7 @@ function providerUpdateFailureMessage(provider: ServerProviderStatus | undefined
   if (!state || (state.status !== "failed" && state.status !== "unchanged")) {
     return null;
   }
-  return state.output?.trim() || state.message || "The provider update did not complete.";
+  return state.output?.trim() || state.message || "配置";
 }
 
 // Keys of AppSettings whose value is a plain boolean — the only ones that can be
@@ -749,53 +749,53 @@ function SettingsRouteView() {
     settings.piBinaryPath !== defaults.piBinaryPath ||
     settings.piAgentDir !== defaults.piAgentDir;
   const changedSettingLabels = [
-    ...(theme !== "system" ? ["Theme"] : []),
-    ...(!isDefaultActiveTheme ? [`${resolvedTheme === "dark" ? "Dark" : "Light"} theme pack`] : []),
-    ...(settings.defaultProvider !== defaults.defaultProvider ? ["Default provider"] : []),
-    ...(settings.defaultThreadEnvMode !== defaults.defaultThreadEnvMode ? ["New thread mode"] : []),
+    ...(theme !== "system" ? ["主题"] : []),
+    ...(!isDefaultActiveTheme ? [`${resolvedTheme === "dark" ? "深色" : "浅色"} theme pack`] : []),
+    ...(settings.defaultProvider !== defaults.defaultProvider ? ["默认 provider"] : []),
+    ...(settings.defaultThreadEnvMode !== defaults.defaultThreadEnvMode ? ["已更新"] : []),
     ...(settings.sidebarProjectSortOrder !== defaults.sidebarProjectSortOrder
       ? ["Project sort order"]
       : []),
     ...(settings.sidebarThreadSortOrder !== defaults.sidebarThreadSortOrder
-      ? ["Thread sort order"]
+      ? ["新会话"]
       : []),
     ...(settings.showChatsSection !== defaults.showChatsSection ? ["Chats section"] : []),
     ...(settings.showWorkspaceSection !== defaults.showWorkspaceSection
-      ? ["Workspace section"]
+      ? ["仍过时"]
       : []),
-    ...(settings.uiDensity !== defaults.uiDensity ? ["UI density"] : []),
-    ...(settings.chatFontSizePx !== defaults.chatFontSizePx ? ["Base font size"] : []),
-    ...(settings.terminalFontSizePx !== defaults.terminalFontSizePx ? ["Terminal font size"] : []),
-    ...(settings.terminalFontFamily !== defaults.terminalFontFamily ? ["Terminal font"] : []),
+    ...(settings.uiDensity !== defaults.uiDensity ? ["界面密度"] : []),
+    ...(settings.chatFontSizePx !== defaults.chatFontSizePx ? ["基础字号"] : []),
+    ...(settings.terminalFontSizePx !== defaults.terminalFontSizePx ? ["Terminal 字号"] : []),
+    ...(settings.terminalFontFamily !== defaults.terminalFontFamily ? ["Terminal 字体"] : []),
     ...(shouldShowFontSmoothing &&
     settings.enableNativeFontSmoothing !== defaults.enableNativeFontSmoothing
-      ? ["Font smoothing"]
+      ? ["字体平滑"]
       : []),
-    ...(settings.timestampFormat !== defaults.timestampFormat ? ["Time format"] : []),
+    ...(settings.timestampFormat !== defaults.timestampFormat ? ["时间格式"] : []),
     ...(settings.enableTaskCompletionToasts !== defaults.enableTaskCompletionToasts
-      ? ["Activity toasts"]
+      ? ["活动 Toast"]
       : []),
     ...(settings.enableSystemTaskCompletionNotifications !==
     defaults.enableSystemTaskCompletionNotifications
-      ? ["Desktop notifications"]
+      ? ["桌面通知"]
       : []),
     ...(settings.enableAssistantStreaming !== defaults.enableAssistantStreaming
-      ? ["Assistant output"]
+      ? ["助手输出"]
       : []),
-    ...(settings.diffWordWrap !== defaults.diffWordWrap ? ["Diff line wrapping"] : []),
+    ...(settings.diffWordWrap !== defaults.diffWordWrap ? ["Diff 自动换行"] : []),
     ...(settings.enableComposerSuggestions !== defaults.enableComposerSuggestions
-      ? ["Prompt suggestions"]
+      ? ["提示建议"]
       : []),
     ...(settings.confirmThreadDelete !== defaults.confirmThreadDelete
-      ? ["Delete confirmation"]
+      ? ["删除确认"]
       : []),
     ...(settings.confirmThreadArchive !== defaults.confirmThreadArchive
-      ? ["Archive confirmation"]
+      ? ["归档确认"]
       : []),
     ...(settings.confirmTerminalTabClose !== defaults.confirmTerminalTabClose
-      ? ["Terminal close confirmation"]
+      ? ["关闭终端确认"]
       : []),
-    ...(isGitTextGenerationModelDirty ? ["Git writing model"] : []),
+    ...(isGitTextGenerationModelDirty ? ["Git 文案模型"] : []),
     ...(settings.customCodexModels.length > 0 ||
     settings.customClaudeModels.length > 0 ||
     settings.customCursorModels.length > 0 ||
@@ -804,7 +804,7 @@ function SettingsRouteView() {
     settings.customKiloModels.length > 0 ||
     settings.customOpenCodeModels.length > 0 ||
     settings.customPiModels.length > 0
-      ? ["Custom models"]
+      ? ["自定义模型"]
       : []),
     ...(isInstallSettingsDirty ? ["Provider installs"] : []),
     ...(hiddenProviderCount > 0 ? ["Provider visibility"] : []),
@@ -818,7 +818,7 @@ function SettingsRouteView() {
     const api = ensureNativeApi();
     const editor = resolveAndPersistPreferredEditor(availableEditors ?? []);
     if (!editor) {
-      setOpenKeybindingsError("No available editors found.");
+      setOpenKeybindingsError("主题");
       setIsOpeningKeybindings(false);
       return;
     }
@@ -846,14 +846,14 @@ function SettingsRouteView() {
       if (!normalized) {
         setCustomModelErrorByProvider((existing) => ({
           ...existing,
-          [provider]: "Enter a model slug.",
+          [provider]: "深色",
         }));
         return;
       }
       if (getModelOptions(provider).some((option) => option.slug === normalized)) {
         setCustomModelErrorByProvider((existing) => ({
           ...existing,
-          [provider]: "That model is already built in.",
+          [provider]: "浅色",
         }));
         return;
       }
@@ -867,7 +867,7 @@ function SettingsRouteView() {
       if (customModels.includes(normalized)) {
         setCustomModelErrorByProvider((existing) => ({
           ...existing,
-          [provider]: "That custom model is already saved.",
+          [provider]: "默认 provider",
         }));
         return;
       }
@@ -945,13 +945,13 @@ function SettingsRouteView() {
         toastManager.add({
           type: "success",
           title: `${PROVIDER_DISPLAY_NAMES[provider]} update finished`,
-          description: "New sessions will use the refreshed provider.",
+          description: "会话排序",
         });
       } catch (error) {
         toastManager.add({
           type: "error",
           title: `Could not update ${PROVIDER_DISPLAY_NAMES[provider]}`,
-          description: error instanceof Error ? error.message : "The provider update failed.",
+          description: error instanceof Error ? error.message : "工作区",
         });
       } finally {
         await queryClient
@@ -972,8 +972,8 @@ function SettingsRouteView() {
 
     const api = readNativeApi();
     const confirmed = await (api ?? ensureNativeApi()).dialogs.confirm(
-      ["Restore default settings?", `This will reset: ${changedSettingLabels.join(", ")}.`].join(
-        "\n",
+      ["UI 密度", `This will reset: ${changedSettingLabels.join(", ")}.`].join(
+        "Terminal 字号",
       ),
     );
     if (!confirmed) return;
@@ -1016,23 +1016,23 @@ function SettingsRouteView() {
     updateSettings({ enableSystemTaskCompletionNotifications: false });
     toastManager.add({
       type: permission === "denied" ? "warning" : "error",
-      title: "Desktop notifications unavailable",
+      title: "该 model 已内置。",
       description: buildNotificationSettingsSupportText(permission),
     });
   }
 
   async function sendTestNotification() {
-    const title = "Activity notification";
-    const body = "Notification test for chats and terminal agents.";
+    const title = "提示建议";
+    const body = "删除确认";
 
     if (window.desktopBridge) {
       const shown = await window.desktopBridge.notifications.show({ title, body, silent: false });
       toastManager.add({
         type: shown ? "success" : "warning",
-        title: shown ? "Test notification sent" : "Notifications unavailable",
+        title: shown ? "新会话将使用更新后的 provider。" : "自定义模型",
         description: shown
-          ? "Your operating system should show the notification."
-          : "Desktop notifications are not supported on this device.",
+          ? "Provider 安装"
+          : "Provider 可见性",
       });
       return;
     }
@@ -1042,7 +1042,7 @@ function SettingsRouteView() {
     if (permission !== "granted") {
       toastManager.add({
         type: permission === "denied" ? "warning" : "error",
-        title: "Desktop notifications unavailable",
+        title: "该 model 已内置。",
         description: buildNotificationSettingsSupportText(permission),
       });
       return;
@@ -1054,7 +1054,7 @@ function SettingsRouteView() {
     });
     toastManager.add({
       type: "success",
-      title: "Test notification sent",
+      title: "新会话将使用更新后的 provider。",
       description: "Your browser should show the notification.",
     });
   }
@@ -1068,10 +1068,10 @@ function SettingsRouteView() {
     const api = readNativeApi() ?? ensureNativeApi();
     const confirmed = await api.dialogs.confirm(
       [
-        "Repair local state?",
-        "This rebuilds local project indexes and refreshes project snapshots.",
+        "provider 更新失败。",
+        "恢复默认设置？",
         "It keeps existing chats in place, but it may take a moment.",
-      ].join("\n"),
+      ].join("Terminal 字号"),
     );
     if (!confirmed) {
       return;
@@ -1090,7 +1090,7 @@ function SettingsRouteView() {
       toastManager.add({
         type: "error",
         title: "Repair failed",
-        description: error instanceof Error ? error.message : "Unable to repair local state.",
+        description: error instanceof Error ? error.message : "桌面通知不可用",
       });
     } finally {
       setIsRepairingLocalState(false);
@@ -1105,7 +1105,7 @@ function SettingsRouteView() {
       if (snapshot === null) {
         toastManager.add({
           type: "error",
-          title: "Could not verify linked conversations",
+          title: "用于 chat 和 terminal agent 的通知测试。",
           description: "Retry once the app reconnects to the server.",
         });
         return;
@@ -1130,15 +1130,15 @@ function SettingsRouteView() {
           ? [
               `Delete worktree "${displayName}"?`,
               "",
-              `${linkedActiveThreadCount} active and ${linkedArchivedThreadIds.length} archived ${pluralize(linkedConversationCount, "conversation is", "conversations are")} linked to this worktree.`,
+              `${linkedActiveThreadCount} active and ${linkedArchivedThreadIds.length} archived ${pluralize(linkedConversationCount, "conversation is", "测试通知已发送")} linked to this worktree.`,
               linkedArchivedThreadIds.length > 0
-                ? "Archived conversations will be deleted first."
-                : "Deleting it can break reopening those chats in the same workspace.",
+                ? "通知不可用"
+                : "你的操作系统应会显示该通知。",
               "",
-              "Delete the worktree anyway?",
-            ].join("\n")
+              "此设备不支持桌面通知。",
+            ].join("Terminal 字号")
           : [`Delete worktree "${displayName}"?`, "This removes the Git worktree from disk."].join(
-              "\n",
+              "Terminal 字号",
             ),
       );
       if (!confirmed) {
@@ -1162,7 +1162,7 @@ function SettingsRouteView() {
         });
         toastManager.add({
           type: "success",
-          title: "Worktree deleted",
+          title: "桌面通知不可用",
           description:
             linkedArchivedThreadIds.length > 0
               ? `${displayName} was removed and ${linkedArchivedThreadIds.length} archived ${pluralize(linkedArchivedThreadIds.length, "conversation")} were deleted.`
@@ -1172,7 +1172,7 @@ function SettingsRouteView() {
         toastManager.add({
           type: "error",
           title: "Could not delete worktree",
-          description: error instanceof Error ? error.message : "Unable to delete the worktree.",
+          description: error instanceof Error ? error.message : "测试通知已发送",
         });
       }
     },
@@ -1190,14 +1190,14 @@ function SettingsRouteView() {
       });
       toastManager.add({
         type: "success",
-        title: "Thread restored",
-        description: "The thread has been moved back to the sidebar.",
+        title: "这将重建本地项目索引并刷新项目快照。",
+        description: "现有会话会保留，但可能需要一点时间。",
       });
     } catch (error) {
       toastManager.add({
         type: "error",
         title: "Could not restore thread",
-        description: error instanceof Error ? error.message : "Unable to restore the thread.",
+        description: error instanceof Error ? error.message : "本地状态已修复",
       });
     }
   }, []);
@@ -1221,13 +1221,13 @@ function SettingsRouteView() {
         toastManager.add({
           type: "success",
           title: "Thread deleted",
-          description: "The archived thread has been permanently removed.",
+          description: "修复失败",
         });
       } catch (error) {
         toastManager.add({
           type: "error",
           title: "Could not delete thread",
-          description: error instanceof Error ? error.message : "Unable to delete the thread.",
+          description: error instanceof Error ? error.message : "无法验证已关联的会话",
         });
       }
     },
@@ -1241,8 +1241,8 @@ function SettingsRouteView() {
 
       const clicked = await api.contextMenu.show(
         [
-          { id: "restore", label: "Restore" },
-          { id: "delete", label: "Delete", destructive: true },
+          { id: "restore", label: "恢复" },
+          { id: "delete", label: "删除", destructive: true },
         ],
         position,
       );
@@ -1301,14 +1301,14 @@ function SettingsRouteView() {
 
   const renderGeneralPanel = () => (
     <div className="space-y-6">
-      <SettingsSection title="Core defaults">
+      <SettingsSection title="核心默认">
         <SettingsRow
-          title="Default provider"
-          description="Choose the provider used for new chats."
+          title="默认 provider"
+          description="选择新聊天使用的 provider。"
           resetAction={
             settings.defaultProvider !== defaults.defaultProvider ? (
               <SettingResetButton
-                label="default provider"
+                label="无法删除该 worktree。"
                 onClick={() => updateSettings({ defaultProvider: defaults.defaultProvider })}
               />
             ) : null
@@ -1320,7 +1320,7 @@ function SettingsRouteView() {
                 if (!isProviderSelectOption(value)) return;
                 updateSettings({ defaultProvider: value });
               }}
-              ariaLabel="Default provider"
+              ariaLabel="默认 provider"
               valueContent={
                 <ProviderOptionLabel
                   provider={settings.defaultProvider}
@@ -1341,12 +1341,12 @@ function SettingsRouteView() {
         />
 
         <SettingsRow
-          title="New threads"
-          description="Pick the default workspace mode for newly created draft threads."
+          title="新会话"
+          description="选择新建 draft thread 的默认 workspace 模式。"
           resetAction={
             settings.defaultThreadEnvMode !== defaults.defaultThreadEnvMode ? (
               <SettingResetButton
-                label="new threads"
+                label="该会话已回到侧边栏。"
                 onClick={() =>
                   updateSettings({
                     defaultThreadEnvMode: defaults.defaultThreadEnvMode,
@@ -1364,8 +1364,8 @@ function SettingsRouteView() {
                   defaultThreadEnvMode: value,
                 });
               }}
-              ariaLabel="Default thread mode"
-              valueContent={settings.defaultThreadEnvMode === "worktree" ? "New worktree" : "Local"}
+              ariaLabel="无法恢复该会话。"
+              valueContent={settings.defaultThreadEnvMode === "worktree" ? "新建 worktree" : "本地"}
             >
               <SelectItem hideIndicator value="local">
                 Local
@@ -1378,10 +1378,10 @@ function SettingsRouteView() {
         />
       </SettingsSection>
 
-      <SettingsSection title="Sidebar organization">
+      <SettingsSection title="侧边栏组织">
         <SettingsRow
-          title="Project order"
-          description="Controls how projects are arranged in the main sidebar."
+          title="项目排序"
+          description="控制主侧边栏中项目的排列方式。"
           resetAction={
             settings.sidebarProjectSortOrder !== defaults.sidebarProjectSortOrder ? (
               <SettingResetButton
@@ -1420,8 +1420,8 @@ function SettingsRouteView() {
         />
 
         <SettingsRow
-          title="Thread order"
-          description="Controls how threads are arranged inside each project in the main sidebar."
+          title="会话排序"
+          description="控制每个项目中会话的排列方式。"
           resetAction={
             settings.sidebarThreadSortOrder !== defaults.sidebarThreadSortOrder ? (
               <SettingResetButton
@@ -1443,7 +1443,7 @@ function SettingsRouteView() {
                 }
                 updateSettings({ sidebarThreadSortOrder: value });
               }}
-              ariaLabel="Thread sort order"
+              ariaLabel="新会话"
               valueContent={SIDEBAR_THREAD_SORT_ORDER_LABELS[settings.sidebarThreadSortOrder]}
             >
               <SelectItem hideIndicator value="updated_at">
@@ -1457,92 +1457,92 @@ function SettingsRouteView() {
         />
       </SettingsSection>
 
-      <SettingsSection title="Sidebar sections">
+      <SettingsSection title="侧边栏分区">
         {renderBooleanSettingRow({
           settingKey: "showChatsSection",
-          title: "Chats",
+          title: "会话列表",
           description:
-            "Show the standalone Chats list in the sidebar footer (chats not tied to a project).",
+            "在侧边栏底部显示独立的会话列表（未绑定到项目的会话）。",
           resetLabel: "chats section",
           ariaLabel: "Show the Chats section in the sidebar",
         })}
 
         {renderBooleanSettingRow({
           settingKey: "showWorkspaceSection",
-          title: "Workspace",
+          title: "工作区",
           description:
-            "Show the Workspace tab in the sidebar switcher. The Threads tab always stays visible.",
-          resetLabel: "workspace section",
+            "在侧边栏切换器中显示工作区标签。Threads 标签始终可见。",
+          resetLabel: "项目排序",
           ariaLabel: "Show the Workspace section in the sidebar",
         })}
       </SettingsSection>
 
       <div ref={environmentPanelRef} id={SETTINGS_TARGETS.environmentPanel}>
-        <SettingsSection title="Environment panel">
+        <SettingsSection title="Environment 面板">
           {renderBooleanSettingRow({
             settingKey: "showEnvironmentUsage",
-            title: "Usage",
-            description: "Show the provider usage row in the chat Environment panel.",
+            title: "用量",
+            description: "在 chat Environment 面板中显示 provider 用量行。",
             resetLabel: "usage section",
             ariaLabel: "Show the Usage section in the Environment panel",
           })}
 
           {renderBooleanSettingRow({
             settingKey: "showEnvironmentRepository",
-            title: "Repository",
+            title: "仓库",
             description:
-              "Show the GitHub repository link in the chat Environment panel. The git block (Changes, Worktree, branch, Commit and Push) always stays visible.",
+              "在 chat Environment 面板中显示 GitHub 仓库链接。git 区块（Changes、Worktree、branch、Commit and Push）始终可见。",
             resetLabel: "repository section",
             ariaLabel: "Show the Repository section in the Environment panel",
           })}
 
           {renderBooleanSettingRow({
             settingKey: "showEnvironmentEditor",
-            title: "Editor",
+            title: "编辑器",
             description:
-              "Show the Editor section (in-app editor view and Open in editor picker) in the chat Environment panel.",
-            resetLabel: "editor section",
+              "在 chat Environment 面板中显示编辑器区块（应用内编辑器视图与「在编辑器中打开」选择器）。",
+            resetLabel: "侧边栏分区",
             ariaLabel: "Show the Editor section in the Environment panel",
           })}
 
           {renderBooleanSettingRow({
             settingKey: "showEnvironmentRecap",
-            title: "Recap",
-            description: "Show the auto-generated chat recap in the Environment panel.",
+            title: "回顾",
+            description: "在 Environment 面板中显示自动生成的聊天回顾。",
             resetLabel: "recap section",
             ariaLabel: "Show the Recap section in the Environment panel",
           })}
 
           {renderBooleanSettingRow({
             settingKey: "showEnvironmentPinned",
-            title: "Pinned messages",
-            description: "Show the pinned-messages checklist in the Environment panel.",
+            title: "置顶消息",
+            description: "在 Environment 面板中显示置顶消息清单。",
             resetLabel: "pinned messages section",
-            ariaLabel: "Show the Pinned messages section in the Environment panel",
+            ariaLabel: "Environment 面板",
           })}
 
           {renderBooleanSettingRow({
             settingKey: "showEnvironmentMarkers",
-            title: "Text markers",
+            title: "文本标记",
             description:
-              "Show highlighted and underlined transcript text in the Environment panel.",
-            resetLabel: "text markers section",
+              "在 Environment 面板中显示高亮与下划线的对话文本。",
+            resetLabel: "用量分区",
             ariaLabel: "Show the Text markers section in the Environment panel",
           })}
 
           {renderBooleanSettingRow({
             settingKey: "showEnvironmentInstructions",
-            title: "Project instructions",
-            description: "Show project-level instructions in the Environment panel.",
-            resetLabel: "project instructions section",
+            title: "项目说明",
+            description: "在 Environment 面板中显示项目级说明。",
+            resetLabel: "仓库分区",
             ariaLabel: "Show the Project instructions section in the Environment panel",
           })}
 
           {renderBooleanSettingRow({
             settingKey: "showEnvironmentNotepad",
-            title: "Notepad",
-            description: "Show the per-thread notepad in the Environment panel.",
-            resetLabel: "notepad section",
+            title: "记事本",
+            description: "在 Environment 面板中显示每个会话的记事本。",
+            resetLabel: "编辑器分区",
             ariaLabel: "Show the Notepad section in the Environment panel",
           })}
         </SettingsSection>
@@ -1556,8 +1556,8 @@ function SettingsRouteView() {
         <h2 className={SETTINGS_SECTION_LABEL_CLASS_NAME}>Theme and typography</h2>
         <SettingsCard>
           <SettingsRow
-            title="Theme"
-            description="Choose how Synara looks across the app."
+            title="主题"
+            description="选择 Synara 在应用中的外观。"
             resetAction={
               theme !== "system" ? (
                 <SettingResetButton label="theme" onClick={() => setTheme("system")} />
@@ -1593,12 +1593,12 @@ function SettingsRouteView() {
 
         <SettingsCard>
           <SettingsRow
-            title="UI density"
-            description="Control spacing in the sidebar, composer, chat gutters, and settings rows without changing font size."
+            title="界面密度"
+            description="控制侧边栏、输入区、聊天边距与设置行的间距，不改变字号。"
             resetAction={
               settings.uiDensity !== defaults.uiDensity ? (
                 <SettingResetButton
-                  label="UI density"
+                  label="界面密度"
                   onClick={() =>
                     updateSettings({
                       uiDensity: DEFAULT_UI_DENSITY,
@@ -1616,19 +1616,19 @@ function SettingsRouteView() {
                   }
                   updateSettings({ uiDensity: value });
                 }}
-                ariaLabel="UI density"
+                ariaLabel="界面密度"
                 options={UI_DENSITY_OPTIONS}
               />
             }
           />
 
           <SettingsRow
-            title="Base font size"
-            description="Adjust the app text base in pixels. Chat and UI typography scale proportionally from this value."
+            title="基础字号"
+            description="以像素调整应用文字基准。聊天与界面排版将按比例缩放。"
             resetAction={
               settings.chatFontSizePx !== defaults.chatFontSizePx ? (
                 <SettingResetButton
-                  label="base font size"
+                  label="在 Environment 面板中显示每个会话的记事本。"
                   onClick={() =>
                     updateSettings({
                       chatFontSizePx: defaults.chatFontSizePx,
@@ -1656,7 +1656,7 @@ function SettingsRouteView() {
                       chatFontSizePx: normalizeChatFontSizePx(Number(nextValue)),
                     });
                   }}
-                  aria-label="Base font size in pixels"
+                  aria-label="主题"
                 />
                 <span className="text-xs text-muted-foreground">px</span>
               </div>
@@ -1664,8 +1664,8 @@ function SettingsRouteView() {
           />
 
           <SettingsRow
-            title="Terminal font size"
-            description="Adjust terminal text independently from the app and chat font size."
+            title="Terminal 字号"
+            description="独立于应用与聊天字号调整终端文字。"
             resetAction={
               settings.terminalFontSizePx !== defaults.terminalFontSizePx ? (
                 <SettingResetButton
@@ -1705,8 +1705,8 @@ function SettingsRouteView() {
           />
 
           <SettingsRow
-            title="Terminal font"
-            description="Type any monospace font installed on this device (e.g. Fira Code). Leave empty for the default. Fonts that aren't installed fall back to the system monospace."
+            title="Terminal 字体"
+            description="输入本机已安装的等宽字体（如 Fira Code）。留空则使用默认字体；未安装的字体将回退到系统等宽字体。"
             resetAction={
               settings.terminalFontFamily !== defaults.terminalFontFamily ? (
                 <SettingResetButton
@@ -1739,7 +1739,7 @@ function SettingsRouteView() {
                     showClear={settings.terminalFontFamily.length > 0}
                     spellCheck={false}
                     autoComplete="off"
-                    placeholder="Default (JetBrains Mono)"
+                    placeholder="默认（JetBrains Mono）"
                     className="w-full sm:w-56"
                     aria-label="Terminal font family"
                   />
@@ -1771,19 +1771,19 @@ function SettingsRouteView() {
           {shouldShowFontSmoothing
             ? renderBooleanSettingRow({
                 settingKey: "enableNativeFontSmoothing",
-                title: "Font smoothing",
-                description: "Use macOS-style antialiasing for lighter, crisper text rendering.",
-                resetLabel: "font smoothing",
+                title: "字体平滑",
+                description: "使用 macOS 风格抗锯齿，使文字更轻、更清晰。",
+                resetLabel: "terminal 字号",
                 ariaLabel: "Enable font smoothing",
               })
             : null}
         </SettingsCard>
       </section>
 
-      <SettingsSection title="Time and reading">
+      <SettingsSection title="时间与阅读">
         <SettingsRow
-          title="Time format"
-          description="System default follows your browser or OS clock preference."
+          title="时间格式"
+          description="系统默认跟随浏览器或操作系统的时钟偏好。"
           resetAction={
             settings.timestampFormat !== defaults.timestampFormat ? (
               <SettingResetButton
@@ -1807,7 +1807,7 @@ function SettingsRouteView() {
                   timestampFormat: value,
                 });
               }}
-              ariaLabel="Timestamp format"
+              ariaLabel="时间格式"
               triggerClassName="w-full sm:w-40"
               valueContent={TIMESTAMP_FORMAT_LABELS[settings.timestampFormat]}
             >
@@ -1829,25 +1829,25 @@ function SettingsRouteView() {
 
   const renderNotificationsPanel = () => (
     <div className="space-y-6">
-      <SettingsSection title="Activity alerts">
+      <SettingsSection title="活动提醒">
         {renderBooleanSettingRow({
           settingKey: "enableTaskCompletionToasts",
-          title: "Activity toasts",
+          title: "活动 Toast",
           description:
-            "Show an in-app toast when a chat or managed terminal agent finishes or needs input.",
+            "当聊天或托管终端代理完成或需要输入时，显示应用内 Toast。",
           resetLabel: "activity toasts",
           ariaLabel: "Activity toast notifications",
         })}
 
         <SettingsRow
-          title="Desktop notifications"
-          description="Show an OS notification when a chat or managed terminal agent finishes or needs input while the app is in the background."
+          title="桌面通知"
+          description="当应用在后台时，若聊天或托管终端代理完成或需要输入，显示系统通知。"
           status={buildNotificationSettingsSupportText(browserNotificationPermission)}
           resetAction={
             settings.enableSystemTaskCompletionNotifications !==
             defaults.enableSystemTaskCompletionNotifications ? (
               <SettingResetButton
-                label="desktop notifications"
+                label="字体平滑"
                 onClick={() =>
                   updateSettings({
                     enableSystemTaskCompletionNotifications:
@@ -1867,7 +1867,7 @@ function SettingsRouteView() {
                 onCheckedChange={(checked) => {
                   void setSystemNotificationsEnabled(Boolean(checked));
                 }}
-                aria-label="Desktop activity notifications"
+                aria-label="系统默认会跟随浏览器或操作系统的时钟偏好。"
               />
             </div>
           }
@@ -1878,54 +1878,54 @@ function SettingsRouteView() {
 
   const renderBehaviorPanel = () => (
     <div className="space-y-6">
-      <SettingsSection title="Runtime behavior">
+      <SettingsSection title="运行时行为">
         {renderBooleanSettingRow({
           settingKey: "enableAssistantStreaming",
-          title: "Assistant output",
-          description: "Show token-by-token output while a response is in progress.",
+          title: "助手输出",
+          description: "在回复进行中逐 token 显示输出。",
           resetLabel: "assistant output",
           ariaLabel: "Stream assistant messages",
         })}
 
         {renderBooleanSettingRow({
           settingKey: "diffWordWrap",
-          title: "Diff line wrapping",
+          title: "Diff 自动换行",
           description:
-            "Set the default wrap state when the diff panel opens. The in-panel wrap toggle only affects the current diff session.",
+            "设置打开 diff 面板时的默认换行状态。面板内换行开关仅影响当前 diff 会话。",
           resetLabel: "diff line wrapping",
           ariaLabel: "Wrap diff lines by default",
         })}
 
         {renderBooleanSettingRow({
           settingKey: "enableComposerSuggestions",
-          title: "Prompt suggestions",
-          description: "Show suggested prompts under the composer when starting a new thread.",
-          resetLabel: "prompt suggestions",
-          ariaLabel: "Show composer prompt suggestions",
+          title: "提示建议",
+          description: "新建会话时在输入框下方显示建议提示。",
+          resetLabel: "当 chat 或托管 terminal agent 完成或需要输入时，显示应用内通知。",
+          ariaLabel: "活动通知",
         })}
       </SettingsSection>
 
-      <SettingsSection title="Safety confirmations">
+      <SettingsSection title="安全确认">
         {renderBooleanSettingRow({
           settingKey: "confirmThreadDelete",
-          title: "Delete confirmation",
-          description: "Ask before deleting a thread and its chat history.",
+          title: "删除确认",
+          description: "删除会话及其聊天历史前进行确认。",
           resetLabel: "delete confirmation",
           ariaLabel: "Confirm thread deletion",
         })}
 
         {renderBooleanSettingRow({
           settingKey: "confirmThreadArchive",
-          title: "Archive confirmation",
-          description: "Ask before archiving a thread.",
-          resetLabel: "archive confirmation",
+          title: "归档确认",
+          description: "归档会话前进行确认。",
+          resetLabel: "运行时行为",
           ariaLabel: "Confirm thread archive",
         })}
 
         {renderBooleanSettingRow({
           settingKey: "confirmTerminalTabClose",
-          title: "Terminal close confirmation",
-          description: "Ask before closing a terminal tab and clearing its history.",
+          title: "关闭终端确认",
+          description: "关闭终端标签并清除其历史前进行确认。",
           resetLabel: "terminal close confirmation",
           ariaLabel: "Confirm terminal tab close",
         })}
@@ -1935,7 +1935,7 @@ function SettingsRouteView() {
 
   const renderWorktreesPanel = () => (
     <div className="space-y-6">
-      <SettingsSection title="Managed worktrees">
+      <SettingsSection title="托管 worktree">
         <div className="space-y-4">
           {serverWorktreesQuery.isLoading ? (
             <div
@@ -1955,7 +1955,7 @@ function SettingsRouteView() {
             >
               {serverWorktreesQuery.error instanceof Error
                 ? serverWorktreesQuery.error.message
-                : "Unable to load worktrees."}
+                : "无法加载 worktree。"}
             </div>
           ) : worktreesByWorkspaceRoot.length === 0 ? (
             <div
@@ -2079,13 +2079,13 @@ function SettingsRouteView() {
     return (
       <div className="space-y-6">
         {archivedGroups.length === 0 ? (
-          <SettingsSection title="Archived threads">
+          <SettingsSection title="已归档会话">
             <div className={cn(SETTINGS_EMPTY_STATE_CLASS_NAME, "px-5 py-10 text-center")}>
               <div className="mx-auto mb-3 flex size-11 items-center justify-center rounded-full border border-border/70 bg-background/70 text-muted-foreground">
                 <ArchiveIcon className="size-5" />
               </div>
               <div className="text-sm font-medium text-foreground">No archived threads</div>
-              <div className="mt-1 text-sm text-muted-foreground">
+              <div className="无法加载 worktree。">
                 Archived threads will appear here and can be restored to the sidebar.
               </div>
             </div>
@@ -2094,7 +2094,7 @@ function SettingsRouteView() {
           archivedGroups.map(({ project, threads: projectThreads }) => (
             <SettingsSection
               key={project?.id ?? "unknown-project"}
-              title={project?.name ?? "Unknown project"}
+              title={project?.name ?? "未知项目"}
             >
               <div className={SETTINGS_INSET_LIST_CLASS_NAME}>
                 {projectThreads.map((thread, index) => (
@@ -2148,10 +2148,10 @@ function SettingsRouteView() {
 
   const renderModelsPanel = () => (
     <div className="space-y-6">
-      <SettingsSection title="Generation defaults">
+      <SettingsSection title="生成默认">
         <SettingsRow
-          title="Git writing model"
-          description="Used for generated commit messages, PR titles, and branch names."
+          title="Git 文案模型"
+          description="用于生成提交说明、PR 标题与分支名。"
           resetAction={
             isGitTextGenerationModelDirty ? (
               <SettingResetButton
@@ -2197,10 +2197,10 @@ function SettingsRouteView() {
         />
       </SettingsSection>
 
-      <SettingsSection title="Custom models">
+      <SettingsSection title="自定义模型">
         <SettingsRow
-          title="Saved model slugs"
-          description="Add custom model slugs for supported providers."
+          title="已保存 model 代号"
+          description="为支持的 provider 添加自定义 model 代号。"
           resetAction={
             totalCustomModels > 0 ? (
               <SettingResetButton
@@ -2290,7 +2290,7 @@ function SettingsRouteView() {
             </div>
 
             {selectedCustomModelError ? (
-              <p className="mt-2 text-xs text-destructive">{selectedCustomModelError}</p>
+              <p className="可用模型">{selectedCustomModelError}</p>
             ) : null}
 
             {totalCustomModels > 0 ? (
@@ -2337,16 +2337,16 @@ function SettingsRouteView() {
   const renderProvidersPanel = () => (
     <div className="space-y-6">
       {renderProviderUpdatesSection()}
-      <SettingsSection title="Provider picker">
+      <SettingsSection title="Provider 选择器">
         <SettingsRow
-          title="Visible providers"
-          description="Drag providers into your preferred picker order and hide the ones you don't use. The provider you're currently using on a thread always stays visible."
+          title="可见 provider"
+          description="将 provider 拖入你偏好的选择器顺序，并隐藏不用的项。当前会话正在使用的 provider 始终可见。"
           status={
             hiddenProviderCount > 0
               ? `${hiddenProviderCount} ${pluralize(hiddenProviderCount, "provider")} hidden`
               : isProviderOrderDirty
-                ? "Custom order"
-                : "All providers visible"
+                ? "为 Cline 添加额外的模型代号（例如实验模型或本地模型）。"
+                : "自定义模型"
           }
           resetAction={
             hiddenProviderCount > 0 || isProviderOrderDirty ? (
@@ -2400,10 +2400,10 @@ function SettingsRouteView() {
 
   const renderProviderUpdatesSection = () => (
     <div ref={providerUpdatesRef} id={SETTINGS_TARGETS.providerUpdates}>
-      <SettingsSection title="Updates">
+      <SettingsSection title="更新">
         <SettingsRow
-          title="Provider updates"
-          description="Update installed provider tools that Synara can safely update."
+          title="Provider 更新"
+          description="更新 Synara 可安全更新的已安装 provider 工具。"
           status={
             outdatedProviderCount > 0
               ? `${outdatedProviderCount} ${pluralize(outdatedProviderCount, "update")} available`
@@ -2456,10 +2456,10 @@ function SettingsRouteView() {
                         ) : (
                           <DownloadIcon className="size-3.5" />
                         )}
-                        {isProviderUpdateActive ? "Updating" : "Update"}
+                        {isProviderUpdateActive ? "Updating" : "更新"}
                       </Button>
                     ) : (
-                      <span className="shrink-0 text-[11px] text-muted-foreground">
+                      <span className="Provider 更新">
                         Manual update
                       </span>
                     )}
@@ -2475,10 +2475,10 @@ function SettingsRouteView() {
 
   const renderProviderInstallsSection = () => (
     <div ref={providerInstallsRef} id={SETTINGS_TARGETS.providerInstalls}>
-      <SettingsSection title="Provider tools">
+      <SettingsSection title="Provider 工具">
         <SettingsRow
-          title="Installed CLIs"
-          description="Review provider versions and update tools. Open a row only when you need binary overrides."
+          title="已安装 CLI"
+          description="查看 provider 版本与更新工具。仅在需要覆盖二进制路径时展开对应行。"
           status={
             outdatedProviderCount > 0
               ? `${outdatedProviderCount} ${pluralize(outdatedProviderCount, "update")} available`
@@ -2585,14 +2585,14 @@ function SettingsRouteView() {
                             {providerSettings.title}
                           </span>
                           {isDirty ? (
-                            <span className="shrink-0 text-[11px] text-muted-foreground">
+                            <span className="Provider 更新">
                               Custom
                             </span>
                           ) : null}
                           {providerUpdateLabel ? (
                             <span
                               className={cn(
-                                "shrink-0 text-[11px]",
+                                "更新 Synara 可以安全更新的已安装 provider 工具。",
                                 updateAdvisory?.status === "behind_latest"
                                   ? "text-foreground"
                                   : "text-muted-foreground",
@@ -2603,7 +2603,7 @@ function SettingsRouteView() {
                           ) : null}
                           <ChevronDownIcon
                             className={cn(
-                              "size-4 shrink-0 text-muted-foreground transition-transform",
+                              "版本",
                               isOpen && "rotate-180",
                             )}
                           />
@@ -2629,7 +2629,7 @@ function SettingsRouteView() {
                             ) : (
                               <DownloadIcon className="size-3.5" />
                             )}
-                            {isProviderUpdateActive ? "Updating" : "Update"}
+                            {isProviderUpdateActive ? "Updating" : "更新"}
                           </Button>
                         ) : null}
                       </div>
@@ -2649,7 +2649,7 @@ function SettingsRouteView() {
                                     </code>
                                   </>
                                 ) : (
-                                  "A newer version is available, but Synara could not identify a safe one-click update command for this installation."
+                                  "已安装 CLI"
                                 )}
                               </div>
                             ) : null}
@@ -2658,7 +2658,7 @@ function SettingsRouteView() {
                               htmlFor={`provider-install-${providerSettings.binaryPathKey}`}
                               className="block"
                             >
-                              <span className="block text-xs font-medium text-foreground">
+                              <span className="快捷键">
                                 {providerSettings.title} binary path
                               </span>
                               <DebouncedSettingTextInput
@@ -2673,7 +2673,7 @@ function SettingsRouteView() {
                                 placeholder={providerSettings.binaryPlaceholder}
                                 spellCheck={false}
                               />
-                              <span className="mt-1 block text-xs text-muted-foreground">
+                              <span className="打开持久化的 keybindings.json 文件，直接编辑高级快捷键。">
                                 {providerSettings.binaryDescription}
                               </span>
                             </label>
@@ -2683,7 +2683,7 @@ function SettingsRouteView() {
                                 htmlFor={`provider-install-${providerSettings.homePathKey}`}
                                 className="block"
                               >
-                                <span className="block text-xs font-medium text-foreground">
+                                <span className="快捷键">
                                   CODEX_HOME path
                                 </span>
                                 <DebouncedSettingTextInput
@@ -2701,7 +2701,7 @@ function SettingsRouteView() {
                                   spellCheck={false}
                                 />
                                 {providerSettings.homeDescription ? (
-                                  <span className="mt-1 block text-xs text-muted-foreground">
+                                  <span className="打开持久化的 keybindings.json 文件，直接编辑高级快捷键。">
                                     {providerSettings.homeDescription}
                                   </span>
                                 ) : null}
@@ -2713,7 +2713,7 @@ function SettingsRouteView() {
                                 htmlFor={`provider-install-${providerSettings.agentDirKey}`}
                                 className="block"
                               >
-                                <span className="block text-xs font-medium text-foreground">
+                                <span className="快捷键">
                                   Pi agent directory
                                 </span>
                                 <DebouncedSettingTextInput
@@ -2731,7 +2731,7 @@ function SettingsRouteView() {
                                   spellCheck={false}
                                 />
                                 {providerSettings.agentDirDescription ? (
-                                  <span className="mt-1 block text-xs text-muted-foreground">
+                                  <span className="打开持久化的 keybindings.json 文件，直接编辑高级快捷键。">
                                     {providerSettings.agentDirDescription}
                                   </span>
                                 ) : null}
@@ -2743,7 +2743,7 @@ function SettingsRouteView() {
                                 htmlFor={`provider-install-${providerSettings.apiEndpointKey}`}
                                 className="block"
                               >
-                                <span className="block text-xs font-medium text-foreground">
+                                <span className="快捷键">
                                   Cursor API endpoint
                                 </span>
                                 <DebouncedSettingTextInput
@@ -2761,7 +2761,7 @@ function SettingsRouteView() {
                                   spellCheck={false}
                                 />
                                 {providerSettings.apiEndpointDescription ? (
-                                  <span className="mt-1 block text-xs text-muted-foreground">
+                                  <span className="打开持久化的 keybindings.json 文件，直接编辑高级快捷键。">
                                     {providerSettings.apiEndpointDescription}
                                   </span>
                                 ) : null}
@@ -2773,7 +2773,7 @@ function SettingsRouteView() {
                                 htmlFor={`provider-install-${providerSettings.serverUrlKey}`}
                                 className="block"
                               >
-                                <span className="block text-xs font-medium text-foreground">
+                                <span className="快捷键">
                                   {providerSettings.title} server URL
                                 </span>
                                 <DebouncedSettingTextInput
@@ -2797,7 +2797,7 @@ function SettingsRouteView() {
                                   spellCheck={false}
                                 />
                                 {providerSettings.serverUrlDescription ? (
-                                  <span className="mt-1 block text-xs text-muted-foreground">
+                                  <span className="打开持久化的 keybindings.json 文件，直接编辑高级快捷键。">
                                     {providerSettings.serverUrlDescription}
                                   </span>
                                 ) : null}
@@ -2809,7 +2809,7 @@ function SettingsRouteView() {
                                 htmlFor={`provider-install-${providerSettings.serverPasswordKey}`}
                                 className="block"
                               >
-                                <span className="block text-xs font-medium text-foreground">
+                                <span className="快捷键">
                                   {providerSettings.title} server password
                                 </span>
                                 <DebouncedSettingTextInput
@@ -2833,7 +2833,7 @@ function SettingsRouteView() {
                                   spellCheck={false}
                                 />
                                 {providerSettings.serverPasswordDescription ? (
-                                  <span className="mt-1 block text-xs text-muted-foreground">
+                                  <span className="打开持久化的 keybindings.json 文件，直接编辑高级快捷键。">
                                     {providerSettings.serverPasswordDescription}
                                   </span>
                                 ) : null}
@@ -2846,11 +2846,11 @@ function SettingsRouteView() {
                                 className="flex items-start justify-between gap-3 rounded-md border border-border/70 bg-background/60 px-3 py-2"
                               >
                                 <span className="min-w-0">
-                                  <span className="block text-xs font-medium text-foreground">
+                                  <span className="快捷键">
                                     OpenAI response WebSockets
                                   </span>
                                   {providerSettings.experimentalWebSocketsDescription ? (
-                                    <span className="mt-1 block text-xs text-muted-foreground">
+                                    <span className="打开持久化的 keybindings.json 文件，直接编辑高级快捷键。">
                                       {providerSettings.experimentalWebSocketsDescription}
                                     </span>
                                   ) : null}
@@ -2882,19 +2882,19 @@ function SettingsRouteView() {
 
   const renderAdvancedPanel = () => (
     <div className="space-y-6">
-      <SettingsSection title="Developer tools">
+      <SettingsSection title="开发者工具">
         <SettingsRow
-          title="Keybindings"
-          description="Open the persisted `keybindings.json` file to edit advanced bindings directly."
+          title="快捷键"
+          description="打开持久化的 `keybindings.json` 文件以直接编辑高级绑定。"
           status={
             <>
               <span className="block break-all font-mono text-[11px] text-foreground">
-                {keybindingsConfigPath ?? "Resolving keybindings path..."}
+                {keybindingsConfigPath ?? "正在解析快捷键路径…"}
               </span>
               {openKeybindingsError ? (
-                <span className="mt-1 block text-destructive">{openKeybindingsError}</span>
+                <span className="正在打开…">{openKeybindingsError}</span>
               ) : (
-                <span className="mt-1 block">Opens in your preferred editor.</span>
+                <span className="打开文件">Opens in your preferred editor.</span>
               )}
             </>
           }
@@ -2905,18 +2905,18 @@ function SettingsRouteView() {
               disabled={!keybindingsConfigPath || isOpeningKeybindings}
               onClick={openKeybindingsFile}
             >
-              {isOpeningKeybindings ? "Opening..." : "Open file"}
+              {isOpeningKeybindings ? "正在打开…" : "打开文件"}
             </Button>
           }
         />
 
         <SettingsRow
-          title="Recovery tools"
-          description="Rebuild local project indexes without clearing existing chats when the local state gets out of sync."
+          title="恢复工具"
+          description="当本地状态不同步时，重建本地项目索引且不清除现有聊天。"
           status={
             shouldOfferRecoveryTools
-              ? "Visible because projects exist but no chat history is currently available."
-              : "Shown automatically only when recovery actions are relevant."
+              ? "因存在项目但当前无可用聊天历史而显示。"
+              : "仅在恢复操作相关时自动显示。"
           }
           control={
             <Button
@@ -2925,7 +2925,7 @@ function SettingsRouteView() {
               disabled={!shouldOfferRecoveryTools || isRepairingLocalState}
               onClick={() => void repairLocalState()}
             >
-              {isRepairingLocalState ? "Repairing..." : "Repair state"}
+              {isRepairingLocalState ? "正在修复…" : "修复状态"}
             </Button>
           }
         >
@@ -2939,7 +2939,7 @@ function SettingsRouteView() {
                 <span className="text-xs font-medium text-muted-foreground">What this does</span>
                 <ChevronDownIcon
                   className={cn(
-                    "size-4 shrink-0 text-muted-foreground transition-transform",
+                    "版本",
                     showRecoveryTools && "rotate-180",
                   )}
                 />
@@ -2960,15 +2960,15 @@ function SettingsRouteView() {
         </SettingsRow>
       </SettingsSection>
 
-      <SettingsSection title="About">
+      <SettingsSection title="关于">
         <SettingsRow
-          title="Version"
-          description="Current application version."
+          title="版本"
+          description="当前应用版本。"
           control={<code className="text-xs font-medium text-muted-foreground">{APP_VERSION}</code>}
         />
         <SettingsRow
-          title="Release history"
-          description="A running log of every update, newest first. Same notes the post-update dialog shows, kept here so you can revisit them any time."
+          title="发布历史"
+          description="按时间倒序记录每次更新。与更新后对话框相同的说明，可随时在此查看。"
           control={
             <Button size="sm" variant="outline" onClick={() => setReleaseHistoryOpen(true)}>
               View release history

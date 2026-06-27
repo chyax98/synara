@@ -160,8 +160,8 @@ function KanbanColumnComponent({
               size="icon-xs"
               variant="ghost"
               className="shrink-0 text-muted-foreground/70 hover:text-foreground"
-              aria-label="New task"
-              title="New task"
+              aria-label="新建任务"
+              title="新建任务"
               onClick={onNewCard}
             >
               <PlusIcon className="size-3.5" />

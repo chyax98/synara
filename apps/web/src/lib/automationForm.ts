@@ -57,7 +57,7 @@ export type ScheduleKind =
 export type IntervalUnit = "seconds" | "minutes";
 
 export const SCHEDULE_KIND_OPTIONS: readonly { value: ScheduleKind; label: string }[] = [
-  { value: "manual", label: "Manual" },
+  { value: "manual", label: "手动排序" },
   { value: "once", label: "Once" },
   { value: "hourly", label: "Hourly" },
   { value: "daily", label: "Daily" },
@@ -208,10 +208,10 @@ export function updateWeeklyScheduleTime(
 }
 
 export function formatDateTime(value: string | null): string {
-  if (!value) return "Not scheduled";
+  if (!value) return "未安排";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return `${new Intl.DateTimeFormat(undefined, {
+  return `${new Intl.DateTimeFormat("zh-CN", {
     month: "short",
     day: "numeric",
     hour: "numeric",
@@ -246,7 +246,7 @@ function formatIntervalCadence(seconds: number): string {
 export function formatSchedule(schedule: AutomationSchedule): string {
   switch (schedule.type) {
     case "manual":
-      return "Manual";
+      return "手动排序";
     case "once":
       return `Once ${formatDateTime(schedule.runAt)}`;
     case "interval":
@@ -273,7 +273,7 @@ export function formatClockTime(timeOfDay: string): string {
 export function formatCadence(schedule: AutomationSchedule): string {
   switch (schedule.type) {
     case "manual":
-      return "Manual";
+      return "手动排序";
     case "once":
       return formatDateTime(schedule.runAt);
     case "interval":

@@ -117,7 +117,7 @@ export function KanbanProjectBoardView({
       if (result.kind === "dispatched") {
         toastManager.add({
           type: "success",
-          title: "Draft sent",
+          title: "草稿已发送",
           description: card.title,
         });
         return;
@@ -125,13 +125,13 @@ export function KanbanProjectBoardView({
       if (result.kind === "open-thread") {
         const description =
           result.reason === "empty"
-            ? "Nothing to send yet — write the prompt in the composer."
+            ? "还没有可发送的内容 — 请在输入区写下提示词。"
             : result.reason === "worktree-pending"
-              ? "Open the chat to create the worktree with the normal send flow."
-              : "Open the chat to continue this task.";
+              ? "打开聊天，使用常规发送流程创建工作区。"
+              : "打开聊天以继续此任务。";
         toastManager.add({
           type: "info",
-          title: "Finish this draft in the chat",
+          title: "请在聊天中完成此草稿",
           description,
         });
         onOpenCard(card);
@@ -140,14 +140,14 @@ export function KanbanProjectBoardView({
       if (result.kind === "unavailable") {
         toastManager.add({
           type: "error",
-          title: "Not connected",
-          description: "Reconnect to the server before sending drafts.",
+          title: "未连接",
+          description: "发送草稿前请先重新连接服务器。",
         });
         return;
       }
       toastManager.add({
         type: "error",
-        title: "Could not send draft",
+        title: "无法发送草稿",
         description: result.message,
       });
     },
@@ -223,8 +223,8 @@ export function KanbanProjectBoardView({
       if (targetColumn === "done") {
         toastManager.add({
           type: "info",
-          title: "Done is derived automatically",
-          description: "Cards move here when their runs complete.",
+          title: "完成状态自动判定",
+          description: "卡片会在对应运行完成后自动移到这里。",
         });
       }
     },

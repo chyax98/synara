@@ -153,7 +153,7 @@ export const AppSettingsSchema = Schema.Struct({
   // Local-only UI preferences for hiding sidebar surfaces a user doesn't want.
   // `showChatsSection` controls the standalone "Chats" list in the sidebar footer
   // (rootless chats not tied to a project). `showWorkspaceSection` controls the
-  // "Workspace" tab in the section switcher. The "Threads"/Projects tab is always
+  // "Workspace" tab in the section switcher. The "会话"/Projects tab is always
   // shown, so the switcher is hidden by default and only appears when Workspace is
   // enabled in Settings (see the sidebar segmented picker).
   showChatsSection: Schema.Boolean.pipe(withDefaults(() => true)),
@@ -227,7 +227,7 @@ const PROVIDER_CUSTOM_MODEL_CONFIG: Record<ProviderKind, ProviderCustomModelConf
     settingsKey: "customOpenCodeModels",
     defaultSettingsKey: "customOpenCodeModels",
     title: "OpenCode",
-    description: "Save additional OpenCode model slugs for the picker and provider runtime.",
+    description: "为选择器与 provider 运行时保存额外的 OpenCode model 代号。",
     placeholder: "provider/model",
     example: "openai/gpt-5",
   },

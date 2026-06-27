@@ -392,7 +392,7 @@ export function formatRateLimitResetTime(resetsAt: string): string {
   const diffMs = resetMs - Date.now();
 
   if (diffMs > 0 && diffMs < 24 * 60 * 60 * 1000) {
-    return new Intl.DateTimeFormat(undefined, {
+    return new Intl.DateTimeFormat("zh-CN", {
       hour: "2-digit",
       minute: "2-digit",
     }).format(resetMs);
