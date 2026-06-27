@@ -3,6 +3,7 @@
  * Boots the real Synara server, waits for readiness, and probes shipped RPC paths.
  */
 import { spawn } from "node:child_process";
+import { randomUUID } from "node:crypto";
 import { mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
@@ -123,22 +124,62 @@ async function main() {
     console.log("INIT: Synara server startupReady=true");
     console.log('SNAPSHOT_PROVIDER: "opencode"');
 
-    const snapshot = await callRpc<{ projects?: unknown[] }>(
-      ORCHESTRATION_WS_METHODS.getSnapshot,
-      {},
+    const models = await callRpc<{ models?: Array<{ id?: string }> }>(
+      WS_METHODS.providerListModels,
+      {
+        provider: "opencode",
+      },
     );
-    console.log(`SNAPSHOT_METHOD: ${ORCHESTRATION_WS_METHODS.getSnapshot}`);
-    console.log(`SNAPSHOT_PROJECTS: ${snapshot.projects?.length ?? 0}`);
-
-    const models = await callRpc<{ models?: unknown[] }>(WS_METHODS.providerListModels, {
-      provider: "opencode",
-    });
+    const modelId = models.models?.[0]?.id ?? "smoke-model";
     console.log(`DISCOVERY_MODELS: ${Array.isArray(models.models) ? models.models.length : "ok"}`);
 
     const agents = await callRpc<{ agents?: unknown[] }>(WS_METHODS.providerListAgents, {
       provider: "opencode",
     });
     console.log(`DISCOVERY_AGENTS: ${Array.isArray(agents.agents) ? agents.agents.length : "ok"}`);
+
+    const projectWorkspace = join(homeDir, "smoke-project");
+    mkdirSync(projectWorkspace, { recursive: true });
+    const now = new Date().toISOString();
+    const projectId = randomUUID();
+    const threadId = randomUUID();
+    await callRpc(ORCHESTRATION_WS_METHODS.dispatchCommand, {
+      type: "project.create",
+      commandId: randomUUID(),
+      projectId,
+      title: "Smoke Project",
+      workspaceRoot: projectWorkspace,
+      createWorkspaceRootIfMissing: true,
+      createdAt: now,
+    });
+    await callRpc(ORCHESTRATION_WS_METHODS.dispatchCommand, {
+      type: "thread.create",
+      commandId: randomUUID(),
+      threadId,
+      projectId,
+      title: "Smoke Thread",
+      modelSelection: { provider: "opencode", model: modelId },
+      runtimeMode: "full-access",
+      interactionMode: "default",
+      branch: null,
+      worktreePath: null,
+      createdAt: now,
+    });
+
+    const snapshot = await callRpc<{
+      projects?: unknown[];
+      threads?: Array<{ modelSelection?: { provider?: string } | null }>;
+    }>(ORCHESTRATION_WS_METHODS.getSnapshot, {});
+    const providers = new Set<string>();
+    for (const thread of snapshot.threads ?? []) {
+      const provider = thread.modelSelection?.provider;
+      if (typeof provider === "string" && provider.length > 0) {
+        providers.add(provider);
+      }
+    }
+    console.log(`SNAPSHOT_METHOD: ${ORCHESTRATION_WS_METHODS.getSnapshot}`);
+    console.log(`SNAPSHOT_PROJECTS: ${snapshot.projects?.length ?? 0}`);
+    console.log(`SNAPSHOT_PROVIDERS: ${JSON.stringify([...providers].toSorted())}`);
 
     const combined = serverLog.join("");
     if (!/Synara running|opencode|OpenCode/i.test(combined)) {

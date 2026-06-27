@@ -49,17 +49,14 @@ const program = Effect.gen(function* () {
     );
   }
   const snapshot = (yield* call({})) as {
-    projects?: ReadonlyArray<{
-      threads?: ReadonlyArray<{ modelSelection?: { provider?: string } | null }>;
-    }>;
+    projects?: ReadonlyArray<unknown>;
+    threads?: ReadonlyArray<{ modelSelection?: { provider?: string } | null }>;
   };
   const providers = new Set<string>();
-  for (const project of snapshot.projects ?? []) {
-    for (const thread of project.threads ?? []) {
-      const provider = thread.modelSelection?.provider;
-      if (typeof provider === "string" && provider.length > 0) {
-        providers.add(provider);
-      }
+  for (const thread of snapshot.threads ?? []) {
+    const provider = thread.modelSelection?.provider;
+    if (typeof provider === "string" && provider.length > 0) {
+      providers.add(provider);
     }
   }
 

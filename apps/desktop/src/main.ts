@@ -957,38 +957,7 @@ function handleCheckForUpdatesMenuClick(): void {
 }
 
 async function checkForUpdatesFromMenu(): Promise<void> {
-  await checkForUpdates("menu");
-
-  if (updateState.status === "up-to-date") {
-    void dialog.showMessageBox({
-      type: "info",
-      title: "You're up to date!",
-      message: `Synara ${updateState.currentVersion} is currently the newest version available.`,
-      buttons: ["OK"],
-    });
-  } else if (updateState.status === "downloading" || updateState.status === "available") {
-    void dialog.showMessageBox({
-      type: "info",
-      title: "Update found",
-      message: "Synara is preparing the update in the background.",
-      buttons: ["OK"],
-    });
-  } else if (updateState.status === "downloaded") {
-    void dialog.showMessageBox({
-      type: "info",
-      title: "Update ready",
-      message: "Click Update in the sidebar when you’re ready to restart and install it.",
-      buttons: ["OK"],
-    });
-  } else if (updateState.status === "error") {
-    void dialog.showMessageBox({
-      type: "warning",
-      title: "Update check failed",
-      message: "Could not check for updates.",
-      detail: updateState.message ?? "An unknown error occurred. Please try again later.",
-      buttons: ["OK"],
-    });
-  }
+  // Auto-updates are disabled in this personal fork; menu entries were removed.
 }
 
 function configureApplicationMenu(): void {
@@ -1024,10 +993,6 @@ function configureApplicationMenu(): void {
       label: app.name,
       submenu: [
         { role: "about" },
-        {
-          label: "Check for Updates...",
-          click: () => handleCheckForUpdatesMenuClick(),
-        },
         { type: "separator" },
         {
           label: "Settings...",
@@ -1101,11 +1066,6 @@ function configureApplicationMenu(): void {
           label: "Keyboard Shortcuts",
           ...(keyboardShortcutsAccelerator ? { accelerator: keyboardShortcutsAccelerator } : {}),
           click: () => dispatchMenuAction("show-shortcuts"),
-        },
-        { type: "separator" },
-        {
-          label: "Check for Updates...",
-          click: () => handleCheckForUpdatesMenuClick(),
         },
       ],
     },

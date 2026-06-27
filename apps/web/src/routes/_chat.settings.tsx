@@ -415,19 +415,17 @@ function SettingsRouteView() {
     : savedCustomModelRows.slice(0, 5);
   const changedSettingLabels = [
     ...(theme !== "system" ? ["主题"] : []),
-    ...(!isDefaultActiveTheme ? [`${resolvedTheme === "dark" ? "深色" : "浅色"} theme pack`] : []),
-    ...(settings.defaultProvider !== defaults.defaultProvider ? ["默认 provider"] : []),
-    ...(settings.defaultThreadEnvMode !== defaults.defaultThreadEnvMode ? ["已更新"] : []),
-    ...(settings.sidebarProjectSortOrder !== defaults.sidebarProjectSortOrder
-      ? ["Project sort order"]
-      : []),
-    ...(settings.sidebarThreadSortOrder !== defaults.sidebarThreadSortOrder ? ["新会话"] : []),
-    ...(settings.showChatsSection !== defaults.showChatsSection ? ["Chats section"] : []),
-    ...(settings.showWorkspaceSection !== defaults.showWorkspaceSection ? ["仍过时"] : []),
+    ...(!isDefaultActiveTheme ? [`${resolvedTheme === "dark" ? "深色" : "浅色"}主题包`] : []),
+    ...(settings.defaultProvider !== defaults.defaultProvider ? ["默认 Provider"] : []),
+    ...(settings.defaultThreadEnvMode !== defaults.defaultThreadEnvMode ? ["默认工作区模式"] : []),
+    ...(settings.sidebarProjectSortOrder !== defaults.sidebarProjectSortOrder ? ["项目排序"] : []),
+    ...(settings.sidebarThreadSortOrder !== defaults.sidebarThreadSortOrder ? ["会话排序"] : []),
+    ...(settings.showChatsSection !== defaults.showChatsSection ? ["聊天分区"] : []),
+    ...(settings.showWorkspaceSection !== defaults.showWorkspaceSection ? ["工作区分区"] : []),
     ...(settings.uiDensity !== defaults.uiDensity ? ["界面密度"] : []),
     ...(settings.chatFontSizePx !== defaults.chatFontSizePx ? ["基础字号"] : []),
-    ...(settings.terminalFontSizePx !== defaults.terminalFontSizePx ? ["Terminal 字号"] : []),
-    ...(settings.terminalFontFamily !== defaults.terminalFontFamily ? ["Terminal 字体"] : []),
+    ...(settings.terminalFontSizePx !== defaults.terminalFontSizePx ? ["终端字号"] : []),
+    ...(settings.terminalFontFamily !== defaults.terminalFontFamily ? ["终端字体"] : []),
     ...(shouldShowFontSmoothing &&
     settings.enableNativeFontSmoothing !== defaults.enableNativeFontSmoothing
       ? ["字体平滑"]
@@ -472,7 +470,7 @@ function SettingsRouteView() {
     const api = ensureNativeApi();
     const editor = resolveAndPersistPreferredEditor(availableEditors ?? []);
     if (!editor) {
-      setOpenKeybindingsError("主题");
+      setOpenKeybindingsError("未找到可用编辑器。");
       setIsOpeningKeybindings(false);
       return;
     }
@@ -480,7 +478,7 @@ function SettingsRouteView() {
       .openInEditor(keybindingsConfigPath, editor)
       .catch((error) => {
         setOpenKeybindingsError(
-          error instanceof Error ? error.message : "Unable to open keybindings file.",
+          error instanceof Error ? error.message : "无法打开快捷键配置文件。",
         );
       })
       .finally(() => {
@@ -557,7 +555,7 @@ function SettingsRouteView() {
 
     const api = readNativeApi();
     const confirmed = await (api ?? ensureNativeApi()).dialogs.confirm(
-      ["UI 密度", `This will reset: ${changedSettingLabels.join(", ")}.`].join("Terminal 字号"),
+      ["恢复默认设置？", `将重置：${changedSettingLabels.join("、")}。`].join("\n"),
     );
     if (!confirmed) return;
 
@@ -593,21 +591,21 @@ function SettingsRouteView() {
     updateSettings({ enableSystemTaskCompletionNotifications: false });
     toastManager.add({
       type: permission === "denied" ? "warning" : "error",
-      title: "该 model 已内置。",
+      title: "无法启用桌面通知",
       description: buildNotificationSettingsSupportText(permission),
     });
   }
 
   async function sendTestNotification() {
-    const title = "提示建议";
-    const body = "删除确认";
+    const title = "Synara 测试通知";
+    const body = "这是一条测试通知，用于确认通知权限是否正常。";
 
     if (window.desktopBridge) {
       const shown = await window.desktopBridge.notifications.show({ title, body, silent: false });
       toastManager.add({
         type: shown ? "success" : "warning",
-        title: shown ? "新会话将使用更新后的 provider。" : "自定义模型",
-        description: shown ? "Provider 安装" : "Provider 可见性",
+        title: shown ? "测试通知已发送" : "通知未显示",
+        description: shown ? "系统应已显示该通知。" : "请检查系统通知权限。",
       });
       return;
     }
@@ -617,7 +615,7 @@ function SettingsRouteView() {
     if (permission !== "granted") {
       toastManager.add({
         type: permission === "denied" ? "warning" : "error",
-        title: "该 model 已内置。",
+        title: "无法发送测试通知",
         description: buildNotificationSettingsSupportText(permission),
       });
       return;
@@ -629,7 +627,7 @@ function SettingsRouteView() {
     });
     toastManager.add({
       type: "success",
-      title: "新会话将使用更新后的 provider。",
+      title: "测试通知已发送",
       description: "浏览器应会显示该通知。",
     });
   }
@@ -642,11 +640,7 @@ function SettingsRouteView() {
 
     const api = readNativeApi() ?? ensureNativeApi();
     const confirmed = await api.dialogs.confirm(
-      [
-        "provider 更新失败。",
-        "恢复默认设置？",
-        "It keeps existing chats in place, but it may take a moment.",
-      ].join("Terminal 字号"),
+      ["修复本地状态？", "将重建项目索引，现有会话均保留，可能需要一些时间。"].join("\n"),
     );
     if (!confirmed) {
       return;
@@ -658,7 +652,7 @@ function SettingsRouteView() {
       syncServerReadModel(snapshot);
       toastManager.add({
         type: "success",
-        title: "Local state repaired",
+        title: "本地状态已修复",
         description: "已重建项目索引，现有会话均保留。",
       });
     } catch (error) {
@@ -703,16 +697,16 @@ function SettingsRouteView() {
       const confirmed = await api.dialogs.confirm(
         linkedConversationCount > 0
           ? [
-              `删除 worktree「${displayName}」？`,
+              `删除工作树「${displayName}」？`,
               "",
-              `有 ${linkedActiveThreadCount} 个活跃会话和 ${linkedArchivedThreadIds.length} 个已归档会话关联到此 worktree。`,
+              `有 ${linkedActiveThreadCount} 个活跃会话和 ${linkedArchivedThreadIds.length} 个已归档会话关联到此工作树。`,
               linkedArchivedThreadIds.length > 0
                 ? "已归档会话将先被删除。"
                 : "删除后可能影响在同一工作区重新打开这些对话。",
               "",
-              "仍要删除该 worktree 吗？",
+              "仍要删除该工作树吗？",
             ].join("\n")
-          : [`删除 worktree「${displayName}」？`, "这将从磁盘移除该 Git worktree。"].join("\n"),
+          : [`删除工作树「${displayName}」？`, "这将从磁盘移除该 Git 工作树。"].join("\n"),
       );
       if (!confirmed) {
         return;
@@ -735,7 +729,7 @@ function SettingsRouteView() {
         });
         toastManager.add({
           type: "success",
-          title: "Worktree 已删除",
+          title: "工作树已删除",
           description:
             linkedArchivedThreadIds.length > 0
               ? `已移除 ${displayName}，并删除了 ${linkedArchivedThreadIds.length} 个已归档会话。`
@@ -744,8 +738,8 @@ function SettingsRouteView() {
       } catch (error) {
         toastManager.add({
           type: "error",
-          title: "无法删除 worktree",
-          description: error instanceof Error ? error.message : "删除 worktree 失败。",
+          title: "无法删除工作树",
+          description: error instanceof Error ? error.message : "删除工作树失败。",
         });
       }
     },
@@ -876,12 +870,12 @@ function SettingsRouteView() {
     <div className="space-y-6">
       <SettingsSection title="核心默认">
         <SettingsRow
-          title="默认 provider"
-          description="选择新聊天使用的 provider。"
+          title="默认 Provider"
+          description="新会话使用 OpenCode。"
           resetAction={
             settings.defaultProvider !== defaults.defaultProvider ? (
               <SettingResetButton
-                label="无法删除该 worktree。"
+                label="默认 Provider"
                 onClick={() => updateSettings({ defaultProvider: defaults.defaultProvider })}
               />
             ) : null
@@ -893,7 +887,7 @@ function SettingsRouteView() {
                 if (!isProviderSelectOption(value)) return;
                 updateSettings({ defaultProvider: value });
               }}
-              ariaLabel="默认 provider"
+              ariaLabel="默认 Provider"
               valueContent={
                 <ProviderOptionLabel
                   provider={settings.defaultProvider}
@@ -914,12 +908,12 @@ function SettingsRouteView() {
         />
 
         <SettingsRow
-          title="新会话"
-          description="选择新建 draft thread 的默认 workspace 模式。"
+          title="默认工作区模式"
+          description="选择新建草稿会话的默认工作区模式。"
           resetAction={
             settings.defaultThreadEnvMode !== defaults.defaultThreadEnvMode ? (
               <SettingResetButton
-                label="该会话已回到侧边栏。"
+                label="默认工作区模式"
                 onClick={() =>
                   updateSettings({
                     defaultThreadEnvMode: defaults.defaultThreadEnvMode,
@@ -937,14 +931,14 @@ function SettingsRouteView() {
                   defaultThreadEnvMode: value,
                 });
               }}
-              ariaLabel="无法恢复该会话。"
-              valueContent={settings.defaultThreadEnvMode === "worktree" ? "新建 worktree" : "本地"}
+              ariaLabel="默认工作区模式"
+              valueContent={settings.defaultThreadEnvMode === "worktree" ? "新建工作树" : "本地"}
             >
               <SelectItem hideIndicator value="local">
-                Local
+                本地
               </SelectItem>
               <SelectItem hideIndicator value="worktree">
-                New worktree
+                新建工作树
               </SelectItem>
             </SettingsSelectControl>
           }
@@ -1226,12 +1220,12 @@ function SettingsRouteView() {
           />
 
           <SettingsRow
-            title="Terminal 字号"
+            title="终端字号"
             description="独立于应用与聊天字号调整终端文字。"
             resetAction={
               settings.terminalFontSizePx !== defaults.terminalFontSizePx ? (
                 <SettingResetButton
-                  label="terminal font size"
+                  label="终端字号"
                   onClick={() =>
                     updateSettings({
                       terminalFontSizePx: defaults.terminalFontSizePx,
@@ -1495,7 +1489,7 @@ function SettingsRouteView() {
 
   const renderWorktreesPanel = () => (
     <div className="space-y-6">
-      <SettingsSection title="托管 worktree">
+      <SettingsSection title="托管工作树">
         <div className="space-y-4">
           {serverWorktreesQuery.isLoading ? (
             <div
@@ -1504,7 +1498,7 @@ function SettingsRouteView() {
                 "px-4 py-6 text-sm text-muted-foreground",
               )}
             >
-              正在加载托管 worktree…
+              正在加载托管工作树…
             </div>
           ) : serverWorktreesQuery.isError ? (
             <div
@@ -1515,7 +1509,7 @@ function SettingsRouteView() {
             >
               {serverWorktreesQuery.error instanceof Error
                 ? serverWorktreesQuery.error.message
-                : "无法加载 worktree。"}
+                : "无法加载工作树。"}
             </div>
           ) : worktreesByWorkspaceRoot.length === 0 ? (
             <div
@@ -1524,7 +1518,7 @@ function SettingsRouteView() {
                 "px-4 py-6 text-sm text-muted-foreground",
               )}
             >
-              尚未发现应用托管的 worktree。
+              尚未发现应用托管的工作树。
             </div>
           ) : (
             worktreesByWorkspaceRoot.map((group) => (
@@ -1546,7 +1540,7 @@ function SettingsRouteView() {
                       >
                         <div className="min-w-0 flex-1 space-y-2">
                           <div className="space-y-0.5">
-                            <div className="text-sm font-medium text-foreground">Worktree</div>
+                            <div className="text-sm font-medium text-foreground">工作树</div>
                             <div className="font-mono text-[11px] text-muted-foreground">
                               {worktree.path}
                             </div>
@@ -1554,7 +1548,7 @@ function SettingsRouteView() {
 
                           <div className="space-y-1">
                             <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-                              Conversations
+                              关联会话
                             </div>
                             {worktree.linkedThreads.length > 0 ? (
                               <div className="space-y-1">
@@ -1566,7 +1560,7 @@ function SettingsRouteView() {
                               </div>
                             ) : (
                               <div className="text-sm text-muted-foreground">
-                                No conversations linked to this worktree.
+                                此工作树没有关联会话。
                               </div>
                             )}
                           </div>
@@ -1584,11 +1578,11 @@ function SettingsRouteView() {
                               })
                             }
                           >
-                            Delete
+                            删除
                           </Button>
                           {worktree.linkedThreads.length > 0 ? (
                             <p className="max-w-40 text-right text-[11px] text-muted-foreground">
-                              Linked conversations exist. Deleting will ask for confirmation.
+                              存在关联会话，删除前会要求确认。
                             </p>
                           ) : null}
                         </div>
@@ -1645,8 +1639,8 @@ function SettingsRouteView() {
                 <ArchiveIcon className="size-5" />
               </div>
               <div className="text-sm font-medium text-foreground">暂无已归档会话</div>
-              <div className="无法加载 worktree。">
-                Archived threads will appear here and can be restored to the sidebar.
+              <div className="mt-1 text-sm text-muted-foreground">
+                已归档的会话会显示在这里，可恢复到侧边栏。
               </div>
             </div>
           </SettingsSection>
@@ -1686,14 +1680,14 @@ function SettingsRouteView() {
                         variant="outline"
                         onClick={() => void unarchiveThread(thread.id)}
                       >
-                        Restore
+                        恢复
                       </Button>
                       <Button
                         size="xs"
                         variant="destructive"
                         onClick={() => void deleteArchivedThread(thread.id, thread.title)}
                       >
-                        Delete
+                        删除
                       </Button>
                     </div>
                   </div>
@@ -2054,7 +2048,7 @@ function SettingsRouteView() {
                     onClick={() => void restoreDefaults()}
                   >
                     <RotateCcwIcon className="size-3.5" />
-                    Restore defaults
+                    恢复默认
                   </Button>
                 </div>
 
