@@ -46,7 +46,7 @@ describe("buildSettingsSkillGroups", () => {
 
     const shared = groups.find((group) => group.key === "check-code");
     expect(shared?.section).toBe("shared");
-    expect(shared?.providers).toEqual(["codex", "opencode", "opencode"]);
+    expect(shared?.providers).toEqual(["opencode"]);
     expect(shared?.sources.map((source) => source.origin)).toEqual(["codex", "claude", "opencode"]);
     expect(shared?.sources.map((source) => source.skill.path)).toEqual([
       "/Users/test/.codex/skills/check-code/SKILL.md",
@@ -94,7 +94,7 @@ describe("buildSettingsSkillSections", () => {
       }),
     ]);
 
-    expect(sections.map((section) => section.title)).toEqual(["Shared skills", "From Cursor"]);
+    expect(sections.map((section) => section.title)).toEqual(["Shared skills", "From OpenCode"]);
     expect(sections[0]?.groups.map((group) => group.key)).toEqual(["logic-consolidator"]);
   });
 });

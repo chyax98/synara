@@ -932,9 +932,7 @@ function normalizeProviderKind(value: unknown): ProviderKind | null {
   return isProviderKind(value) ? value : null;
 }
 
-function legacyVariantFromCandidate(
-  candidate: Record<string, unknown> | null,
-): string | undefined {
+function legacyVariantFromCandidate(candidate: Record<string, unknown> | null): string | undefined {
   if (!candidate) {
     return undefined;
   }

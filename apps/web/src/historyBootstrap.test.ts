@@ -33,7 +33,7 @@ describe("buildBootstrapInput", () => {
     expect(result.truncated).toBe(false);
     expect(result.text).toContain("USER:\nhello");
     expect(result.text).toContain("ASSISTANT:\nworld");
-    expect(result.text).toContain("Latest user request (answer this now):");
+    expect(result.text).toContain("最近的用户请求（请回答这条）：");
     expect(result.text).toContain("what's next?");
   });
 
@@ -63,13 +63,13 @@ describe("buildBootstrapInput", () => {
         },
       ],
       "final request",
-      320,
+      150,
     );
 
     expect(result.truncated).toBe(true);
     expect(result.omittedCount).toBeGreaterThan(0);
     expect(result.includedCount).toBeLessThan(3);
-    expect(result.text).toContain("omitted to stay within input limits");
+    expect(result.text).toContain("为控制在输入上限内，已省略");
     expect(result.text.length).toBeLessThanOrEqual(320);
   });
 
@@ -119,7 +119,7 @@ describe("buildBootstrapInput", () => {
       1_500,
     );
 
-    expect(result.text).toContain("Attached image");
+    expect(result.text).toContain("已附带 1 张图片");
     expect(result.text).toContain("screenshot.png");
   });
 
@@ -154,7 +154,7 @@ describe("buildBootstrapInput", () => {
     );
 
     expect(result.text).toContain("USER:\nPlease use this");
-    expect(result.text).toContain("Referenced assistant selection");
+    expect(result.text).toContain("引用了 1 处助手内容");
     expect(result.text).not.toContain("<assistant_selection>");
   });
 });

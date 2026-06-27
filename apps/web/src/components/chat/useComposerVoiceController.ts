@@ -199,9 +199,7 @@ export function useComposerVoiceController(
       }
 
       const description =
-        error instanceof Error
-          ? sanitizeVoiceErrorMessage(error.message)
-          : "语音便签无法转写。";
+        error instanceof Error ? sanitizeVoiceErrorMessage(error.message) : "语音便签无法转写。";
       const authExpired = isVoiceAuthExpiredMessage(description);
       if (authExpired) {
         refreshVoiceStatus();

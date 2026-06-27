@@ -254,15 +254,13 @@ describe("TraitsPicker (Claude)", () => {
   it("persists sticky claude model options when traits change", async () => {
     await using _ = await mountClaudePicker({
       model: "claude-opus-4-6",
-      options: { variant: "medium", },
+      options: { variant: "medium" },
     });
 
     await page.getByRole("button").click();
     await page.getByRole("menuitemradio", { name: "Max" }).click();
 
-    expect(
-      useComposerDraftStore.getState().stickyModelSelectionByProvider.opencode,
-    ).toMatchObject({
+    expect(useComposerDraftStore.getState().stickyModelSelectionByProvider.opencode).toMatchObject({
       provider: "opencode",
       options: {
         variant: "max",
@@ -273,7 +271,7 @@ describe("TraitsPicker (Claude)", () => {
   it("shows the non-default context window in the trigger label", async () => {
     await using _ = await mountClaudePicker({
       model: "claude-opus-4-6",
-      options: { },
+      options: {},
     });
 
     await vi.waitFor(() => {
@@ -284,18 +282,15 @@ describe("TraitsPicker (Claude)", () => {
   it("persists sticky claude context window when changed", async () => {
     await using _ = await mountClaudePicker({
       model: "claude-opus-4-6",
-      options: { },
+      options: {},
     });
 
     await page.getByRole("button").click();
     await page.getByRole("menuitemradio", { name: "1M" }).click();
 
-    expect(
-      useComposerDraftStore.getState().stickyModelSelectionByProvider.opencode,
-    ).toMatchObject({
+    expect(useComposerDraftStore.getState().stickyModelSelectionByProvider.opencode).toMatchObject({
       provider: "opencode",
-      options: {
-        },
+      options: {},
     });
   });
 });
@@ -378,7 +373,7 @@ describe("TraitsPicker (Codex)", () => {
 
   it("shows fast mode controls", async () => {
     await using _ = await mountCodexPicker({
-      options: { },
+      options: {},
     });
 
     await page.getByRole("button").click();
@@ -393,7 +388,7 @@ describe("TraitsPicker (Codex)", () => {
 
   it("shows Fast in the trigger label when fast mode is active", async () => {
     await using _ = await mountCodexPicker({
-      options: { },
+      options: {},
     });
 
     await vi.waitFor(() => {
@@ -403,7 +398,7 @@ describe("TraitsPicker (Codex)", () => {
 
   it("shows only the provided effort options", async () => {
     await using _ = await mountCodexPicker({
-      options: { },
+      options: {},
     });
 
     await page.getByRole("button").click();
@@ -419,7 +414,7 @@ describe("TraitsPicker (Codex)", () => {
 
   it("closes after clicking the already-selected effort", async () => {
     await using _ = await mountCodexPicker({
-      options: { variant: "medium", },
+      options: { variant: "medium" },
     });
 
     await page.getByRole("button").click();
@@ -437,7 +432,7 @@ describe("TraitsPicker (Codex)", () => {
 
   it("persists sticky codex model options when traits change", async () => {
     await using _ = await mountCodexPicker({
-      options: { },
+      options: {},
     });
 
     await page.getByRole("button").click();
@@ -445,7 +440,7 @@ describe("TraitsPicker (Codex)", () => {
 
     expect(useComposerDraftStore.getState().stickyModelSelectionByProvider.opencode).toMatchObject({
       provider: "opencode",
-      options: { },
+      options: {},
     });
   });
 });
@@ -497,7 +492,7 @@ describe("TraitsPicker (Cursor)", () => {
   it("shows Default instead of an empty trigger for fast-only models", async () => {
     await using _ = await mountCursorPicker({
       runtimeModel: fastOnlyComposerRuntimeModel,
-      options: { },
+      options: {},
     });
 
     await vi.waitFor(() => {
@@ -508,7 +503,7 @@ describe("TraitsPicker (Cursor)", () => {
   it("shows only fast mode labels for fast-only models", async () => {
     await using _ = await mountCursorPicker({
       runtimeModel: fastOnlyComposerRuntimeModel,
-      options: { },
+      options: {},
     });
 
     await page.getByRole("button").click();
@@ -543,7 +538,7 @@ describe("TraitsPicker (Cursor)", () => {
         ],
         defaultContextWindow: "300k",
       },
-      options: { agent: "build", variant: "high", },
+      options: { agent: "build", variant: "high" },
     });
 
     await page.getByRole("button").click();

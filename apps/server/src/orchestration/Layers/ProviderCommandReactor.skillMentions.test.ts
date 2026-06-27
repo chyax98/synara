@@ -8,7 +8,7 @@ import { describe, expect, it } from "vitest";
 import { normalizeSkillMentionTextForProvider } from "./ProviderCommandReactor.ts";
 
 describe("normalizeSkillMentionTextForProvider", () => {
-  it("translates slash-selected skills to Codex dollar mentions before provider dispatch", () => {
+  it("leaves slash-selected skills untouched for opencode dispatch", () => {
     expect(
       normalizeSkillMentionTextForProvider({
         provider: "opencode",
@@ -18,10 +18,10 @@ describe("normalizeSkillMentionTextForProvider", () => {
           { name: "recap", path: "/skills/recap/SKILL.md" },
         ],
       }),
-    ).toBe("Use $check-code and $recap please");
+    ).toBe("Use /check-code and /recap please");
   });
 
-  it("leaves non-Codex slash skills untouched", () => {
+  it("leaves slash skills untouched when no skill metadata is provided", () => {
     expect(
       normalizeSkillMentionTextForProvider({
         provider: "opencode",

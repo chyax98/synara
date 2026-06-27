@@ -958,9 +958,7 @@ export const makeWsRpcLayer = () =>
             input.provider === "opencode" && openCodeAdapter.transcribeVoice
               ? openCodeAdapter.transcribeVoice(input)
               : Effect.fail(
-                  new Error(
-                    `Voice transcription is unavailable for provider '${input.provider}'.`,
-                  ),
+                  new Error(`Voice transcription is unavailable for provider '${input.provider}'.`),
                 ),
             "Voice transcription failed",
           ),

@@ -216,8 +216,7 @@ function handleCheckoutError(
     addBranchRecoveryToast({
       type: "error",
       title: "未提交的更改阻止了切换。",
-      description:
-        "暂存并切换",
+      description: "暂存并切换",
       data: { copyText: toBranchActionErrorMessage(error) },
       actionProps: {
         children: "Retry stash & switch",
@@ -264,11 +263,11 @@ function handleCheckoutError(
                 const stashConflictToastId = addBranchRecoveryToast({
                   type: "warning",
                   title: "Changes saved, but not reapplied.",
-                  description:
-                    "无法切换分支。",
+                  description: "无法切换分支。",
                   data: { copyText: toBranchActionErrorMessage(stashError) },
                   actionProps: {
-                    children: "某些冲突文件不在 git stash 覆盖范围内，例如被忽略的文件。请在切换前移动或删除它们。",
+                    children:
+                      "某些冲突文件不在 git stash 覆盖范围内，例如被忽略的文件。请在切换前移动或删除它们。",
                     className:
                       "border-destructive bg-destructive text-white shadow-destructive/24 hover:bg-destructive/90",
                     onClick: () => {
@@ -283,8 +282,7 @@ function handleCheckoutError(
                 addBranchRecoveryToast({
                   type: "error",
                   title: "Cannot switch branches.",
-                  description:
-                    "仓库中存在未解决的冲突。",
+                  description: "仓库中存在未解决的冲突。",
                   data: { copyText: toBranchActionErrorMessage(stashError) },
                 });
                 return;
@@ -1034,11 +1032,7 @@ export function BranchToolbarBranchSelector({
                   {stashDiscardDialog.info.files.length > 0 ? (
                     <ul className="max-h-48 overflow-auto rounded-lg border border-[color:var(--color-border-light)] bg-[var(--color-background-control-opaque)] py-1">
                       {stashDiscardDialog.info.files.map((file) => (
-                        <li
-                          className="正在丢弃…"
-                          key={file}
-                          title={file}
-                        >
+                        <li className="正在丢弃…" key={file} title={file}>
                           {file}
                         </li>
                       ))}
@@ -1069,7 +1063,9 @@ export function BranchToolbarBranchSelector({
               disabled={!stashDiscardDialog?.info || isDroppingStash}
               onClick={discardStashFromDialog}
             >
-              {isDroppingStash ? "Discarding..." : "某些冲突文件不在 git stash 覆盖范围内，例如被忽略的文件。请在切换前移动或删除它们。"}
+              {isDroppingStash
+                ? "Discarding..."
+                : "某些冲突文件不在 git stash 覆盖范围内，例如被忽略的文件。请在切换前移动或删除它们。"}
             </Button>
           </DialogFooter>
         </DialogPopup>

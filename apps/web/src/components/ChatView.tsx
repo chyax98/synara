@@ -1798,7 +1798,10 @@ export default function ChatView({
   const draftModelSelectionForSelectedProvider =
     composerDraft.modelSelectionByProvider[selectedProvider] ?? null;
   const selectedModelSelection = useMemo<ModelSelection>(() => {
-    if (selectedProvider === "opencode" && draftModelSelectionForSelectedProvider?.provider === "opencode") {
+    if (
+      selectedProvider === "opencode" &&
+      draftModelSelectionForSelectedProvider?.provider === "opencode"
+    ) {
       return buildModelSelection(
         selectedProvider,
         draftModelSelectionForSelectedProvider.model,
@@ -2640,7 +2643,8 @@ export default function ChatView({
     }),
   );
   const canDiscoverProviderSkills =
-    selectedProvider === "opencode" || supportsSkillDiscovery(providerComposerCapabilitiesQuery.data);
+    selectedProvider === "opencode" ||
+    supportsSkillDiscovery(providerComposerCapabilitiesQuery.data);
   const providerSkillsQuery = useQuery(
     providerSkillsQueryOptions({
       provider: selectedProvider,
@@ -2648,7 +2652,9 @@ export default function ChatView({
       threadId,
       agentDir: selectedProvider === "opencode" ? settings.piAgentDir || null : null,
       enabled:
-        (isSkillTrigger || composerTriggerKind === "slash-command" || selectedProvider === "opencode") &&
+        (isSkillTrigger ||
+          composerTriggerKind === "slash-command" ||
+          selectedProvider === "opencode") &&
         canDiscoverProviderSkills &&
         composerSkillCwd !== null,
     }),
@@ -5629,8 +5635,6 @@ export default function ChatView({
     },
     [activeThread, hasLiveTurn, isConnecting, isRevertingCheckpoint, isSendBusy, setThreadError],
   );
-
-
 
   const clearComposerInput = useCallback(
     (threadId: ThreadId) => {
@@ -9581,7 +9585,6 @@ export default function ChatView({
             : {})}
           isSidechat={Boolean(activeThread.sidechatSourceThreadId)}
           hideSidebarControls={isEditorRail}
-
           isGitRepo={isGitRepo}
           openInTarget={threadWorkspaceCwd}
           activeProjectScripts={isEditorRail ? undefined : activeProjectScripts}
@@ -9591,7 +9594,6 @@ export default function ChatView({
           keybindings={keybindings}
           availableEditors={availableEditors}
           diffToggleShortcutLabel={diffPanelShortcutLabel}
-
           gitCwd={threadWorkspaceCwd}
           diffTotals={repoDiffTotals}
           showGitActions={showGitActions && !isEditorRail}
@@ -9645,7 +9647,6 @@ export default function ChatView({
           onUpdateProjectScript={updateProjectScript}
           onDeleteProjectScript={deleteProjectScript}
           onToggleDiff={onToggleDiff}
-
           onNavigateToThread={onNavigateToThread}
           onRenameThread={() => setRenameDialogOpen(true)}
           {...(onCloseThreadPane ? { onCloseThreadPane } : {})}

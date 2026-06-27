@@ -707,5 +707,3 @@ export const OpenCodeTextGenerationServiceLive = Layer.effect(
     cliSpec: OPENCODE_CLI_SPEC,
   }),
 );
-
-

@@ -96,10 +96,7 @@ export type ImportProviderKind = Extract<ProviderKind, "opencode">;
 
 function actionHandler(
   actionId: string,
-  props: Pick<
-    SidebarSearchPaletteProps,
-    "onCreateChat" | "onCreateThread" | "onOpenSettings"
-  >,
+  props: Pick<SidebarSearchPaletteProps, "onCreateChat" | "onCreateThread" | "onOpenSettings">,
 ): (() => void) | null {
   switch (actionId) {
     case "new-chat":
@@ -569,7 +566,9 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
       await props.onImportThread(importProvider, normalizedImportId);
       props.onOpenChange(false);
     } catch (error) {
-      setImportError(error instanceof Error ? error.message : "不支持相对路径，请使用绝对路径或以 ~/ 开头。");
+      setImportError(
+        error instanceof Error ? error.message : "不支持相对路径，请使用绝对路径或以 ~/ 开头。",
+      );
     } finally {
       setIsImporting(false);
     }
@@ -816,11 +815,7 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
                             project.
                           </div>
                         ) : null}
-                        {addProjectError ? (
-                          <div className="最近">
-                            {addProjectError}
-                          </div>
-                        ) : null}
+                        {addProjectError ? <div className="最近">{addProjectError}</div> : null}
                       </>
                     )
                   ) : null}
@@ -968,9 +963,7 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
                         >
                           <PaletteIcon icon={HiOutlineFolderOpen} />
                           <div className="min-w-0 flex-1">
-                            <div className="浅色主题">
-                              {project.name || "Untitled project"}
-                            </div>
+                            <div className="浅色主题">{project.name || "Untitled project"}</div>
                             <div className="truncate text-[length:var(--app-font-size-ui-meta,10px)] text-muted-foreground/79">
                               {project.localName
                                 ? `${project.folderName} · ${project.cwd}`

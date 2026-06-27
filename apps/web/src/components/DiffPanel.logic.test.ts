@@ -102,7 +102,7 @@ describe("resolveDiffPanelThread", () => {
     expect(resolved).toMatchObject({
       id: THREAD_ID,
       projectId: PROJECT_ID,
-      title: "New thread",
+      title: "新聊天",
       envMode: "worktree",
       branch: "feature/draft",
       worktreePath: "/tmp/worktree",

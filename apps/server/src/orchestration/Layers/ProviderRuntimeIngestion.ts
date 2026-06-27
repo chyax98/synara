@@ -262,9 +262,7 @@ export function appendCappedBufferedText(existing: string, delta: string, limit:
   )}${BUFFERED_TEXT_TRUNCATION_MARKER}`;
 }
 
-function toolOutputStreamKind(
-  event: ProviderRuntimeEvent,
-): ToolOutputStreamKind | undefined {
+function toolOutputStreamKind(event: ProviderRuntimeEvent): ToolOutputStreamKind | undefined {
   if (event.type !== "content.delta") {
     return undefined;
   }
@@ -1486,11 +1484,7 @@ const make = Effect.gen(function* () {
         const existingText = existing?.text ?? "";
         const truncated = existingText.length + delta.length > MAX_BUFFERED_TOOL_OUTPUT_CHARS;
         return Cache.set(bufferedToolOutputByKey, key, {
-          text: appendCappedBufferedText(
-            existingText,
-            delta,
-            MAX_BUFFERED_TOOL_OUTPUT_CHARS,
-          ),
+          text: appendCappedBufferedText(existingText, delta, MAX_BUFFERED_TOOL_OUTPUT_CHARS),
           truncated: existing?.truncated === true || truncated,
         });
       }),

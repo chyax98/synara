@@ -3157,7 +3157,7 @@ describe("ChatView timeline estimator parity (full app)", () => {
           model: "gpt-5.3-codex",
           options: {
             variant: "medium",
-                      },
+          },
         },
       },
       stickyActiveProvider: "opencode",
@@ -3189,8 +3189,7 @@ describe("ChatView timeline estimator parity (full app)", () => {
           opencode: {
             provider: "opencode",
             model: "gpt-5.3-codex",
-            options: {
-                          },
+            options: {},
           },
         },
         activeProvider: "opencode",
@@ -3331,7 +3330,7 @@ describe("ChatView timeline estimator parity (full app)", () => {
           model: "claude-opus-4-6",
           options: {
             variant: "max",
-                      },
+          },
         },
       },
       stickyActiveProvider: "opencode",
@@ -3365,7 +3364,7 @@ describe("ChatView timeline estimator parity (full app)", () => {
             model: "claude-opus-4-6",
             options: {
               variant: "max",
-                          },
+            },
           },
         },
         activeProvider: "opencode",
@@ -3411,7 +3410,7 @@ describe("ChatView timeline estimator parity (full app)", () => {
           model: "gpt-5.3-codex",
           options: {
             variant: "medium",
-                      },
+          },
         },
       },
       stickyActiveProvider: "opencode",
@@ -3443,8 +3442,7 @@ describe("ChatView timeline estimator parity (full app)", () => {
           opencode: {
             provider: "opencode",
             model: "gpt-5.3-codex",
-            options: {
-                          },
+            options: {},
           },
         },
         activeProvider: "opencode",
@@ -3455,7 +3453,7 @@ describe("ChatView timeline estimator parity (full app)", () => {
         model: "gpt-5.4",
         options: {
           variant: "low",
-                  },
+        },
       });
       await vi.waitFor(
         () => {
@@ -3466,7 +3464,7 @@ describe("ChatView timeline estimator parity (full app)", () => {
                 model: "gpt-5.4",
                 options: {
                   variant: "low",
-                                  },
+                },
               },
             },
             activeProvider: "opencode",

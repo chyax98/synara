@@ -56,14 +56,14 @@ describe("RateLimitsPanel helpers", () => {
 
     expect(rows).toEqual([
       {
-        id: "codex-5h",
+        id: "opencode-5h",
         label: "5h",
         remainingPercent: 88,
         resetsAt: "2099-04-08T20:43:00.000Z",
         windowDurationMins: 300,
       },
       {
-        id: "codex-Weekly",
+        id: "opencode-Weekly",
         label: "Weekly",
         remainingPercent: 92,
         resetsAt: "2099-04-15T00:00:00.000Z",
@@ -103,7 +103,7 @@ describe("RateLimitsPanel helpers", () => {
 
     expect(rows).toEqual([
       {
-        id: "claudeAgent-Weekly",
+        id: "opencode-Weekly",
         label: "Weekly",
         remainingPercent: 80,
         resetsAt: "2099-04-14T20:00:00.000Z",
@@ -140,14 +140,14 @@ describe("RateLimitsPanel helpers", () => {
 
     expect(rows).toEqual([
       {
-        id: "codex-5h",
+        id: "opencode-5h",
         label: "5h",
         remainingPercent: 88,
         resetsAt: "2099-04-08T20:43:00.000Z",
         windowDurationMins: 300,
       },
       {
-        id: "codex-Weekly",
+        id: "opencode-Weekly",
         label: "Weekly",
         remainingPercent: 92,
         resetsAt: "2099-04-15T00:00:00.000Z",
@@ -183,14 +183,14 @@ describe("RateLimitsPanel helpers", () => {
 
     expect(deriveVisibleRateLimitRows(rateLimits)).toEqual([
       {
-        id: "codex-5h",
+        id: "opencode-5h",
         label: "5h",
         remainingPercent: 80,
         resetsAt: "2099-04-09T03:33:00.000Z",
         windowDurationMins: 300,
       },
       {
-        id: "codex-Weekly",
+        id: "opencode-Weekly",
         label: "Weekly",
         remainingPercent: 90,
         resetsAt: "2099-04-14T20:00:00.000Z",
@@ -220,7 +220,7 @@ describe("RateLimitsPanel helpers", () => {
 
     expect(rows).toEqual([
       {
-        id: "claudeAgent-5h",
+        id: "opencode-5h",
         label: "5h",
         remainingPercent: 10,
         resetsAt: "2099-04-04T08:03:00.000Z",

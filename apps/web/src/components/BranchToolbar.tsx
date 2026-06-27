@@ -2,12 +2,7 @@
 // Purpose: Renders the chat thread's compact workspace controls, including
 // inline workspace handoff actions and runtime access toggle.
 import type { ThreadId, RuntimeMode } from "@t3tools/contracts";
-import {
-  CheckIcon,
-  ChevronDownIcon,
-  HandoffIcon,
-  WorktreeIcon,
-} from "~/lib/icons";
+import { CheckIcon, ChevronDownIcon, HandoffIcon, WorktreeIcon } from "~/lib/icons";
 import { HiOutlineHandRaised } from "react-icons/hi2";
 import { CentralIcon } from "~/lib/central-icons";
 import { useCallback, useMemo, useRef, useState, type ReactNode } from "react";
@@ -220,7 +215,6 @@ export default function BranchToolbar({
   const setThreadWorkspaceAction = useStore((store) => store.setThreadWorkspace);
   const draftThread = useComposerDraftStore((store) => store.getDraftThread(threadId));
   const setDraftThreadContext = useComposerDraftStore((store) => store.setDraftThreadContext);
-
 
   const serverThread = useStore(useMemo(() => createThreadSelector(threadId), [threadId]));
   const activeProjectId = serverThread?.projectId ?? draftThread?.projectId ?? null;

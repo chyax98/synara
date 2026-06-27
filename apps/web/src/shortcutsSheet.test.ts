@@ -53,7 +53,7 @@ describe("buildShortcutSheetSections", () => {
         (entry) => entry.id === "composer.focus.toggle" && entry.shortcutLabel === "⌘L",
       ),
     ).toBe(true);
-    expect(sections[1]?.title).toBe("In workspace mode");
+    expect(sections[1]?.title).toBe("工作区模式中");
     expect(sections[2]?.entries[0]?.shortcutLabel).toBe("⌘R");
   });
 
@@ -74,7 +74,7 @@ describe("buildShortcutSheetSections", () => {
         (entry) => entry.id === "terminal.workspace.terminal" && entry.shortcutLabel === "Ctrl+1",
       ),
     ).toBe(true);
-    expect(sections[1]?.title).toBe("Outside workspace mode");
+    expect(sections[1]?.title).toBe("工作区模式外");
     expect(
       sections[1]?.entries.some(
         (entry) => entry.id === "thread.jump.1" && entry.shortcutLabel === "Ctrl+1",
@@ -108,7 +108,7 @@ describe("buildShortcutSheetSections", () => {
 
     expect(
       sections[0]?.entries.some(
-        (entry) => entry.label === "New chat" && entry.shortcutLabel === "⌥⌘N",
+        (entry) => entry.label === "新聊天" && entry.shortcutLabel === "⌥⌘N",
       ),
     ).toBe(true);
   });

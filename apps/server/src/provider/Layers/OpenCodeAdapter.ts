@@ -4480,5 +4480,3 @@ export function makeOpenCodeAdapterLive(options?: OpenCodeAdapterLiveOptions) {
 }
 
 export const OpenCodeAdapterLive = makeOpenCodeAdapterLive();
-
-

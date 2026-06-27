@@ -144,7 +144,8 @@ export function useKanbanTaskComposerDiscovery(input: UseKanbanTaskComposerDisco
     }),
   );
   const canDiscoverProviderSkills =
-    selectedProvider === "opencode" || supportsSkillDiscovery(providerComposerCapabilitiesQuery.data);
+    selectedProvider === "opencode" ||
+    supportsSkillDiscovery(providerComposerCapabilitiesQuery.data);
   const providerSkillsQuery = useQuery(
     providerSkillsQueryOptions({
       provider: selectedProvider,
@@ -152,7 +153,9 @@ export function useKanbanTaskComposerDiscovery(input: UseKanbanTaskComposerDisco
       threadId: scratchThreadId,
       agentDir: selectedProvider === "opencode" ? piAgentDir : null,
       enabled:
-        (isSkillTrigger || composerTriggerKind === "slash-command" || selectedProvider === "opencode") &&
+        (isSkillTrigger ||
+          composerTriggerKind === "slash-command" ||
+          selectedProvider === "opencode") &&
         canDiscoverProviderSkills &&
         composerSkillCwd !== null,
     }),

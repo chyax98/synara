@@ -215,9 +215,7 @@ export function getDesktopUpdateButtonTooltip(
   }
   if (state.status === "error") {
     if (state.errorContext === "check") {
-      return state.message
-        ? `${state.message}. Click to check again.`
-        : "更新检查失败。点击重试。";
+      return state.message ? `${state.message}. Click to check again.` : "更新检查失败。点击重试。";
     }
     if (state.errorContext === "download" && state.availableVersion) {
       return `Could not prepare update ${state.availableVersion}. Click to retry.`;

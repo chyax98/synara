@@ -205,7 +205,7 @@ describe("normalizeSubagentStatusKind", () => {
 describe("humanizeSubagentStatus", () => {
   it("returns readable labels for normalized statuses", () => {
     expect(humanizeSubagentStatus("in_progress")).toBe("Running");
-    expect(humanizeSubagentStatus("completed")).toBe("Completed");
+    expect(humanizeSubagentStatus("completed")).toBe("已完成");
     expect(humanizeSubagentStatus("unknown")).toBeUndefined();
   });
 });

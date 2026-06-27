@@ -319,10 +319,7 @@ function ProviderUpdateNotifications() {
         for (const provider of providers) {
           failures.push({
             provider,
-            reason:
-              error instanceof Error
-                ? error.message
-                : "provider 更新请求无法启动。",
+            reason: error instanceof Error ? error.message : "provider 更新请求无法启动。",
           });
         }
       } finally {
@@ -359,9 +356,7 @@ function ProviderUpdateNotifications() {
         toastManager.update(toastId, {
           type: "error",
           title:
-            failures.length === providers.length
-              ? "Provider 更新失败"
-              : "部分 provider 更新失败",
+            failures.length === providers.length ? "Provider 更新失败" : "部分 provider 更新失败",
           description:
             manualCommands.length > 0
               ? `${failureLines}\n\nCopy the command${manualCommands.length === 1 ? "" : "s"} below to update manually in a terminal.`

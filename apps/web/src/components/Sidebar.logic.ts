@@ -108,13 +108,7 @@ const THREAD_JUMP_COMMANDS = [
 ] as const satisfies readonly KeybindingCommand[];
 
 export interface ThreadStatusPill {
-  label:
-    | "运行中"
-    | "连接中"
-    | "已完成"
-    | "等待确认"
-    | "等待输入"
-    | "计划就绪";
+  label: "运行中" | "连接中" | "已完成" | "等待确认" | "等待输入" | "计划就绪";
   colorClass: string;
   dotClass: string;
   pulse: boolean;
@@ -123,8 +117,8 @@ export interface ThreadStatusPill {
 }
 
 const THREAD_STATUS_PRIORITY: Record<ThreadStatusPill["label"], number> = {
-  "等待确认": 5,
-  "等待输入": 4,
+  等待确认: 5,
+  等待输入: 4,
   运行中: 3,
   连接中: 3,
   计划就绪: 2,

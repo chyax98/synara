@@ -70,7 +70,9 @@ function getOpenCodeProviderState(input: ComposerProviderStateInput): ComposerPr
   const rawEffort = trimOrNull(providerOptions?.variant);
   const variantOptions = caps.variantOptions ?? [];
   const reasoningVariant =
-    rawEffort && variantOptions.some((option) => option.value === rawEffort) ? rawEffort : undefined;
+    rawEffort && variantOptions.some((option) => option.value === rawEffort)
+      ? rawEffort
+      : undefined;
   const agent = trimOrNull(providerOptions?.agent);
 
   let normalizedOptions: ProviderModelOptions["opencode"] | undefined;
@@ -86,8 +88,9 @@ function getOpenCodeProviderState(input: ComposerProviderStateInput): ComposerPr
 
   const draftEffort = trimOrNull(rawEffort);
   const defaultEffort = getDefaultEffort(caps);
-  const promptEffort = resolveLabeledOptionValue(caps.variantOptions, draftEffort)
-    ?? (draftEffort && hasEffortLevel(caps, draftEffort) ? draftEffort : defaultEffort);
+  const promptEffort =
+    resolveLabeledOptionValue(caps.variantOptions, draftEffort) ??
+    (draftEffort && hasEffortLevel(caps, draftEffort) ? draftEffort : defaultEffort);
 
   return {
     provider: OPENCODE_PROVIDER,

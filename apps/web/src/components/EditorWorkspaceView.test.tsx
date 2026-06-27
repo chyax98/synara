@@ -60,7 +60,7 @@ describe("EditorWorkspaceView", () => {
       />,
     );
 
-    expect(markup).toContain('aria-label="Switch project"');
+    expect(markup).toContain('aria-label="切换项目"');
     expect(markup).toContain("project");
   });
 
@@ -154,7 +154,7 @@ describe("EditorWorkspaceView", () => {
       </SidebarProvider>,
     );
 
-    expect(markup).toContain('aria-label="Loading changed files..."');
+    expect(markup).toContain('aria-label="正在加载变更文件…"');
     expect(markup).not.toContain("No files in this diff.");
   });
 
@@ -367,9 +367,9 @@ describe("EditorWorkspaceView", () => {
       </QueryClientProvider>,
     );
 
-    const filesIndex = markup.indexOf('aria-label="Hide files sidebar"');
+    const filesIndex = markup.indexOf('aria-label="隐藏文件侧边栏"');
     const diffIndex = markup.indexOf('aria-label="Diff"');
-    const searchIndex = markup.indexOf('aria-label="Search files"');
+    const searchIndex = markup.indexOf('aria-label="搜索文件"');
     expect(filesIndex).toBeGreaterThan(-1);
     expect(diffIndex).toBeGreaterThan(filesIndex);
     expect(searchIndex).toBeGreaterThan(diffIndex);
@@ -390,7 +390,7 @@ describe("EditorWorkspaceView", () => {
       </QueryClientProvider>,
     );
 
-    expect(markup).toContain('placeholder="Search files..."');
+    expect(markup).toContain('placeholder="搜索文件..."');
     expect(markup).toContain("Search files by name or path.");
   });
 
@@ -448,7 +448,7 @@ describe("EditorWorkspaceView", () => {
 
     // Files is the active mode with a visible sidebar, so its button reads as
     // a sidebar collapse toggle; Diff stays a plain mode switch.
-    expect(markup).toContain('aria-label="Hide files sidebar"');
+    expect(markup).toContain('aria-label="隐藏文件侧边栏"');
     expect(markup).toContain('aria-label="Diff"');
     expect(markup.match(/cursor-pointer/g)?.length).toBeGreaterThanOrEqual(2);
   });

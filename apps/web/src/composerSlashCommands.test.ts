@@ -38,7 +38,7 @@ describe("composerSlashCommands", () => {
       filterComposerSlashCommands("mode", ["fast", "default", "model"]).map(
         (entry) => entry.command,
       ),
-    ).toEqual(["model", "fast", "default"]);
+    ).toEqual(["model"]);
   });
 
   it("parses slash invocations with optional arguments", () => {
@@ -209,7 +209,7 @@ describe("composerSlashCommands", () => {
     expect(hasProviderNativeSlashCommand("opencode", ["/fast", "model"], "/model")).toBe(true);
   });
 
-  it("keeps app-level /review available for codex even when native review exists", () => {
+  it("keeps OpenCode slash commands minimal even when native review exists", () => {
     const availableCommands = getAvailableComposerSlashCommands({
       provider: "opencode",
       supportsFastSlashCommand: true,
@@ -220,9 +220,9 @@ describe("composerSlashCommands", () => {
       providerNativeCommandNames: ["review"],
     });
 
-    expect(availableCommands).toContain("review");
-    expect(shouldHideProviderNativeCommandFromComposerMenu("opencode", "review")).toBe(true);
-    expect(shouldHideProviderNativeCommandFromComposerMenu("opencode", "status")).toBe(false);
+    expect(availableCommands).toEqual(["side", "automation"]);
+    expect(shouldHideProviderNativeCommandFromComposerMenu("opencode", "review")).toBe(false);
+    expect(shouldHideProviderNativeCommandFromComposerMenu("opencode", "automation")).toBe(true);
   });
 
   it("keeps app-level /automation available even if a provider exposes a native collision", () => {
@@ -253,7 +253,7 @@ describe("composerSlashCommands", () => {
     ).toEqual(["side", "automation"]);
   });
 
-  it("only offers /compact when Codex compaction is available", () => {
+  it("does not expose app-level /compact for OpenCode", () => {
     expect(
       getAvailableComposerSlashCommands({
         provider: "opencode",
@@ -263,7 +263,7 @@ describe("composerSlashCommands", () => {
         canOfferForkCommand: true,
         canOfferSideCommand: true,
       }),
-    ).toContain("compact");
+    ).not.toContain("compact");
 
     expect(
       getAvailableComposerSlashCommands({
@@ -277,7 +277,7 @@ describe("composerSlashCommands", () => {
     ).not.toContain("compact");
   });
 
-  it("exposes shared app slash commands for gemini", () => {
+  it("exposes only app-level OpenCode slash commands", () => {
     expect(
       getAvailableComposerSlashCommands({
         provider: "opencode",
@@ -287,18 +287,7 @@ describe("composerSlashCommands", () => {
         canOfferForkCommand: true,
         canOfferSideCommand: true,
       }),
-    ).toEqual([
-      "clear",
-      "model",
-      "plan",
-      "default",
-      "review",
-      "fork",
-      "side",
-      "status",
-      "subagents",
-      "automation",
-    ]);
+    ).toEqual(["side", "automation"]);
   });
 
   it("treats claude aliases like /fork as provider-native collisions", () => {

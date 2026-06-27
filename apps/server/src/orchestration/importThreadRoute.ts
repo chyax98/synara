@@ -222,14 +222,13 @@ export function makeImportThreadHandler(options: ImportThreadHandlerOptions) {
     });
     const externalId = body.externalId.trim();
 
-    const importedProviderContext =
-      project
-        ? yield* resolveImportedProviderThreadContext({
-            externalId,
-            projectWorkspaceRoot: project.workspaceRoot,
-            ...(cwd ? { fallbackCwd: cwd } : {}),
-          })
-        : null;
+    const importedProviderContext = project
+      ? yield* resolveImportedProviderThreadContext({
+          externalId,
+          projectWorkspaceRoot: project.workspaceRoot,
+          ...(cwd ? { fallbackCwd: cwd } : {}),
+        })
+      : null;
 
     if (importedProviderContext?.patch) {
       yield* options.orchestrationEngine.dispatch({

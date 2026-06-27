@@ -136,10 +136,7 @@ esac
 `;
 }
 
-function buildOpenCodeWrapperScript(input: {
-  notifyHookPath: string;
-  targetPath: string;
-}): string {
+function buildOpenCodeWrapperScript(input: { notifyHookPath: string; targetPath: string }): string {
   const { notifyHookPath, targetPath } = input;
   return [
     `printf '\\033]0;%s\\007' ${shellQuote(OPENCODE_TERMINAL_TITLE)}`,

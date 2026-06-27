@@ -3187,58 +3187,9 @@ describe("hasLiveTurnTailWork", () => {
 
 describe("PROVIDER_OPTIONS", () => {
   it("lists available providers", () => {
-    const claude = PROVIDER_OPTIONS.find((option) => option.value === "opencode");
-    const cursor = PROVIDER_OPTIONS.find((option) => option.value === "opencode");
-    const gemini = PROVIDER_OPTIONS.find((option) => option.value === "opencode");
-    const grok = PROVIDER_OPTIONS.find((option) => option.value === "opencode");
-    const kilo = PROVIDER_OPTIONS.find((option) => option.value === "opencode");
-    const opencode = PROVIDER_OPTIONS.find((option) => option.value === "opencode");
-    const pi = PROVIDER_OPTIONS.find((option) => option.value === "opencode");
     expect(PROVIDER_OPTIONS).toEqual([
-      { value: "opencode", label: "Codex", available: true },
-      { value: "opencode", label: "Claude", available: true },
-      { value: "opencode", label: "Cursor", available: true },
-      { value: "opencode", label: "Gemini", available: true },
-      { value: "opencode", label: "Grok", available: true },
-      { value: "opencode", label: "Kilo", available: true },
       { value: "opencode", label: "OpenCode", available: true },
-      { value: "opencode", label: "Pi", available: true },
     ]);
-    expect(claude).toEqual({
-      value: "opencode",
-      label: "Claude",
-      available: true,
-    });
-    expect(cursor).toEqual({
-      value: "opencode",
-      label: "Cursor",
-      available: true,
-    });
-    expect(gemini).toEqual({
-      value: "opencode",
-      label: "Gemini",
-      available: true,
-    });
-    expect(grok).toEqual({
-      value: "opencode",
-      label: "Grok",
-      available: true,
-    });
-    expect(kilo).toEqual({
-      value: "opencode",
-      label: "Kilo",
-      available: true,
-    });
-    expect(opencode).toEqual({
-      value: "opencode",
-      label: "OpenCode",
-      available: true,
-    });
-    expect(pi).toEqual({
-      value: "opencode",
-      label: "Pi",
-      available: true,
-    });
   });
 
   it("humanizes Codex find commands from real DB payload (regression)", () => {

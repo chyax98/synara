@@ -756,13 +756,9 @@ function SettingsRouteView() {
     ...(settings.sidebarProjectSortOrder !== defaults.sidebarProjectSortOrder
       ? ["Project sort order"]
       : []),
-    ...(settings.sidebarThreadSortOrder !== defaults.sidebarThreadSortOrder
-      ? ["新会话"]
-      : []),
+    ...(settings.sidebarThreadSortOrder !== defaults.sidebarThreadSortOrder ? ["新会话"] : []),
     ...(settings.showChatsSection !== defaults.showChatsSection ? ["Chats section"] : []),
-    ...(settings.showWorkspaceSection !== defaults.showWorkspaceSection
-      ? ["仍过时"]
-      : []),
+    ...(settings.showWorkspaceSection !== defaults.showWorkspaceSection ? ["仍过时"] : []),
     ...(settings.uiDensity !== defaults.uiDensity ? ["界面密度"] : []),
     ...(settings.chatFontSizePx !== defaults.chatFontSizePx ? ["基础字号"] : []),
     ...(settings.terminalFontSizePx !== defaults.terminalFontSizePx ? ["Terminal 字号"] : []),
@@ -786,12 +782,8 @@ function SettingsRouteView() {
     ...(settings.enableComposerSuggestions !== defaults.enableComposerSuggestions
       ? ["提示建议"]
       : []),
-    ...(settings.confirmThreadDelete !== defaults.confirmThreadDelete
-      ? ["删除确认"]
-      : []),
-    ...(settings.confirmThreadArchive !== defaults.confirmThreadArchive
-      ? ["归档确认"]
-      : []),
+    ...(settings.confirmThreadDelete !== defaults.confirmThreadDelete ? ["删除确认"] : []),
+    ...(settings.confirmThreadArchive !== defaults.confirmThreadArchive ? ["归档确认"] : []),
     ...(settings.confirmTerminalTabClose !== defaults.confirmTerminalTabClose
       ? ["关闭终端确认"]
       : []),
@@ -972,9 +964,7 @@ function SettingsRouteView() {
 
     const api = readNativeApi();
     const confirmed = await (api ?? ensureNativeApi()).dialogs.confirm(
-      ["UI 密度", `This will reset: ${changedSettingLabels.join(", ")}.`].join(
-        "Terminal 字号",
-      ),
+      ["UI 密度", `This will reset: ${changedSettingLabels.join(", ")}.`].join("Terminal 字号"),
     );
     if (!confirmed) return;
 
@@ -1030,9 +1020,7 @@ function SettingsRouteView() {
       toastManager.add({
         type: shown ? "success" : "warning",
         title: shown ? "新会话将使用更新后的 provider。" : "自定义模型",
-        description: shown
-          ? "Provider 安装"
-          : "Provider 可见性",
+        description: shown ? "Provider 安装" : "Provider 可见性",
       });
       return;
     }
@@ -1131,9 +1119,7 @@ function SettingsRouteView() {
               `Delete worktree "${displayName}"?`,
               "",
               `${linkedActiveThreadCount} active and ${linkedArchivedThreadIds.length} archived ${pluralize(linkedConversationCount, "conversation is", "测试通知已发送")} linked to this worktree.`,
-              linkedArchivedThreadIds.length > 0
-                ? "通知不可用"
-                : "你的操作系统应会显示该通知。",
+              linkedArchivedThreadIds.length > 0 ? "通知不可用" : "你的操作系统应会显示该通知。",
               "",
               "此设备不支持桌面通知。",
             ].join("Terminal 字号")
@@ -1461,8 +1447,7 @@ function SettingsRouteView() {
         {renderBooleanSettingRow({
           settingKey: "showChatsSection",
           title: "会话列表",
-          description:
-            "在侧边栏底部显示独立的会话列表（未绑定到项目的会话）。",
+          description: "在侧边栏底部显示独立的会话列表（未绑定到项目的会话）。",
           resetLabel: "chats section",
           ariaLabel: "Show the Chats section in the sidebar",
         })}
@@ -1470,8 +1455,7 @@ function SettingsRouteView() {
         {renderBooleanSettingRow({
           settingKey: "showWorkspaceSection",
           title: "工作区",
-          description:
-            "在侧边栏切换器中显示工作区标签。Threads 标签始终可见。",
+          description: "在侧边栏切换器中显示工作区标签。Threads 标签始终可见。",
           resetLabel: "项目排序",
           ariaLabel: "Show the Workspace section in the sidebar",
         })}
@@ -1479,8 +1463,6 @@ function SettingsRouteView() {
 
       <div ref={environmentPanelRef} id={SETTINGS_TARGETS.environmentPanel}>
         <SettingsSection title="Environment 面板">
-
-
           {renderBooleanSettingRow({
             settingKey: "showEnvironmentRepository",
             title: "仓库",
@@ -1518,8 +1500,7 @@ function SettingsRouteView() {
           {renderBooleanSettingRow({
             settingKey: "showEnvironmentMarkers",
             title: "文本标记",
-            description:
-              "在 Environment 面板中显示高亮与下划线的对话文本。",
+            description: "在 Environment 面板中显示高亮与下划线的对话文本。",
             resetLabel: "用量分区",
             ariaLabel: "Show the Text markers section in the Environment panel",
           })}
@@ -1827,8 +1808,7 @@ function SettingsRouteView() {
         {renderBooleanSettingRow({
           settingKey: "enableTaskCompletionToasts",
           title: "活动 Toast",
-          description:
-            "当聊天或托管终端代理完成或需要输入时，显示应用内 Toast。",
+          description: "当聊天或托管终端代理完成或需要输入时，显示应用内 Toast。",
           resetLabel: "activity toasts",
           ariaLabel: "Activity toast notifications",
         })}
@@ -1884,8 +1864,7 @@ function SettingsRouteView() {
         {renderBooleanSettingRow({
           settingKey: "diffWordWrap",
           title: "Diff 自动换行",
-          description:
-            "设置打开 diff 面板时的默认换行状态。面板内换行开关仅影响当前 diff 会话。",
+          description: "设置打开 diff 面板时的默认换行状态。面板内换行开关仅影响当前 diff 会话。",
           resetLabel: "diff line wrapping",
           ariaLabel: "Wrap diff lines by default",
         })}
@@ -2453,9 +2432,7 @@ function SettingsRouteView() {
                         {isProviderUpdateActive ? "Updating" : "更新"}
                       </Button>
                     ) : (
-                      <span className="Provider 更新">
-                        Manual update
-                      </span>
+                      <span className="Provider 更新">Manual update</span>
                     )}
                   </div>
                 );
@@ -2578,11 +2555,7 @@ function SettingsRouteView() {
                           <span className="min-w-0 flex-1 text-sm font-medium text-foreground">
                             {providerSettings.title}
                           </span>
-                          {isDirty ? (
-                            <span className="Provider 更新">
-                              Custom
-                            </span>
-                          ) : null}
+                          {isDirty ? <span className="Provider 更新">Custom</span> : null}
                           {providerUpdateLabel ? (
                             <span
                               className={cn(
@@ -2595,12 +2568,7 @@ function SettingsRouteView() {
                               {providerUpdateLabel}
                             </span>
                           ) : null}
-                          <ChevronDownIcon
-                            className={cn(
-                              "版本",
-                              isOpen && "rotate-180",
-                            )}
-                          />
+                          <ChevronDownIcon className={cn("版本", isOpen && "rotate-180")} />
                         </button>
                         {shouldShowProviderUpdateButton ? (
                           <Button
@@ -2652,9 +2620,7 @@ function SettingsRouteView() {
                               htmlFor={`provider-install-${providerSettings.binaryPathKey}`}
                               className="block"
                             >
-                              <span className="快捷键">
-                                {providerSettings.title} binary path
-                              </span>
+                              <span className="快捷键">{providerSettings.title} binary path</span>
                               <DebouncedSettingTextInput
                                 id={`provider-install-${providerSettings.binaryPathKey}`}
                                 size="sm"
@@ -2677,9 +2643,7 @@ function SettingsRouteView() {
                                 htmlFor={`provider-install-${providerSettings.homePathKey}`}
                                 className="block"
                               >
-                                <span className="快捷键">
-                                  CODEX_HOME path
-                                </span>
+                                <span className="快捷键">CODEX_HOME path</span>
                                 <DebouncedSettingTextInput
                                   id={`provider-install-${providerSettings.homePathKey}`}
                                   size="sm"
@@ -2707,9 +2671,7 @@ function SettingsRouteView() {
                                 htmlFor={`provider-install-${providerSettings.agentDirKey}`}
                                 className="block"
                               >
-                                <span className="快捷键">
-                                  Pi agent directory
-                                </span>
+                                <span className="快捷键">Pi agent directory</span>
                                 <DebouncedSettingTextInput
                                   id={`provider-install-${providerSettings.agentDirKey}`}
                                   size="sm"
@@ -2737,9 +2699,7 @@ function SettingsRouteView() {
                                 htmlFor={`provider-install-${providerSettings.apiEndpointKey}`}
                                 className="block"
                               >
-                                <span className="快捷键">
-                                  Cursor API endpoint
-                                </span>
+                                <span className="快捷键">Cursor API endpoint</span>
                                 <DebouncedSettingTextInput
                                   id={`provider-install-${providerSettings.apiEndpointKey}`}
                                   size="sm"
@@ -2767,9 +2727,7 @@ function SettingsRouteView() {
                                 htmlFor={`provider-install-${providerSettings.serverUrlKey}`}
                                 className="block"
                               >
-                                <span className="快捷键">
-                                  {providerSettings.title} server URL
-                                </span>
+                                <span className="快捷键">{providerSettings.title} server URL</span>
                                 <DebouncedSettingTextInput
                                   id={`provider-install-${providerSettings.serverUrlKey}`}
                                   size="sm"
@@ -2840,9 +2798,7 @@ function SettingsRouteView() {
                                 className="flex items-start justify-between gap-3 rounded-md border border-border/70 bg-background/60 px-3 py-2"
                               >
                                 <span className="min-w-0">
-                                  <span className="快捷键">
-                                    OpenAI response WebSockets
-                                  </span>
+                                  <span className="快捷键">OpenAI response WebSockets</span>
                                   {providerSettings.experimentalWebSocketsDescription ? (
                                     <span className="打开持久化的 keybindings.json 文件，直接编辑高级快捷键。">
                                       {providerSettings.experimentalWebSocketsDescription}
@@ -2931,12 +2887,7 @@ function SettingsRouteView() {
                 onClick={() => setShowRecoveryTools((current) => !current)}
               >
                 <span className="text-xs font-medium text-muted-foreground">What this does</span>
-                <ChevronDownIcon
-                  className={cn(
-                    "版本",
-                    showRecoveryTools && "rotate-180",
-                  )}
-                />
+                <ChevronDownIcon className={cn("版本", showRecoveryTools && "rotate-180")} />
               </button>
               {showRecoveryTools ? (
                 <div
@@ -3074,7 +3025,6 @@ function SettingsRouteView() {
         {/* Mounted at the route level (outside the scrollable panel) so the
           dialog portal can overlay the entire settings view without being
           clipped by the content wrapper's overflow. */}
-
       </SidebarInset>
     </div>
   );

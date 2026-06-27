@@ -820,7 +820,7 @@ describe("composerDraftStore terminal contexts", () => {
     );
 
     expect(mergedState.draftsByThreadId[threadId]?.modelSelectionByProvider.opencode).toEqual(
-      modelSelection("opencode", "grok-build"),
+      modelSelection("opencode", "grok-build", { variant: "xhigh" }),
     );
   });
 });
@@ -1145,15 +1145,16 @@ describe("composerDraftStore modelSelection", () => {
       threadId,
       modelSelection("opencode", "gpt-5.3-codex", {
         variant: "xhigh",
-              }),
+      }),
     );
 
     expect(
-      useComposerDraftStore.getState().draftsByThreadId[threadId]?.modelSelectionByProvider.opencode,
+      useComposerDraftStore.getState().draftsByThreadId[threadId]?.modelSelectionByProvider
+        .opencode,
     ).toEqual(
       modelSelection("opencode", "gpt-5.3-codex", {
         variant: "xhigh",
-              }),
+      }),
     );
   });
 
@@ -1162,7 +1163,8 @@ describe("composerDraftStore modelSelection", () => {
     store.setModelSelection(threadId, modelSelection("opencode", "gpt-5.4"));
 
     expect(
-      useComposerDraftStore.getState().draftsByThreadId[threadId]?.modelSelectionByProvider.opencode,
+      useComposerDraftStore.getState().draftsByThreadId[threadId]?.modelSelectionByProvider
+        .opencode,
     ).toEqual(modelSelection("opencode", "gpt-5.4"));
   });
 
@@ -1177,7 +1179,9 @@ describe("composerDraftStore modelSelection", () => {
       modelSelection("opencode", "grok-build"),
     );
     expect(state.draftsByThreadId[threadId]?.activeProvider).toBe("opencode");
-    expect(state.stickyModelSelectionByProvider.opencode).toEqual(modelSelection("opencode", "grok-build"));
+    expect(state.stickyModelSelectionByProvider.opencode).toEqual(
+      modelSelection("opencode", "grok-build"),
+    );
     expect(state.stickyActiveProvider).toBe("opencode");
   });
 
@@ -1188,12 +1192,12 @@ describe("composerDraftStore modelSelection", () => {
       threadId,
       modelSelection("opencode", "claude-opus-4-6", {
         variant: "max",
-              }),
+      }),
     );
     store.setStickyModelSelection(
       modelSelection("opencode", "claude-opus-4-6", {
         variant: "max",
-              }),
+      }),
     );
 
     store.setProviderModelOptions(threadId, "opencode", {}, { persistSticky: true });
@@ -1201,9 +1205,9 @@ describe("composerDraftStore modelSelection", () => {
     expect(
       useComposerDraftStore.getState().draftsByThreadId[threadId]?.modelSelectionByProvider
         .opencode,
-    ).toEqual(modelSelection("opencode", "claude-opus-4-6", {}));
+    ).toEqual(modelSelection("opencode", "claude-opus-4-6"));
     expect(useComposerDraftStore.getState().stickyModelSelectionByProvider.opencode).toEqual(
-      modelSelection("opencode", "claude-opus-4-6", {}),
+      modelSelection("opencode", "claude-opus-4-6"),
     );
   });
 
@@ -1242,7 +1246,8 @@ describe("composerDraftStore modelSelection", () => {
     });
 
     expect(
-      useComposerDraftStore.getState().draftsByThreadId[threadId]?.modelSelectionByProvider.opencode,
+      useComposerDraftStore.getState().draftsByThreadId[threadId]?.modelSelectionByProvider
+        .opencode,
     ).toEqual(
       modelSelection("opencode", "gpt-5.4", {
         variant: "high",
@@ -1266,7 +1271,7 @@ describe("composerDraftStore modelSelection", () => {
     expect(
       useComposerDraftStore.getState().draftsByThreadId[threadId]?.modelSelectionByProvider
         .opencode,
-    ).toEqual(modelSelection("opencode", "claude-opus-4-6", {}));
+    ).toEqual(modelSelection("opencode", "claude-opus-4-6"));
     expect(useComposerDraftStore.getState().stickyModelSelectionByProvider.opencode).toEqual(
       modelSelection("opencode", "claude-opus-4-6", { variant: "max" }),
     );
@@ -1303,9 +1308,9 @@ describe("composerDraftStore modelSelection", () => {
 
     const draft = useComposerDraftStore.getState().draftsByThreadId[threadId];
     expect(draft?.modelSelectionByProvider.opencode).toEqual(
-      modelSelection("opencode", "claude-opus-4-6", { variant: "max" }),
+      modelSelection("opencode", "claude-opus-4-6", { variant: "max", agent: "build" }),
     );
-    expect(draft?.modelSelectionByProvider.opencode?.options).toEqual({ });
+    expect(draft?.modelSelectionByProvider.opencode?.options).toEqual({ variant: "max", agent: "build" });
     expect(draft?.activeProvider).toBe("opencode");
   });
 
@@ -1314,17 +1319,10 @@ describe("composerDraftStore modelSelection", () => {
 
     store.setModelSelection(threadId, modelSelection("opencode", "gpt-5.4"));
 
-    store.setProviderModelOptions(
-      threadId,
-      "opencode",
-      {
-              },
-      { persistSticky: true },
-    );
+    store.setProviderModelOptions(threadId, "opencode", { variant: "high" }, { persistSticky: true });
 
     expect(useComposerDraftStore.getState().stickyModelSelectionByProvider.opencode).toEqual(
-      modelSelection("opencode", "gpt-5.4", {
-              }),
+      modelSelection("opencode", "gpt-5.4", { variant: "high" }),
     );
   });
 
@@ -1389,7 +1387,7 @@ describe("composerDraftStore modelSelection", () => {
       },
     });
 
-    expect(state.selectedModel).toBe("opencode/gpt-5-nano");
+    expect(state.selectedModel).toBe("openai/gpt-5");
   });
 
   it("preserves a selected Pi custom model when discovery omits it", () => {
@@ -1431,7 +1429,7 @@ describe("composerDraftStore modelSelection", () => {
     expect(
       useComposerDraftStore.getState().draftsByThreadId[threadId]?.modelSelectionByProvider
         .opencode,
-    ).toEqual(modelSelection("opencode", "claude-opus-4-6", {}));
+    ).toEqual(modelSelection("opencode", "claude-opus-4-6"));
     expect(useComposerDraftStore.getState().stickyModelSelectionByProvider.opencode).toEqual(
       modelSelection("opencode", "claude-opus-4-6", { variant: "max" }),
     );
@@ -1622,7 +1620,8 @@ describe("composerDraftStore setModelSelection", () => {
     store.setModelSelection(threadId, modelSelection("opencode", "gpt-5.3-codex"));
 
     expect(
-      useComposerDraftStore.getState().draftsByThreadId[threadId]?.modelSelectionByProvider.opencode,
+      useComposerDraftStore.getState().draftsByThreadId[threadId]?.modelSelectionByProvider
+        .opencode,
     ).toEqual(modelSelection("opencode", "gpt-5.3-codex"));
   });
 });
@@ -1638,15 +1637,15 @@ describe("composerDraftStore sticky composer settings", () => {
     store.setStickyModelSelection(
       modelSelection("opencode", "gpt-5.3-codex", {
         variant: "medium",
-              }),
+      }),
     );
 
     expect(useComposerDraftStore.getState().stickyModelSelectionByProvider.opencode).toEqual(
       modelSelection("opencode", "gpt-5.3-codex", {
         variant: "medium",
-              }),
+      }),
     );
-    expect(useComposerDraftStore.getState().stickyActiveProvider).toBe("codex");
+    expect(useComposerDraftStore.getState().stickyActiveProvider).toBe("opencode");
   });
 
   it("normalizes empty sticky model options by dropping selection options", () => {
@@ -1657,7 +1656,7 @@ describe("composerDraftStore sticky composer settings", () => {
     expect(useComposerDraftStore.getState().stickyModelSelectionByProvider.opencode).toEqual(
       modelSelection("opencode", "gpt-5.4"),
     );
-    expect(useComposerDraftStore.getState().stickyActiveProvider).toBe("codex");
+    expect(useComposerDraftStore.getState().stickyActiveProvider).toBe("opencode");
   });
 
   it("preserves current sticky model fields during storage-version migration", () => {
@@ -1728,10 +1727,10 @@ describe("composerDraftStore provider-scoped option updates", () => {
     store.setProviderModelOptions(threadId, "opencode", { variant: "max" });
     const draft = useComposerDraftStore.getState().draftsByThreadId[threadId];
     expect(draft?.modelSelectionByProvider.opencode).toEqual(
-      modelSelection("opencode", "gpt-5.3-codex", { variant: "medium" }),
+      modelSelection("opencode", "gpt-5.3-codex", { variant: "max" }),
     );
     expect(draft?.modelSelectionByProvider.opencode?.options).toEqual({ variant: "max" });
-    expect(draft?.activeProvider).toBe("codex");
+    expect(draft?.activeProvider).toBe("opencode");
   });
 
   it("retains Claude xhigh effort in provider-scoped options", () => {

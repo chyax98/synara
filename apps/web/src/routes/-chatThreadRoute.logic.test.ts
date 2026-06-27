@@ -18,8 +18,8 @@ const OTHER_TURN_ID = TurnId.makeUnsafe("turn-2");
 
 describe("resolveThreadPickerTitle", () => {
   it("falls back to a stable untitled label", () => {
-    expect(resolveThreadPickerTitle(null)).toBe("New chat");
-    expect(resolveThreadPickerTitle("")).toBe("New chat");
+    expect(resolveThreadPickerTitle(null)).toBe("新聊天");
+    expect(resolveThreadPickerTitle("")).toBe("新聊天");
   });
 
   it("preserves non-empty thread titles", () => {

@@ -379,11 +379,17 @@ function arcName(startHour: number): string {
   return "Night Owl Arc";
 }
 
+const LEGACY_PROVIDER_KINDS = new Set(["codex", "claudeAgent", "pi"]);
+
 function normalizeProviderKind(value: unknown): ProviderKind | "unknown" {
   const provider = nonEmptyString(value);
-  return provider && PROVIDER_KINDS.has(provider as ProviderKind)
-    ? (provider as ProviderKind)
-    : "unknown";
+  if (!provider) {
+    return "unknown";
+  }
+  if (PROVIDER_KINDS.has(provider as ProviderKind)) {
+    return provider as ProviderKind;
+  }
+  return LEGACY_PROVIDER_KINDS.has(provider) ? "opencode" : "unknown";
 }
 
 function computeStreaks(

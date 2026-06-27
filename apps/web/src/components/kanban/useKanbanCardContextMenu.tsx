@@ -284,10 +284,7 @@ export function useKanbanCardContextMenu(): KanbanCardContextMenuController {
           const confirmed = await api.dialogs.confirm(
             deletesOnlyDraft
               ? `Delete this draft? This removes its unsent prompt.`
-              : [
-                  `Delete thread "${card.title}"?`,
-                  "这会永久清除该 thread 的对话记录。",
-                ].join("\n"),
+              : [`Delete thread "${card.title}"?`, "这会永久清除该 thread 的对话记录。"].join("\n"),
           );
           if (!confirmed) return;
         }

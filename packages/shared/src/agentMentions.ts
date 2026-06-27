@@ -1,8 +1,4 @@
-import {
-  resolveAgentAlias,
-  type ProviderKind,
-  type ResolvedAgentAlias,
-} from "@t3tools/contracts";
+import { resolveAgentAlias, type ProviderKind, type ResolvedAgentAlias } from "@t3tools/contracts";
 
 export interface ParsedAgentMentionInvocation {
   readonly alias: string;

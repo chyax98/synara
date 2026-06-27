@@ -164,7 +164,7 @@ describe("resolveBrowserChromeStatus", () => {
       }),
     ).toEqual({
       tone: "default",
-      label: "Starting browser...",
+      label: "正在启动浏览器...",
     });
   });
 });

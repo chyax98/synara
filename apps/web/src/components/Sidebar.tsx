@@ -348,8 +348,7 @@ const EMPTY_THREAD_JUMP_LABELS = new Map<ThreadId, string>();
 const EMPTY_SHORTCUT_PARTS: readonly string[] = [];
 const ADD_PROJECT_SNAPSHOT_CATCH_UP_MAX_ATTEMPTS = 6;
 const ADD_PROJECT_SNAPSHOT_CATCH_UP_DELAY_MS = 50;
-const ADD_PROJECT_EXISTING_SYNC_ERROR =
-  "该文件夹已关联，但对应项目尚未同步到侧边栏。请稍后再试。";
+const ADD_PROJECT_EXISTING_SYNC_ERROR = "该文件夹已关联，但对应项目尚未同步到侧边栏。请稍后再试。";
 const DebugFeatureFlagsMenu = import.meta.env.DEV
   ? lazy(() =>
       import("./DebugFeatureFlagsMenu").then((module) => ({
@@ -5197,9 +5196,7 @@ export default function Sidebar() {
             <SidebarIconButton
               icon={NewThreadIcon}
               label={`Create new thread in ${project.name}`}
-              tooltip={
-                newThreadShortcutLabel ? `New thread (${newThreadShortcutLabel})` : "新会话"
-              }
+              tooltip={newThreadShortcutLabel ? `New thread (${newThreadShortcutLabel})` : "新会话"}
               tooltipSide="top"
               data-testid="new-thread-button"
               onClick={(event) => {
@@ -6138,8 +6135,7 @@ export default function Sidebar() {
                                           "inline-flex size-1.5 shrink-0 rounded-full",
                                           workspace.terminalStatus.label === "终端需要输入"
                                             ? "bg-amber-500 dark:bg-amber-300/90"
-                                            : workspace.terminalStatus.label ===
-                                                "终端进程运行中"
+                                            : workspace.terminalStatus.label === "终端进程运行中"
                                               ? "bg-teal-500 dark:bg-teal-300/90"
                                               : "bg-emerald-500 dark:bg-emerald-300/90",
                                         )}
@@ -6248,11 +6244,7 @@ export default function Sidebar() {
                             disabled={isPickingFolder || isAddingProject}
                           >
                             <SidebarGlyph icon={FolderIcon} variant="chrome" />
-                            {isPickingFolder
-                              ? "打开中…"
-                              : isAddingProject
-                                ? "添加中…"
-                                : "浏览"}
+                            {isPickingFolder ? "打开中…" : isAddingProject ? "添加中…" : "浏览"}
                           </button>
                         )}
                         <button

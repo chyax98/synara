@@ -158,11 +158,9 @@ describe("splitPromptIntoComposerSegments", () => {
     ]);
   });
 
-  it("converts an agent alias into a chip once the task parentheses begin", () => {
+  it("keeps agent aliases as plain text once parentheses begin", () => {
     expect(splitPromptIntoComposerSegments("Ask @spark()")).toEqual([
-      { type: "text", text: "Ask " },
-      { type: "agent-mention", alias: "spark", color: "cyan" },
-      { type: "text", text: "()" },
+      { type: "text", text: "Ask @spark()" },
     ]);
   });
 

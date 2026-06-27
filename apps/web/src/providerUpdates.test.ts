@@ -203,8 +203,8 @@ describe("isProviderUpdateActive", () => {
     expect(isProviderUpdateActive(providerStatus("opencode", { updateState: queuedState }))).toBe(
       true,
     );
-    expect(isProviderUpdateActive(providerStatus("opencode", { updateState: succeededState }))).toBe(
-      false,
-    );
+    expect(
+      isProviderUpdateActive(providerStatus("opencode", { updateState: succeededState })),
+    ).toBe(false);
   });
 });

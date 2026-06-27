@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { describe, it } from "node:test";
+import { describe, it } from "vitest";
 
 import {
   normalizeLegacyModelSelection,
@@ -8,10 +8,13 @@ import {
 
 describe("modelSelectionCompatibility", () => {
   it("maps legacy provider literals to opencode", () => {
-    assert.deepEqual(normalizePersistedModelSelection({ provider: "pi", model: "openai/gpt-5.5" }), {
-      provider: "opencode",
-      model: "openai/gpt-5.5",
-    });
+    assert.deepEqual(
+      normalizePersistedModelSelection({ provider: "pi", model: "openai/gpt-5.5" }),
+      {
+        provider: "opencode",
+        model: "openai/gpt-5.5",
+      },
+    );
     assert.deepEqual(
       normalizePersistedModelSelection({
         provider: "claudeAgent",

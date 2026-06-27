@@ -21,7 +21,7 @@ describe("rankSettingsSearchEntries", () => {
   });
 
   it("ranks an exact title match first", () => {
-    const [top] = rankSettingsSearchEntries("theme", 12);
+    const [top] = rankSettingsSearchEntries("主题", 12);
     expect(top?.id).toBe("appearance:theme");
   });
 
@@ -31,12 +31,12 @@ describe("rankSettingsSearchEntries", () => {
   });
 
   it("includes the activity toasts notification row", () => {
-    const results = rankSettingsSearchEntries("toasts", 12);
+    const results = rankSettingsSearchEntries("活动通知", 12);
     expect(results.some((entry) => entry.id === "notifications:activity-toasts")).toBe(true);
   });
 
   it("surfaces every row in a section when searching the section label", () => {
-    const results = rankSettingsSearchEntries("appearance", SETTINGS_SEARCH_ENTRIES.length);
+    const results = rankSettingsSearchEntries("外观", SETTINGS_SEARCH_ENTRIES.length);
     expect(results.some((entry) => entry.section === "appearance")).toBe(true);
   });
 
@@ -46,7 +46,7 @@ describe("rankSettingsSearchEntries", () => {
 
   it("derives a deep-link anchor target from each entry's title", () => {
     const themeEntry = SETTINGS_SEARCH_ENTRIES.find((entry) => entry.id === "appearance:theme")!;
-    expect(settingsSearchEntryTarget(themeEntry)).toBe("setting-theme");
+    expect(settingsSearchEntryTarget(themeEntry)).toBe("setting-主题");
     for (const entry of SETTINGS_SEARCH_ENTRIES) {
       if (entry.target === null) {
         expect(settingsSearchEntryTarget(entry)).toBeNull();

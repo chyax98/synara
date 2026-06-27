@@ -34,20 +34,20 @@ describe("formatProviderModelOptionName", () => {
     ).toBe("GPT-5");
   });
 
-  it("leaves non-OpenCode unknown slugs unchanged", () => {
+  it("humanizes unknown custom model slugs for OpenCode", () => {
     expect(
       formatProviderModelOptionName({
         provider: "opencode",
         slug: "custom/internal-model",
       }),
-    ).toBe("custom/internal-model");
+    ).toBe("Internal Model");
   });
 });
 
 describe("buildProviderOptionPatch", () => {
   it("maps generic Gemini thinking selections back to the provider-specific option shape", () => {
     expect(buildProviderOptionPatch("opencode", "thinkingBudget", "512")).toEqual({
-      thinkingBudget: 512,
+      thinkingBudget: "512",
     });
     expect(buildProviderOptionPatch("opencode", "thinkingLevel", "HIGH")).toEqual({
       thinkingLevel: "HIGH",
@@ -56,10 +56,10 @@ describe("buildProviderOptionPatch", () => {
 
   it("passes through non-Gemini option ids unchanged", () => {
     expect(buildProviderOptionPatch("opencode", "reasoningEffort", "xhigh")).toEqual({
-      variant: "xhigh",
+      reasoningEffort: "xhigh",
     });
     expect(buildProviderOptionPatch("opencode", "reasoningEffort", "high")).toEqual({
-      variant: "high",
+      reasoningEffort: "high",
     });
     expect(buildProviderOptionPatch("opencode", "fastMode", true)).toEqual({ fastMode: true });
   });

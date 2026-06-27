@@ -29,7 +29,7 @@ describe("normalizeProviderStatusForLocalConfig", () => {
       available: true,
       status: "warning",
       message:
-        "Gemini uses a custom local binary path in this app. Availability will be confirmed when you start a session.",
+        "OpenCode uses a custom local binary path in this app. Availability will be confirmed when you start a session.",
     });
   });
 
@@ -50,7 +50,7 @@ describe("normalizeProviderStatusForLocalConfig", () => {
       available: true,
       status: "warning",
       message:
-        "Claude uses a custom local binary path in this app. Availability will be confirmed when you start a session.",
+        "OpenCode uses a custom local binary path in this app. Availability will be confirmed when you start a session.",
     });
   });
 
@@ -133,7 +133,7 @@ describe("isProviderUsable", () => {
 describe("providerUnavailableReason", () => {
   it("returns provider-specific guidance", () => {
     expect(providerUnavailableReason({ ...BASE_STATUS, authStatus: "unauthenticated" })).toBe(
-      "Gemini is not authenticated yet.",
+      "OpenCode is not authenticated yet.",
     );
     expect(providerUnavailableReason(BASE_STATUS)).toBe(BASE_STATUS.message);
   });

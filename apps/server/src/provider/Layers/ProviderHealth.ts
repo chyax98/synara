@@ -14,17 +14,7 @@ import {
 } from "@t3tools/contracts";
 import { ServerProviderUpdateError } from "@t3tools/contracts";
 import { prepareWindowsSafeProcess } from "@t3tools/shared/windowsProcess";
-import {
-  Effect,
-  FileSystem,
-  Layer,
-  Option,
-  Path,
-  PubSub,
-  Ref,
-  Result,
-  Stream,
-} from "effect";
+import { Effect, FileSystem, Layer, Option, Path, PubSub, Ref, Result, Stream } from "effect";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 
 import { ServerConfig } from "../../config";
@@ -108,8 +98,16 @@ const runOpenCodeCommand = (args: ReadonlyArray<string>, executable = "opencode"
     const child = yield* spawner.spawn(command);
     const [stdout, stderr, exitCode] = yield* Effect.all(
       [
-        Stream.runFold(child.stdout, () => "", (acc, chunk) => acc + new TextDecoder().decode(chunk)),
-        Stream.runFold(child.stderr, () => "", (acc, chunk) => acc + new TextDecoder().decode(chunk)),
+        Stream.runFold(
+          child.stdout,
+          () => "",
+          (acc, chunk) => acc + new TextDecoder().decode(chunk),
+        ),
+        Stream.runFold(
+          child.stderr,
+          () => "",
+          (acc, chunk) => acc + new TextDecoder().decode(chunk),
+        ),
         child.exitCode.pipe(Effect.map(Number)),
       ],
       { concurrency: "unbounded" },
@@ -447,14 +445,13 @@ export const ProviderHealthLive = Layer.effect(
       const settings = yield* serverSettings.getSettings.pipe(
         Effect.catch(() => Effect.succeed(DEFAULT_SERVER_SETTINGS)),
       );
-      const statuses =
-        isProviderEnabledForSettings(OPENCODE_PROVIDER, settings)
-          ? [
-              yield* makeCheckOpenCodeProviderStatus(settings.providers.opencode.binaryPath).pipe(
-                Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, spawner),
-              ),
-            ]
-          : [];
+      const statuses = isProviderEnabledForSettings(OPENCODE_PROVIDER, settings)
+        ? [
+            yield* makeCheckOpenCodeProviderStatus(settings.providers.opencode.binaryPath).pipe(
+              Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, spawner),
+            ),
+          ]
+        : [];
       return yield* enrichStatuses(statuses);
     });
 
@@ -512,100 +509,100 @@ export const ProviderHealthLive = Layer.effect(
         });
       return Effect.gen(function* () {
         if (input.provider !== OPENCODE_PROVIDER) {
-        return yield* new ServerProviderUpdateError({
-          provider: input.provider,
-          reason: "Only OpenCode updates are supported.",
-        });
-      }
-      const settings = yield* serverSettings.getSettings.pipe(
-        Effect.mapError(
-          (cause) =>
-            new ServerProviderUpdateError({
-              provider: OPENCODE_PROVIDER,
-              reason: cause instanceof Error ? cause.message : String(cause),
-            }),
-        ),
-      );
-      if (!isProviderEnabledForSettings(OPENCODE_PROVIDER, settings)) {
-        return yield* new ServerProviderUpdateError({
-          provider: OPENCODE_PROVIDER,
-          reason: "Provider is disabled in Synara settings.",
-        });
-      }
-      const capabilities = yield* getProviderMaintenanceCapabilities().pipe(
-        Effect.mapError(
-          (cause) =>
-            new ServerProviderUpdateError({
-              provider: OPENCODE_PROVIDER,
-              reason: cause instanceof Error ? cause.message : String(cause),
-            }),
-        ),
-      );
-      const update = capabilities.update;
-      if (!update) {
-        return yield* new ServerProviderUpdateError({
-          provider: OPENCODE_PROVIDER,
-          reason: "This provider does not support one-click updates.",
-        });
-      }
+          return yield* new ServerProviderUpdateError({
+            provider: input.provider,
+            reason: "Only OpenCode updates are supported.",
+          });
+        }
+        const settings = yield* serverSettings.getSettings.pipe(
+          Effect.mapError(
+            (cause) =>
+              new ServerProviderUpdateError({
+                provider: OPENCODE_PROVIDER,
+                reason: cause instanceof Error ? cause.message : String(cause),
+              }),
+          ),
+        );
+        if (!isProviderEnabledForSettings(OPENCODE_PROVIDER, settings)) {
+          return yield* new ServerProviderUpdateError({
+            provider: OPENCODE_PROVIDER,
+            reason: "Provider is disabled in Synara settings.",
+          });
+        }
+        const capabilities = yield* getProviderMaintenanceCapabilities().pipe(
+          Effect.mapError(
+            (cause) =>
+              new ServerProviderUpdateError({
+                provider: OPENCODE_PROVIDER,
+                reason: cause instanceof Error ? cause.message : String(cause),
+              }),
+          ),
+        );
+        const update = capabilities.update;
+        if (!update) {
+          return yield* new ServerProviderUpdateError({
+            provider: OPENCODE_PROVIDER,
+            reason: "This provider does not support one-click updates.",
+          });
+        }
 
-      const startedAt = new Date().toISOString();
-      yield* setProviderUpdateState({
-        status: "running",
-        startedAt,
-        finishedAt: null,
-        message: "Updating provider.",
-        output: null,
-      });
+        const startedAt = new Date().toISOString();
+        yield* setProviderUpdateState({
+          status: "running",
+          startedAt,
+          finishedAt: null,
+          message: "Updating provider.",
+          output: null,
+        });
 
-      const prepared = prepareWindowsSafeProcess(update.executable, update.args, {
-        env: process.env,
-      });
-      const child = yield* spawner.spawn(
-        ChildProcess.make(prepared.command, prepared.args, {
-          shell: prepared.shell,
+        const prepared = prepareWindowsSafeProcess(update.executable, update.args, {
           env: process.env,
-        }),
-      );
-      const [stdout, stderr, exitCode] = yield* Effect.all(
-        [
-          collectUint8StreamText({ stream: child.stdout, maxBytes: UPDATE_OUTPUT_MAX_BYTES }),
-          collectUint8StreamText({ stream: child.stderr, maxBytes: UPDATE_OUTPUT_MAX_BYTES }),
-          child.exitCode.pipe(Effect.map(Number)),
-        ],
-        { concurrency: "unbounded" },
-      ).pipe(
-        Effect.scoped,
-        Effect.mapError(
-          (cause) =>
-            new ServerProviderUpdateError({
-              provider: OPENCODE_PROVIDER,
-              reason: cause instanceof Error ? cause.message : String(cause),
-            }),
-        ),
-      );
+        });
+        const child = yield* spawner.spawn(
+          ChildProcess.make(prepared.command, prepared.args, {
+            shell: prepared.shell,
+            env: process.env,
+          }),
+        );
+        const [stdout, stderr, exitCode] = yield* Effect.all(
+          [
+            collectUint8StreamText({ stream: child.stdout, maxBytes: UPDATE_OUTPUT_MAX_BYTES }),
+            collectUint8StreamText({ stream: child.stderr, maxBytes: UPDATE_OUTPUT_MAX_BYTES }),
+            child.exitCode.pipe(Effect.map(Number)),
+          ],
+          { concurrency: "unbounded" },
+        ).pipe(
+          Effect.scoped,
+          Effect.mapError(
+            (cause) =>
+              new ServerProviderUpdateError({
+                provider: OPENCODE_PROVIDER,
+                reason: cause instanceof Error ? cause.message : String(cause),
+              }),
+          ),
+        );
 
-      const finishedAt = new Date().toISOString();
-      if (exitCode !== 0) {
-        const providers = yield* setProviderUpdateState({
-          status: "failed",
+        const finishedAt = new Date().toISOString();
+        if (exitCode !== 0) {
+          const providers = yield* setProviderUpdateState({
+            status: "failed",
+            startedAt,
+            finishedAt,
+            message: `Update command exited with code ${exitCode}.`,
+            output: [stderr.text, stdout.text].filter(Boolean).join("\n\n").trim() || null,
+          });
+          return { providers: providers as ServerProviderUpdateResult["providers"] };
+        }
+
+        const providers = yield* refreshNow;
+        yield* setProviderUpdateState({
+          status: "succeeded",
           startedAt,
           finishedAt,
-          message: `Update command exited with code ${exitCode}.`,
+          message: "Provider updated.",
           output: [stderr.text, stdout.text].filter(Boolean).join("\n\n").trim() || null,
         });
         return { providers: providers as ServerProviderUpdateResult["providers"] };
-      }
-
-      const providers = yield* refreshNow;
-      yield* setProviderUpdateState({
-        status: "succeeded",
-        startedAt,
-        finishedAt,
-        message: "Provider updated.",
-        output: [stderr.text, stdout.text].filter(Boolean).join("\n\n").trim() || null,
-      });
-      return { providers: providers as ServerProviderUpdateResult["providers"] };
       }).pipe(Effect.scoped, Effect.mapError(toUpdateError));
     };
 

@@ -538,7 +538,7 @@ describe("shouldShowComposerModelBootstrapSkeleton", () => {
     ).toBe(false);
   });
 
-  it("shows a skeleton when the provisional provider does not match the persisted thread provider", () => {
+  it("does not show a skeleton when the OpenCode provider already matches the persisted thread", () => {
     expect(
       shouldShowComposerModelBootstrapSkeleton({
         selectedProvider: "opencode",
@@ -550,7 +550,7 @@ describe("shouldShowComposerModelBootstrapSkeleton", () => {
         draftModelSelection: null,
         providerModelsLoading: false,
       }),
-    ).toBe(true);
+    ).toBe(false);
   });
 });
 

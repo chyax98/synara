@@ -68,15 +68,16 @@ describe("providerModelDiscoveryInvalidationFingerprint", () => {
     ).not.toBe(previous);
   });
 
-  it("is stable across provider ordering", () => {
-    const codexStatus = {
+  it("preserves provider version ordering when multiple OpenCode statuses are present", () => {
+    const alternateStatus = {
       ...BASE_PROVIDER_STATUS,
-      provider: "opencode",
       version: "1.2.3",
     } satisfies ServerProviderStatus;
 
-    expect(providerModelDiscoveryInvalidationFingerprint([BASE_PROVIDER_STATUS, codexStatus])).toBe(
-      providerModelDiscoveryInvalidationFingerprint([codexStatus, BASE_PROVIDER_STATUS]),
+    expect(
+      providerModelDiscoveryInvalidationFingerprint([BASE_PROVIDER_STATUS, alternateStatus]),
+    ).not.toBe(
+      providerModelDiscoveryInvalidationFingerprint([alternateStatus, BASE_PROVIDER_STATUS]),
     );
   });
 });

@@ -256,7 +256,7 @@ layer("016_CanonicalizeModelSelections", (it) => {
             title: "Project",
             workspaceRoot: "/tmp/project",
             defaultModelSelection: {
-              provider: "opencode",
+              provider: "claudeAgent",
               model: "claude-opus-4-6",
               options: {
                 effort: "max",
@@ -272,7 +272,7 @@ layer("016_CanonicalizeModelSelections", (it) => {
             title: "Fallback Project",
             workspaceRoot: "/tmp/project-2",
             defaultModelSelection: {
-              provider: "opencode",
+              provider: "claudeAgent",
               model: "claude-opus-4-6",
               options: {
                 reasoningEffort: "low",
@@ -288,7 +288,7 @@ layer("016_CanonicalizeModelSelections", (it) => {
             projectId: "project-1",
             title: "Thread",
             modelSelection: {
-              provider: "opencode",
+              provider: "claudeAgent",
               model: "claude-opus-4-6",
               options: {
                 effort: "max",
@@ -308,7 +308,7 @@ layer("016_CanonicalizeModelSelections", (it) => {
             projectId: "project-1",
             title: "Fallback Thread",
             modelSelection: {
-              provider: "opencode",
+              provider: "codex",
               model: "gpt-5.4",
               options: {
                 effort: "max",
@@ -327,7 +327,7 @@ layer("016_CanonicalizeModelSelections", (it) => {
             turnId: "turn-1",
             input: "hi",
             modelSelection: {
-              provider: "opencode",
+              provider: "codex",
               model: "gpt-5.4",
               options: {
                 fastMode: true,
@@ -341,7 +341,7 @@ layer("016_CanonicalizeModelSelections", (it) => {
             projectId: "project-1",
             title: "Ancient Thread",
             modelSelection: {
-              provider: "opencode",
+              provider: "codex",
               model: "gpt-5.5",
             },
             runtimeMode: "full-access",

@@ -605,7 +605,7 @@ describe("resolveThreadStatusPill", () => {
         hasPendingApprovals: false,
         hasPendingUserInput: true,
       }),
-    ).toMatchObject({ label: "Awaiting Input", pulse: false });
+    ).toMatchObject({ label: "等待输入", pulse: false });
   });
 
   it("falls back to working when the thread is actively running without blockers", () => {
@@ -722,7 +722,7 @@ describe("resolveThreadStatusPill", () => {
           hasActionableProposedPlan: true,
           latestTurn: makeLatestTurn(),
           dismissedStatusKey:
-            "Plan Ready:2026-03-09T10:05:00.000Z:turn-1:2026-03-09T10:05:00.000Z:2026-03-09T10:00:00.000Z",
+            "计划就绪:2026-03-09T10:05:00.000Z:turn-1:2026-03-09T10:05:00.000Z:2026-03-09T10:00:00.000Z",
           session: {
             ...baseThread.session,
             status: "ready",

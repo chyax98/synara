@@ -44,8 +44,8 @@ describe("resolveAvailableEditorOptions", () => {
         "file-manager",
       ]).map((option) => option.value),
     ).toEqual([
-      "opencode",
       "trae",
+      "vscode",
       "vscode-insiders",
       "vscodium",
       "zed",

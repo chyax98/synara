@@ -251,8 +251,7 @@ function getMenuActionDisabledReason({
 }
 
 const COMMIT_DIALOG_TITLE = "提交更改";
-const COMMIT_DIALOG_DESCRIPTION =
-  "检查并确认你的提交。留空提交信息会自动生成。";
+const COMMIT_DIALOG_DESCRIPTION = "检查并确认你的提交。留空提交信息会自动生成。";
 
 // Central icons render as masked spans (not <svg>), so size them explicitly here
 // rather than relying on parent `[&>svg]` selectors.

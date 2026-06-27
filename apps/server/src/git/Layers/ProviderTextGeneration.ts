@@ -18,8 +18,7 @@ const makeProviderTextGeneration = Effect.gen(function* () {
     generateBranchName: (input) => resolveImplementation().generateBranchName(input),
     generateThreadTitle: (input) => resolveImplementation().generateThreadTitle(input),
     generateThreadRecap: (input) => resolveImplementation().generateThreadRecap(input),
-    generateAutomationIntent: (input) =>
-      resolveImplementation().generateAutomationIntent(input),
+    generateAutomationIntent: (input) => resolveImplementation().generateAutomationIntent(input),
     evaluateAutomationCompletion: (input) =>
       resolveImplementation().evaluateAutomationCompletion(input),
   } satisfies TextGenerationShape;

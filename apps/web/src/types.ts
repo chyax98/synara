@@ -13,7 +13,6 @@ import type {
   ThreadMarker,
   OrchestrationSessionStatus,
   OrchestrationThreadActivity,
-
   ProjectScript as ContractProjectScript,
   ThreadId,
   ProjectId,

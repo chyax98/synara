@@ -342,9 +342,7 @@ export function KanbanNewTaskDialog({
           type: "warning",
           title: "新任务只能附加图片。",
           description:
-            files.length === 1
-              ? "该文件未添加。"
-              : `${files.length} files were not added.`,
+            files.length === 1 ? "该文件未添加。" : `${files.length} files were not added.`,
         });
       },
     },

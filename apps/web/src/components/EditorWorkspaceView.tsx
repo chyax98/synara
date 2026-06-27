@@ -783,9 +783,7 @@ export function WorkspaceSearchSidebar(props: {
         ) : searchResultsCurrent && entriesQuery.error ? (
           <PanelStateMessage density="compact" fill="flex">
             <p className="text-destructive/85">
-              {entriesQuery.error instanceof Error
-                ? entriesQuery.error.message
-                : "无法搜索文件。"}
+              {entriesQuery.error instanceof Error ? entriesQuery.error.message : "无法搜索文件。"}
             </p>
           </PanelStateMessage>
         ) : fileMatches.length === 0 ? (

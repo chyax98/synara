@@ -182,7 +182,7 @@ describe("automation shared route helpers", () => {
 
   it("uses human labels for resultless and unknown-result runs", () => {
     expect(runResultSummary(runWith({ result: null, status: "waiting-for-approval" }))).toBe(
-      "Waiting for approval",
+      "等待确认",
     );
     expect(
       runResultSummary(
@@ -191,7 +191,7 @@ describe("automation shared route helpers", () => {
           status: "succeeded",
         }),
       ),
-    ).toBe("Completed; open the thread for the reply");
+    ).toBe("已完成；打开 thread 查看回复");
   });
 
   it("round-trips one-shot datetimes through datetime-local values", () => {

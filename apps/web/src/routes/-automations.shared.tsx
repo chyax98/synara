@@ -144,14 +144,12 @@ export const AUTOMATION_TEMPLATES: readonly {
   {
     label: "更新依赖",
     name: "更新依赖",
-    prompt:
-      "检查过时的依赖，提升安全的 minor 和 patch 版本，然后运行测试。",
+    prompt: "检查过时的依赖，提升安全的 minor 和 patch 版本，然后运行测试。",
   },
   {
     label: "每日站会总结",
     name: "每日总结",
-    prompt:
-      "总结过去 24 小时 main branch 上的变更，生成一段简短的站会更新。",
+    prompt: "总结过去 24 小时 main branch 上的变更，生成一段简短的站会更新。",
   },
 ];
 
@@ -666,8 +664,8 @@ export function AutomationApprovalBanner({
       <AlertTitle>Approval needed</AlertTitle>
       <AlertDescription>
         <span>
-          This automation needs your approval once before Synara can save changes. When a
-          warning blocks manual runs, Run now stays disabled until you approve it.
+          This automation needs your approval once before Synara can save changes. When a warning
+          blocks manual runs, Run now stays disabled until you approve it.
         </span>
         <ul className="flex flex-col gap-1.5">
           {warnings.map((warning) => (

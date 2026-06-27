@@ -38,7 +38,7 @@ describe("desktop update button state", () => {
   it("hides the button when idle (no update available)", () => {
     expect(shouldShowDesktopUpdateButton(baseState)).toBe(false);
     expect(resolveDesktopUpdateButtonAction(baseState)).toBe("check");
-    expect(getDesktopUpdateButtonTooltip(baseState)).toBe("Check for updates");
+    expect(getDesktopUpdateButtonTooltip(baseState)).toBe("检查更新");
   });
 
   it("shows a download action when an update is available", () => {
@@ -156,7 +156,7 @@ describe("desktop update button state", () => {
     expect(shouldShowDesktopUpdateButton(state)).toBe(false);
     expect(resolveDesktopUpdateButtonAction(state)).toBe("check");
     expect(isDesktopUpdateButtonDisabled(state)).toBe(true);
-    expect(getDesktopUpdateButtonTooltip(state)).toContain("Checking for updates");
+    expect(getDesktopUpdateButtonTooltip(state)).toContain("正在检查更新");
     expect(getDesktopUpdateButtonLabel(state)).toBe("Checking...");
   });
 
@@ -220,7 +220,7 @@ describe("desktop update button state", () => {
     const presentation = getDesktopUpdateButtonPresentation(installingState, { installing: true });
     expect(presentation.label).toBe("Updating...");
     expect(getDesktopUpdateButtonTooltip(installingState, { installing: true })).toBe(
-      "Applying update...",
+      "正在应用更新...",
     );
   });
 });
@@ -427,7 +427,7 @@ describe("desktop update UI helpers", () => {
 
     expect(shouldShowArm64IntelBuildWarning(state)).toBe(true);
     expect(getArm64IntelBuildWarningDescription(state)).toContain("Apple Silicon");
-    expect(getArm64IntelBuildWarningDescription(state)).toContain("Intel build");
+    expect(getArm64IntelBuildWarningDescription(state)).toContain("Intel 版本");
   });
 
   it("changes the warning copy when a native build update is being prepared", () => {
@@ -440,6 +440,6 @@ describe("desktop update UI helpers", () => {
       availableVersion: "1.1.0",
     };
 
-    expect(getArm64IntelBuildWarningDescription(state)).toContain("preparing");
+    expect(getArm64IntelBuildWarningDescription(state)).toContain("正在准备");
   });
 });

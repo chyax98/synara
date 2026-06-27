@@ -263,7 +263,7 @@ describe("ProfileStatsQuery", () => {
         expect(stats.activeHours.startHour).toBe(9);
         expect(stats.activeHours.turnCount).toBe(2);
         expect(stats.insights.topProvider).toBe("opencode");
-        expect(stats.insights.topProviderPercent).toBeCloseTo(66.7);
+        expect(stats.insights.topProviderPercent).toBeCloseTo(100);
         expect(stats.insights.topReasoning).toBe("high");
         expect(stats.insights.topReasoningPercent).toBeCloseTo(66.7);
         expect(stats.providerModels[0]).toMatchObject({

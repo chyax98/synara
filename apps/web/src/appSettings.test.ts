@@ -57,10 +57,7 @@ describe("getAppModelOptions", () => {
   it("appends saved custom models after the built-in options", () => {
     const options = getAppModelOptions("opencode", ["custom/internal-model"]);
 
-    expect(options.map((option) => option.slug)).toEqual([
-      "openai/gpt-5",
-      "custom/internal-model",
-    ]);
+    expect(options.map((option) => option.slug)).toEqual(["openai/gpt-5", "custom/internal-model"]);
   });
 
   it("keeps the currently selected custom model available even if it is no longer saved", () => {
@@ -68,7 +65,7 @@ describe("getAppModelOptions", () => {
 
     expect(options.at(-1)).toEqual({
       slug: "custom/selected-model",
-      name: "custom/selected-model",
+      name: "Selected Model",
       provider: "opencode",
       isCustom: true,
     });
