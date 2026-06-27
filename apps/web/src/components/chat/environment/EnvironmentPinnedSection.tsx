@@ -45,7 +45,7 @@ export function EnvironmentPinnedSection({
     return null;
   }
   return (
-    <EnvironmentCollapsibleSection label="Pinned">
+    <EnvironmentCollapsibleSection label="已固定">
       <ul className="flex flex-col">
         {pins.map((pin) => (
           <PinnedMessageRow
@@ -86,7 +86,7 @@ const PinnedMessageRow = memo(function PinnedMessageRow({
 
   const available = text !== undefined;
   const resolvedLabel = displayLabelFor(pin, text);
-  const displayLabel = resolvedLabel.length > 0 ? resolvedLabel : "(message unavailable)";
+  const displayLabel = resolvedLabel.length > 0 ? resolvedLabel : "（消息不可用）";
 
   const clearScheduledJump = useCallback(() => {
     if (jumpClickTimeoutRef.current !== null) {
@@ -176,7 +176,7 @@ const PinnedMessageRow = memo(function PinnedMessageRow({
         className="size-3.5 sm:size-3.5"
         checked={pin.done}
         onCheckedChange={() => onToggleDone(pin.messageId)}
-        aria-label={pin.done ? "Mark not done" : "Mark done"}
+        aria-label={pin.done ? "标记为未完成" : "标记为已完成"}
       />
       {editing ? (
         <input
@@ -185,7 +185,7 @@ const PinnedMessageRow = memo(function PinnedMessageRow({
           onChange={(event) => setDraft(event.target.value)}
           onBlur={handleInputBlur}
           onKeyDown={handleInputKeyDown}
-          placeholder={available ? "" : "Label"}
+          placeholder={available ? "" : "标签"}
           className="min-w-0 flex-1 rounded border border-input bg-background px-1 py-0.5 text-[length:var(--app-font-size-ui,12px)] text-foreground outline-none focus-visible:border-ring"
         />
       ) : (
@@ -196,15 +196,9 @@ const PinnedMessageRow = memo(function PinnedMessageRow({
           onDoubleClick={handleLabelDoubleClick}
           onKeyDown={handleLabelKeyDown}
           aria-label={
-            available
-              ? "Jump to pinned message. Press F2 to rename."
-              : "Pinned message unavailable. Press Enter to rename."
+            available ? "跳转到已固定消息。按 F2 重命名。" : "已固定消息不可用。按 Enter 重命名。"
           }
-          title={
-            available
-              ? "Click to jump · double-click or press F2 to rename"
-              : "Click or press Enter to rename"
-          }
+          title={available ? "单击跳转 · 双击或按 F2 重命名" : "单击或按 Enter 重命名"}
           className={cn(
             "min-w-0 flex-1 truncate text-left text-[length:var(--app-font-size-ui,12px)] outline-none transition-colors",
             pin.done
@@ -219,8 +213,8 @@ const PinnedMessageRow = memo(function PinnedMessageRow({
         </button>
       )}
       <IconButton
-        label="Unpin message"
-        tooltip="Unpin"
+        label="取消固定消息"
+        tooltip="取消固定"
         size="icon-xs"
         className="shrink-0 opacity-0 transition-opacity group-hover/pin:opacity-100 focus-visible:opacity-100"
         onClick={() => onUnpin(pin.messageId)}

@@ -64,7 +64,7 @@ describe("desktop update button state", () => {
     expect(shouldShowDesktopUpdateButton(state)).toBe(true);
     expect(resolveDesktopUpdateButtonAction(state)).toBe("download");
     expect(isDesktopUpdateButtonDisabled(state)).toBe(false);
-    expect(getDesktopUpdateButtonTooltip(state)).toContain("Click to retry");
+    expect(getDesktopUpdateButtonTooltip(state)).toContain("点击重试");
   });
 
   it("keeps install action available after an install error", () => {
@@ -79,7 +79,7 @@ describe("desktop update button state", () => {
     };
     expect(shouldShowDesktopUpdateButton(state)).toBe(true);
     expect(resolveDesktopUpdateButtonAction(state)).toBe("install");
-    expect(getDesktopUpdateButtonTooltip(state)).toContain("Click to retry");
+    expect(getDesktopUpdateButtonTooltip(state)).toContain("点击重试");
   });
 
   it("keeps update errors with known versions actionable even when context is missing", () => {
@@ -194,7 +194,7 @@ describe("desktop update button state", () => {
     };
     expect(resolveDesktopUpdateButtonAction(downloadFailure)).toBe("download");
     expect(getDesktopUpdateButtonLabel(downloadFailure)).toBe("Retry");
-    expect(getDesktopUpdateButtonTooltip(downloadFailure)).toContain("Click to retry");
+    expect(getDesktopUpdateButtonTooltip(downloadFailure)).toContain("点击重试");
 
     const installFailure: DesktopUpdateState = {
       ...baseState,
@@ -207,7 +207,7 @@ describe("desktop update button state", () => {
     };
     expect(resolveDesktopUpdateButtonAction(installFailure)).toBe("install");
     expect(getDesktopUpdateButtonLabel(installFailure)).toBe("Retry");
-    expect(getDesktopUpdateButtonTooltip(installFailure)).toContain("Click to retry");
+    expect(getDesktopUpdateButtonTooltip(installFailure)).toContain("点击重试");
   });
 
   it("shows explicit updating state when install is in progress", () => {

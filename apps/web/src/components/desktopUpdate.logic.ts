@@ -194,34 +194,34 @@ export function getDesktopUpdateButtonTooltip(
     return "正在检查更新...";
   }
   if (state.status === "up-to-date") {
-    return `You're up to date on ${state.currentVersion}. Click to check again.`;
+    return `当前已是最新版本 ${state.currentVersion}。点击再次检查。`;
   }
   if (state.errorContext === "download" && state.availableVersion) {
-    return `Could not prepare update ${state.availableVersion}. Click to retry.`;
+    return `无法准备更新 ${state.availableVersion}。点击重试。`;
   }
   if (state.errorContext === "install" && (state.downloadedVersion || state.availableVersion)) {
-    return `Could not install update ${state.downloadedVersion ?? state.availableVersion}. Click to retry.`;
+    return `无法安装更新 ${state.downloadedVersion ?? state.availableVersion}。点击重试。`;
   }
   if (state.status === "available") {
-    return `Preparing update ${state.availableVersion ?? ""}`.trim();
+    return `正在准备更新 ${state.availableVersion ?? ""}`.trim();
   }
   if (state.status === "downloading") {
     const progress =
-      typeof state.downloadPercent === "number" ? ` (${Math.floor(state.downloadPercent)}%)` : "";
-    return `Preparing update${progress}`;
+      typeof state.downloadPercent === "number" ? `（${Math.floor(state.downloadPercent)}%）` : "";
+    return `正在准备更新${progress}`;
   }
   if (state.status === "downloaded") {
-    return `Update ${state.downloadedVersion ?? state.availableVersion ?? "ready"} is ready. Click to restart and install.`;
+    return `更新 ${state.downloadedVersion ?? state.availableVersion ?? "已就绪"} 已准备好。点击重启并安装。`;
   }
   if (state.status === "error") {
     if (state.errorContext === "check") {
       return state.message ? `${state.message}. Click to check again.` : "更新检查失败。点击重试。";
     }
     if (state.errorContext === "download" && state.availableVersion) {
-      return `Could not prepare update ${state.availableVersion}. Click to retry.`;
+      return `无法准备更新 ${state.availableVersion}。点击重试。`;
     }
     if (state.errorContext === "install" && state.downloadedVersion) {
-      return `Could not install update ${state.downloadedVersion}. Click to retry.`;
+      return `无法安装更新 ${state.downloadedVersion}。点击重试。`;
     }
     return state.message ?? "更新失败";
   }

@@ -1,23 +1,31 @@
 // FILE: voiceTranscription.ts
 // Purpose: Owns the desktop-specific voice transcription flow for Electron builds.
 // Layer: Desktop IPC + ChatGPT upload bridge
-// Depends on: Codex auth discovery, Electron net uploads, and the shared server voice contract.
+// Depends on: OpenCode credential storage, Electron net uploads, and the shared server voice contract.
 
-import * as ChildProcess from "node:child_process";
 import * as Crypto from "node:crypto";
+import * as FS from "node:fs/promises";
+import * as OS from "node:os";
+import * as Path from "node:path";
 
-import { app, ipcMain, net } from "electron";
+import { ipcMain, net } from "electron";
 import type {
   ServerVoiceTranscriptionInput,
   ServerVoiceTranscriptionResult,
 } from "@t3tools/contracts";
-import { prepareWindowsSafeProcess } from "@t3tools/shared/windowsProcess";
 
 export const SERVER_TRANSCRIBE_VOICE_CHANNEL = "desktop:server-transcribe-voice";
 
 const CHATGPT_TRANSCRIPTIONS_URL = "https://chatgpt.com/backend-api/transcribe";
 const MAX_VOICE_AUDIO_BYTES = 10 * 1024 * 1024;
 const MAX_VOICE_DURATION_MS = 120_000;
+const CHATGPT_AUTH_PROVIDER_IDS = [
+  "chatgpt",
+  "chatgpt-codex",
+  "openai",
+  "openai-codex",
+  "openai-chatgpt",
+] as const;
 
 // --- Input validation ------------------------------------------------------
 
@@ -40,32 +48,32 @@ function isLikelyWavBuffer(buffer: Buffer): boolean {
 
 function decodeDesktopVoiceAudio(input: ServerVoiceTranscriptionInput): Buffer {
   if (input.mimeType !== "audio/wav") {
-    throw new Error("Only WAV audio is supported for voice transcription.");
+    throw new Error("语音转写仅支持 WAV 音频。");
   }
   if (input.sampleRateHz !== 24_000) {
-    throw new Error("Voice transcription requires 24 kHz mono WAV audio.");
+    throw new Error("语音转写需要 24 kHz 单声道 WAV 音频。");
   }
   if (input.durationMs <= 0) {
-    throw new Error("Voice messages must include a positive duration.");
+    throw new Error("语音消息时长必须大于 0。");
   }
   if (input.durationMs > MAX_VOICE_DURATION_MS) {
-    throw new Error("Voice messages are limited to 120 seconds.");
+    throw new Error("语音消息最长 120 秒。");
   }
 
   const normalizedBase64 = normalizeVoiceBase64(input.audioBase64);
   if (!normalizedBase64 || !isLikelyVoiceBase64(normalizedBase64)) {
-    throw new Error("The recorded audio could not be decoded.");
+    throw new Error("无法解码录制的音频。");
   }
 
   const audioBuffer = Buffer.from(normalizedBase64, "base64");
   if (!audioBuffer.length || audioBuffer.toString("base64") !== normalizedBase64) {
-    throw new Error("The recorded audio could not be decoded.");
+    throw new Error("无法解码录制的音频。");
   }
   if (audioBuffer.length > MAX_VOICE_AUDIO_BYTES) {
-    throw new Error("Voice messages are limited to 10 MB.");
+    throw new Error("语音消息最大 10 MB。");
   }
   if (!isLikelyWavBuffer(audioBuffer)) {
-    throw new Error("The recorded audio is not a valid WAV file.");
+    throw new Error("录制的音频不是有效的 WAV 文件。");
   }
 
   return audioBuffer;
@@ -76,126 +84,85 @@ function readNonEmptyString(value: unknown): string | null {
   return normalized.length > 0 ? normalized : null;
 }
 
+function resolveOpenCodeDataDirectory(homeDirectory = OS.homedir()): string {
+  if (process.platform === "win32") {
+    const appDataDirectory =
+      readNonEmptyString(process.env.APPDATA) ?? Path.join(homeDirectory, "AppData", "Roaming");
+    return Path.join(appDataDirectory, "opencode");
+  }
+
+  const xdgDataHome =
+    readNonEmptyString(process.env.XDG_DATA_HOME) ?? Path.join(homeDirectory, ".local", "share");
+  return Path.join(xdgDataHome, "opencode");
+}
+
+function readChatGptTokenFromCredential(credential: unknown): string | null {
+  if (!credential || typeof credential !== "object" || Array.isArray(credential)) {
+    return null;
+  }
+  const record = credential as Record<string, unknown>;
+  return (
+    readNonEmptyString(record.access) ??
+    readNonEmptyString(record.id_token) ??
+    readNonEmptyString(record.token) ??
+    readNonEmptyString(record.key)
+  );
+}
+
+function matchesChatGptProviderId(providerId: string): boolean {
+  const normalized = providerId.trim().toLowerCase();
+  return CHATGPT_AUTH_PROVIDER_IDS.some(
+    (candidate) => normalized === candidate || normalized.includes("chatgpt"),
+  );
+}
+
+async function readJsonFile(path: string): Promise<unknown | null> {
+  try {
+    return JSON.parse(await FS.readFile(path, "utf8")) as unknown;
+  } catch {
+    return null;
+  }
+}
+
 // --- Auth discovery --------------------------------------------------------
 
-async function resolveDesktopVoiceAuth(
-  cwd: string,
-): Promise<{ token: string; transcriptionUrl: string }> {
-  return new Promise((resolve, reject) => {
-    const prepared = prepareWindowsSafeProcess("codex", ["app-server"], {
-      cwd,
-      env: process.env,
-    });
-    const child = ChildProcess.spawn(prepared.command, prepared.args, {
-      cwd,
-      env: process.env,
-      stdio: ["pipe", "pipe", "pipe"],
-      shell: prepared.shell,
-      windowsHide: prepared.windowsHide,
-    });
-
-    let settled = false;
-    let stdoutBuffer = "";
-    const rejectOnce = (error: Error) => {
-      if (settled) {
-        return;
+async function resolveDesktopVoiceAuth(): Promise<{ token: string; transcriptionUrl: string }> {
+  const dataDir = resolveOpenCodeDataDirectory();
+  const authJson = await readJsonFile(Path.join(dataDir, "auth.json"));
+  if (authJson && typeof authJson === "object" && !Array.isArray(authJson)) {
+    for (const [providerId, value] of Object.entries(authJson as Record<string, unknown>)) {
+      if (!matchesChatGptProviderId(providerId) || !value || typeof value !== "object") {
+        continue;
       }
-      settled = true;
-      child.kill();
-      reject(error);
-    };
-    const resolveOnce = (value: { token: string; transcriptionUrl: string }) => {
-      if (settled) {
-        return;
+      const token = readChatGptTokenFromCredential(value);
+      if (token) {
+        return { token, transcriptionUrl: CHATGPT_TRANSCRIPTIONS_URL };
       }
-      settled = true;
-      child.kill();
-      resolve(value);
-    };
-    const send = (payload: Record<string, unknown>) => {
-      child.stdin.write(`${JSON.stringify(payload)}\n`);
-    };
+    }
+  }
 
-    child.once("error", (error) => {
-      rejectOnce(new Error(`Could not start Codex auth discovery: ${error.message}`));
-    });
-    child.stderr.on("data", () => {
-      // Ignore stderr noise from the discovery process; the JSON-RPC result is authoritative.
-    });
-    child.stdout.on("data", (chunk) => {
-      stdoutBuffer += chunk.toString();
-      const lines = stdoutBuffer.split(/\n/);
-      stdoutBuffer = lines.pop() ?? "";
-      for (const line of lines) {
-        let message: Record<string, unknown>;
-        try {
-          message = JSON.parse(line) as Record<string, unknown>;
-        } catch {
+  const accountJson = await readJsonFile(Path.join(dataDir, "account.json"));
+  if (accountJson && typeof accountJson === "object" && !Array.isArray(accountJson)) {
+    const accounts = (accountJson as Record<string, unknown>).accounts;
+    if (accounts && typeof accounts === "object" && !Array.isArray(accounts)) {
+      for (const value of Object.values(accounts)) {
+        if (!value || typeof value !== "object" || Array.isArray(value)) {
           continue;
         }
-
-        if (message.id === 1) {
-          send({ jsonrpc: "2.0", method: "initialized", params: {} });
-          send({
-            jsonrpc: "2.0",
-            id: 2,
-            method: "getAuthStatus",
-            params: { includeToken: true, refreshToken: true },
-          });
+        const record = value as Record<string, unknown>;
+        const serviceId = readNonEmptyString(record.serviceID) ?? "";
+        if (!matchesChatGptProviderId(serviceId)) {
           continue;
         }
-
-        if (message.id !== 2) {
-          continue;
+        const token = readChatGptTokenFromCredential(record.credential);
+        if (token) {
+          return { token, transcriptionUrl: CHATGPT_TRANSCRIPTIONS_URL };
         }
-
-        const result =
-          typeof message.result === "object" && message.result !== null
-            ? (message.result as Record<string, unknown>)
-            : null;
-        const authMethod = readNonEmptyString(result?.authMethod);
-        const token = readNonEmptyString(result?.authToken);
-        if (!token) {
-          rejectOnce(
-            new Error("No ChatGPT session token is available. Sign in to ChatGPT in Codex."),
-          );
-          return;
-        }
-        if (authMethod !== "chatgpt" && authMethod !== "chatgptAuthTokens") {
-          rejectOnce(
-            new Error("Voice transcription requires a ChatGPT-authenticated Codex session."),
-          );
-          return;
-        }
-
-        resolveOnce({
-          token,
-          transcriptionUrl:
-            readNonEmptyString(result?.transcriptionUrl) ?? CHATGPT_TRANSCRIPTIONS_URL,
-        });
       }
-    });
+    }
+  }
 
-    setTimeout(() => {
-      send({
-        jsonrpc: "2.0",
-        id: 1,
-        method: "initialize",
-        params: {
-          clientInfo: {
-            name: "synara-desktop",
-            title: "Synara Desktop",
-            version: app.getVersion(),
-          },
-          capabilities: { experimentalApi: true },
-        },
-      });
-    }, 100);
-
-    setTimeout(() => {
-      rejectOnce(new Error("Timed out while reading ChatGPT auth from Codex."));
-    }, 10_000).unref();
-  });
+  throw new Error("语音转写需要 OpenCode ChatGPT 登录。请运行 `opencode providers login` 后重试。");
 }
 
 // --- Network upload --------------------------------------------------------
@@ -224,7 +191,7 @@ async function requestDesktopVoiceTranscription(input: {
     request.setHeader("Content-Type", `multipart/form-data; boundary=${boundary}`);
 
     request.once("error", (error) => {
-      reject(new Error(`Voice transcription request failed: ${error.message}`));
+      reject(new Error(`语音转写请求失败：${error.message}`));
     });
     request.on("response", (response) => {
       let responseBody = "";
@@ -238,7 +205,7 @@ async function requestDesktopVoiceTranscription(input: {
         });
       });
       response.once("error", (error) => {
-        reject(new Error(`Voice transcription response failed: ${error.message}`));
+        reject(new Error(`语音转写响应失败：${error.message}`));
       });
     });
 
@@ -260,13 +227,13 @@ function readVoiceResponseErrorMessage(statusCode: number, body: string): string
   }
 
   if (statusCode === 401) {
-    return "Your ChatGPT login has expired. Sign in again.";
+    return "ChatGPT 登录已过期，请重新登录。";
   }
   if (statusCode === 403) {
-    return "ChatGPT rejected the transcription request. Your Codex login is present, but this desktop upload was forbidden.";
+    return "ChatGPT 拒绝了转写请求。OpenCode 登录有效，但桌面端上传被拒绝。";
   }
 
-  return `Transcription failed with status ${statusCode}.`;
+  return `转写失败，状态码 ${statusCode}。`;
 }
 
 // --- IPC entrypoint --------------------------------------------------------
@@ -275,7 +242,7 @@ async function transcribeVoiceViaDesktopBridge(
   input: ServerVoiceTranscriptionInput,
 ): Promise<ServerVoiceTranscriptionResult> {
   const audioBuffer = decodeDesktopVoiceAudio(input);
-  const auth = await resolveDesktopVoiceAuth(input.cwd?.trim() || process.cwd());
+  const auth = await resolveDesktopVoiceAuth();
   const response = await requestDesktopVoiceTranscription({
     audioBuffer,
     mimeType: input.mimeType,
@@ -289,7 +256,7 @@ async function transcribeVoiceViaDesktopBridge(
   const payload = JSON.parse(response.body) as { text?: unknown; transcript?: unknown };
   const text = readNonEmptyString(payload.text) ?? readNonEmptyString(payload.transcript);
   if (!text) {
-    throw new Error("The transcription response did not include any text.");
+    throw new Error("转写响应未包含文本。");
   }
 
   return { text };

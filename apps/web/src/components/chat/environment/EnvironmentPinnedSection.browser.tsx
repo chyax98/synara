@@ -40,11 +40,9 @@ describe("EnvironmentPinnedSection", () => {
       />,
     );
 
-    await page
-      .getByRole("button", { name: "Pinned message unavailable. Press Enter to rename." })
-      .click();
-    await page.getByPlaceholder("Label").fill("Recovered label");
-    document.querySelector<HTMLInputElement>('input[placeholder="Label"]')?.blur();
+    await page.getByRole("button", { name: "已固定消息不可用。按 Enter 重命名。" }).click();
+    await page.getByPlaceholder("标签").fill("Recovered label");
+    document.querySelector<HTMLInputElement>('input[placeholder="标签"]')?.blur();
 
     expect(onJump).not.toHaveBeenCalled();
     expect(onRename).toHaveBeenCalledWith(messageId("missing-message"), "Recovered label");
@@ -64,7 +62,7 @@ describe("EnvironmentPinnedSection", () => {
     );
 
     const labelButton = document.querySelector<HTMLButtonElement>(
-      'button[aria-label="Jump to pinned message. Press F2 to rename."]',
+      'button[aria-label="跳转到已固定消息。按 F2 重命名。"]',
     );
     expect(labelButton).not.toBeNull();
     labelButton?.dispatchEvent(

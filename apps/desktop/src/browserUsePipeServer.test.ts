@@ -16,10 +16,10 @@ import {
 } from "./browserUsePipeServer";
 
 describe("browser-use pipe path resolution", () => {
-  it("creates a discoverable unix socket path under the Codex browser-use directory", () => {
+  it("creates a discoverable unix socket path under the Synara browser-use directory", () => {
     const pipePath = resolveDefaultBrowserUsePipePath("darwin");
 
-    expect(dirname(pipePath)).toBe(`${tmpdir()}/codex-browser-use`);
+    expect(dirname(pipePath)).toBe(`${tmpdir()}/synara-browser-use`);
     expect(basename(pipePath)).toMatch(/^synara-iab-\d+\.sock$/);
   });
 

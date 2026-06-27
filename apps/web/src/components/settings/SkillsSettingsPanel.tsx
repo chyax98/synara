@@ -1,8 +1,7 @@
 // FILE: SkillsSettingsPanel.tsx
-// Purpose: Settings → Skills panel. Lists every skill from the unified cross-provider
-// catalog (~/.synara/skills plus each provider's skills folder), shows which provider
-// a skill comes from, and lets the user enable/disable each one. Disabled skills are
-// hidden from the composer skill picker on every provider.
+// Purpose: Settings → Skills panel. Lists every skill from the OpenCode skills catalog
+// (~/.synara/skills plus OpenCode skills folders), shows origin metadata, and lets the
+// user enable/disable each one. Disabled skills are hidden from the composer skill picker.
 
 import type { ProviderKind, ServerSettings } from "@t3tools/contracts";
 import { useQuery, useQueryClient } from "@tanstack/react-query";

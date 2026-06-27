@@ -903,7 +903,7 @@ function ProjectSortMenu({
       >
         <MenuGroup>
           <div className="px-2 py-1 sm:text-xs font-medium text-muted-foreground">
-            Sort projects
+            排序项目
           </div>
           <MenuRadioGroup
             value={projectSortOrder}
@@ -922,7 +922,7 @@ function ProjectSortMenu({
         </MenuGroup>
         <MenuGroup>
           <div className="px-2 pt-2 pb-1 sm:text-xs font-medium text-muted-foreground">
-            Sort threads
+            排序对话
           </div>
           <ThreadSortMenuItems
             threadSortOrder={threadSortOrder}
@@ -1628,7 +1628,7 @@ export default function Sidebar() {
         });
         toastManager.add({
           type: "error",
-          title: isPinned ? "Unable to unpin thread" : "Unable to pin thread",
+          title: isPinned ? "无法取消固定对话" : "无法固定对话",
         });
       });
     },
@@ -1678,7 +1678,7 @@ export default function Sidebar() {
     void api.shell.openExternal(prUrl).catch((error) => {
       toastManager.add({
         type: "error",
-        title: "Unable to open PR link",
+        title: "无法打开 PR 链接",
         description: error instanceof Error ? error.message : "An error occurred.",
       });
     });
@@ -1808,7 +1808,7 @@ export default function Sidebar() {
         });
         toastManager.add({
           type: "error",
-          title: isPinned ? "Unable to unpin project" : "Unable to pin project",
+          title: isPinned ? "无法取消固定项目" : "无法固定项目",
           description: error instanceof Error ? error.message : undefined,
         });
       });
@@ -2404,18 +2404,17 @@ export default function Sidebar() {
           setAddProjectError(description);
           toastManager.add({
             type: "error",
-            title: "Unable to add project",
+            title: "无法添加项目",
             description,
           });
         });
       }
     } catch (error) {
-      const description =
-        error instanceof Error ? error.message : "Unable to open the folder picker.";
+      const description = error instanceof Error ? error.message : "无法打开文件夹选择器。";
       setAddProjectError(description);
       toastManager.add({
         type: "error",
-        title: "Unable to open folder picker",
+        title: "无法打开文件夹选择器",
         description,
       });
       setIsPickingFolder(false);
@@ -3267,7 +3266,7 @@ export default function Sidebar() {
           }
           toastManager.add({
             type: "error",
-            title: "Unable to open terminal",
+            title: "无法打开终端",
             description:
               error instanceof Error ? error.message : "The terminal could not be opened.",
           });
@@ -3477,7 +3476,7 @@ export default function Sidebar() {
         toastManager.add({
           type: "error",
           title: `Failed to run "${project.name}"`,
-          description: error instanceof Error ? error.message : "Unable to start the run command.",
+          description: error instanceof Error ? error.message : "无法启动运行命令。",
         });
       }
     },
@@ -3514,7 +3513,7 @@ export default function Sidebar() {
         toastManager.add({
           type: "error",
           title: "Failed to stop run",
-          description: error instanceof Error ? error.message : "Unable to stop the dev server.",
+          description: error instanceof Error ? error.message : "无法停止开发服务器。",
         });
       } finally {
         void queryClient.invalidateQueries({ queryKey: serverQueryKeys.localServers() });
@@ -3535,8 +3534,8 @@ export default function Sidebar() {
     } catch (error) {
       toastManager.add({
         type: "error",
-        title: `Unable to open ${localServerAddressLabel(server)}`,
-        description: error instanceof Error ? error.message : "Unable to open the local server.",
+        title: `无法打开 ${localServerAddressLabel(server)}`,
+        description: error instanceof Error ? error.message : "无法打开本地服务器。",
       });
     }
   }, []);
@@ -3555,7 +3554,7 @@ export default function Sidebar() {
         } catch (error) {
           toastManager.add({
             type: "error",
-            title: "Unable to open in Finder",
+            title: "无法在 Finder 中打开",
             description:
               error instanceof Error
                 ? error.message
@@ -5690,8 +5689,8 @@ export default function Sidebar() {
           if (nextState.status === "available") {
             toastManager.add({
               type: "info",
-              title: "Preparing update",
-              description: `Synara is preparing version ${nextState.availableVersion ?? "available"} in the background.`,
+              title: "正在准备更新",
+              description: `Synara 正在后台准备版本 ${nextState.availableVersion ?? "可用"}。`,
             });
             return;
           }
@@ -5699,8 +5698,8 @@ export default function Sidebar() {
           if (nextState.status === "downloading") {
             toastManager.add({
               type: "info",
-              title: "Preparing update",
-              description: "Synara is downloading the update in the background.",
+              title: "正在准备更新",
+              description: "Synara 正在后台下载更新。",
             });
             return;
           }
@@ -6143,7 +6142,7 @@ export default function Sidebar() {
                 {pinnedThreads.length > 0 ? (
                   <div className="mb-3">
                     <div className="my-1 flex items-center justify-between px-2 py-1">
-                      <span className={SIDEBAR_SECTION_LABEL_CLASS_NAME}>Pinned</span>
+                      <span className={SIDEBAR_SECTION_LABEL_CLASS_NAME}>已固定</span>
                     </div>
                     <div className="flex flex-col gap-0.5">
                       {pinnedThreads.map((thread) => renderPinnedThreadRow(thread))}

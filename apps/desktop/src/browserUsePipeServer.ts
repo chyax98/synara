@@ -1,5 +1,5 @@
 // FILE: browserUsePipeServer.ts
-// Purpose: Exposes the in-app browser over a Codex-compatible browser-use native pipe.
+// Purpose: Exposes the in-app browser over an OpenCode-compatible browser-use native pipe.
 // Layer: Desktop browser automation bridge
 // Depends on: DesktopBrowserManager and Node net server primitives
 
@@ -17,7 +17,7 @@ const BROWSER_USE_MAX_MESSAGE_BYTES = 8 * 1024 * 1024;
 const BROWSER_USE_INITIAL_URL = "about:blank";
 const BROWSER_USE_PANEL_READY_TIMEOUT_MS = 2_000;
 const BROWSER_USE_PANEL_READY_POLL_MS = 50;
-const BROWSER_USE_PIPE_DIR = "codex-browser-use";
+const BROWSER_USE_PIPE_DIR = "synara-browser-use";
 const BROWSER_USE_PIPE_NAME_PREFIX = "synara-iab";
 export const SYNARA_BROWSER_USE_PIPE_ENV = "SYNARA_BROWSER_USE_PIPE_PATH";
 export const DPCODE_BROWSER_USE_PIPE_ENV = "DPCODE_BROWSER_USE_PIPE_PATH";
@@ -44,7 +44,7 @@ interface BrowserUsePipeServerOptions {
 
 export function resolveDefaultBrowserUsePipePath(platform = process.platform): string {
   if (platform === "win32") {
-    return String.raw`\\.\pipe\codex-browser-use-${BROWSER_USE_PIPE_NAME_PREFIX}-${process.pid}`;
+    return String.raw`\\.\pipe\synara-browser-use-${BROWSER_USE_PIPE_NAME_PREFIX}-${process.pid}`;
   }
   return Path.join(
     OS.tmpdir(),
@@ -274,7 +274,7 @@ export class BrowserUsePipeServer {
           name: "Synara In-app Browser",
           version: "0.1.0",
           type: "iab",
-          ...(sessionId ? { metadata: { codexSessionId: sessionId } } : {}),
+          ...(sessionId ? { metadata: { opencodeSessionId: sessionId } } : {}),
         };
       case "getTabs":
         return this.getTabsForSession(requireSessionId(params));
