@@ -20,9 +20,7 @@ import { TbExchange } from "react-icons/tb";
 import type { ThreadPrimarySurface } from "../../types";
 import GitActionsControl from "../GitActionsControl";
 import {
-  ArrowRightIcon,
   CheckIcon,
-  HandoffIcon,
   HistoryIcon,
   MessageCircleIcon,
   PanelRightCloseIcon,
@@ -33,13 +31,11 @@ import {
 import { formatRelativeTime } from "~/lib/relativeTime";
 import {
   CHAT_HEADER_TOGGLE_CLASS_NAME,
-  ChatHeaderButton,
   ChatHeaderIconButton,
   SurfaceChipIcon,
   SurfaceTabChip,
 } from "./chatHeaderControls";
 import { IconButton } from "../ui/icon-button";
-import { Badge } from "../ui/badge";
 import { Menu, MenuItem, MenuTrigger } from "../ui/menu";
 import { ComposerPickerMenuPopup } from "./ComposerPickerMenuPopup";
 import { OpenInPicker } from "./OpenInPicker";
@@ -83,7 +79,6 @@ interface ChatHeaderProps {
   }>;
   className?: string;
   hideSidebarControls?: boolean;
-  hideHandoffControls?: boolean;
   isGitRepo: boolean;
   openInTarget: string | null;
   activeProjectScripts: ProjectScript[] | undefined;
@@ -91,12 +86,6 @@ interface ChatHeaderProps {
   keybindings: ResolvedKeybindingsConfig;
   availableEditors: ReadonlyArray<EditorId>;
   diffToggleShortcutLabel: string | null;
-  handoffBadgeLabel?: string | null;
-  handoffActionLabel?: string;
-  handoffDisabled?: boolean;
-  handoffActionTargetProviders?: ReadonlyArray<ProviderKind>;
-  handoffBadgeSourceProvider?: ProviderKind | null;
-  handoffBadgeTargetProvider?: ProviderKind | null;
   gitCwd: string | null;
   diffTotals: RepoDiffTotals;
   showGitActions?: boolean;
@@ -137,7 +126,6 @@ interface ChatHeaderProps {
   onUpdateProjectScript: (scriptId: string, input: NewProjectScriptInput) => Promise<void>;
   onDeleteProjectScript: (scriptId: string) => Promise<void>;
   onToggleDiff: () => void;
-  onCreateHandoff?: (targetProvider: ProviderKind) => void;
   onNavigateToThread: (threadId: ThreadId) => void;
   onRenameThread: () => void;
   onCloseThreadPane?: () => void;
@@ -484,7 +472,6 @@ export const ChatHeader = memo(function ChatHeader({
   threadBreadcrumbs,
   className,
   hideSidebarControls = false,
-  hideHandoffControls = false,
   isGitRepo,
   openInTarget,
   activeProjectScripts,
@@ -492,12 +479,6 @@ export const ChatHeader = memo(function ChatHeader({
   keybindings,
   availableEditors,
   diffToggleShortcutLabel,
-  handoffBadgeLabel = null,
-  handoffActionLabel = "移交",
-  handoffDisabled = true,
-  handoffActionTargetProviders = [],
-  handoffBadgeSourceProvider = null,
-  handoffBadgeTargetProvider = null,
   gitCwd,
   diffTotals,
   showGitActions = true,
@@ -515,7 +496,6 @@ export const ChatHeader = memo(function ChatHeader({
   onUpdateProjectScript,
   onDeleteProjectScript,
   onToggleDiff,
-  onCreateHandoff,
   onNavigateToThread,
   onRenameThread,
   onCloseThreadPane,
@@ -718,65 +698,11 @@ export const ChatHeader = memo(function ChatHeader({
                   onNavigateToThread={onNavigateToThread}
                 />
               ) : null}
-              {!hideHandoffControls && handoffBadgeLabel ? (
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <Badge
-                        variant="outline"
-                        className="hidden !h-6 shrink-0 items-center justify-center gap-1 rounded-md px-1.5 text-[10px] sm:inline-flex"
-                      >
-                        <span className="inline-flex size-4 shrink-0 items-center justify-center">
-                          {renderProviderIcon(handoffBadgeSourceProvider, "size-3")}
-                        </span>
-                        <ArrowRightIcon className="size-2.5 shrink-0 opacity-45" />
-                        <span className="inline-flex size-4 shrink-0 items-center justify-center">
-                          {renderProviderIcon(handoffBadgeTargetProvider, "size-3")}
-                        </span>
-                      </Badge>
-                    }
-                  />
-                  <TooltipPopup side="bottom">{handoffBadgeLabel}</TooltipPopup>
-                </Tooltip>
-              ) : null}
             </div>
           </div>
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-2 [-webkit-app-region:no-drag]">
-        {!isDisposableThread && !hideHandoffControls ? (
-          <Menu modal={false}>
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <MenuTrigger
-                    render={
-                      <ChatHeaderButton
-                        type="button"
-                        tone="outline"
-                        className={compact ? "gap-1" : "gap-1.5"}
-                        aria-label={handoffActionLabel}
-                        disabled={handoffDisabled || handoffActionTargetProviders.length === 0}
-                      />
-                    }
-                  >
-                    <HandoffIcon className="size-[1em] shrink-0 opacity-80" />
-                    {!compact ? <span className="truncate font-normal">移交</span> : null}
-                  </MenuTrigger>
-                }
-              />
-              <TooltipPopup side="bottom">{handoffActionLabel}</TooltipPopup>
-            </Tooltip>
-            <ComposerPickerMenuPopup align="end" side="bottom" className="w-48 min-w-48">
-              {handoffActionTargetProviders.map((provider) => (
-                <MenuItem key={provider} onClick={() => onCreateHandoff?.(provider)}>
-                  {renderProviderIcon(provider, "size-3.5 shrink-0")}
-                  <span>Handoff to {PROVIDER_DISPLAY_NAMES[provider]}</span>
-                </MenuItem>
-              ))}
-            </ComposerPickerMenuPopup>
-          </Menu>
-        ) : null}
         {/* Keep the shared project-action dialog mounted for the Open-in picker's
             "Add action" entry, but hide the inline quick-run button (play + chevron)
             from the header. */}
