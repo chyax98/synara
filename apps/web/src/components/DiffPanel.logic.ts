@@ -3,12 +3,7 @@
 // Exports: resolveDiffPanelThread, diff view source helpers
 // Depends on: ChatView.logic draft-thread normalization.
 
-import {
-  DEFAULT_MODEL_BY_PROVIDER,
-  type ModelSelection,
-  type ThreadId,
-  type TurnId,
-} from "@t3tools/contracts";
+import { type ModelSelection, type ThreadId, type TurnId } from "@t3tools/contracts";
 import type { FileDiffMetadata } from "@pierre/diffs/react";
 
 import type { DraftThreadState } from "../composerDraftStore";
@@ -61,7 +56,7 @@ export function resolveDiffPanelThread(input: {
     input.draftThread,
     input.fallbackModelSelection ?? {
       provider: "opencode",
-      model: DEFAULT_MODEL_BY_PROVIDER.opencode,
+      model: "",
     },
     null,
   );

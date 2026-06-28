@@ -1,11 +1,12 @@
 // FILE: ModelProvidersSettingsPanel.tsx
-// Purpose: OpenCode provider connection and per-model visibility (Synara settings style).
+// Purpose: OpenCode provider connection, custom models, and per-model visibility (Synara settings style).
 // Layer: Settings UI
 
 import { useMemo } from "react";
 
 import { Button } from "~/components/ui/button";
 import { Switch } from "~/components/ui/switch";
+import { CustomOpenCodeModelsSection } from "~/components/settings/CustomOpenCodeModelsSection";
 import { OpenCodeRuntimeSettingsRows } from "~/components/settings/OpenCodeRuntimeSettingsRows";
 import { ProviderAuthSettingsPanel } from "~/components/settings/ProviderAuthSettingsPanel";
 import { SettingsRow, SettingsSection } from "~/components/settings/SettingsPanelPrimitives";
@@ -26,6 +27,9 @@ export function ModelProvidersSettingsPanel() {
     () => catalog.sidebarGroups.filter((group) => catalog.connectedProviderIds.has(group.id)),
     [catalog.connectedProviderIds, catalog.sidebarGroups],
   );
+
+  const discoveredModelCount = catalog.dynamicModels.length;
+  const customModelCount = settings.customOpenCodeModels.length;
 
   const setModelVisible = (slug: string, visible: boolean) => {
     const ref = parseOpenCodeModelSlug(slug);
@@ -57,98 +61,77 @@ export function ModelProvidersSettingsPanel() {
     </SettingsSection>
   );
 
-  if (catalog.isLoading) {
-    return (
-      <div className="space-y-8">
-        {runtimeSettings}
-        <SettingsSection title="模型目录">
-          <SettingsRow
-            title="正在加载模型目录"
-            description="正在通过 OpenCode SDK 拉取提供商与模型列表。"
-          />
-        </SettingsSection>
-      </div>
-    );
-  }
+  const catalogStatusRow = (() => {
+    if (catalog.isLoading) {
+      return (
+        <SettingsRow
+          title="正在加载模型目录"
+          description="正在通过 OpenCode SDK 拉取提供商与模型列表。"
+        />
+      );
+    }
 
-  if (catalog.isError) {
-    return (
-      <div className="space-y-8">
-        {runtimeSettings}
-        <SettingsSection title="模型目录">
-          <SettingsRow
-            title="无法加载模型目录"
-            description="Synara 通过 OpenCode SDK Server 读取模型目录（不是手写模型列表）。请检查上方可执行文件路径是否正确，或填写已运行的 OpenCode Server URL。"
-            status={
-              catalog.errorMessage ? (
-                <code className="block break-all text-[11px] text-destructive">
-                  {catalog.errorMessage}
-                </code>
-              ) : null
-            }
-            control={
-              <Button
-                type="button"
-                size="xs"
-                variant="outline"
-                onClick={() => void catalog.refreshCatalog()}
-              >
-                重试
-              </Button>
-            }
-          />
-        </SettingsSection>
-      </div>
-    );
-  }
+    if (catalog.isError) {
+      return (
+        <SettingsRow
+          title="无法加载模型目录"
+          description="请检查上方 OpenCode 可执行文件路径是否正确。若你已手动添加自定义模型，它们仍会出现在下方列表与输入区选单中。"
+          status={
+            catalog.errorMessage ? (
+              <code className="block break-all text-[11px] text-destructive">
+                {catalog.errorMessage}
+              </code>
+            ) : null
+          }
+          control={
+            <Button
+              type="button"
+              size="xs"
+              variant="outline"
+              onClick={() => void catalog.refreshCatalog()}
+            >
+              重试
+            </Button>
+          }
+        />
+      );
+    }
 
-  if (catalog.catalogOptions.length === 0) {
+    if (discoveredModelCount === 0 && customModelCount === 0) {
+      return (
+        <SettingsRow
+          title="暂无可用模型"
+          description="请连接至少一个 OpenCode 上游提供商，或在下方手动添加自定义模型代号。"
+        />
+      );
+    }
+
     return (
-      <div className="space-y-8">
-        {runtimeSettings}
-        <SettingsSection title="模型目录">
-          <SettingsRow
-            title="暂无可用模型"
-            description="请先在下方连接至少一个 OpenCode 上游提供商。连接成功后，模型会出现在此列表，之后才能在输入区与其他默认项中选择。"
-          />
-        </SettingsSection>
-        {catalog.unconnectedProviders.length > 0 ? (
-          <SettingsSection title="连接提供商">
-            {catalog.unconnectedProviders.map((provider) => (
-              <SettingsRow key={provider.id} title={provider.name} description={provider.id}>
-                <ProviderAuthSettingsPanel
-                  variant="inline"
-                  providerId={provider.id}
-                  providerName={provider.name}
-                  connected={false}
-                  connection={catalog.connection}
-                  authMethods={catalog.authMethodsByProvider[provider.id] ?? []}
-                  onAuthChanged={catalog.refreshCatalog}
-                />
-              </SettingsRow>
-            ))}
-          </SettingsSection>
-        ) : null}
-      </div>
+      <SettingsRow
+        title="OpenCode 模型源"
+        description={
+          discoveredModelCount > 0
+            ? "显示本机 OpenCode 已发现的模型。开启可见后才能在输入区与默认聊天模型等处选用。"
+            : "OpenCode 尚未返回模型。你仍可手动添加自定义模型，并在连接提供商后刷新目录。"
+        }
+        control={
+          <span className="text-xs font-medium text-muted-foreground">
+            {catalog.isDiscoveryPending
+              ? "正在同步…"
+              : `${catalog.visibleOptions.length} / ${catalog.catalogOptions.length} 可选`}
+          </span>
+        }
+      />
     );
-  }
+  })();
 
   return (
     <div className="space-y-8">
       {runtimeSettings}
-      <SettingsSection title="模型目录">
-        <SettingsRow
-          title="OpenCode 模型源"
-          description="仅显示本机 OpenCode 已发现的模型。在此开启可见后，才能在输入区、默认聊天模型等处选用。"
-          control={
-            <span className="text-xs font-medium text-muted-foreground">
-              {catalog.isDiscoveryPending
-                ? "正在同步…"
-                : `${catalog.visibleOptions.length} / ${catalog.catalogOptions.length} 可选`}
-            </span>
-          }
-        />
-      </SettingsSection>
+
+      <CustomOpenCodeModelsSection />
+
+      <SettingsSection title="模型目录">{catalogStatusRow}</SettingsSection>
 
       {connectedGroups.map((group) => {
         const counts = providerGroupVisibleCount(group, settings.hiddenModels);

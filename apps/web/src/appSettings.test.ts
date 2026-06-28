@@ -51,6 +51,12 @@ describe("normalizeCustomModelSlugs", () => {
       "claude/custom-sonnet",
     ]);
   });
+
+  it("drops slugs that are not providerID/modelID", () => {
+    expect(normalizeCustomModelSlugs(["gpt-5", "anthropic/claude-sonnet-4"], "opencode")).toEqual([
+      "anthropic/claude-sonnet-4",
+    ]);
+  });
 });
 
 describe("getAppModelOptions", () => {
@@ -71,11 +77,11 @@ describe("getAppModelOptions", () => {
     });
   });
 
-  it("formats unknown GPT custom models with a readable label", () => {
-    const options = getAppModelOptions("opencode", ["gpt-5.1-codex-max"]);
+  it("formats custom OpenCode slugs with a readable label", () => {
+    const options = getAppModelOptions("opencode", ["openai/gpt-5.1-codex-max"]);
 
     expect(options.at(-1)).toEqual({
-      slug: "gpt-5.1-codex-max",
+      slug: "openai/gpt-5.1-codex-max",
       name: "GPT-5.1 Codex Max",
       provider: "opencode",
       isCustom: true,

@@ -1,4 +1,4 @@
-import { DEFAULT_MODEL_BY_PROVIDER, type ModelSelection } from "@t3tools/contracts";
+import { type ModelSelection } from "@t3tools/contracts";
 import { workspaceRootsEqual } from "@t3tools/shared/threadWorkspace";
 
 import type { Project } from "../types";
@@ -39,10 +39,16 @@ function buildProjectTitleFromWorkspaceRoot(workspaceRoot: string): string {
   return workspaceRoot.split(/[/\\]/).findLast((segment) => segment.length > 0) ?? workspaceRoot;
 }
 
+const EMPTY_OPENCODE_MODEL_SELECTION: ModelSelection = {
+  provider: "opencode",
+  model: "",
+};
+
 export function resolveFirstSendTarget(input: {
   activeProject: Project;
   chatWorkspaceRoot: string | null;
   createdAt: Date;
+  defaultModelSelection?: ModelSelection | null;
   isFirstMessage: boolean;
   isHomeChatContainer: boolean;
   projects: readonly Project[];
@@ -61,6 +67,8 @@ export function resolveFirstSendTarget(input: {
     title,
     titleSeed,
   } = input;
+  const resolvedDefaultModelSelection =
+    input.defaultModelSelection ?? EMPTY_OPENCODE_MODEL_SELECTION;
 
   if (!isFirstMessage || !isHomeChatContainer) {
     return {
@@ -90,10 +98,7 @@ export function resolveFirstSendTarget(input: {
         title,
         kind: "chat",
         createWorkspaceRootIfMissing: true,
-        defaultModelSelection: {
-          provider: "opencode",
-          model: DEFAULT_MODEL_BY_PROVIDER.opencode,
-        },
+        defaultModelSelection: resolvedDefaultModelSelection,
       },
     };
   }
@@ -116,10 +121,7 @@ export function resolveFirstSendTarget(input: {
       title: buildProjectTitleFromWorkspaceRoot(selectedWorkspaceRoot),
       kind: "project",
       createWorkspaceRootIfMissing: false,
-      defaultModelSelection: {
-        provider: "opencode",
-        model: DEFAULT_MODEL_BY_PROVIDER.opencode,
-      },
+      defaultModelSelection: resolvedDefaultModelSelection,
     },
   };
 }

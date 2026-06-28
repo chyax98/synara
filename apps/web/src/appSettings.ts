@@ -19,7 +19,11 @@ import {
 import { getModelOptions, normalizeModelSlug, resolveSelectableModel } from "@t3tools/shared/model";
 import { getLocalStorageItem, useLocalStorage } from "./hooks/useLocalStorage";
 import { EnvMode } from "./components/BranchToolbar.logic";
-import { type HiddenModelRef, normalizeHiddenModelRefs } from "./lib/modelCatalogSettings";
+import {
+  type HiddenModelRef,
+  normalizeHiddenModelRefs,
+  parseOpenCodeModelSlug,
+} from "./lib/modelCatalogSettings";
 import { formatProviderModelOptionName, type ProviderModelOption } from "./providerModelOptions";
 import {
   DEFAULT_PROVIDER_ORDER,
@@ -205,7 +209,7 @@ const PROVIDER_CUSTOM_MODEL_CONFIG: Record<ProviderKind, ProviderCustomModelConf
     title: "OpenCode",
     description: "为选择器与提供商运行时保存额外的 OpenCode 模型代号。",
     placeholder: "提供商/模型",
-    example: "openai/gpt-5",
+    example: "anthropic/claude-sonnet-4",
   },
 } as Record<ProviderKind, ProviderCustomModelConfig>;
 
@@ -220,18 +224,19 @@ export function normalizeCustomModelSlugs(
   const builtInModelSlugs = BUILT_IN_MODEL_SLUGS_BY_PROVIDER[provider];
 
   for (const candidate of models) {
-    const normalized = normalizeModelSlug(candidate, provider);
+    const trimmed = typeof candidate === "string" ? candidate.trim() : "";
     if (
-      !normalized ||
-      normalized.length > MAX_CUSTOM_MODEL_LENGTH ||
-      builtInModelSlugs.has(normalized) ||
-      seen.has(normalized)
+      !trimmed ||
+      trimmed.length > MAX_CUSTOM_MODEL_LENGTH ||
+      !parseOpenCodeModelSlug(trimmed) ||
+      builtInModelSlugs.has(trimmed) ||
+      seen.has(trimmed)
     ) {
       continue;
     }
 
-    seen.add(normalized);
-    normalizedModels.push(normalized);
+    seen.add(trimmed);
+    normalizedModels.push(trimmed);
     if (normalizedModels.length >= MAX_CUSTOM_MODEL_COUNT) {
       break;
     }

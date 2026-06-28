@@ -251,8 +251,8 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   {
     id: "models:saved-model-slugs",
     section: "models",
-    title: "已保存模型代号",
-    keywords: "为支持的提供商添加自定义模型代号。",
+    title: "自定义模型",
+    keywords: "手动添加 OpenCode 模型代号 providerID modelID 自定义模型",
   },
 
   // ── Skills ────────────────────────────────────────────────────────────────────

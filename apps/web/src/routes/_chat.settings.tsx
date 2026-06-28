@@ -3,14 +3,9 @@
 // Layer: Route screen
 // Exports: Settings route component for `/settings`
 
-import {
-  type ProviderKind,
-  type ThreadId,
-  DEFAULT_GIT_TEXT_GENERATION_MODEL,
-} from "@t3tools/contracts";
+import { type ThreadId, DEFAULT_GIT_TEXT_GENERATION_MODEL } from "@t3tools/contracts";
 import { createFileRoute, useSearch } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { normalizeModelSlug } from "@t3tools/shared/model";
 import { type RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   type AppSettings,
@@ -18,15 +13,11 @@ import {
   type UiDensity,
   MAX_CHAT_FONT_SIZE_PX,
   MAX_TERMINAL_FONT_SIZE_PX,
-  getCustomModelsForProvider,
-  MAX_CUSTOM_MODEL_LENGTH,
   MIN_CHAT_FONT_SIZE_PX,
   MIN_TERMINAL_FONT_SIZE_PX,
-  MODEL_PROVIDER_SETTINGS,
   normalizeChatFontSizePx,
   normalizeTerminalFontFamily,
   normalizeTerminalFontSizePx,
-  patchCustomModels,
   TERMINAL_FONT_FAMILY_SUGGESTIONS,
   useAppSettings,
 } from "../appSettings";
@@ -42,7 +33,6 @@ import {
   AutocompletePopup,
 } from "../components/ui/autocomplete";
 import { Button } from "../components/ui/button";
-
 import { Input } from "../components/ui/input";
 import {
   SettingResetButton,
@@ -92,10 +82,8 @@ import {
   ChevronDownIcon,
   DeviceLaptopIcon,
   MoonIcon,
-  PlusIcon,
   RotateCcwIcon,
   SunIcon,
-  XIcon,
 } from "../lib/icons";
 import {
   serverConfigQueryOptions,
@@ -117,7 +105,6 @@ import {
   SETTINGS_TARGETS,
 } from "../settingsNavigation";
 import {
-  SETTINGS_CARD_ROW_DIVIDER_CLASS_NAME,
   SETTINGS_EMPTY_STATE_CLASS_NAME,
   SETTINGS_INSET_LIST_CLASS_NAME,
   SETTINGS_PAGE_BACKGROUND_CLASS_NAME,
@@ -192,8 +179,6 @@ const SIDEBAR_THREAD_SORT_ORDER_LABELS = {
   updated_at: "最近活跃",
   created_at: "最新优先",
 } as const;
-
-const CUSTOM_MODEL_PROVIDER: ProviderKind = "opencode";
 
 // ── Settings UI primitives ────────────────────────────────────────────────
 
@@ -273,11 +258,6 @@ function SettingsRouteView() {
 
   const [openKeybindingsError, setOpenKeybindingsError] = useState<string | null>(null);
   const environmentPanelRef = useRef<HTMLDivElement | null>(null);
-  const [customModelInput, setCustomModelInput] = useState("");
-  const [customModelErrorByProvider, setCustomModelErrorByProvider] = useState<
-    Partial<Record<ProviderKind, string | null>>
-  >({});
-  const [showAllCustomModels, setShowAllCustomModels] = useState(false);
   const [browserNotificationPermission, setBrowserNotificationPermission] = useState(
     readBrowserNotificationPermissionState(),
   );
@@ -360,26 +340,6 @@ function SettingsRouteView() {
   const isGitTextGenerationModelDirty =
     currentGitTextGenerationProvider !== defaultGitTextGenerationProvider ||
     currentGitTextGenerationModel !== defaultGitTextGenerationModel;
-  const selectedCustomModelProviderSettings = MODEL_PROVIDER_SETTINGS.find(
-    (providerSettings) => providerSettings.provider === CUSTOM_MODEL_PROVIDER,
-  )!;
-  const selectedCustomModelError = customModelErrorByProvider[CUSTOM_MODEL_PROVIDER] ?? null;
-  const totalCustomModels = settings.customOpenCodeModels.length;
-  const savedCustomModelRows = useMemo(
-    () =>
-      MODEL_PROVIDER_SETTINGS.flatMap((providerSettings) =>
-        getCustomModelsForProvider(settings, providerSettings.provider).map((slug) => ({
-          key: `${providerSettings.provider}:${slug}`,
-          provider: providerSettings.provider,
-          providerTitle: providerSettings.title,
-          slug,
-        })),
-      ),
-    [settings],
-  );
-  const visibleCustomModelRows = showAllCustomModels
-    ? savedCustomModelRows
-    : savedCustomModelRows.slice(0, 5);
   const changedSettingLabels = [
     ...(theme !== "system" ? ["主题"] : []),
     ...(!isDefaultActiveTheme ? [`${resolvedTheme === "dark" ? "深色" : "浅色"}主题包`] : []),
@@ -448,59 +408,6 @@ function SettingsRouteView() {
     setBrowserNotificationPermission(readBrowserNotificationPermissionState());
   }, []);
 
-  const addCustomModel = useCallback(
-    (provider: ProviderKind) => {
-      const customModels = getCustomModelsForProvider(settings, provider);
-      const normalized = normalizeModelSlug(customModelInput, provider);
-      if (!normalized) {
-        setCustomModelErrorByProvider((existing) => ({
-          ...existing,
-          [provider]: "请输入 providerID/modelID 格式的模型代号。",
-        }));
-        return;
-      }
-      if (normalized.length > MAX_CUSTOM_MODEL_LENGTH) {
-        setCustomModelErrorByProvider((existing) => ({
-          ...existing,
-          [provider]: `Model slugs must be ${MAX_CUSTOM_MODEL_LENGTH} characters or less.`,
-        }));
-        return;
-      }
-      if (customModels.includes(normalized)) {
-        setCustomModelErrorByProvider((existing) => ({
-          ...existing,
-          [provider]: "该模型代号已存在。",
-        }));
-        return;
-      }
-
-      updateSettings(patchCustomModels(provider, [...customModels, normalized]));
-      setCustomModelInput("");
-      setCustomModelErrorByProvider((existing) => ({
-        ...existing,
-        [provider]: null,
-      }));
-    },
-    [customModelInput, settings, updateSettings],
-  );
-
-  const removeCustomModel = useCallback(
-    (provider: ProviderKind, slug: string) => {
-      const customModels = getCustomModelsForProvider(settings, provider);
-      updateSettings(
-        patchCustomModels(
-          provider,
-          customModels.filter((model) => model !== slug),
-        ),
-      );
-      setCustomModelErrorByProvider((existing) => ({
-        ...existing,
-        [provider]: null,
-      }));
-    },
-    [settings, updateSettings],
-  );
-
   async function restoreDefaults() {
     if (changedSettingLabels.length === 0) return;
 
@@ -513,9 +420,6 @@ function SettingsRouteView() {
     setTheme("system");
     resetAllThemes();
     resetSettings();
-    setCustomModelInput("");
-    setCustomModelErrorByProvider({});
-    setShowAllCustomModels(false);
     setShowRecoveryTools(false);
     setOpenKeybindingsError(null);
   }
@@ -1634,100 +1538,6 @@ function SettingsRouteView() {
             })
           }
         />
-      </SettingsSection>
-
-      <SettingsSection title="自定义模型">
-        <SettingsRow
-          title="已保存模型代号"
-          description="手动添加 OpenCode 尚未发现的模型代号（providerID/modelID）。添加后会出现在模型目录中。"
-          resetAction={
-            totalCustomModels > 0 ? (
-              <SettingResetButton
-                label="自定义模型"
-                onClick={() => {
-                  updateSettings({
-                    customOpenCodeModels: defaults.customOpenCodeModels,
-                  });
-                  setCustomModelErrorByProvider({});
-                  setShowAllCustomModels(false);
-                }}
-              />
-            ) : null
-          }
-        >
-          <div className={cn("mt-4 pt-4", SETTINGS_CARD_ROW_DIVIDER_CLASS_NAME)}>
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <Input
-                id="custom-model-slug"
-                size="sm"
-                variant="soft"
-                value={customModelInput}
-                onChange={(event) => {
-                  const value = event.target.value;
-                  setCustomModelInput(value);
-                  if (selectedCustomModelError) {
-                    setCustomModelErrorByProvider((existing) => ({
-                      ...existing,
-                      [CUSTOM_MODEL_PROVIDER]: null,
-                    }));
-                  }
-                }}
-                onKeyDown={(event) => {
-                  if (event.key !== "Enter") return;
-                  event.preventDefault();
-                  addCustomModel(CUSTOM_MODEL_PROVIDER);
-                }}
-                placeholder={selectedCustomModelProviderSettings.example}
-                spellCheck={false}
-              />
-              <Button
-                className="shrink-0"
-                variant="outline"
-                onClick={() => addCustomModel(CUSTOM_MODEL_PROVIDER)}
-              >
-                <PlusIcon className="size-3.5" />
-                添加
-              </Button>
-            </div>
-
-            {selectedCustomModelError ? (
-              <p className="mt-2 text-xs text-destructive">{selectedCustomModelError}</p>
-            ) : null}
-
-            {totalCustomModels > 0 ? (
-              <div className={cn("mt-3", SETTINGS_INSET_LIST_CLASS_NAME)}>
-                {visibleCustomModelRows.map((row) => (
-                  <div
-                    key={row.key}
-                    className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-t border-[color:var(--color-border)] px-4 py-2 first:border-t-0"
-                  >
-                    <code className="min-w-0 truncate text-sm text-foreground">{row.slug}</code>
-                    <button
-                      type="button"
-                      className="shrink-0 opacity-0 transition-opacity group-hover:opacity-100 hover:opacity-100"
-                      aria-label={`移除 ${row.slug}`}
-                      onClick={() => removeCustomModel(row.provider, row.slug)}
-                    >
-                      <XIcon className="size-3.5 text-muted-foreground hover:text-foreground" />
-                    </button>
-                  </div>
-                ))}
-
-                {savedCustomModelRows.length > 5 ? (
-                  <button
-                    type="button"
-                    className="mt-2 text-xs text-muted-foreground transition-colors hover:text-foreground"
-                    onClick={() => setShowAllCustomModels((value) => !value)}
-                  >
-                    {showAllCustomModels
-                      ? "收起"
-                      : `展开更多（${savedCustomModelRows.length - 5}）`}
-                  </button>
-                ) : null}
-              </div>
-            ) : null}
-          </div>
-        </SettingsRow>
       </SettingsSection>
     </div>
   );

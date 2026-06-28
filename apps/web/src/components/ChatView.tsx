@@ -6576,10 +6576,19 @@ export default function ChatView({
     }
     // Keep the optimistic label short while the server asks Codex for a better summary.
     const title = buildPromptThreadTitleFallback(titleSeed);
+    const firstSendDefaultModelSelection = buildModelSelection(
+      "opencode",
+      resolveCatalogModelSelection({
+        candidate: selectedModelForSend,
+        catalogOptions: modelOptionsByProvider.opencode ?? [],
+        defaultChatModel: settings.defaultChatModel,
+      }),
+    );
     const firstSendTarget = resolveFirstSendTarget({
       activeProject,
       chatWorkspaceRoot,
       createdAt: firstSendCreatedAt,
+      defaultModelSelection: firstSendDefaultModelSelection,
       isFirstMessage,
       isHomeChatContainer,
       projects: useStore.getState().projects,

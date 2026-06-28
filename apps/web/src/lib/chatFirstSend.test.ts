@@ -29,6 +29,7 @@ describe("resolveFirstSendTarget", () => {
       activeProject: makeProject(),
       chatWorkspaceRoot: "/Users/tester/Documents/Synara",
       createdAt: new Date(2026, 5, 11, 23, 30, 43),
+      defaultModelSelection: { provider: "opencode", model: "anthropic/claude-sonnet-4" },
       isFirstMessage: true,
       isHomeChatContainer: true,
       projects: [makeProject()],
@@ -44,6 +45,28 @@ describe("resolveFirstSendTarget", () => {
         title: "Yes it takes",
         kind: "chat",
         createWorkspaceRootIfMissing: true,
+        defaultModelSelection: { provider: "opencode", model: "anthropic/claude-sonnet-4" },
+      },
+    });
+  });
+
+  it("defaults to an empty catalog-backed model when no defaultModelSelection is provided", () => {
+    const result = resolveFirstSendTarget({
+      activeProject: makeProject(),
+      chatWorkspaceRoot: "/Users/tester/Documents/Synara",
+      createdAt: new Date(2026, 5, 11, 23, 30, 43),
+      isFirstMessage: true,
+      isHomeChatContainer: true,
+      projects: [makeProject()],
+      selectedWorkspaceRoot: null,
+      title: "Yes it takes",
+      titleSeed: "Yes, it takes all the skills!",
+    });
+
+    expect(result).toMatchObject({
+      kind: "create-project",
+      creation: {
+        defaultModelSelection: { provider: "opencode", model: "" },
       },
     });
   });
