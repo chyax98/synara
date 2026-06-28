@@ -29,6 +29,7 @@
     "@lexical/markdown": "^0.41.0",
     "@lexical/react": "^0.41.0",
     "@lexical/rich-text": "^0.41.0",
+    "@lexical/table": "^0.41.0",
     "@pierre/diffs": "^1.1.0-beta.16",
     "@t3tools/contracts": "workspace:*",
     "@t3tools/shared": "workspace:*",

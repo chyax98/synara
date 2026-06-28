@@ -9,7 +9,10 @@ import {
   type Transformer,
 } from "@lexical/markdown";
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
+import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
 import { $getRoot, ParagraphNode, TextNode, type Klass, type LexicalNode } from "lexical";
+
+import { createMarkdownTableTransformer } from "./markdownTableTransformer";
 
 export const MARKDOWN_WYSIWYG_NODES: ReadonlyArray<Klass<LexicalNode>> = [
   ParagraphNode,
@@ -22,9 +25,17 @@ export const MARKDOWN_WYSIWYG_NODES: ReadonlyArray<Klass<LexicalNode>> = [
   CodeHighlightNode,
   LinkNode,
   AutoLinkNode,
+  TableNode,
+  TableRowNode,
+  TableCellNode,
 ];
 
-export const MARKDOWN_WYSIWYG_TRANSFORMERS: Transformer[] = [...TRANSFORMERS, CHECK_LIST];
+const MARKDOWN_WYSIWYG_BASE_TRANSFORMERS: Transformer[] = [...TRANSFORMERS, CHECK_LIST];
+
+export const MARKDOWN_WYSIWYG_TRANSFORMERS: Transformer[] = [
+  createMarkdownTableTransformer(() => MARKDOWN_WYSIWYG_TRANSFORMERS),
+  ...MARKDOWN_WYSIWYG_BASE_TRANSFORMERS,
+];
 
 export function importMarkdownToEditorState(markdown: string): void {
   $convertFromMarkdownString(markdown, MARKDOWN_WYSIWYG_TRANSFORMERS);

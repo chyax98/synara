@@ -1410,6 +1410,31 @@ label:has(> select#reasoning-effort) select {
   text-decoration: line-through;
 }
 
+.editor-markdown-wysiwyg table {
+  width: 100%;
+  margin: 1rem 0;
+  border-collapse: collapse;
+  font-size: 0.95em;
+}
+
+.editor-markdown-wysiwyg th,
+.editor-markdown-wysiwyg td {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  vertical-align: top;
+  text-align: left;
+}
+
+.editor-markdown-wysiwyg th {
+  font-weight: 600;
+  background: color-mix(in srgb, var(--foreground) 4%, transparent);
+}
+
+.editor-markdown-wysiwyg__table-scroll {
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
 /* Local image preview used by editor file and diff views. */
 .local-image-preview {
   position: relative;

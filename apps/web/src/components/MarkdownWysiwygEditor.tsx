@@ -10,6 +10,7 @@ import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
+import { TablePlugin } from "@lexical/react/LexicalTablePlugin";
 import { type EditorState } from "lexical";
 import { memo, useCallback } from "react";
 
@@ -106,6 +107,7 @@ export const MarkdownWysiwygEditor = memo(function MarkdownWysiwygEditor(
           ErrorBoundary={LexicalErrorBoundary}
         />
         <HistoryPlugin />
+        <TablePlugin hasHorizontalScroll />
         <MarkdownShortcutPlugin transformers={MARKDOWN_WYSIWYG_TRANSFORMERS} />
         {editable ? <OnChangePlugin ignoreSelectionChange onChange={handleChange} /> : null}
       </div>
