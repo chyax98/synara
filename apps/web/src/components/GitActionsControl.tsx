@@ -385,7 +385,6 @@ export default function GitActionsControl({
     gitRunStackedActionMutationOptions({
       cwd: gitCwd,
       queryClient,
-      codexHomePath: settings.codexHomePath || null,
       model: settings.textGenerationModel ?? null,
       ...(providerOptions ? { providerOptions } : {}),
     }),

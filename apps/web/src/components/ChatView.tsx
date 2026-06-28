@@ -2700,7 +2700,7 @@ export default function ChatView({
       provider: selectedProvider,
       cwd: composerSkillCwd,
       threadId,
-      agentDir: selectedProvider === "opencode" ? settings.piAgentDir || null : null,
+      agentDir: null,
       enabled:
         (isSkillTrigger ||
           composerTriggerKind === "slash-command" ||
@@ -3751,7 +3751,6 @@ export default function ChatView({
     cwd: threadWorkspaceCwd,
     enabled: environmentPanelVisible,
     latestTurnSettled,
-    codexHomePath: settings.codexHomePath || null,
     providerOptions: providerOptionsForDispatch ?? null,
   });
   const hasRightDockPanes = useRightDockStore(

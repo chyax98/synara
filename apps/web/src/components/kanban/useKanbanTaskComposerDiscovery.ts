@@ -76,7 +76,6 @@ interface UseKanbanTaskComposerDiscoveryInput {
   readonly providerOptionsForDispatch: ProviderStartOptions | undefined;
   readonly hiddenProviders: readonly ProviderKind[];
   readonly providerOrder: readonly ProviderKind[];
-  readonly piAgentDir: string | null;
 }
 
 export function useKanbanTaskComposerDiscovery(input: UseKanbanTaskComposerDiscoveryInput): {
@@ -98,7 +97,6 @@ export function useKanbanTaskComposerDiscovery(input: UseKanbanTaskComposerDisco
     providerOptionsForDispatch,
     hiddenProviders,
     providerOrder,
-    piAgentDir,
   } = input;
 
   const platform = typeof navigator === "undefined" ? "" : navigator.platform;
@@ -151,7 +149,7 @@ export function useKanbanTaskComposerDiscovery(input: UseKanbanTaskComposerDisco
       provider: selectedProvider,
       cwd: composerSkillCwd,
       threadId: scratchThreadId,
-      agentDir: selectedProvider === "opencode" ? piAgentDir : null,
+      agentDir: null,
       enabled:
         (isSkillTrigger ||
           composerTriggerKind === "slash-command" ||
