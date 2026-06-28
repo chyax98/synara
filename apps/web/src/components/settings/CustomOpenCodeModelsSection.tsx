@@ -1,22 +1,15 @@
 // FILE: CustomOpenCodeModelsSection.tsx
-// Purpose: Add and manage user-defined OpenCode model slugs (providerID/modelID).
+// Purpose: Standalone settings section for adding OpenCode model slugs (providerID/modelID).
 // Layer: Settings UI
 
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
-import {
-  MAX_CUSTOM_MODEL_LENGTH,
-  MODEL_PROVIDER_SETTINGS,
-  getCustomModelsForProvider,
-  getDefaultCustomModelsForProvider,
-  patchCustomModels,
-  useAppSettings,
-} from "~/appSettings";
+import { getDefaultCustomModelsForProvider, useAppSettings } from "~/appSettings";
 import { SettingResetButton } from "~/components/settings/SettingControls";
 import { SettingsRow, SettingsSection } from "~/components/settings/SettingsPanelPrimitives";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import { parseOpenCodeModelSlug } from "~/lib/modelCatalogSettings";
+import { useCustomOpenCodeModelEditor } from "~/hooks/useCustomOpenCodeModelEditor";
 import { PlusIcon, XIcon } from "~/lib/icons";
 import { cn } from "~/lib/utils";
 import {
@@ -24,72 +17,32 @@ import {
   SETTINGS_INSET_LIST_CLASS_NAME,
 } from "~/settingsPanelStyles";
 
-function normalizeCustomModelInput(input: string): string | null {
-  const trimmed = input.trim();
-  if (!trimmed || !parseOpenCodeModelSlug(trimmed)) {
-    return null;
-  }
-  if (trimmed.length > MAX_CUSTOM_MODEL_LENGTH) {
-    return null;
-  }
-  return trimmed;
-}
-
 export function CustomOpenCodeModelsSection() {
-  const { settings, updateSettings, defaults } = useAppSettings();
-  const providerSettings = MODEL_PROVIDER_SETTINGS[0]!;
-  const [input, setInput] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const { defaults, updateSettings } = useAppSettings();
+  const editor = useCustomOpenCodeModelEditor();
   const [showAll, setShowAll] = useState(false);
 
-  const customModels = getCustomModelsForProvider(settings, "opencode");
   const savedRows = useMemo(
-    () => customModels.map((slug) => ({ key: slug, slug })),
-    [customModels],
+    () => editor.customModels.map((slug) => ({ key: slug, slug })),
+    [editor.customModels],
   );
   const visibleRows = showAll ? savedRows : savedRows.slice(0, 5);
-
-  const addModel = useCallback(() => {
-    const normalized = normalizeCustomModelInput(input);
-    if (!normalized) {
-      setError("请输入 providerID/modelID 格式的模型代号（例如 anthropic/claude-sonnet-4）。");
-      return;
-    }
-    if (customModels.includes(normalized)) {
-      setError("该模型代号已存在。");
-      return;
-    }
-    updateSettings(patchCustomModels("opencode", [...customModels, normalized]));
-    setInput("");
-    setError(null);
-  }, [customModels, input, updateSettings]);
-
-  const removeModel = useCallback(
-    (slug: string) => {
-      updateSettings(
-        patchCustomModels(
-          "opencode",
-          customModels.filter((entry) => entry !== slug),
-        ),
-      );
-    },
-    [customModels, updateSettings],
-  );
 
   return (
     <SettingsSection title="自定义模型">
       <SettingsRow
-        title="手动添加模型"
-        description="添加 OpenCode 目录中尚未出现的模型代号（providerID/modelID）。保存后会出现在上方模型列表与输入区选单中。"
+        title="已保存模型代号"
+        description="手动添加 OpenCode 目录中尚未出现的模型（providerID/modelID）。无需先连接下方提供商，保存后即可在输入区选单中使用。"
         resetAction={
-          customModels.length > 0 ? (
+          editor.customModels.length > 0 ? (
             <SettingResetButton
               label="自定义模型"
               onClick={() => {
                 updateSettings({
                   customOpenCodeModels: getDefaultCustomModelsForProvider(defaults, "opencode"),
                 });
-                setError(null);
+                editor.setInput("");
+                editor.clearError();
                 setShowAll(false);
               }}
             />
@@ -102,11 +55,11 @@ export function CustomOpenCodeModelsSection() {
               id="custom-model-slug"
               size="sm"
               variant="soft"
-              value={input}
+              value={editor.input}
               onChange={(event) => {
-                setInput(event.target.value);
-                if (error) {
-                  setError(null);
+                editor.setInput(event.target.value);
+                if (editor.error) {
+                  editor.clearError();
                 }
               }}
               onKeyDown={(event) => {
@@ -114,20 +67,25 @@ export function CustomOpenCodeModelsSection() {
                   return;
                 }
                 event.preventDefault();
-                addModel();
+                editor.addModel();
               }}
-              placeholder={providerSettings.example}
+              placeholder={editor.example}
               spellCheck={false}
             />
-            <Button className="shrink-0" type="button" variant="outline" onClick={addModel}>
+            <Button
+              className="shrink-0"
+              type="button"
+              variant="outline"
+              onClick={() => editor.addModel()}
+            >
               <PlusIcon className="size-3.5" />
               添加
             </Button>
           </div>
 
-          {error ? <p className="mt-2 text-xs text-destructive">{error}</p> : null}
+          {editor.error ? <p className="mt-2 text-xs text-destructive">{editor.error}</p> : null}
 
-          {customModels.length > 0 ? (
+          {editor.customModels.length > 0 ? (
             <div className={cn("mt-3", SETTINGS_INSET_LIST_CLASS_NAME)}>
               {visibleRows.map((row) => (
                 <div
@@ -139,7 +97,7 @@ export function CustomOpenCodeModelsSection() {
                     type="button"
                     className="shrink-0 opacity-0 transition-opacity group-hover:opacity-100 hover:opacity-100"
                     aria-label={`移除 ${row.slug}`}
-                    onClick={() => removeModel(row.slug)}
+                    onClick={() => editor.removeModel(row.slug)}
                   >
                     <XIcon className="size-3.5 text-muted-foreground hover:text-foreground" />
                   </button>

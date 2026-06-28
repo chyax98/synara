@@ -55,6 +55,7 @@ import { ProfileSettingsPanel } from "../components/settings/ProfileSettingsPane
 import { KeyboardShortcutsSettingsPanel } from "../components/settings/KeyboardShortcutsSettingsPanel";
 import { DefaultChatModelSettingsRow } from "../components/settings/DefaultChatModelSettingsRow";
 import { GitTextGenerationModelSettingsRow } from "../components/settings/GitTextGenerationModelSettingsRow";
+import { CustomOpenCodeModelsSection } from "../components/settings/CustomOpenCodeModelsSection";
 import { ModelProvidersSettingsPanel } from "../components/settings/ModelProvidersSettingsPanel";
 import { SkillsSettingsPanel } from "../components/settings/SkillsSettingsPanel";
 import {
@@ -1510,6 +1511,8 @@ function SettingsRouteView() {
 
   const renderModelsPanel = () => (
     <div className="space-y-8">
+      <CustomOpenCodeModelsSection />
+
       <ModelProvidersSettingsPanel />
 
       <SettingsSection title="生成默认">

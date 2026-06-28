@@ -20,6 +20,7 @@ import {
   MenuTrigger,
 } from "../ui/menu";
 import { PROVIDER_ICON_COMPONENT_BY_PROVIDER } from "../ProviderIcon";
+import { parseOpenCodeModelSlug } from "~/lib/modelCatalogSettings";
 import { cn } from "~/lib/utils";
 import { PickerPanelShell } from "./PickerPanelShell";
 import { PickerTriggerButton } from "./PickerTriggerButton";
@@ -40,6 +41,7 @@ import {
 } from "../../providerModelOptions";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import { Skeleton } from "../ui/skeleton";
+import { AddCustomOpenCodeModelPanel } from "./AddCustomOpenCodeModelPanel";
 
 function isAvailableProviderOption(option: (typeof PROVIDER_OPTIONS)[number]): option is {
   value: ProviderKind;
@@ -243,11 +245,9 @@ export const ProviderModelMenuItems = memo(function ProviderModelMenuItems(
   const handleModelChange = (provider: ProviderKind, value: string) => {
     if (props.disabled) return;
     if (!value) return;
-    const resolvedModel = resolveSelectableModel(
-      provider,
-      value,
-      props.modelOptionsByProvider[provider],
-    );
+    const resolvedModel =
+      resolveSelectableModel(provider, value, props.modelOptionsByProvider[provider]) ??
+      (provider === "opencode" && parseOpenCodeModelSlug(value) ? value.trim() : null);
     if (!resolvedModel) return;
     props.onProviderModelChange(provider, resolvedModel);
     onAfterSelection?.();
@@ -298,29 +298,44 @@ export const ProviderModelMenuItems = memo(function ProviderModelMenuItems(
           })
         : groupProviderModelOptions(filteredOptions);
 
+    const addCustomModelPanel =
+      provider === "opencode" && normalizedModelSearchQuery.length === 0 ? (
+        <AddCustomOpenCodeModelPanel
+          onAdded={(slug) => {
+            handleModelChange(provider, slug);
+          }}
+        />
+      ) : null;
+
     const content =
       groupedOptions.length > 0 ? (
-        <MenuRadioGroup
-          value={activeProvider === provider ? props.model : ""}
-          onValueChange={(value) => handleModelChange(provider, value)}
-        >
-          <ProviderModelOptionGroupList
-            groupedOptions={groupedOptions}
-            provider={provider}
-            activeModel={props.model}
-            isSearching={normalizedModelSearchQuery.length > 0}
-            favoriteProvider={favoriteProvider}
-            favoriteModelSlugSet={favoriteModelSlugSet}
-            onToggleFavorite={toggleFavoriteModel}
-            {...(onAfterSelection ? { onAfterSelection } : {})}
-          />
-        </MenuRadioGroup>
+        <>
+          <MenuRadioGroup
+            value={activeProvider === provider ? props.model : ""}
+            onValueChange={(value) => handleModelChange(provider, value)}
+          >
+            <ProviderModelOptionGroupList
+              groupedOptions={groupedOptions}
+              provider={provider}
+              activeModel={props.model}
+              isSearching={normalizedModelSearchQuery.length > 0}
+              favoriteProvider={favoriteProvider}
+              favoriteModelSlugSet={favoriteModelSlugSet}
+              onToggleFavorite={toggleFavoriteModel}
+              {...(onAfterSelection ? { onAfterSelection } : {})}
+            />
+          </MenuRadioGroup>
+          {addCustomModelPanel}
+        </>
       ) : (
-        <div className="px-2 py-2 text-muted-foreground text-sm">
-          {provider === "opencode" && normalizedModelSearchQuery.length === 0
-            ? "未发现可用模型"
-            : "没有匹配的模型"}
-        </div>
+        <>
+          <div className="px-2 py-2 text-muted-foreground text-sm">
+            {provider === "opencode" && normalizedModelSearchQuery.length === 0
+              ? "未发现可用模型。可在下方直接添加。"
+              : "没有匹配的模型"}
+          </div>
+          {addCustomModelPanel}
+        </>
       );
 
     if (!shouldShowSearch) {

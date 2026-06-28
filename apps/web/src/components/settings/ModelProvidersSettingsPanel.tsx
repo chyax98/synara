@@ -6,7 +6,6 @@ import { useMemo } from "react";
 
 import { Button } from "~/components/ui/button";
 import { Switch } from "~/components/ui/switch";
-import { CustomOpenCodeModelsSection } from "~/components/settings/CustomOpenCodeModelsSection";
 import { OpenCodeRuntimeSettingsRows } from "~/components/settings/OpenCodeRuntimeSettingsRows";
 import { ProviderAuthSettingsPanel } from "~/components/settings/ProviderAuthSettingsPanel";
 import { SettingsRow, SettingsSection } from "~/components/settings/SettingsPanelPrimitives";
@@ -27,9 +26,6 @@ export function ModelProvidersSettingsPanel() {
     () => catalog.sidebarGroups.filter((group) => catalog.connectedProviderIds.has(group.id)),
     [catalog.connectedProviderIds, catalog.sidebarGroups],
   );
-
-  const discoveredModelCount = catalog.dynamicModels.length;
-  const customModelCount = settings.customOpenCodeModels.length;
 
   const setModelVisible = (slug: string, visible: boolean) => {
     const ref = parseOpenCodeModelSlug(slug);
@@ -75,7 +71,7 @@ export function ModelProvidersSettingsPanel() {
       return (
         <SettingsRow
           title="无法加载模型目录"
-          description="请检查上方 OpenCode 可执行文件路径是否正确。若你已手动添加自定义模型，它们仍会出现在下方列表与输入区选单中。"
+          description="请检查上方 OpenCode 可执行文件路径是否正确。你仍可在「自定义模型」区手动添加模型代号。"
           status={
             catalog.errorMessage ? (
               <code className="block break-all text-[11px] text-destructive">
@@ -97,11 +93,11 @@ export function ModelProvidersSettingsPanel() {
       );
     }
 
-    if (discoveredModelCount === 0 && customModelCount === 0) {
+    if (catalog.catalogOptions.length === 0) {
       return (
         <SettingsRow
-          title="暂无可用模型"
-          description="请连接至少一个 OpenCode 上游提供商，或在下方手动添加自定义模型代号。"
+          title="暂无已发现模型"
+          description="连接下方上游提供商可同步模型目录；也可在上方「自定义模型」直接添加 providerID/modelID。"
         />
       );
     }
@@ -109,11 +105,7 @@ export function ModelProvidersSettingsPanel() {
     return (
       <SettingsRow
         title="OpenCode 模型源"
-        description={
-          discoveredModelCount > 0
-            ? "显示本机 OpenCode 已发现的模型。开启可见后才能在输入区与默认聊天模型等处选用。"
-            : "OpenCode 尚未返回模型。你仍可手动添加自定义模型，并在连接提供商后刷新目录。"
-        }
+        description="显示本机 OpenCode 已发现的模型。开启可见后才能在输入区与默认聊天模型等处选用。"
         control={
           <span className="text-xs font-medium text-muted-foreground">
             {catalog.isDiscoveryPending
@@ -128,8 +120,6 @@ export function ModelProvidersSettingsPanel() {
   return (
     <div className="space-y-8">
       {runtimeSettings}
-
-      <CustomOpenCodeModelsSection />
 
       <SettingsSection title="模型目录">{catalogStatusRow}</SettingsSection>
 
