@@ -340,7 +340,7 @@ describe("EditorWorkspaceView", () => {
     expect(markup).not.toContain("cwd=");
   });
 
-  it("shows the file-preview path breadcrumb and overflow menu for Markdown files", () => {
+  it("shows the file-preview path breadcrumb for Markdown files while contents load", () => {
     const queryClient = new QueryClient();
     const markup = renderToStaticMarkup(
       <QueryClientProvider client={queryClient}>
@@ -363,12 +363,10 @@ describe("EditorWorkspaceView", () => {
       </QueryClientProvider>,
     );
 
-    // The header renders a path breadcrumb (project › …dirs › file).
     expect(markup).toContain('aria-label="文件路径"');
     expect(markup).toContain("README.md");
-    // Markdown files surface their source/rendered toggle in the header next
-    // to the Open-in picker, whose editor menu trigger is always rendered.
-    expect(markup).toContain('aria-label="Markdown 视图"');
+    expect(markup).toContain('aria-label="正在加载文件..."');
+    expect(markup).not.toContain('aria-label="Markdown 视图"');
     expect(markup).toContain('aria-label="编辑器选项"');
   });
 
