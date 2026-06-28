@@ -49,3 +49,5 @@ Synara 仍处于早期阶段，可能存在 bug、体验粗糙与快速迭代的
 ## 起源
 
 Synara 最初 fork 自 [T3Code](https://github.com/pingdotgg/t3code)，此后已发展为独立产品，拥有自有品牌、打包与发布体系、OpenCode 原生集成、桌面端行为与产品方向。
+
+本仓库在 Synara 之上做了 OpenCode-only 与中文 UI 等改造。维护、合并上游功能或 cherry-pick 时，见 **[docs/upstreams.md](./docs/upstreams.md)**（第一上游 Synara，第二上游 T3Code，含 remote 配置与冲突处理原则）。

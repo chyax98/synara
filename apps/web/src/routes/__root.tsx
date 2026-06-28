@@ -958,10 +958,10 @@ function EventRouter() {
 
       toastManager.add({
         type: "warning",
-        title: "未找到可用的编辑器。",
+        title: "快捷键配置有问题",
         description: issue.message,
         actionProps: {
-          children: "Open keybindings.json",
+          children: "打开 keybindings.json",
           onClick: () => {
             void queryClient
               .ensureQueryData(serverConfigQueryOptions())

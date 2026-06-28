@@ -47,6 +47,17 @@ Any UI element with an open/close toggle (expand/collapse, show/hide, disclosure
 
 Reference usage: opening/closing a project and the sidebar sections in `apps/web/src/components/Sidebar.tsx`. If you find a toggle that animates differently, migrate it to this module rather than duplicating logic.
 
+## Upstream Projects
+
+This fork has **two upstreams**. See [`docs/upstreams.md`](docs/upstreams.md) for merge/cherry-pick workflows, remote setup, and conflict rules.
+
+| Upstream | Repo | When to pull from it |
+|----------|------|----------------------|
+| **First** (direct) | [Synara](https://github.com/Emanuele-web04/synara) — `origin` | UI, product features, OpenCode path, routine `merge origin/main` |
+| **Second** (grandparent) | [T3Code](https://github.com/pingdotgg/t3code) — add as `t3code` remote | Server modularization, protocol/contracts, CI — only when Synara has not absorbed the change |
+
+Fork constraints that must survive any upstream sync: **OpenCode-only** single provider (no handoff, no multi-provider registry), **Chinese UI** where already localized, **AppSettings v2**. Run `bun run test:capabilities` after merges.
+
 ## Package Roles
 
 - `apps/server`: Node.js WebSocket server. Wraps Codex app-server (JSON-RPC over stdio), serves the React web app, and manages provider sessions.
@@ -56,8 +67,9 @@ Reference usage: opening/closing a project and the sidebar sections in `apps/web
 
 ## Local Dev Instance Isolation
 
+- Prefer `./scripts/dev-local.sh` (or `bun run dev:local`) for a single default instance at `~/.synara` on port `3773`; use `--restart` to free ports first.
 - Never start the default `bun run dev` while another Synara instance is running unless the user explicitly wants shared ports/state.
-- Use an isolated home dir and non-default ports when running alongside the user's own Synara instance, for example: `env -u T3CODE_AUTH_TOKEN T3CODE_PORT_OFFSET=3158 T3CODE_NO_BROWSER=1 bun run dev -- --home-dir ./.synara-pr84 --port 58090`.
+- Use an isolated home dir and non-default ports when running alongside the user's own Synara instance, for example: `SYNARA_PORT=58090 ./scripts/dev-local.sh --restart` or `env -u T3CODE_AUTH_TOKEN T3CODE_PORT_OFFSET=3158 T3CODE_NO_BROWSER=1 bun run dev -- --home-dir ./.synara-pr84 --port 58090`.
 - Always dry-run first when avoiding conflicts: `env -u T3CODE_AUTH_TOKEN T3CODE_PORT_OFFSET=3158 bun run dev -- --home-dir ./.synara-pr84 --port 58090 --dry-run`.
 - Unset `T3CODE_AUTH_TOKEN` for browser dev instances unless the web app is also configured to connect with that token. If auth is accidentally inherited, the browser WebSocket can be rejected and the UI will show no threads even though SQLite has projects/threads.
 - Check both server and web ports with `lsof -nP -iTCP:<port> -sTCP:LISTEN`. A desktop app can bind `127.0.0.1:<port>` while the dev server binds IPv6 `*:<port>`, and `localhost` may still hit the wrong process.

@@ -508,6 +508,17 @@ const LEGACY_KEYBINDING_COMMAND_ALIASES = {
 // Retired picker jump commands have no current equivalent; dropping them avoids
 // rebinding old number-key shortcuts to a different action.
 const RETIRED_LEGACY_KEYBINDING_COMMAND_PATTERN = /^(?:composer\.)?modelPicker\.jump\.[1-9]$/;
+const RETIRED_MULTI_PROVIDER_CHAT_COMMANDS = new Set([
+  "chat.newClaude",
+  "chat.newCodex",
+  "chat.newCursor",
+  "chat.newGemini",
+  "chat.newGrok",
+  "chat.newKilo",
+  "chat.newPi",
+  "chat.newCline",
+  "chat.newOpenCode",
+]);
 const OUTDATED_RECENT_VIEW_TERMINAL_GUARD = "!terminalFocus";
 const RECENT_VIEW_SHORTCUT_BY_COMMAND: Partial<Record<KeybindingRule["command"], string>> = {
   "view.recent.next": "ctrl+tab",
@@ -540,7 +551,10 @@ function readKeybindingEntryCommand(entry: unknown): string | null {
 }
 
 function isRetiredLegacyKeybindingCommand(command: string): boolean {
-  return RETIRED_LEGACY_KEYBINDING_COMMAND_PATTERN.test(command);
+  return (
+    RETIRED_LEGACY_KEYBINDING_COMMAND_PATTERN.test(command) ||
+    RETIRED_MULTI_PROVIDER_CHAT_COMMANDS.has(command)
+  );
 }
 
 // Cross-device configs can lag behind command renames; normalize known aliases
@@ -924,7 +938,17 @@ const makeKeybindings = Effect.gen(function* () {
         return;
       }
 
-      const runtimeConfig = yield* loadRuntimeCustomKeybindingsConfig();
+      let runtimeConfig = yield* loadRuntimeCustomKeybindingsConfig();
+      if (runtimeConfig.issues.length > 0) {
+        yield* writeConfigAtomically(runtimeConfig.keybindings);
+        yield* Effect.logInfo("pruned invalid keybindings entries from config", {
+          path: keybindingsConfigPath,
+          issueCount: runtimeConfig.issues.length,
+          migratedLegacyCommandCount: runtimeConfig.migratedLegacyCommandCount,
+        });
+        yield* Cache.invalidate(resolvedConfigCache, resolvedConfigCacheKey);
+        runtimeConfig = yield* loadRuntimeCustomKeybindingsConfig();
+      }
       if (runtimeConfig.issues.length > 0) {
         yield* Effect.logWarning(
           "skipping startup keybindings default sync because config has issues",

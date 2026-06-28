@@ -508,6 +508,75 @@ it.layer(NodeServices.layer)("keybindings", (it) => {
     }).pipe(Effect.provide(makeKeybindingsLayer())),
   );
 
+  it.effect("drops retired multi-provider chat keybindings without startup issues", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const { keybindingsConfigPath } = yield* ServerConfig;
+      yield* fs.writeFileString(
+        keybindingsConfigPath,
+        JSON.stringify([
+          { key: "mod+alt+c", command: "chat.newClaude", when: "!terminalFocus || isMac" },
+          { key: "mod+alt+x", command: "chat.newCodex", when: "!terminalFocus || isMac" },
+          { key: "mod+n", command: "chat.new", when: "!terminalFocus || isMac" },
+        ]),
+      );
+
+      const configState = yield* Effect.gen(function* () {
+        const keybindings = yield* Keybindings;
+        return yield* keybindings.loadConfigState;
+      });
+
+      assert.deepEqual(configState.issues, []);
+      assert.isFalse(
+        configState.keybindings.some((entry) =>
+          ["chat.newClaude", "chat.newCodex"].includes(String(entry.command)),
+        ),
+      );
+
+      yield* Effect.gen(function* () {
+        const keybindings = yield* Keybindings;
+        yield* keybindings.syncDefaultKeybindingsOnStartup;
+      });
+
+      const persisted = yield* readKeybindingsConfig(keybindingsConfigPath);
+      assert.isFalse(
+        persisted.some((entry) =>
+          ["chat.newClaude", "chat.newCodex"].includes(String(entry.command)),
+        ),
+      );
+      assert.isTrue(persisted.some((entry) => entry.command === "chat.new"));
+    }).pipe(Effect.provide(makeKeybindingsLayer())),
+  );
+
+  it.effect("prunes invalid keybindings entries from disk on startup", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const { keybindingsConfigPath } = yield* ServerConfig;
+      yield* fs.writeFileString(
+        keybindingsConfigPath,
+        JSON.stringify([
+          { key: "mod+alt+c", command: "chat.newClaude", when: "!terminalFocus || isMac" },
+          { key: "mod+n", command: "chat.new", when: "!terminalFocus || isMac" },
+        ]),
+      );
+
+      yield* Effect.gen(function* () {
+        const keybindings = yield* Keybindings;
+        yield* keybindings.syncDefaultKeybindingsOnStartup;
+      });
+
+      const persisted = yield* readKeybindingsConfig(keybindingsConfigPath);
+      assert.isFalse(persisted.some((entry) => entry.command === "chat.newClaude"));
+      assert.isTrue(persisted.some((entry) => entry.command === "chat.new"));
+
+      const configState = yield* Effect.gen(function* () {
+        const keybindings = yield* Keybindings;
+        return yield* keybindings.loadConfigState;
+      });
+      assert.deepEqual(configState.issues, []);
+    }).pipe(Effect.provide(makeKeybindingsLayer())),
+  );
+
   it.effect(
     "upserts missing default keybindings on startup without overriding existing command rules",
     () =>

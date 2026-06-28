@@ -118,20 +118,76 @@ function normalizeSettings(
   );
 }
 
-function decodeSettingsFromJson(settingsPath: string, raw: string) {
-  try {
-    const decoded = Schema.decodeUnknownExit(ServerSettings)(JSON.parse(raw) as unknown);
-    if (decoded._tag === "Failure") {
-      return { _tag: "Failure" as const, error: Cause.pretty(decoded.cause) };
+export function migrateLegacyServerSettingsObject(raw: unknown): unknown {
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
+    return raw;
+  }
+
+  const source = raw as Record<string, unknown>;
+  const migrated: Record<string, unknown> = {};
+
+  for (const key of [
+    "enableAssistantStreaming",
+    "enableProviderUpdateChecks",
+    "defaultThreadEnvMode",
+    "addProjectBaseDirectory",
+    "skills",
+  ] as const) {
+    if (key in source) {
+      migrated[key] = source[key];
     }
-    return { _tag: "Success" as const, value: decoded.value };
+  }
+
+  const textGenerationModelSelection = source.textGenerationModelSelection;
+  if (
+    typeof textGenerationModelSelection === "object" &&
+    textGenerationModelSelection !== null &&
+    !Array.isArray(textGenerationModelSelection) &&
+    (textGenerationModelSelection as { provider?: unknown }).provider === "opencode"
+  ) {
+    migrated.textGenerationModelSelection = textGenerationModelSelection;
+  }
+
+  const providers = source.providers;
+  if (typeof providers === "object" && providers !== null && !Array.isArray(providers)) {
+    const opencode = (providers as Record<string, unknown>).opencode;
+    if (opencode !== undefined) {
+      migrated.providers = { opencode };
+    }
+  }
+
+  return migrated;
+}
+
+type DecodeSettingsResult =
+  | { readonly _tag: "Success"; readonly value: ServerSettings; readonly migrated: boolean }
+  | { readonly _tag: "Failure"; readonly error: string };
+
+function decodeSettingsUnknown(settingsPath: string, raw: unknown): DecodeSettingsResult {
+  const direct = Schema.decodeUnknownExit(ServerSettings)(raw);
+  if (direct._tag === "Success") {
+    return { _tag: "Success", value: direct.value, migrated: false };
+  }
+
+  const migrated = migrateLegacyServerSettingsObject(raw);
+  const remigrated = Schema.decodeUnknownExit(ServerSettings)(migrated);
+  if (remigrated._tag === "Success") {
+    return { _tag: "Success", value: remigrated.value, migrated: true };
+  }
+
+  return { _tag: "Failure", error: Cause.pretty(direct.cause) };
+}
+
+function decodeSettingsFromJson(settingsPath: string, raw: string): DecodeSettingsResult {
+  try {
+    return decodeSettingsUnknown(settingsPath, JSON.parse(raw) as unknown);
   } catch (cause) {
     const error = new ServerSettingsError({
       settingsPath,
       detail: "failed to parse settings JSON",
       cause,
     });
-    return { _tag: "Failure" as const, error: error.message };
+    return { _tag: "Failure", error: error.message };
   }
 }
 
@@ -147,6 +203,24 @@ const makeServerSettings = Effect.gen(function* () {
 
   const emitChange = (settings: ServerSettings) =>
     PubSub.publish(changesPubSub, settings).pipe(Effect.asVoid);
+
+  const writeSettingsAtomically = (settings: ServerSettings) => {
+    const tempPath = `${settingsPath}.${process.pid}.${Date.now()}.tmp`;
+    return Effect.gen(function* () {
+      yield* fs.makeDirectory(path.dirname(settingsPath), { recursive: true });
+      yield* fs.writeFileString(tempPath, `${JSON.stringify(settings, null, 2)}\n`);
+      yield* fs.rename(tempPath, settingsPath);
+    }).pipe(
+      Effect.mapError(
+        (cause) =>
+          new ServerSettingsError({
+            settingsPath,
+            detail: "failed to write settings file",
+            cause,
+          }),
+      ),
+    );
+  };
 
   const loadSettingsFromDisk = Effect.gen(function* () {
     const exists = yield* fs.exists(settingsPath).pipe(
@@ -181,26 +255,14 @@ const makeServerSettings = Effect.gen(function* () {
       });
       return DEFAULT_SERVER_SETTINGS;
     }
+    if (decoded.migrated) {
+      yield* Effect.logInfo("migrated legacy settings.json to OpenCode-only schema", {
+        path: settingsPath,
+      });
+      yield* writeSettingsAtomically(decoded.value);
+    }
     return decoded.value;
   });
-
-  const writeSettingsAtomically = (settings: ServerSettings) => {
-    const tempPath = `${settingsPath}.${process.pid}.${Date.now()}.tmp`;
-    return Effect.gen(function* () {
-      yield* fs.makeDirectory(path.dirname(settingsPath), { recursive: true });
-      yield* fs.writeFileString(tempPath, `${JSON.stringify(settings, null, 2)}\n`);
-      yield* fs.rename(tempPath, settingsPath);
-    }).pipe(
-      Effect.mapError(
-        (cause) =>
-          new ServerSettingsError({
-            settingsPath,
-            detail: "failed to write settings file",
-            cause,
-          }),
-      ),
-    );
-  };
 
   const start = Effect.gen(function* () {
     const shouldStart = yield* Ref.modify(startedRef, (started) => [!started, true]);
