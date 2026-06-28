@@ -9,7 +9,10 @@
 import { memo } from "react";
 
 import type { QueuedComposerTurn } from "../../composerDraftStore";
-import { buildQueuedFollowUpSummaryLabel } from "../../session-logic";
+import {
+  buildQueuedFollowUpSummaryLabel,
+  shouldDisableQueuedSteerDuringCompaction,
+} from "../../session-logic";
 import { SteerIcon } from "~/lib/icons";
 import { cn } from "~/lib/utils";
 import {
@@ -75,7 +78,7 @@ export const ComposerQueuedHeader = memo(function ComposerQueuedHeader({
             onSteer={onSteer}
             onRemove={onRemove}
             onEdit={onEdit}
-            steerDisabled={isContextCompacting}
+            steerDisabled={shouldDisableQueuedSteerDuringCompaction(isContextCompacting)}
           />
         </ComposerStackedPanelRow>
       ))}

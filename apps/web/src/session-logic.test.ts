@@ -2850,6 +2850,22 @@ describe("deriveWorkLogEntries context window handling", () => {
     expect(shouldDisableQueuedSteerDuringCompaction(false)).toBe(false);
   });
 
+  it("blocks queued steer while compaction activity is in progress", () => {
+    const activities = [
+      makeActivity({
+        id: "compaction-progress",
+        kind: "context-compaction",
+        summary: "Compacting conversation...",
+        tone: "info",
+        payload: { status: "inProgress" },
+      }),
+    ];
+    expect(isContextCompactionInProgress(activities)).toBe(true);
+    expect(
+      shouldDisableQueuedSteerDuringCompaction(isContextCompactionInProgress(activities)),
+    ).toBe(true);
+  });
+
   it("detects in-progress context compaction from thread activities", () => {
     expect(
       isContextCompactionInProgress([

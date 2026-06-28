@@ -2676,9 +2676,9 @@ export default function ChatView({
   );
   const workspaceEntriesQuery = useQuery(
     projectSearchEntriesQueryOptions({
-      cwd: gitCwd,
+      cwd: composerSkillCwd,
       query: effectiveMentionQuery,
-      enabled: isMentionTrigger && !isLocalFolderBrowserOpen,
+      enabled: isMentionTrigger && !isLocalFolderBrowserOpen && composerSkillCwd !== null,
       limit: 80,
     }),
   );

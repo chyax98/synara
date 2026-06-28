@@ -27,7 +27,34 @@ import {
   shouldDrainQueuedTurnsAfterCompactSessionSet,
 } from "../apps/server/src/orchestration/providerCompactSession.ts";
 
-const port = Number(process.argv[2] ?? "58090");
+function parseProbeArgs(argv: ReadonlyArray<string>): { port: number; outPath: string | null } {
+  let port = 58090;
+  let outPath: string | null = null;
+  for (let index = 2; index < argv.length; index += 1) {
+    const arg = argv[index];
+    if (arg === "--port" && argv[index + 1]) {
+      port = Number(argv[index + 1]);
+      index += 1;
+      continue;
+    }
+    if (arg === "--out" && argv[index + 1]) {
+      outPath = argv[index + 1] ?? null;
+      index += 1;
+      continue;
+    }
+    if (!arg.startsWith("--") && port === 58090) {
+      port = Number(arg);
+    }
+  }
+  return { port, outPath };
+}
+
+const { port, outPath } = parseProbeArgs(process.argv);
+const logLines: string[] = [];
+const log = (line: string) => {
+  console.log(line);
+  logLines.push(line);
+};
 const baseUrl = `http://127.0.0.1:${port}`;
 const wsUrl = `ws://127.0.0.1:${port}/ws`;
 const now = () => new Date().toISOString();
@@ -40,7 +67,7 @@ async function waitForHealth(timeoutMs = 60_000): Promise<void> {
       if (response.ok) {
         const payload = (await response.json()) as { startupReady?: boolean };
         if (payload.startupReady) {
-          console.log("HEALTH: startupReady=true");
+          log("HEALTH: startupReady=true");
           return;
         }
       }
@@ -135,7 +162,7 @@ const program = Effect.gen(function* () {
   })) as { events?: Array<{ type: string }> };
 
   const queuedEventTypes = (queued.events ?? []).map((event) => event.type);
-  console.log(`QUEUED_EVENT_TYPES: ${JSON.stringify(queuedEventTypes)}`);
+  log(`QUEUED_EVENT_TYPES: ${JSON.stringify(queuedEventTypes)}`);
 
   const drainGate = shouldDrainQueuedTurnsAfterCompactSessionSet({
     commandId: CommandId.makeUnsafe(`provider:evt:${COMPACT_SESSION_SET_COMMAND_TAG}:probe`),
@@ -157,23 +184,29 @@ const program = Effect.gen(function* () {
       },
     },
   });
-  console.log(`COMPACT_DRAIN_GATE: ${drainGate}`);
-  console.log(`COMPACT_DRAIN_THREAD: ${drainThreadId === threadId}`);
+  log(`COMPACT_DRAIN_GATE: ${drainGate}`);
+  log(`COMPACT_DRAIN_THREAD: ${drainThreadId === threadId}`);
 
   const snapshot = (yield* getSnapshot({})) as {
     projects?: ReadonlyArray<{ id: string }>;
     threads?: ReadonlyArray<{ id: string; session?: { status?: string; activeTurnId?: unknown } }>;
   };
   const thread = snapshot.threads?.find((entry) => entry.id === threadId);
-  console.log(`SNAPSHOT_PROJECTS: ${snapshot.projects?.length ?? 0}`);
-  console.log(`SNAPSHOT_THREADS: ${snapshot.threads?.length ?? 0}`);
-  console.log(`PROBE_THREAD_STATUS: ${thread?.session?.status ?? "missing"}`);
-  console.log(`PROBE_THREAD_ACTIVE_TURN: ${thread?.session?.activeTurnId ?? "null"}`);
+  log(`SNAPSHOT_PROJECTS: ${snapshot.projects?.length ?? 0}`);
+  log(`SNAPSHOT_THREADS: ${snapshot.threads?.length ?? 0}`);
+  log(`PROBE_THREAD_STATUS: ${thread?.session?.status ?? "missing"}`);
+  log(`PROBE_THREAD_ACTIVE_TURN: ${thread?.session?.activeTurnId ?? "null"}`);
 });
 
 try {
   await Effect.runPromise(Effect.scoped(program.pipe(Effect.provide(layer))));
+  if (outPath) {
+    await Bun.write(outPath, `${logLines.join("\n")}\n`);
+  }
 } catch (error) {
   console.error(error);
+  if (outPath) {
+    await Bun.write(outPath, `${logLines.join("\n")}\nPROBE_FAILED: ${String(error)}\n`);
+  }
   process.exit(1);
 }
