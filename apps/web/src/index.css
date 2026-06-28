@@ -84,6 +84,8 @@
        radius, the seam ring clip-path, the right-side border-radius, and the backing
        strip width stay in lockstep. (All call sites still carry a 0.75rem fallback.) */
     --app-content-card-radius: 0.9rem;
+    /* Default for sidebars (including resizable ones before JS sets a value). */
+    --sidebar-width: 16rem;
   }
 }
 

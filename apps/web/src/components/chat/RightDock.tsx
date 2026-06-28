@@ -287,7 +287,7 @@ export function RightDock(props: RightDockProps) {
             })}
           </div>
         </div>
-        <SidebarRail />
+        <SidebarRail className="w-5 [[data-side=right][data-collapsible=offcanvas]_&]:-left-4 z-40" />
       </Sidebar>
     </SidebarProvider>
   );
