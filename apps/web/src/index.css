@@ -1281,6 +1281,135 @@ label:has(> select#reasoning-effort) select {
   margin-top: 0.35rem;
 }
 
+.editor-markdown-wysiwyg {
+  position: relative;
+  min-height: 100%;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 1rem 1rem 3rem;
+}
+
+.editor-markdown-wysiwyg__content {
+  min-height: 100%;
+  outline: none;
+  color: var(--foreground);
+  line-height: 1.6;
+}
+
+.editor-markdown-wysiwyg__placeholder {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  pointer-events: none;
+  color: var(--muted-foreground);
+  opacity: 0.65;
+}
+
+.editor-markdown-wysiwyg__h1 {
+  margin: 0 0 0.6em;
+  font-size: 1.75em;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid var(--border);
+}
+
+.editor-markdown-wysiwyg__h2 {
+  margin: 1.5em 0 0.6em;
+  font-size: 1.4em;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  padding-bottom: 0.25em;
+  border-bottom: 1px solid var(--border);
+}
+
+.editor-markdown-wysiwyg__h3 {
+  margin: 1.5em 0 0.6em;
+  font-size: 1.2em;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.editor-markdown-wysiwyg__h4,
+.editor-markdown-wysiwyg__h5,
+.editor-markdown-wysiwyg__h6 {
+  margin: 1.25em 0 0.5em;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.editor-markdown-wysiwyg__h4 {
+  font-size: 1.05em;
+}
+
+.editor-markdown-wysiwyg__h5 {
+  font-size: 0.95em;
+}
+
+.editor-markdown-wysiwyg__h6 {
+  font-size: 0.9em;
+  color: var(--muted-foreground);
+}
+
+.editor-markdown-wysiwyg__paragraph {
+  margin: 0.85rem 0;
+}
+
+.editor-markdown-wysiwyg__ul,
+.editor-markdown-wysiwyg__ol {
+  margin: 0.85rem 0;
+  padding-left: 1.5rem;
+}
+
+.editor-markdown-wysiwyg__li {
+  margin: 0.35rem 0;
+}
+
+.editor-markdown-wysiwyg__quote {
+  margin: 0.85rem 0;
+  padding-left: 1rem;
+  border-left: 3px solid var(--border);
+  color: var(--muted-foreground);
+}
+
+.editor-markdown-wysiwyg__code {
+  margin: 0.85rem 0;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  border-radius: 0.375rem;
+  background: color-mix(in srgb, var(--foreground) 6%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+.editor-markdown-wysiwyg__inline-code {
+  padding: 0.1em 0.35em;
+  border-radius: 0.25rem;
+  background: color-mix(in srgb, var(--foreground) 8%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+.editor-markdown-wysiwyg__link {
+  color: var(--info-foreground);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.editor-markdown-wysiwyg__bold {
+  font-weight: 600;
+}
+
+.editor-markdown-wysiwyg__italic {
+  font-style: italic;
+}
+
+.editor-markdown-wysiwyg__strikethrough {
+  text-decoration: line-through;
+}
+
 /* Local image preview used by editor file and diff views. */
 .local-image-preview {
   position: relative;

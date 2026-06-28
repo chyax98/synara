@@ -1,9 +1,9 @@
 // FILE: WorkspaceFilePreview.tsx
-// Purpose: Shared single-file preview (code with syntax highlighting, parsed
-//          markdown, images, PDFs) for workspace files plus absolute local
-//          file references reused by editor and right-dock panes.
+// Purpose: Shared single-file preview (code with syntax highlighting, markdown
+//          WYSIWYG editing, images, PDFs) for workspace files plus absolute
+//          local file references reused by editor and right-dock panes.
 // Layer: Web chat presentation component
-// Exports: WorkspaceFilePreview, isMarkdownPreviewablePath
+// Exports: WorkspaceFilePreview, isMarkdownPreviewablePath, isMarkdownWysiwygPath
 
 import {
   isSupportedLocalImagePath,
@@ -16,6 +16,7 @@ import {
   joinWorkspaceRelativePath,
 } from "@t3tools/shared/path";
 import { isScratchWorkspacePath } from "@t3tools/shared/threadWorkspace";
+import { Debouncer } from "@tanstack/react-pacer";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Component,
@@ -28,7 +29,6 @@ import {
   useEffect,
   useMemo,
   useRef,
-  useState,
 } from "react";
 
 import { basenameOfPath } from "~/file-icons";
@@ -38,7 +38,6 @@ import { resolveDiffThemeName, type DiffThemeName } from "~/lib/diffRendering";
 import { formatFileCommentRange, type FileCommentSelection } from "~/lib/fileComments";
 import { showFileReferenceContextMenu } from "~/lib/fileReferenceContextMenu";
 import { PlusIcon } from "~/lib/icons";
-import { toggleMarkdownTaskMarker } from "~/lib/markdownTaskList";
 import {
   isLocalPreviewGrantUsable,
   projectLocalPreviewGrantQueryOptions,
@@ -56,6 +55,7 @@ import {
 import { cn } from "~/lib/utils";
 import { readNativeApi } from "~/nativeApi";
 import ChatMarkdown from "./ChatMarkdown";
+import { MarkdownWysiwygEditor } from "./MarkdownWysiwygEditor";
 import { FileLineCommentBox } from "./chat/FileLineCommentBox";
 import { PanelStateMessage } from "./chat/PanelStateMessage";
 import { useFileLineCommenting } from "./chat/useFileLineCommenting";
@@ -67,10 +67,38 @@ import { PdfFilePreview } from "./PdfFilePreview";
 import { Skeleton } from "./ui/skeleton";
 
 const MARKDOWN_PREVIEW_EXTENSIONS = new Set([".markdown", ".md", ".mdx"]);
+const MARKDOWN_WYSIWYG_EXTENSIONS = new Set([".markdown", ".md"]);
 
 export function isMarkdownPreviewablePath(filePath: string): boolean {
   const extension = lowerCaseExtensionOf(filePath);
   return extension !== null && MARKDOWN_PREVIEW_EXTENSIONS.has(extension);
+}
+
+export function isMarkdownWysiwygPath(filePath: string): boolean {
+  const extension = lowerCaseExtensionOf(filePath);
+  return extension !== null && MARKDOWN_WYSIWYG_EXTENSIONS.has(extension);
+}
+
+function readMarkdownWysiwygSelection(
+  container: HTMLElement,
+): Pick<ChatFileReference, "snippet"> | null {
+  const selection = window.getSelection();
+  if (!selection || selection.isCollapsed || selection.rangeCount === 0) {
+    return null;
+  }
+  const snippet = selection.toString().trim();
+  if (snippet.length === 0) {
+    return null;
+  }
+  const anchorNode = selection.anchorNode;
+  const focusNode = selection.focusNode;
+  if (!anchorNode || !focusNode) {
+    return null;
+  }
+  if (!container.contains(anchorNode) || !container.contains(focusNode)) {
+    return null;
+  }
+  return { snippet };
 }
 
 function parentDirectoryFromPath(path: string): string | null {
@@ -306,12 +334,6 @@ export interface WorkspaceFilePreviewProps {
    * touch the workspace-relative file-read RPC.
    */
   filePath: string | null;
-  /**
-   * Initial markdown render mode per file: the dock opens markdown already
-   * parsed, the editor surface stays source-first. The header toggle still
-   * lets the user flip either way.
-   */
-  markdownPreviewDefault?: boolean;
   /** Shown when no file is selected yet. */
   emptyState?: ReactNode;
   onReferenceInChat?: ((reference: ChatFileReference) => void) | undefined;
@@ -323,11 +345,10 @@ export function WorkspaceFilePreview(props: WorkspaceFilePreviewProps) {
   const { resolvedTheme } = useTheme();
   const diffThemeName = resolveDiffThemeName(resolvedTheme);
   const contentsRef = useRef<HTMLDivElement>(null);
-  const taskWriteQueueRef = useRef<Promise<void>>(Promise.resolve());
-  const latestTaskWriteVersionRef = useRef({ next: 0, byFile: new Map<string, number>() });
+  const markdownWriteQueueRef = useRef<Promise<void>>(Promise.resolve());
+  const latestMarkdownWriteVersionRef = useRef({ next: 0, byFile: new Map<string, number>() });
   const { filePath, onAskWhyInChat, onCommentInChat, onReferenceInChat, workspaceRoot } = props;
   const queryClient = useQueryClient();
-  const markdownPreviewDefault = props.markdownPreviewDefault ?? false;
   const fileIsImage = filePath !== null && isSupportedLocalImagePath(filePath);
   const fileIsPdf = filePath !== null && isSupportedLocalPdfPath(filePath);
   const fileIsLocalAbsolute = filePath !== null && isLocalAbsolutePath(filePath);
@@ -337,7 +358,7 @@ export function WorkspaceFilePreview(props: WorkspaceFilePreviewProps) {
   const fileNeedsLocalPreviewGrant =
     filePath !== null && fileIsLocalAbsolute && !fileIsScratchBinaryPreview;
   const fileIsMarkdown = filePath !== null && isMarkdownPreviewablePath(filePath);
-  const [markdownPreviewEnabled, setMarkdownPreviewEnabled] = useState(markdownPreviewDefault);
+  const fileIsMarkdownWysiwyg = filePath !== null && isMarkdownWysiwygPath(filePath);
   const localPreviewGrantQuery = useQuery(
     projectLocalPreviewGrantQueryOptions({
       path: filePath,
@@ -362,29 +383,31 @@ export function WorkspaceFilePreview(props: WorkspaceFilePreviewProps) {
         (props.workspaceRoot !== null || localPreviewGrant !== null),
     }),
   );
-  useEffect(() => {
-    setMarkdownPreviewEnabled(markdownPreviewDefault);
-  }, [filePath, markdownPreviewDefault]);
-
   const fileContents = fileQuery.data?.contents ?? "";
-  const showMarkdownPreview = fileIsMarkdown && markdownPreviewEnabled;
+  const fileIsTruncated = fileQuery.data?.truncated ?? false;
+  const canEditMarkdownWysiwyg =
+    fileIsMarkdownWysiwyg &&
+    props.workspaceRoot !== null &&
+    fileIsWorkspaceRelative &&
+    fileQuery.data !== undefined &&
+    !fileIsTruncated;
+  const showMarkdownWysiwyg = canEditMarkdownWysiwyg;
+  const showMarkdownReadOnly = fileIsMarkdown && !showMarkdownWysiwyg;
   const lineCount = useMemo(
     () => (fileContents.length === 0 ? 0 : fileContents.split("\n").length),
     [fileContents],
   );
-  // Highlight -> floating "Add to chat" -> reference that points at exactly what
-  // was selected, mirroring the transcript flow. This is offered only in the
-  // source view, where the DOM mirrors the file's lines/columns 1:1 so a
-  // selection resolves to an exact `line 12:5-12` span. The rendered-markdown
-  // view restructures the source (paragraphs, lists, headings), so a selection
-  // there cannot map back to an exact range — referencing a single word on a
-  // 3000-word line would pull in the whole line. The rendered view therefore
-  // stays read-only for references (browsing + task-list toggles only); use the
-  // Source toggle in the header to get a precise selection reference.
   const readPreviewSelection = useCallback(
-    (container: HTMLElement): Omit<ChatFileReference, "path"> | null =>
-      showMarkdownPreview ? null : getSelectionWithin(container),
-    [showMarkdownPreview],
+    (container: HTMLElement): Omit<ChatFileReference, "path"> | null => {
+      if (showMarkdownWysiwyg) {
+        return readMarkdownWysiwygSelection(container);
+      }
+      if (showMarkdownReadOnly) {
+        return null;
+      }
+      return getSelectionWithin(container);
+    },
+    [showMarkdownReadOnly, showMarkdownWysiwyg],
   );
   const commitPreviewSelection = useCallback(
     (selection: Omit<ChatFileReference, "path">) => {
@@ -395,15 +418,11 @@ export function WorkspaceFilePreview(props: WorkspaceFilePreviewProps) {
     [onReferenceInChat, filePath],
   );
   const previewSelectionAction = useCodeSelectionAction({
-    enabled: Boolean(onReferenceInChat && filePath) && !showMarkdownPreview,
+    enabled: Boolean(onReferenceInChat && filePath) && (showMarkdownWysiwyg || !fileIsMarkdown),
     readSelection: readPreviewSelection,
     onCommit: commitPreviewSelection,
   });
-  // Hover "+" gutter affordance + inline "Local comment" box. Offered only in
-  // the source view, where the DOM mirrors the file's lines 1:1 so the hovered
-  // `.line` resolves to an exact line number (the rendered-markdown view
-  // restructures the source and cannot map a row back to a file line).
-  const lineCommentingEnabled = Boolean(onCommentInChat && filePath) && !showMarkdownPreview;
+  const lineCommentingEnabled = Boolean(onCommentInChat && filePath) && !fileIsMarkdown;
   const lineCommenting = useFileLineCommenting({
     enabled: lineCommentingEnabled,
     resetKey: filePath,
@@ -416,10 +435,6 @@ export function WorkspaceFilePreview(props: WorkspaceFilePreviewProps) {
     },
     [filePath, onCommentInChat],
   );
-  // Right-click references the selected line range in the source view,
-  // otherwise the whole file. The rendered-markdown view yields no selection
-  // (readPreviewSelection returns null there), so it always falls back to the
-  // whole-file reference.
   const handleContentsContextMenu = useCallback(
     (event: ReactMouseEvent<HTMLDivElement>) => {
       if (!filePath) {
@@ -438,42 +453,23 @@ export function WorkspaceFilePreview(props: WorkspaceFilePreviewProps) {
     },
     [onAskWhyInChat, onReferenceInChat, filePath, readPreviewSelection],
   );
-  // Clicking a task checkbox in the markdown preview persists the toggle to
-  // disk: optimistic cache update first, ordered write-through after, refetch
-  // on failure so the preview never drifts from the file.
-  const handleTaskToggle = useCallback(
-    ({ sourceLine, checked }: { sourceLine: number; checked: boolean }) => {
-      if (!workspaceRoot || !filePath) {
+  const persistMarkdownContents = useCallback(
+    (nextContents: string) => {
+      if (!workspaceRoot || !filePath || !fileQuery.data || fileQuery.data.truncated) {
         return;
       }
       const options = projectReadFileQueryOptions({ cwd: workspaceRoot, relativePath: filePath });
-      const current = queryClient.getQueryData(options.queryKey);
-      if (!current || current.truncated) {
-        return;
-      }
-      const nextContents = toggleMarkdownTaskMarker(current.contents, sourceLine, checked);
-      if (nextContents === null) {
-        return;
-      }
-      // No API means no write can happen — bail before the optimistic update
-      // so the preview never shows a toggle that was silently dropped.
       const api = readNativeApi();
       if (!api) {
         return;
       }
-      queryClient.setQueryData(options.queryKey, { ...current, contents: nextContents });
-      // The read RPC may have resolved a bare/partial reference (e.g. a clicked
-      // `notes.md`) to its real nested path. Write back to that resolved path,
-      // not the opened reference, so the toggle lands on the file we read from
-      // instead of creating a stray file at the workspace root.
-      const writeRelativePath = current.relativePath;
-      // Writes carry the full file contents, so serialize them: a slower earlier
-      // checkbox write must never land after a newer toggle and erase it.
+      queryClient.setQueryData(options.queryKey, { ...fileQuery.data, contents: nextContents });
+      const writeRelativePath = fileQuery.data.relativePath;
       const fileKey = `${workspaceRoot}\0${filePath}`;
-      const writeVersion = latestTaskWriteVersionRef.current.next + 1;
-      latestTaskWriteVersionRef.current.next = writeVersion;
-      latestTaskWriteVersionRef.current.byFile.set(fileKey, writeVersion);
-      taskWriteQueueRef.current = taskWriteQueueRef.current
+      const writeVersion = latestMarkdownWriteVersionRef.current.next + 1;
+      latestMarkdownWriteVersionRef.current.next = writeVersion;
+      latestMarkdownWriteVersionRef.current.byFile.set(fileKey, writeVersion);
+      markdownWriteQueueRef.current = markdownWriteQueueRef.current
         .catch(() => undefined)
         .then(() =>
           api.projects.writeFile({
@@ -484,25 +480,51 @@ export function WorkspaceFilePreview(props: WorkspaceFilePreviewProps) {
         )
         .then(() => undefined)
         .catch(() => {
-          if (latestTaskWriteVersionRef.current.byFile.get(fileKey) !== writeVersion) {
+          if (latestMarkdownWriteVersionRef.current.byFile.get(fileKey) !== writeVersion) {
             return;
           }
           void queryClient.invalidateQueries({ queryKey: options.queryKey });
         });
-      void taskWriteQueueRef.current;
+      void markdownWriteQueueRef.current;
     },
-    [filePath, queryClient, workspaceRoot],
+    [filePath, fileQuery.data, queryClient, workspaceRoot],
   );
-  const handleMarkdownPreviewChange = useCallback((rendered: boolean) => {
-    setMarkdownPreviewEnabled(rendered);
-  }, []);
-  // Toggling a task rewrites the file, so only enable it when the preview
-  // holds the complete contents (writing a truncated read would corrupt it).
-  const canToggleTasks =
-    props.workspaceRoot !== null &&
-    fileIsWorkspaceRelative &&
-    fileQuery.data !== undefined &&
-    !fileQuery.data.truncated;
+
+  const markdownSaveDebouncer = useMemo(
+    () =>
+      new Debouncer(
+        (nextContents: string) => {
+          persistMarkdownContents(nextContents);
+        },
+        { wait: 600 },
+      ),
+    [persistMarkdownContents],
+  );
+
+  useEffect(() => {
+    return () => {
+      markdownSaveDebouncer.cancel();
+    };
+  }, [markdownSaveDebouncer]);
+
+  const handleMarkdownWysiwygChange = useCallback(
+    (nextContents: string) => {
+      if (!canEditMarkdownWysiwyg) {
+        return;
+      }
+      const options = projectReadFileQueryOptions({
+        cwd: props.workspaceRoot,
+        relativePath: filePath,
+      });
+      const current = queryClient.getQueryData(options.queryKey);
+      if (!current || current.truncated || current.contents === nextContents) {
+        return;
+      }
+      queryClient.setQueryData(options.queryKey, { ...current, contents: nextContents });
+      markdownSaveDebouncer.maybeExecute(nextContents);
+    },
+    [canEditMarkdownWysiwyg, filePath, markdownSaveDebouncer, props.workspaceRoot, queryClient],
+  );
 
   if (!props.workspaceRoot && !fileIsLocalAbsolute && !fileIsScratchBinaryPreview) {
     return (
@@ -561,12 +583,9 @@ export function WorkspaceFilePreview(props: WorkspaceFilePreviewProps) {
       <WorkspaceFilePreviewHeader
         workspaceRoot={props.workspaceRoot}
         filePath={filePath}
-        isMarkdown={fileIsMarkdown}
-        markdownPreviewEnabled={showMarkdownPreview}
-        onMarkdownPreviewChange={handleMarkdownPreviewChange}
         onReferenceInChat={onReferenceInChat}
         onAskWhyInChat={onAskWhyInChat}
-        truncated={fileQuery.data?.truncated ?? false}
+        truncated={fileIsTruncated}
       />
       {fileIsImage ? (
         <div
@@ -595,27 +614,34 @@ export function WorkspaceFilePreview(props: WorkspaceFilePreviewProps) {
           ref={contentsRef}
           className={cn(
             "editor-file-viewer min-h-0 flex-1 overflow-auto",
-            showMarkdownPreview && "editor-file-viewer--markdown-preview",
+            (showMarkdownWysiwyg || showMarkdownReadOnly) && "editor-file-viewer--markdown-preview",
           )}
           onContextMenu={handleContentsContextMenu}
           onMouseUp={previewSelectionAction.onContainerMouseUp}
           onMouseMove={lineCommenting.onContainerMouseMove}
           onMouseLeave={lineCommenting.onContainerMouseLeave}
         >
-          {showMarkdownPreview ? (
+          {showMarkdownWysiwyg ? (
+            <MarkdownWysiwygEditor
+              fileKey={filePath}
+              markdown={fileContents}
+              editable
+              className="editor-markdown-preview__body text-sm leading-relaxed"
+              onMarkdownChange={handleMarkdownWysiwygChange}
+            />
+          ) : showMarkdownReadOnly ? (
             <div className="editor-markdown-preview">
               <ChatMarkdown
                 text={fileContents}
                 cwd={markdownPreviewCwd(props.workspaceRoot, filePath)}
                 isStreaming={false}
                 className="editor-markdown-preview__body text-sm leading-relaxed"
-                {...(canToggleTasks ? { onTaskToggle: handleTaskToggle } : {})}
               />
             </div>
           ) : (
             <FileContentsView path={filePath} contents={fileContents} themeName={diffThemeName} />
           )}
-          {!showMarkdownPreview && lineCount > 0 ? (
+          {!fileIsMarkdown && lineCount > 0 ? (
             <span className="sr-only">{lineCount} lines</span>
           ) : null}
           {previewSelectionAction.pendingAction ? (

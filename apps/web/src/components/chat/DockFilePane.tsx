@@ -1,7 +1,7 @@
 // FILE: DockFilePane.tsx
 // Purpose: Right-dock pane that previews one workspace file through the shared
-//          WorkspaceFilePreview. Markdown opens already parsed (rendered); the
-//          shared header carries the source toggle and open-in-editor controls.
+//          WorkspaceFilePreview. Markdown opens in the WYSIWYG editor when
+//          editable; the shared header carries open-in-editor controls.
 // Layer: Chat right-dock UI
 // Exports: DockFilePane
 
@@ -23,7 +23,6 @@ export const DockFilePane = memo(function DockFilePane(props: {
     <WorkspaceFilePreview
       workspaceRoot={props.workspaceRoot}
       filePath={props.filePath}
-      markdownPreviewDefault
       emptyState={
         <PanelStateMessage density="compact" fill="flex">
           <p>点击对话中的文件即可在此预览。</p>
