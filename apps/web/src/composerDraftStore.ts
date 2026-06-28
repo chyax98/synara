@@ -30,7 +30,7 @@ import {
 } from "@t3tools/shared/model";
 import { useMemo } from "react";
 import { getLocalStorageItem } from "./hooks/useLocalStorage";
-import { resolveAppModelSelection } from "./appSettings";
+
 import { resolveOpenCodeDefaultChatModel } from "./lib/modelCatalogSettings";
 import {
   DEFAULT_INTERACTION_MODE,

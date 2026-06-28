@@ -2,7 +2,6 @@ import {
   type AutomationDefinition,
   type AutomationSchedule,
   type ApprovalRequestId,
-  DEFAULT_MODEL_BY_PROVIDER,
   EventId,
   MessageId,
   type ModelSelection,
@@ -1366,12 +1365,18 @@ export default function ChatView({
             draftThread,
             fallbackDraftProject?.defaultModelSelection ?? {
               provider: "opencode",
-              model: DEFAULT_MODEL_BY_PROVIDER.opencode,
+              model: settings.defaultChatModel.trim(),
             },
             localDraftError,
           )
         : undefined,
-    [draftThread, fallbackDraftProject?.defaultModelSelection, localDraftError, threadId],
+    [
+      draftThread,
+      fallbackDraftProject?.defaultModelSelection,
+      localDraftError,
+      settings.defaultChatModel,
+      threadId,
+    ],
   );
   const activeThread = serverThread ?? localDraftThread;
   const runtimeMode =
@@ -6841,7 +6846,10 @@ export default function ChatView({
           ? selectedModelSelectionForSend.model
           : selectedModelForSend ||
               targetProjectDefaultModelSelectionForSend?.model ||
-              DEFAULT_MODEL_BY_PROVIDER.opencode,
+              resolveCatalogModelSelection({
+                catalogOptions: modelOptionsByProvider[selectedProviderForSend] ?? [],
+                defaultChatModel: settings.defaultChatModel,
+              }),
         selectedModelSelectionForSend.options,
       );
 

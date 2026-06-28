@@ -29,9 +29,9 @@ import {
   normalizeTerminalFontFamily,
   normalizeTerminalFontSizePx,
   patchCustomModels,
-  resolveAppModelSelection,
   resolveTerminalFontFamilyStack,
 } from "./appSettings";
+import { resolveCatalogModelSelection } from "./lib/modelCatalogSettings";
 
 describe("normalizeCustomModelSlugs", () => {
   it("normalizes aliases, removes built-ins, and deduplicates values", () => {
@@ -111,54 +111,45 @@ describe("getGitTextGenerationModelOptions", () => {
   });
 });
 
-describe("resolveAppModelSelection", () => {
-  it("preserves saved custom model slugs instead of falling back to the default", () => {
+describe("resolveCatalogModelSelection", () => {
+  it("preserves candidate when it exists in the live catalog", () => {
     expect(
-      resolveAppModelSelection(
-        "opencode",
-        {
-          opencode: ["galapagos-alpha"],
-        },
-        "galapagos-alpha",
-      ),
+      resolveCatalogModelSelection({
+        candidate: "galapagos-alpha",
+        catalogOptions: [{ slug: "galapagos-alpha" }, { slug: "anthropic/claude-sonnet-4" }],
+        defaultChatModel: "anthropic/claude-sonnet-4",
+      }),
     ).toBe("galapagos-alpha");
   });
 
-  it("uses catalog options instead of static default when provided", () => {
+  it("uses defaultChatModel when configured in catalog", () => {
     expect(
-      resolveAppModelSelection(
-        "opencode",
-        {
-          opencode: [],
-        },
-        "",
-        [{ slug: "anthropic/claude-sonnet-4", name: "Claude Sonnet 4", provider: "opencode" }],
-      ),
+      resolveCatalogModelSelection({
+        candidate: "",
+        catalogOptions: [{ slug: "anthropic/claude-sonnet-4" }],
+        defaultChatModel: "anthropic/claude-sonnet-4",
+      }),
     ).toBe("anthropic/claude-sonnet-4");
   });
 
   it("does not fall back to static gpt-5 when catalog and selection are empty", () => {
     expect(
-      resolveAppModelSelection(
-        "opencode",
-        {
-          opencode: [],
-        },
-        "",
-      ),
+      resolveCatalogModelSelection({
+        candidate: "",
+        catalogOptions: [],
+        defaultChatModel: "openai/gpt-5",
+      }),
     ).toBe("");
   });
 
-  it("resolves transient selected custom models included in app model options", () => {
+  it("ignores candidates that are absent from the catalog", () => {
     expect(
-      resolveAppModelSelection(
-        "opencode",
-        {
-          opencode: [],
-        },
-        "custom/selected-model",
-      ),
-    ).toBe("custom/selected-model");
+      resolveCatalogModelSelection({
+        candidate: "custom/selected-model",
+        catalogOptions: [{ slug: "anthropic/claude-sonnet-4" }],
+        defaultChatModel: "anthropic/claude-sonnet-4",
+      }),
+    ).toBe("anthropic/claude-sonnet-4");
   });
 });
 
