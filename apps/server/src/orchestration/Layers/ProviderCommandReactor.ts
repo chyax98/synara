@@ -23,7 +23,7 @@ import {
 import { Cache, Cause, Duration, Effect, Equal, Layer, Option, Schema, Stream } from "effect";
 import { makeDrainableWorker } from "@t3tools/shared/DrainableWorker";
 
-import { shouldDrainQueuedTurnsAfterCompactSessionSet } from "../providerCompactSession.ts";
+import { resolveCompactSessionSetDrainThreadId } from "../providerCompactSession.ts";
 import {
   buildPromptThreadTitleFallback,
   isGenericChatThreadTitle,
@@ -1419,17 +1419,11 @@ const make = Effect.gen(function* () {
   const processCompactSessionSetDrain = Effect.fnUntraced(function* (
     event: Extract<OrchestrationEvent, { type: "thread.session-set" }>,
   ) {
-    const session = event.payload.session;
-    if (
-      !shouldDrainQueuedTurnsAfterCompactSessionSet({
-        commandId: event.commandId ?? null,
-        status: session.status,
-        activeTurnId: session.activeTurnId,
-      })
-    ) {
+    const drainThreadId = resolveCompactSessionSetDrainThreadId(event);
+    if (!drainThreadId) {
       return;
     }
-    yield* drainQueuedTurnsForThread(event.payload.threadId);
+    yield* drainQueuedTurnsForThread(drainThreadId);
   });
 
   const processTurnInterruptRequested = Effect.fnUntraced(function* (

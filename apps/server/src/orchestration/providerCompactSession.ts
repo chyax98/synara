@@ -1,4 +1,4 @@
-import type { TurnId } from "@t3tools/contracts";
+import { type OrchestrationEvent, type ThreadId, type TurnId } from "@t3tools/contracts";
 
 export const COMPACT_SESSION_SET_COMMAND_TAG = "thread-session-set-after-compact";
 
@@ -35,4 +35,21 @@ export function shouldDrainQueuedTurnsAfterCompactSessionSet(input: {
     input.status === "ready" &&
     input.activeTurnId === null
   );
+}
+
+/** Gate used by ProviderCommandReactor's thread.session-set domain listener. */
+export function resolveCompactSessionSetDrainThreadId(
+  event: Pick<Extract<OrchestrationEvent, { type: "thread.session-set" }>, "commandId" | "payload">,
+): ThreadId | null {
+  const session = event.payload.session;
+  if (
+    !shouldDrainQueuedTurnsAfterCompactSessionSet({
+      commandId: event.commandId ?? null,
+      status: session.status,
+      activeTurnId: session.activeTurnId,
+    })
+  ) {
+    return null;
+  }
+  return event.payload.threadId;
 }

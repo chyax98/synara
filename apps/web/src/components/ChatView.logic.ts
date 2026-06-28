@@ -13,6 +13,8 @@ import { normalizeModelSlug } from "@t3tools/shared/model";
 import { buildSynaraBranchName } from "@t3tools/shared/git";
 import { isGenericChatThreadTitle } from "@t3tools/shared/chatThreads";
 import { isGenericTerminalThreadTitle } from "@t3tools/shared/terminalThreads";
+import { isPendingThreadWorktree } from "@t3tools/shared/threadEnvironment";
+import type { ThreadEnvironmentMode } from "@t3tools/contracts";
 import {
   type ChatAssistantSelectionAttachment,
   type ChatMessage,
@@ -612,6 +614,22 @@ export function shouldRenderTerminalWorkspace(options: {
   // The workspace shell should paint immediately; the terminal viewport gates the
   // backend attach until a valid cwd is available.
   return options.terminalOpen && options.presentationMode === "workspace";
+}
+
+export function resolveProjectScriptCwd(input: {
+  optionsCwd?: string | undefined;
+  gitCwd: string | null;
+  projectCwd: string;
+  envMode: ThreadEnvironmentMode | null;
+  worktreePath: string | null;
+}): string {
+  return (
+    input.optionsCwd ??
+    input.gitCwd ??
+    (isPendingThreadWorktree({ envMode: input.envMode, worktreePath: input.worktreePath })
+      ? ""
+      : input.projectCwd)
+  );
 }
 
 export function resolveProjectScriptTerminalTarget(options: {

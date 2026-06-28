@@ -9,6 +9,7 @@
 import { memo } from "react";
 
 import type { QueuedComposerTurn } from "../../composerDraftStore";
+import { buildQueuedFollowUpSummaryLabel } from "../../session-logic";
 import { SteerIcon } from "~/lib/icons";
 import { cn } from "~/lib/utils";
 import {
@@ -51,8 +52,10 @@ export const ComposerQueuedHeader = memo(function ComposerQueuedHeader({
         data-testid="queued-follow-up-summary"
       >
         <span>
-          {queuedTurns.length} 条排队
-          {isContextCompacting ? " · 压缩完成后自动发送" : ""}
+          {buildQueuedFollowUpSummaryLabel({
+            queuedCount: queuedTurns.length,
+            isContextCompacting,
+          })}
         </span>
         {isContextCompacting ? <span className="text-amber-600">正在压缩上下文…</span> : null}
       </div>

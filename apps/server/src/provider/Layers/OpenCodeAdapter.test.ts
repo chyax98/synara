@@ -127,6 +127,7 @@ function createMockOpenCodeRuntime(options?: {
   const createCalls: Array<Record<string, unknown>> = [];
   const forkCalls: Array<{ sessionID: string }> = [];
   const promptCalls: Array<Record<string, unknown>> = [];
+  const summarizeCalls: Array<Record<string, unknown>> = [];
   const emptySubscription = {
     async *[Symbol.asyncIterator]() {
       // No provider-side events needed for these adapter lifecycle tests.
@@ -162,7 +163,10 @@ function createMockOpenCodeRuntime(options?: {
       messages: options?.messages ?? (async () => ({ data: [] })),
       get: async () => ({ data: { directory: process.cwd(), ...(options?.session ?? {}) } }),
       revert: async () => ({ data: null }),
-      summarize: async () => ({ data: null }),
+      summarize: async (input: Record<string, unknown>) => {
+        summarizeCalls.push(input);
+        return { data: null };
+      },
       fork: async (input: { sessionID: string }) => {
         forkCalls.push(input);
         return { data: { id: "forked-session-1" } };
@@ -239,7 +243,16 @@ function createMockOpenCodeRuntime(options?: {
     loadOpenCodeCredentialProviderIDs: () => Effect.succeed([]),
   };
 
-  return { abortCalls, cliModelCalls, connectCalls, createCalls, forkCalls, promptCalls, runtime };
+  return {
+    abortCalls,
+    cliModelCalls,
+    connectCalls,
+    createCalls,
+    forkCalls,
+    promptCalls,
+    summarizeCalls,
+    runtime,
+  };
 }
 
 function createSubscribedEventQueue() {
@@ -3228,5 +3241,185 @@ describe("OpenCodeAdapter runtime lifecycle", () => {
       "item.completed",
       "turn.completed",
     ]);
+  });
+
+  it("compactThread calls session.summarize with the active model selection", async () => {
+    const runtime = createMockOpenCodeRuntime({
+      session: {
+        model: {
+          providerID: "openai",
+          modelID: "gpt-5.4",
+        },
+      },
+    });
+
+    await Effect.runPromise(
+      Effect.gen(function* () {
+        const adapter = yield* OpenCodeAdapter;
+        yield* adapter.startSession({
+          provider: "opencode",
+          threadId: asThreadId("thread-compact"),
+          runtimeMode: "full-access",
+          modelSelection: {
+            provider: "opencode",
+            model: "openai/gpt-5.4",
+          },
+        });
+        const compactThread = adapter.compactThread;
+        if (!compactThread) {
+          throw new Error("Expected OpenCode adapter to support compactThread.");
+        }
+        yield* compactThread(asThreadId("thread-compact"));
+      }).pipe(
+        Effect.provide(
+          makeOpenCodeAdapterLive({ runtime: runtime.runtime }).pipe(
+            Layer.provideMerge(
+              ServerConfig.layerTest(process.cwd(), { prefix: "opencode-adapter-test-" }),
+            ),
+            Layer.provideMerge(NodeServices.layer),
+          ),
+        ),
+      ),
+    );
+
+    expect(runtime.summarizeCalls).toEqual([
+      {
+        sessionID: "opencode-session-1",
+        providerID: "openai",
+        modelID: "gpt-5.4",
+      },
+    ]);
+  });
+
+  it("emits thread.state.changed compacted when session.compacted arrives after summarize", async () => {
+    const eventQueue = createSubscribedEventQueue();
+    const runtime = createMockOpenCodeRuntime({
+      session: {
+        model: {
+          providerID: "openai",
+          modelID: "gpt-5.4",
+        },
+      },
+    });
+    const client = runtime.runtime.createOpenCodeSdkClient({
+      baseUrl: "http://127.0.0.1:4099",
+      directory: process.cwd(),
+    }) as unknown as {
+      event: {
+        subscribe: () => Promise<{ stream: AsyncIterable<unknown> }>;
+      };
+    };
+    client.event.subscribe = async () => ({ stream: eventQueue.stream });
+
+    const result = await Effect.runPromise(
+      Effect.gen(function* () {
+        const adapter = yield* OpenCodeAdapter;
+        const eventsFiber = yield* Stream.runCollect(Stream.take(adapter.streamEvents, 3)).pipe(
+          Effect.forkChild,
+        );
+
+        yield* adapter.startSession({
+          provider: "opencode",
+          threadId: asThreadId("thread-compact-event"),
+          runtimeMode: "full-access",
+          modelSelection: {
+            provider: "opencode",
+            model: "openai/gpt-5.4",
+          },
+        });
+
+        const compactThread = adapter.compactThread;
+        if (!compactThread) {
+          throw new Error("Expected OpenCode adapter to support compactThread.");
+        }
+        yield* compactThread(asThreadId("thread-compact-event"));
+
+        eventQueue.push({
+          type: "session.compacted",
+          properties: {
+            sessionID: "opencode-session-1",
+          },
+        });
+
+        const events = Array.from(yield* Fiber.join(eventsFiber));
+        eventQueue.close();
+        return events;
+      }).pipe(
+        Effect.provide(
+          makeOpenCodeAdapterLive({ runtime: runtime.runtime }).pipe(
+            Layer.provideMerge(
+              ServerConfig.layerTest(process.cwd(), { prefix: "opencode-adapter-test-" }),
+            ),
+            Layer.provideMerge(NodeServices.layer),
+          ),
+        ),
+      ),
+    );
+
+    expect(runtime.summarizeCalls).toHaveLength(1);
+    const compactedEvent = result.find(
+      (event) =>
+        event.type === "thread.state.changed" &&
+        "payload" in event &&
+        event.payload.state === "compacted",
+    );
+    expect(result.map((event) => event.type)).toEqual(
+      expect.arrayContaining(["session.started", "thread.started", "thread.state.changed"]),
+    );
+    expect(compactedEvent).toMatchObject({
+      type: "thread.state.changed",
+      payload: {
+        state: "compacted",
+      },
+    });
+  });
+
+  it("sendTurn after interruptTurn matches steer-style handoff to the next prompt", async () => {
+    const runtime = createMockOpenCodeRuntime();
+
+    await Effect.runPromise(
+      Effect.gen(function* () {
+        const adapter = yield* OpenCodeAdapter;
+        yield* adapter.startSession({
+          provider: "opencode",
+          threadId: asThreadId("thread-steer-handoff"),
+          runtimeMode: "full-access",
+        });
+        yield* adapter.sendTurn({
+          threadId: asThreadId("thread-steer-handoff"),
+          input: "first prompt",
+          attachments: [],
+          modelSelection: {
+            provider: "opencode",
+            model: "openai/gpt-5.4",
+          },
+        });
+        yield* adapter.interruptTurn(asThreadId("thread-steer-handoff"));
+        yield* adapter.sendTurn({
+          threadId: asThreadId("thread-steer-handoff"),
+          input: "steered follow-up",
+          attachments: [],
+          modelSelection: {
+            provider: "opencode",
+            model: "openai/gpt-5.4",
+          },
+        });
+      }).pipe(
+        Effect.provide(
+          makeOpenCodeAdapterLive({ runtime: runtime.runtime }).pipe(
+            Layer.provideMerge(
+              ServerConfig.layerTest(process.cwd(), { prefix: "opencode-adapter-test-" }),
+            ),
+            Layer.provideMerge(NodeServices.layer),
+          ),
+        ),
+      ),
+    );
+
+    expect(runtime.abortCalls.length).toBeGreaterThanOrEqual(1);
+    expect(runtime.promptCalls).toHaveLength(2);
+    expect(runtime.promptCalls[1]).toMatchObject({
+      parts: [{ type: "text", text: "steered follow-up" }],
+    });
   });
 });

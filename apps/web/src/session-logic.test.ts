@@ -22,7 +22,9 @@ import {
   findLatestProposedPlan,
   findSidebarProposedPlan,
   hasActionableProposedPlan,
+  buildQueuedFollowUpSummaryLabel,
   isContextCompactionInProgress,
+  shouldDisableQueuedSteerDuringCompaction,
   isFileChangeWorkLogEntry,
   isLatestTurnSettled,
   isProviderFileEditWorkLogEntry,
@@ -2829,6 +2831,23 @@ describe("deriveWorkLogEntries context window handling", () => {
 
     expect(entries).toHaveLength(1);
     expect(entries[0]?.label).toBe("Ran command");
+  });
+
+  it("builds queue summary labels and disables steer only while compaction is in progress", () => {
+    expect(
+      buildQueuedFollowUpSummaryLabel({
+        queuedCount: 2,
+        isContextCompacting: true,
+      }),
+    ).toBe("2 条排队 · 压缩完成后自动发送");
+    expect(
+      buildQueuedFollowUpSummaryLabel({
+        queuedCount: 1,
+        isContextCompacting: false,
+      }),
+    ).toBe("1 条排队");
+    expect(shouldDisableQueuedSteerDuringCompaction(true)).toBe(true);
+    expect(shouldDisableQueuedSteerDuringCompaction(false)).toBe(false);
   });
 
   it("detects in-progress context compaction from thread activities", () => {

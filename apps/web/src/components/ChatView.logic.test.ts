@@ -17,6 +17,7 @@ import {
   resolveDefaultEnvironmentPanelOpen,
   resolveEnvironmentPanelOpen,
   resolveEnvironmentPanelVisible,
+  resolveProjectScriptCwd,
   resolveProjectScriptTerminalTarget,
   resolveRuntimeModeAfterApprovalDecision,
   sanitizeVoiceErrorMessage,
@@ -739,6 +740,47 @@ describe("shouldRenderTerminalWorkspace", () => {
         terminalOpen: true,
       }),
     ).toBe(false);
+  });
+});
+
+describe("resolveProjectScriptCwd", () => {
+  it("does not fall back to project root while worktree is still pending", () => {
+    expect(
+      resolveProjectScriptCwd({
+        gitCwd: null,
+        projectCwd: "/repo/project",
+        envMode: "worktree",
+        worktreePath: null,
+      }),
+    ).toBe("");
+  });
+
+  it("prefers explicit cwd, then git cwd, then project root for local threads", () => {
+    expect(
+      resolveProjectScriptCwd({
+        optionsCwd: "/override",
+        gitCwd: "/repo/.worktrees/feature",
+        projectCwd: "/repo/project",
+        envMode: "worktree",
+        worktreePath: "/repo/.worktrees/feature",
+      }),
+    ).toBe("/override");
+    expect(
+      resolveProjectScriptCwd({
+        gitCwd: "/repo/.worktrees/feature",
+        projectCwd: "/repo/project",
+        envMode: "worktree",
+        worktreePath: "/repo/.worktrees/feature",
+      }),
+    ).toBe("/repo/.worktrees/feature");
+    expect(
+      resolveProjectScriptCwd({
+        gitCwd: null,
+        projectCwd: "/repo/project",
+        envMode: "local",
+        worktreePath: null,
+      }),
+    ).toBe("/repo/project");
   });
 });
 

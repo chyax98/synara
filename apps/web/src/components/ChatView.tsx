@@ -154,6 +154,7 @@ import {
   resolveDefaultEnvironmentPanelOpen,
   resolveEnvironmentPanelOpen,
   resolveEnvironmentPanelVisible,
+  resolveProjectScriptCwd,
   resolveProjectScriptTerminalTarget,
   shouldEnableComposerPastedTextCollapse,
   shouldConsumePendingCustomBinaryConfirmation,
@@ -3898,7 +3899,13 @@ export default function ChatView({
           return { ...current, [activeProject.id]: script.id };
         });
       }
-      const targetCwd = options?.cwd ?? gitCwd ?? activeProject.cwd;
+      const targetCwd = resolveProjectScriptCwd({
+        optionsCwd: options?.cwd,
+        gitCwd,
+        projectCwd: activeProject.cwd,
+        envMode: resolvedThreadEnvMode,
+        worktreePath: resolvedThreadWorktreePath,
+      });
       const baseTerminalId =
         terminalState.activeTerminalId ||
         terminalState.terminalIds[0] ||
@@ -3951,6 +3958,8 @@ export default function ChatView({
       activeThread,
       activeThreadId,
       gitCwd,
+      resolvedThreadEnvMode,
+      resolvedThreadWorktreePath,
       setTerminalOpen,
       setThreadError,
       storeNewTerminal,

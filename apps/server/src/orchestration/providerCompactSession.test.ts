@@ -1,8 +1,11 @@
 import { TurnId } from "@t3tools/contracts";
 import { describe, expect, it } from "vitest";
 
+import { CommandId, ThreadId } from "@t3tools/contracts";
+
 import {
   COMPACT_SESSION_SET_COMMAND_TAG,
+  resolveCompactSessionSetDrainThreadId,
   resolveOrchestrationSessionAfterCompactEvent,
   shouldDrainQueuedTurnsAfterCompactSessionSet,
 } from "./providerCompactSession.ts";
@@ -31,6 +34,29 @@ describe("resolveOrchestrationSessionAfterCompactEvent", () => {
       status: "running",
       activeTurnId,
     });
+  });
+});
+
+describe("resolveCompactSessionSetDrainThreadId", () => {
+  it("returns the thread id targeted by ProviderCommandReactor compact drain listener", () => {
+    const threadId = ThreadId.makeUnsafe("thread-1");
+    expect(
+      resolveCompactSessionSetDrainThreadId({
+        commandId: CommandId.makeUnsafe(`provider:evt:${COMPACT_SESSION_SET_COMMAND_TAG}:abc`),
+        payload: {
+          threadId,
+          session: {
+            threadId,
+            status: "ready",
+            providerName: "opencode",
+            runtimeMode: "full-access",
+            activeTurnId: null,
+            lastError: null,
+            updatedAt: "2026-06-28T00:00:00.000Z",
+          },
+        },
+      }),
+    ).toBe(threadId);
   });
 });
 

@@ -769,6 +769,18 @@ function readActivityPayloadStatus(activity: OrchestrationThreadActivity): strin
   return typeof status === "string" ? status : null;
 }
 
+export function buildQueuedFollowUpSummaryLabel(input: {
+  queuedCount: number;
+  isContextCompacting: boolean;
+}): string {
+  const base = `${input.queuedCount} 条排队`;
+  return input.isContextCompacting ? `${base} · 压缩完成后自动发送` : base;
+}
+
+export function shouldDisableQueuedSteerDuringCompaction(isContextCompacting: boolean): boolean {
+  return isContextCompacting;
+}
+
 export function isContextCompactionInProgress(
   activities: ReadonlyArray<OrchestrationThreadActivity>,
 ): boolean {
