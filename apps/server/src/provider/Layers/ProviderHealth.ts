@@ -509,9 +509,7 @@ export const ProviderHealthLive = Layer.effect(
         ),
       ),
       Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, spawner),
-      Effect.map((status) =>
-        orderProviderStatuses(Option.isSome(status) ? [status.value] : []),
-      ),
+      Effect.map((status) => orderProviderStatuses(Option.isSome(status) ? [status.value] : [])),
       Effect.flatMap(enrichStatuses),
     );
 

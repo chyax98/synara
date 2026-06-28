@@ -141,7 +141,7 @@ describe("resolveProviderSendAvailabilityWithRefresh", () => {
 
     await expect(
       resolveProviderSendAvailabilityWithRefresh({
-        provider: "gemini",
+        provider: "opencode",
         statuses: [READY_STATUS],
         refreshStatuses,
       }),
@@ -154,7 +154,7 @@ describe("resolveProviderSendAvailabilityWithRefresh", () => {
 
     await expect(
       resolveProviderSendAvailabilityWithRefresh({
-        provider: "gemini",
+        provider: "opencode",
         statuses: [],
         refreshStatuses,
       }),
@@ -167,7 +167,7 @@ describe("resolveProviderSendAvailabilityWithRefresh", () => {
 
     await expect(
       resolveProviderSendAvailabilityWithRefresh({
-        provider: "gemini",
+        provider: "opencode",
         statuses: [
           { ...BASE_STATUS, available: true, status: "error", authStatus: "unauthenticated" },
         ],
@@ -180,7 +180,7 @@ describe("resolveProviderSendAvailabilityWithRefresh", () => {
   it("keeps the original blocked reason when refresh fails", async () => {
     await expect(
       resolveProviderSendAvailabilityWithRefresh({
-        provider: "gemini",
+        provider: "opencode",
         statuses: [{ ...BASE_STATUS, authStatus: "unauthenticated" }],
         refreshStatuses: vi.fn(async () => {
           throw new Error("refresh failed");
@@ -188,7 +188,7 @@ describe("resolveProviderSendAvailabilityWithRefresh", () => {
       }),
     ).resolves.toMatchObject({
       usable: false,
-      unavailableReason: "Gemini is not authenticated yet.",
+      unavailableReason: "OpenCode 尚未完成认证。",
     });
   });
 });

@@ -115,14 +115,14 @@ describe("EditorWorkspaceView", () => {
       </SidebarProvider>,
     );
 
-    expect(markup).toContain("Changed files");
+    expect(markup).toContain("变更文件");
     expect(markup).toContain("+3");
     expect(markup).toContain("-1");
     expect(markup).toContain('aria-label="Diff options"');
 
     // Options sit in the "Changed files" header row; the +/- totals render in
     // the stats row below it.
-    const changedFilesIndex = markup.indexOf("Changed files");
+    const changedFilesIndex = markup.indexOf("变更文件");
     const optionsIndex = markup.indexOf('aria-label="Diff options"', changedFilesIndex);
     const additionsIndex = markup.indexOf(">+3<", optionsIndex);
     const deletionsIndex = markup.indexOf(">-1<", additionsIndex);
@@ -334,7 +334,7 @@ describe("EditorWorkspaceView", () => {
       </QueryClientProvider>,
     );
 
-    expect(markup).toContain('aria-label="Loading file..."');
+    expect(markup).toContain('aria-label="正在加载文件..."');
     expect(markup).not.toContain("/api/local-image?path=%2FUsers%2Ftester%2FDownloads%2Fshot.png");
     expect(markup).not.toContain("No workspace is attached");
     expect(markup).not.toContain("cwd=");

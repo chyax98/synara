@@ -363,7 +363,6 @@ function ChatRouteGlobalShortcuts() {
         return;
       }
 
-
       if (command !== "chat.new") return;
       // Falls back to the most recent project when none is focused (e.g. the landing
       // view) so the primary "new thread" chord always creates a thread; on that

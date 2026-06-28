@@ -183,7 +183,7 @@ describe("deriveReadableCommandDisplay", () => {
         `/bin/zsh -lc 'rm -f /tmp/test.log && bun run --cwd apps/server test'`,
       ),
     ).toEqual({
-      verb: "Removed",
+      verb: "已删除",
       target: "/tmp/test.log",
       fullCommand: `/bin/zsh -lc 'rm -f /tmp/test.log && bun run --cwd apps/server test'`,
     });

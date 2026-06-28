@@ -76,7 +76,7 @@ import {
 } from "../components/chat/chatHeaderControls";
 import { SidebarHeaderNavigationControls } from "../components/SidebarHeaderNavigationControls";
 import { RouteInsetSurface } from "../components/RouteInsetSurface";
-import ReleaseHistoryDialog from "../components/ReleaseHistoryDialog";
+
 import { resolveAndPersistPreferredEditor } from "../editorPreferences";
 import { isElectron } from "../env";
 import { useTheme } from "../hooks/useTheme";
@@ -275,7 +275,6 @@ function SettingsRouteView() {
   const [isOpeningKeybindings, setIsOpeningKeybindings] = useState(false);
   const [isRepairingLocalState, setIsRepairingLocalState] = useState(false);
   const [showRecoveryTools, setShowRecoveryTools] = useState(false);
-  const [releaseHistoryOpen, setReleaseHistoryOpen] = useState(false);
 
   const [openKeybindingsError, setOpenKeybindingsError] = useState<string | null>(null);
   const environmentPanelRef = useRef<HTMLDivElement | null>(null);
@@ -1826,7 +1825,8 @@ function SettingsRouteView() {
         <SettingsRow
           title="唯一提供商"
           description="Synara 仅支持 OpenCode 作为唯一提供商，无需额外配置。"
-        />      </SettingsSection>
+        />{" "}
+      </SettingsSection>
     </div>
   );
 
@@ -2011,14 +2011,6 @@ function SettingsRouteView() {
             )}
           </div>
         </div>
-        {/* Mounted at the route level (outside the scrollable panel) so the
-          dialog portal can overlay the entire settings view without being
-          clipped by the content wrapper's overflow. */}
-        <ReleaseHistoryDialog
-          open={releaseHistoryOpen}
-          onOpenChange={setReleaseHistoryOpen}
-          defaultExpandedVersion={APP_VERSION}
-        />
       </RouteInsetSurface>
     </div>
   );

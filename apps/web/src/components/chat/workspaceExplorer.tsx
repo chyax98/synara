@@ -536,8 +536,8 @@ function WorkspaceSearchInputHeader(props: {
         spellCheck={false}
         autoCorrect="off"
         autoCapitalize="off"
-        placeholder="Search files..."
-        aria-label="Search files"
+        placeholder="搜索文件..."
+        aria-label="搜索文件"
         onChange={(event) => onQueryChange(event.target.value)}
         onKeyDown={handleInputKeyDown}
       />
@@ -635,7 +635,7 @@ export function WorkspaceSearchSidebar(props: {
       {search.inputQuery.length === 0 ? (
         <div className="flex min-h-0 flex-1 flex-col px-1 py-1">
           <PanelStateMessage density="compact" fill="flex">
-            <p>Search files by name or path.</p>
+            <p>按名称或路径搜索文件。</p>
           </PanelStateMessage>
         </div>
       ) : (

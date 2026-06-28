@@ -29,6 +29,7 @@ const STATIC_KEYBINDING_COMMANDS = [
   "composer.focus.toggle",
   "modelPicker.toggle",
   "traitsPicker.toggle",
+  "settings.usage",
   "chat.new",
   "chat.newLatestProject",
   "chat.newChat",

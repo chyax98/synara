@@ -65,8 +65,8 @@ export async function createOrRecoverProjectFromPath(input: {
       workspaceRoot,
       createWorkspaceRootIfMissing: input.createIfMissing === true,
       defaultModelSelection: {
-        provider: "codex",
-        model: getDefaultModel("codex"),
+        provider: "opencode",
+        model: getDefaultModel("opencode"),
       },
       createdAt,
     });

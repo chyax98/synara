@@ -18,6 +18,6 @@ describe("RIGHT_DOCK_ADD_MENU_KINDS", () => {
   });
 
   it("labels the explorer pane", () => {
-    expect(getRightDockPaneMeta("explorer").label).toBe("Explorer");
+    expect(getRightDockPaneMeta("explorer").label).toBe("资源管理器");
   });
 });

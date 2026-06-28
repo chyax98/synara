@@ -5640,7 +5640,6 @@ export default function ChatView({
     [activeThread, hasLiveTurn, isConnecting, isRevertingCheckpoint, isSendBusy, setThreadError],
   );
 
-
   const clearComposerInput = useCallback(
     (threadId: ThreadId) => {
       promptRef.current = "";

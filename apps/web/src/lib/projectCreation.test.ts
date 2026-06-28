@@ -22,7 +22,7 @@ function makeProject(id: string, workspaceRoot = WORKSPACE_ROOT) {
     title: "synara",
     workspaceRoot,
     defaultModelSelection: {
-      provider: "codex" as const,
+      provider: "opencode" as const,
       model: "gpt-5",
     },
     scripts: [],

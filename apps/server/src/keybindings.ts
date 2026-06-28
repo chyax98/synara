@@ -527,10 +527,6 @@ const CREATION_COMMANDS_WITH_TERMINAL_ESCAPE = new Set<KeybindingRule["command"]
   "chat.newChat",
   "chat.newLocal",
   "chat.newTerminal",
-  "chat.newClaude",
-  "chat.newCodex",
-  "chat.newCursor",
-  "chat.newGemini",
   "chat.split",
 ]);
 

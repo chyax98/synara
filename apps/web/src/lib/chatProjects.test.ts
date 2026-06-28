@@ -211,7 +211,7 @@ describe("isHomeChatContainerProject", () => {
         type: "project.meta.update",
         projectId: existingProjectId,
         kind: "chat",
-        title: "Home",
+        title: "主页",
       }),
     );
   });

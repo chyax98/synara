@@ -557,7 +557,7 @@ function withOpenProjectPickerFixtures(snapshot: OrchestrationReadModel): Orches
         title: "Other Project",
         workspaceRoot: "/repo/other",
         defaultModelSelection: {
-          provider: "codex",
+          provider: "opencode",
           model: "gpt-5",
         },
         scripts: [],
@@ -580,7 +580,7 @@ function withHomeChatProject(snapshot: OrchestrationReadModel): OrchestrationRea
         title: "Home",
         workspaceRoot: "/Users/tester",
         defaultModelSelection: {
-          provider: "codex",
+          provider: "opencode",
           model: "gpt-5",
         },
         scripts: [],
@@ -920,7 +920,7 @@ function recordProjectCreateCommand(command: unknown): boolean {
             typeof command.defaultModelSelection === "object"
               ? (command.defaultModelSelection as OrchestrationReadModel["projects"][number]["defaultModelSelection"])
               : {
-                  provider: "codex" as const,
+                  provider: "opencode" as const,
                   model: "gpt-5",
                 },
           scripts: [],
