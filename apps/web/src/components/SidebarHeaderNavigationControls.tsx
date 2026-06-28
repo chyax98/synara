@@ -3,38 +3,9 @@
 // Layer: Shared web shell chrome
 // Depends on: Sidebar state plus AppNavigationButtons
 
-import { useNavigate } from "@tanstack/react-router";
-import { FaFutbol } from "react-icons/fa";
-
 import { AppNavigationButtons } from "./AppNavigationButtons";
-import { Button } from "./ui/button";
 import { SidebarTrigger, useSidebar } from "./ui/sidebar";
-import { Tooltip, TooltipPopup, TooltipTrigger } from "./ui/tooltip";
 import { cn } from "~/lib/utils";
-
-/** Quick entry to the World Cup 2026 ball-physics playground, sat beside the route arrows. */
-function WorldCupButton() {
-  const navigate = useNavigate();
-  return (
-    <Tooltip>
-      <TooltipTrigger
-        render={
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            className="size-7 shrink-0 rounded-lg text-muted-foreground/75 hover:text-foreground"
-            aria-label="2026 世界杯"
-            onClick={() => void navigate({ to: "/worldcup" })}
-          />
-        }
-      >
-        <FaFutbol className="size-4" />
-      </TooltipTrigger>
-      <TooltipPopup side="bottom">2026 世界杯</TooltipPopup>
-    </Tooltip>
-  );
-}
 
 /**
  * The leading chrome cluster: the sidebar toggle followed by the route nav arrows.
@@ -55,7 +26,6 @@ export function SidebarLeadingControls({ className }: { className?: string }) {
         aria-label="切换会话侧边栏"
       />
       <AppNavigationButtons className="ms-0" />
-      <WorldCupButton />
     </div>
   );
 }
