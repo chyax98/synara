@@ -3,7 +3,7 @@
 // Layer: Chat right-dock UI
 // Depends on: ui/sidebar primitive, right-dock pane metadata, and a caller-provided pane renderer.
 
-import { type CSSProperties, type ReactNode, useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { cn } from "~/lib/utils";
 import {
@@ -119,6 +119,20 @@ export function RightDock(props: RightDockProps) {
   // freely; the next open re-centers the split.
   const contentRef = useRef<HTMLDivElement | null>(null);
   const minWidth = props.minWidth;
+
+  // Set the approximate initial width once (for first paint sizing of the dock).
+  // Must be one-time only: re-applying on every render (as the old style prop did)
+  // would clobber widths set by live drag or the open measurement effect.
+  useLayoutEffect(() => {
+    const wrapper = contentRef.current?.closest<HTMLElement>("[data-slot='sidebar-wrapper']");
+    if (wrapper && props.defaultWidth) {
+      // Only seed if no width has been set yet (drag/open effect take precedence after).
+      if (!wrapper.style.getPropertyValue("--sidebar-width")) {
+        wrapper.style.setProperty("--sidebar-width", props.defaultWidth);
+      }
+    }
+  }, []);
+
   useEffect(() => {
     if (!props.state.open) {
       return;
@@ -172,7 +186,6 @@ export function RightDock(props: RightDockProps) {
       open={props.state.open}
       onOpenChange={props.onOpenChange}
       className="w-auto min-h-0 flex-none bg-transparent"
-      style={{ "--sidebar-width": props.defaultWidth } as CSSProperties}
     >
       <Sidebar
         side="right"
