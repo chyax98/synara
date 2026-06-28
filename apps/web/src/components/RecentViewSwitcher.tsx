@@ -9,7 +9,7 @@ import { formatShortcutLabel } from "../keybindings";
 import {
   MessageCircleIcon,
   PanelLeftIcon,
-  PinIcon,
+  PinFilledIcon,
   PluginIcon,
   SettingsIcon,
   WindowIcon,
@@ -141,7 +141,9 @@ export function RecentViewSwitcher(props: {
                   {entry.isSplit ? (
                     <PanelLeftIcon className="size-3.5" aria-label="分屏视图" />
                   ) : null}
-                  {entry.isPinned ? <PinIcon className="size-3.5" aria-label="已固定" /> : null}
+                  {entry.isPinned ? (
+                    <PinFilledIcon className="size-3.5" aria-label="已固定" />
+                  ) : null}
                 </div>
               </div>
             );

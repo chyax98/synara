@@ -16,6 +16,7 @@ import { RenameThreadDialog } from "~/components/RenameThreadDialog";
 import { useCopyPathToClipboard, useCopyThreadIdToClipboard } from "~/hooks/useCopyToClipboard";
 import { reconcileDeletedThreadFromClient } from "~/lib/deletedThreadClientReconciliation";
 import { gitRemoveWorktreeMutationOptions } from "~/lib/gitReactQuery";
+import { pinActionLabel } from "~/lib/pin";
 import { dispatchThreadRename } from "~/lib/threadRename";
 import { newCommandId } from "~/lib/utils";
 import { useComposerDraftStore } from "../../composerDraftStore";
@@ -23,6 +24,7 @@ import { useKanbanUiStore } from "../../kanbanUiStore";
 import { readNativeApi } from "../../nativeApi";
 import { useStore } from "../../store";
 import { useTerminalStateStore } from "../../terminalStateStore";
+import { isThreadRunningTurn } from "../../session-logic";
 import { getThreadFromState, getThreadsFromState } from "../../threadDerivation";
 import {
   formatWorktreePathForDisplay,
@@ -74,7 +76,7 @@ export function useKanbanCardContextMenu(): KanbanCardContextMenuController {
     if (!api) return;
     const thread = getThreadFromState(useStore.getState(), threadId);
     if (!thread) return;
-    if (thread.session?.status === "running" && thread.session.activeTurnId != null) {
+    if (isThreadRunningTurn(thread)) {
       toastManager.add({
         type: "error",
         title: "无法归档",

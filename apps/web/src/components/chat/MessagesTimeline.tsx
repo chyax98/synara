@@ -38,30 +38,34 @@ import {
   BotIcon,
   CheckIcon,
   ChangesIcon,
+  ChevronRightIcon,
   CircleAlertIcon,
   EyeIcon,
   GitHubIcon,
-  GlobeIcon,
   HammerIcon,
   type LucideIcon,
   McpIcon,
   NewThreadIcon,
   PinIcon,
+  SearchIcon,
   SkillCubeIcon,
   SquarePenIcon,
   SteerIcon,
   TerminalIcon,
   Undo2Icon,
+  WebSearchIcon,
   ZapIcon,
 } from "~/lib/icons";
+import { pinActionLabel } from "~/lib/pin";
 import { Button } from "../ui/button";
 import { AutomationCreatedCard } from "./AutomationCreatedCard";
 import { buildExpandedImagePreview, ExpandedImagePreview } from "./ExpandedImagePreview";
 import { ProposedPlanCard } from "./ProposedPlanCard";
-import { ToolCallDetailsDialog } from "./ToolCallDetailsDialog";
+import { ToolCallDetailsContent, ToolCallDetailsDialog } from "./ToolCallDetailsDialog";
 import { DiffStatLabel } from "./DiffStatLabel";
 import { ReviewChangesButton } from "./ReviewChangesButton";
 import { FileEntryIcon } from "./FileEntryIcon";
+import { CentralIcon } from "~/lib/central-icons";
 import { InlineMentionChip } from "./InlineMentionChip";
 import { InlineSkillChip } from "./InlineSkillChip";
 import { InlineAgentChip } from "./InlineAgentChip";
@@ -80,7 +84,7 @@ import {
   resolveAssistantMessageCopyState,
   type StableMessagesTimelineRowsState,
 } from "./MessagesTimeline.logic";
-import { deriveInlineCommandCall } from "../../lib/toolCallLabel";
+import { deriveReadableCommandDisplay } from "../../lib/toolCallLabel";
 import { openWorkspaceFileReference, useWorkspaceFileOpener } from "../../lib/workspaceFileOpener";
 import { isAgentActivityWorkEntry } from "./agentActivity.logic";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "../ui/tooltip";
@@ -1234,35 +1238,17 @@ export const MessagesTimeline = memo(function MessagesTimeline({
                       <button
                         key={`inline-summary-edit:${row.message.id}:${file.path}`}
                         type="button"
-                        className="group/file-row flex w-full max-w-full items-baseline gap-1 px-0 py-1.5 text-left transition-opacity duration-150 hover:opacity-95"
+                        className="group/file-row flex w-full max-w-full items-center gap-2 px-0 py-1.5 text-left transition-colors duration-150 focus-visible:outline-none"
                         title={file.path}
                         onClick={() => onOpenTurnDiff(turnSummary!.turnId, file.path)}
                       >
-                        <span
-                          className="font-system-ui shrink-0 text-[#7b7b84]"
-                          style={{ fontSize: `${normalizedChatFontSizePx}px` }}
-                        >
-                          Edited
-                        </span>
-                        <span
-                          className="font-system-ui max-w-[28rem] truncate text-[var(--color-text-foreground)] underline-offset-2 group-hover/file-row:underline group-focus-visible/file-row:underline"
-                          style={{
-                            fontSize: `${normalizedChatFontSizePx}px`,
-                          }}
-                        >
-                          {basename(file.path)}
-                        </span>
-                        {(file.additions ?? 0) + (file.deletions ?? 0) > 0 ? (
-                          <span
-                            className="font-system-ui shrink-0 tabular-nums whitespace-nowrap"
-                            style={{ fontSize: `${normalizedChatFontSizePx}px` }}
-                          >
-                            <DiffStatLabel
-                              additions={file.additions ?? 0}
-                              deletions={file.deletions ?? 0}
-                            />
-                          </span>
-                        ) : null}
+                        <EditedFileRowContent
+                          filePath={file.path}
+                          additions={file.additions}
+                          deletions={file.deletions}
+                          fontSizePx={normalizedChatFontSizePx}
+                          compact={false}
+                        />
                       </button>
                     ))}
                   </div>
@@ -1486,7 +1472,7 @@ export const MessagesTimeline = memo(function MessagesTimeline({
 
       {row.kind === "working" && (
         <div
-          className="pt-0.5 text-muted-foreground/70 font-system-ui"
+          className="shimmer pt-0.5 text-muted-foreground/70 font-system-ui"
           style={{ fontSize: `${appTypographyScale.chatPx}px` }}
         >
           {row.createdAt ? (
@@ -2076,7 +2062,7 @@ function workEntryPreview(
 
   if (workEntry.itemType === "command_execution" || workEntry.command || workEntry.rawCommand) {
     const command = workEntry.command ?? workEntry.rawCommand;
-    if (command) return deriveInlineCommandCall(command);
+    if (command) return deriveReadableCommandDisplay(command).target;
   }
 
   if (workEntry.preview) return workEntry.preview;
@@ -2126,7 +2112,7 @@ function workEntryPreview(
 }
 
 // Provider read tools (e.g. Claude's `Read`) arrive as generic dynamic tool calls
-// without a `file-read` requestKind, so match their tool name to surface the eye icon
+// without a `file-read` requestKind, so match their tool name to surface the search icon
 // instead of the generic tool/wrench fallback.
 function isFileReadToolEntry(workEntry: TimelineWorkEntry): boolean {
   const name = (workEntry.toolName ?? "").toLowerCase().replace(/[^a-z]/g, "");
@@ -2135,7 +2121,7 @@ function isFileReadToolEntry(workEntry: TimelineWorkEntry): boolean {
 
 function workEntryIcon(workEntry: TimelineWorkEntry): LucideIcon {
   if (workEntry.requestKind === "command") return TerminalIcon;
-  if (workEntry.requestKind === "file-read") return EyeIcon;
+  if (workEntry.requestKind === "file-read") return SearchIcon;
   if (workEntry.requestKind === "file-change") return SquarePenIcon;
 
   if (workEntry.itemType === "command_execution" || workEntry.command) {
@@ -2144,11 +2130,10 @@ function workEntryIcon(workEntry: TimelineWorkEntry): LucideIcon {
   if (workEntry.itemType === "file_change") {
     return SquarePenIcon;
   }
-  if (workEntry.itemType === "web_search") return GlobeIcon;
-  if (workEntry.requestKind === "file-read") return EyeIcon;
+  if (workEntry.itemType === "web_search") return WebSearchIcon;
   if (workEntry.itemType === "image_generation") return ZapIcon;
   if (workEntry.itemType === "image_view") return EyeIcon;
-  if (isFileReadToolEntry(workEntry)) return EyeIcon;
+  if (isFileReadToolEntry(workEntry)) return SearchIcon;
 
   switch (workEntry.itemType) {
     case "mcp_tool_call":
@@ -2369,7 +2354,6 @@ const SimpleWorkEntryRow = memo(function SimpleWorkEntryRow(props: {
     ? () => onOpenAgentActivity?.(workEntry.id)
     : undefined;
   const canOpenToolDetails = Boolean(onOpenToolDetails) && Boolean(workEntry.toolDetails);
-  const openToolDetails = canOpenToolDetails ? () => onOpenToolDetails?.(workEntry) : undefined;
   // File-read rows open the referenced file in the in-app viewer when the
   // hosting surface provides an opener (right-dock file pane / editor pane).
   const opener = useWorkspaceFileOpener();
@@ -2416,65 +2400,50 @@ const SimpleWorkEntryRow = memo(function SimpleWorkEntryRow(props: {
             const changedFileStat = fileDiffStatByPath?.get(changedFilePath);
             const canOpenEditedDiff = Boolean(turnId && onOpenTurnDiff);
             const canOpenEditedRow = canOpenToolDetails || canOpenEditedDiff;
+            const editedRowClassName = cn(
+              "group/file-row flex w-full max-w-full items-center text-left transition-colors duration-150",
+              compact ? "gap-1.5" : "gap-2",
+              canOpenEditedRow ? "cursor-pointer focus-visible:outline-none" : "cursor-default",
+            );
+            const editedRowChildren = (
+              <EditedFileRowContent
+                filePath={changedFilePath}
+                additions={changedFileStat?.additions}
+                deletions={changedFileStat?.deletions}
+                fontSizePx={rowFontSizePx}
+                compact={compact}
+              />
+            );
+            if (canOpenToolDetails && workEntry.toolDetails) {
+              return (
+                <ToolDetailsDisclosure
+                  key={`${workEntry.id}:${changedFilePath}`}
+                  details={workEntry.toolDetails}
+                  compact={compact}
+                  title="View tool details"
+                  summaryClassName={editedRowClassName}
+                  dataFileChangeRow
+                >
+                  {editedRowChildren}
+                </ToolDetailsDisclosure>
+              );
+            }
             return (
               <button
                 key={`${workEntry.id}:${changedFilePath}`}
                 type="button"
                 data-file-change-row="true"
-                data-tool-detail-trigger={canOpenToolDetails ? "true" : undefined}
-                className={cn(
-                  "group/file-row flex w-full max-w-full items-baseline gap-1 text-left transition-opacity duration-150",
-                  compact
-                    ? "px-0 py-[1px] hover:opacity-95"
-                    : "rounded-md border border-border/45 bg-background/65 px-2 py-2 hover:bg-background/80",
-                  canOpenEditedRow ? "cursor-pointer" : "cursor-default",
-                )}
-                title={canOpenToolDetails ? "View tool details" : changedFilePath}
+                className={editedRowClassName}
+                title={changedFilePath}
                 disabled={!canOpenEditedRow}
                 onClick={() => {
-                  if (openToolDetails) {
-                    openToolDetails();
-                    return;
-                  }
                   if (!turnId || !onOpenTurnDiff) {
                     return;
                   }
                   onOpenTurnDiff(turnId, changedFilePath);
                 }}
               >
-                <span
-                  className="font-system-ui shrink-0 font-medium text-muted-foreground/72"
-                  style={{ fontSize: `${rowFontSizePx}px` }}
-                >
-                  Edited
-                </span>
-                <span
-                  className="font-system-ui max-w-[28rem] truncate text-[var(--color-text-foreground)] underline-offset-2 group-hover/file-row:underline group-focus-visible/file-row:underline"
-                  style={{
-                    fontSize: `${rowFontSizePx}px`,
-                  }}
-                >
-                  {basename(changedFilePath)}
-                </span>
-                {changedFileStat ? (
-                  <span
-                    className="font-system-ui shrink-0 tabular-nums whitespace-nowrap"
-                    style={{ fontSize: `${rowFontSizePx}px` }}
-                  >
-                    <DiffStatLabel
-                      additions={changedFileStat.additions}
-                      deletions={changedFileStat.deletions}
-                    />
-                  </span>
-                ) : null}
-                {canOpenToolDetails ? (
-                  <span
-                    className="font-system-ui ml-auto shrink-0 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground/45"
-                    style={{ fontSize: `${Math.max(10, rowFontSizePx - 2)}px` }}
-                  >
-                    Details
-                  </span>
-                ) : null}
+                {editedRowChildren}
               </button>
             );
           })}
@@ -2630,14 +2599,22 @@ const SimpleWorkEntryRow = memo(function SimpleWorkEntryRow(props: {
             <>
               <span
                 className={cn(
-                  "flex shrink-0 items-center justify-center text-muted-foreground/40",
+                  "flex shrink-0 items-center justify-center text-muted-foreground/40 transition-colors group-hover/tool-row:text-foreground group-focus-visible/tool-row:text-foreground",
                   compact ? "size-4" : "size-5",
                 )}
                 data-tool-icon={leftIconKind}
               >
                 <LeftIcon className={compact ? "size-3.5" : "size-4"} />
               </span>
-              <div className="min-w-0 flex-1 overflow-hidden">
+              <div
+                className={cn(
+                  "min-w-0 overflow-hidden",
+                  // Single-line tool labels size to their content so the disclosure
+                  // chevron can sit right after the name; the multi-line markdown
+                  // preview still needs the full row width.
+                  showInlineAgentTaskPreview && "flex-1",
+                )}
+              >
                 {showInlineAgentTaskPreview ? (
                   <div className={cn(compact ? "space-y-[1px]" : "space-y-0.5")}>
                     <p
@@ -2663,8 +2640,9 @@ const SimpleWorkEntryRow = memo(function SimpleWorkEntryRow(props: {
                   <p
                     className={cn(
                       compact ? "truncate leading-5" : "truncate leading-6",
-                      // Match the leading icon's tone so the row reads as one muted unit.
-                      "text-muted-foreground/40",
+                      // Match the leading icon's tone so the row reads as one muted unit, and
+                      // brighten the whole row to foreground on hover/focus instead of a fill.
+                      "text-muted-foreground/40 transition-colors group-hover/tool-row:text-foreground group-focus-visible/tool-row:text-foreground",
                     )}
                     style={{ fontSize: `${rowFontSizePx}px` }}
                   >
@@ -2674,20 +2652,25 @@ const SimpleWorkEntryRow = memo(function SimpleWorkEntryRow(props: {
               </div>
             </>
           );
+          if (canOpenToolDetails && workEntry.toolDetails) {
+            return (
+              <ToolDetailsDisclosure
+                details={workEntry.toolDetails}
+                compact={compact}
+                title={rawCommand ?? displayText}
+              >
+                {rowContentChildren}
+              </ToolDetailsDisclosure>
+            );
+          }
+
           const rowContent = (
             <AgentActivityOpenSurface
-              canOpen={canOpenAgentActivity || canOpenReadFile || canOpenToolDetails}
+              canOpen={canOpenAgentActivity || canOpenReadFile}
               compact={compact}
-              title={
-                canOpenToolDetails
-                  ? "View tool details"
-                  : canOpenReadFile
-                    ? (readFilePath ?? hoverText)
-                    : hoverText
-              }
-              onOpen={openAgentActivity ?? openReadFile ?? openToolDetails}
+              title={canOpenReadFile ? (readFilePath ?? hoverText) : hoverText}
+              onOpen={openAgentActivity ?? openReadFile}
               onHover={prefetchReadFile}
-              dataToolDetailTrigger={canOpenToolDetails}
             >
               {rowContentChildren}
             </AgentActivityOpenSurface>
@@ -2711,6 +2694,54 @@ const SimpleWorkEntryRow = memo(function SimpleWorkEntryRow(props: {
   );
 });
 
+// Inner content for an "Edited <file> +n/-m" row. Mirrors the tool-call row treatment
+// (muted leading icon + label that brightens to foreground on hover/focus, same font
+// size) so edited rows read as the same visual unit. Callers own the interactive wrapper
+// (`group/file-row` button or disclosure summary) and pass the diff stat when available.
+function EditedFileRowContent(props: {
+  filePath: string;
+  additions: number | undefined;
+  deletions: number | undefined;
+  fontSizePx: number;
+  compact: boolean;
+}) {
+  const { filePath, additions, deletions, fontSizePx, compact } = props;
+  const hasStat = (additions ?? 0) + (deletions ?? 0) > 0;
+  return (
+    <>
+      <span
+        className={cn(
+          "flex shrink-0 items-center justify-center text-muted-foreground/40 transition-colors group-hover/file-row:text-foreground group-focus-visible/file-row:text-foreground",
+          compact ? "size-4" : "size-5",
+        )}
+        data-tool-icon="edit"
+      >
+        <CentralIcon name="pencil" className={compact ? "size-3.5" : "size-4"} />
+      </span>
+      <span
+        className="font-system-ui shrink-0 text-muted-foreground/40 transition-colors group-hover/file-row:text-foreground group-focus-visible/file-row:text-foreground"
+        style={{ fontSize: `${fontSizePx}px` }}
+      >
+        Edited
+      </span>
+      <span
+        className="font-system-ui max-w-[28rem] truncate text-muted-foreground/40 underline-offset-2 transition-colors group-hover/file-row:text-foreground group-hover/file-row:underline group-focus-visible/file-row:text-foreground group-focus-visible/file-row:underline"
+        style={{ fontSize: `${fontSizePx}px` }}
+      >
+        {basename(filePath)}
+      </span>
+      {hasStat ? (
+        <span
+          className="font-system-ui shrink-0 tabular-nums whitespace-nowrap"
+          style={{ fontSize: `${fontSizePx}px` }}
+        >
+          <DiffStatLabel additions={additions ?? 0} deletions={deletions ?? 0} />
+        </span>
+      ) : null}
+    </>
+  );
+}
+
 function AgentActivityOpenSurface(props: {
   canOpen: boolean;
   children: ReactNode;
@@ -2722,11 +2753,9 @@ function AgentActivityOpenSurface(props: {
   dataToolDetailTrigger?: boolean | undefined;
 }) {
   const className = cn(
-    "flex w-full items-center text-left transition-[opacity,translate] duration-200",
+    "group/tool-row flex w-full items-center text-left transition-[opacity,translate] duration-200",
     props.compact ? "gap-1.5" : "gap-2",
-    props.canOpen
-      ? "cursor-pointer rounded-md hover:bg-[var(--color-background-button-secondary-hover)]"
-      : "cursor-default",
+    props.canOpen ? "cursor-pointer focus-visible:outline-none" : "cursor-default",
   );
 
   if (props.canOpen) {
@@ -2748,5 +2777,55 @@ function AgentActivityOpenSurface(props: {
     <div className={className} title={props.title}>
       {props.children}
     </div>
+  );
+}
+
+function ToolDetailsDisclosure(props: {
+  children: ReactNode;
+  compact: boolean;
+  dataFileChangeRow?: boolean | undefined;
+  details: NonNullable<TimelineWorkEntry["toolDetails"]>;
+  summaryClassName?: string | undefined;
+  title?: string | undefined;
+}) {
+  const summaryClassName =
+    props.summaryClassName ??
+    cn(
+      "group/tool-row flex w-full items-center text-left transition-[opacity,translate] duration-200",
+      props.compact ? "gap-1.5" : "gap-2",
+      "cursor-pointer focus-visible:outline-none",
+    );
+  const [hasOpened, setHasOpened] = useState(false);
+
+  return (
+    <details
+      className="group/tool-details min-w-0"
+      onToggle={(event) => {
+        if (event.currentTarget.open) {
+          setHasOpened(true);
+        }
+      }}
+    >
+      <summary
+        className={cn("list-none [&::-webkit-details-marker]:hidden", summaryClassName)}
+        title={props.title ?? "View tool details"}
+        data-file-change-row={props.dataFileChangeRow ? "true" : undefined}
+        data-tool-detail-trigger="true"
+      >
+        {props.children}
+        <ChevronRightIcon
+          aria-hidden="true"
+          className="size-3.5 shrink-0 text-muted-foreground/38 transition-[transform,color] duration-200 group-hover/tool-row:text-foreground group-hover/file-row:text-foreground group-focus-visible/tool-row:text-foreground group-focus-visible/file-row:text-foreground group-open/tool-details:rotate-90"
+        />
+      </summary>
+      {hasOpened ? (
+        <div
+          className={cn("mt-2 min-w-0", props.compact ? "ml-5" : "ml-7")}
+          data-tool-details-inline="true"
+        >
+          <ToolCallDetailsContent details={props.details} />
+        </div>
+      ) : null}
+    </details>
   );
 }

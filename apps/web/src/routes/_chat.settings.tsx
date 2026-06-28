@@ -64,18 +64,19 @@ import {
 } from "../components/settings/SettingsPanelPrimitives";
 
 import { ProfileSettingsPanel } from "../components/settings/ProfileSettingsPanel";
+import { KeyboardShortcutsSettingsPanel } from "../components/settings/KeyboardShortcutsSettingsPanel";
 import { SkillsSettingsPanel } from "../components/settings/SkillsSettingsPanel";
 import {
   CHAT_CONTENT_CARD_CLASS_NAME,
   CHAT_MAIN_VIEWPORT_SHELL_CLASS_NAME,
-  CHAT_ROUTE_INSET_SHELL_CLASS_NAME,
 } from "../components/chat/composerPickerStyles";
 import {
   CHAT_SURFACE_HEADER_HEIGHT_CLASS,
   CHAT_SURFACE_HEADER_PADDING_X_CLASS,
 } from "../components/chat/chatHeaderControls";
 import { SidebarHeaderNavigationControls } from "../components/SidebarHeaderNavigationControls";
-import { SidebarInset } from "../components/ui/sidebar";
+import { RouteInsetSurface } from "../components/RouteInsetSurface";
+import ReleaseHistoryDialog from "../components/ReleaseHistoryDialog";
 import { resolveAndPersistPreferredEditor } from "../editorPreferences";
 import { isElectron } from "../env";
 import { useTheme } from "../hooks/useTheme";
@@ -274,6 +275,7 @@ function SettingsRouteView() {
   const [isOpeningKeybindings, setIsOpeningKeybindings] = useState(false);
   const [isRepairingLocalState, setIsRepairingLocalState] = useState(false);
   const [showRecoveryTools, setShowRecoveryTools] = useState(false);
+  const [releaseHistoryOpen, setReleaseHistoryOpen] = useState(false);
 
   const [openKeybindingsError, setOpenKeybindingsError] = useState<string | null>(null);
   const environmentPanelRef = useRef<HTMLDivElement | null>(null);
@@ -434,9 +436,6 @@ function SettingsRouteView() {
       ? ["助手输出"]
       : []),
     ...(settings.diffWordWrap !== defaults.diffWordWrap ? ["Diff 自动换行"] : []),
-    ...(settings.enableComposerSuggestions !== defaults.enableComposerSuggestions
-      ? ["提示建议"]
-      : []),
     ...(settings.confirmThreadDelete !== defaults.confirmThreadDelete ? ["删除确认"] : []),
     ...(settings.confirmThreadArchive !== defaults.confirmThreadArchive ? ["归档确认"] : []),
     ...(settings.confirmTerminalTabClose !== defaults.confirmTerminalTabClose
@@ -1431,14 +1430,6 @@ function SettingsRouteView() {
           resetLabel: "差异自动换行",
           ariaLabel: "默认换行显示差异",
         })}
-
-        {renderBooleanSettingRow({
-          settingKey: "enableComposerSuggestions",
-          title: "提示建议",
-          description: "新建会话时在输入框下方显示建议提示。",
-          resetLabel: "提示建议",
-          ariaLabel: "显示输入建议",
-        })}
       </SettingsSection>
 
       <SettingsSection title="安全确认">
@@ -1835,8 +1826,7 @@ function SettingsRouteView() {
         <SettingsRow
           title="唯一提供商"
           description="Synara 仅支持 OpenCode 作为唯一提供商，无需额外配置。"
-        />
-      </SettingsSection>
+        />      </SettingsSection>
     </div>
   );
 
@@ -1934,6 +1924,8 @@ function SettingsRouteView() {
         return renderNotificationsPanel();
       case "behavior":
         return renderBehaviorPanel();
+      case "shortcuts":
+        return <KeyboardShortcutsSettingsPanel />;
       case "worktrees":
         return renderWorktreesPanel();
       case "archived":
@@ -1961,10 +1953,7 @@ function SettingsRouteView() {
         CHAT_CONTENT_CARD_CLASS_NAME,
       )}
     >
-      <SidebarInset
-        className={CHAT_ROUTE_INSET_SHELL_CLASS_NAME}
-        surfaceClassName={SETTINGS_PAGE_BACKGROUND_CLASS_NAME}
-      >
+      <RouteInsetSurface surfaceClassName={SETTINGS_PAGE_BACKGROUND_CLASS_NAME}>
         {/* Companion sidebar trigger so settings is reachable-and-exitable even when the
           sidebar is collapsed (web/mobile have no global Back arrow). Pinned to the
           card's top-left — at the same header height + traffic-light gutter as the
@@ -2025,7 +2014,12 @@ function SettingsRouteView() {
         {/* Mounted at the route level (outside the scrollable panel) so the
           dialog portal can overlay the entire settings view without being
           clipped by the content wrapper's overflow. */}
-      </SidebarInset>
+        <ReleaseHistoryDialog
+          open={releaseHistoryOpen}
+          onOpenChange={setReleaseHistoryOpen}
+          defaultExpandedVersion={APP_VERSION}
+        />
+      </RouteInsetSurface>
     </div>
   );
 }

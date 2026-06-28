@@ -27,6 +27,7 @@ describe("ServerSettingsService", () => {
 
     expect(settings.providers.opencode.binaryPath).toBe("opencode");
     expect(settings.defaultThreadEnvMode).toBe("local");
+    expect(settings.enableProviderUpdateChecks).toBe(true);
   });
 
   it("persists updates and reloads them", async () => {
@@ -39,6 +40,7 @@ describe("ServerSettingsService", () => {
 
         const updated = yield* service.updateSettings({
           enableAssistantStreaming: true,
+          enableProviderUpdateChecks: false,
           providers: {
             opencode: {
               binaryPath: "/usr/local/bin/opencode",
@@ -52,9 +54,11 @@ describe("ServerSettingsService", () => {
     );
 
     expect(result.updated.enableAssistantStreaming).toBe(true);
+    expect(result.updated.enableProviderUpdateChecks).toBe(false);
     expect(result.updated.providers.opencode.binaryPath).toBe("/usr/local/bin/opencode");
     expect(result.parsed).toMatchObject({
       enableAssistantStreaming: true,
+      enableProviderUpdateChecks: false,
       providers: {
         opencode: {
           binaryPath: "/usr/local/bin/opencode",

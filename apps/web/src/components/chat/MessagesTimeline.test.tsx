@@ -1676,7 +1676,9 @@ describe("MessagesTimeline", () => {
 
     expect(markup).toContain('data-tool-detail-trigger="true"');
     expect(markup).toContain('title="View tool details"');
-    expect(markup).toContain("Details");
+    expect(markup).not.toContain('data-tool-details-inline="true"');
+    expect(markup).not.toContain("Diff");
+    expect(markup).not.toContain("Details");
   });
 
   it("renders command rows with a readable summary and keeps the full command on hover", async () => {
@@ -1721,6 +1723,7 @@ describe("MessagesTimeline", () => {
     );
 
     expect(markup).toContain("Searched");
+    expect(markup).toContain("for ProjectionSnapshotQuery in server/src");
     expect(markup).not.toContain("data-work-entry-action-word");
     expect(markup).toContain("rg -n &quot;ProjectionSnapshotQuery&quot; apps/server/src");
     expect(markup).toContain(
@@ -1778,7 +1781,13 @@ describe("MessagesTimeline", () => {
     );
 
     expect(markup).toContain('data-tool-detail-trigger="true"');
-    expect(markup).toContain('title="View tool details"');
+    expect(markup).not.toContain('data-tool-details-inline="true"');
+    expect(markup).not.toContain("Shell");
+    expect(markup).not.toContain("rounded-lg border border-border/45 bg-background/62");
+    expect(markup).not.toContain("chat-markdown-codeblock");
+    expect(markup).not.toContain("$ rg -n &quot;toolDetails&quot; apps/web/src");
+    expect(markup).not.toContain("apps/web/src/session-logic.ts:55: toolDetails");
+    expect(markup).not.toContain("Stdout");
     expect(markup).toContain("Searched");
   });
 
@@ -1913,7 +1922,7 @@ describe("MessagesTimeline", () => {
 
     expect(markup).toContain("Listed");
     expect(markup).not.toContain("data-work-entry-action-word");
-    expect(markup).toContain("find apps/web/src -maxdepth 2 -type d");
+    expect(markup).toContain("apps/web/src");
     expect(markup).not.toContain(">Listed web<");
   });
 
@@ -2049,7 +2058,8 @@ describe("MessagesTimeline", () => {
 
     expect(markup).toContain("搜索了网络");
     expect(markup).toContain("48 files found");
-    expect(markup).toContain("tabler-icon-world");
+    expect(markup).toContain("/central-icons-reversed/globe.svg");
+    expect(markup).not.toContain("tabler-icon-world");
   });
 
   it("shows a GitHub icon next to compact GitHub MCP rows", async () => {

@@ -277,6 +277,31 @@ function isDisabledProviderStatusOverlay(status: ServerProviderStatus): boolean 
   return status.message === DISABLED_PROVIDER_STATUS_MESSAGE && status.available === false;
 }
 
+// Keeps local CLI version/status visible while removing network-backed update metadata.
+function makeSuppressedProviderVersionAdvisory(
+  status: ServerProviderStatus,
+  currentVersion?: string | null,
+): NonNullable<ServerProviderStatus["versionAdvisory"]> {
+  return {
+    status: "unknown",
+    currentVersion: currentVersion ?? status.version ?? null,
+    latestVersion: null,
+    updateCommand: null,
+    canUpdate: false,
+    checkedAt: status.checkedAt,
+    message: null,
+  };
+}
+
+function suppressProviderVersionAdvisory(status: ServerProviderStatus): ServerProviderStatus {
+  return {
+    ...status,
+    versionAdvisory: makeSuppressedProviderVersionAdvisory(status),
+  };
+}
+
+// Disabled providers are a settings overlay, not a probe result. Keep the raw
+// cached/probed status intact so re-enabling a provider can reuse it immediately.
 export function projectProviderStatusesForSettings(
   statuses: ReadonlyArray<ServerProviderStatus>,
   settings: ServerSettings,
@@ -288,12 +313,23 @@ export function projectProviderStatusesForSettings(
   for (const provider of PROVIDERS) {
     const status = statusByProvider.get(provider);
     if (!isProviderEnabledForSettings(provider, settings)) {
-      projected.push(makeDisabledProviderStatus(provider, status?.checkedAt ?? checkedAt));
+      const disabledStatus = makeDisabledProviderStatus(provider, status?.checkedAt ?? checkedAt);
+      const disabledStatusWithAdvisory = {
+        ...disabledStatus,
+        versionAdvisory: makeSuppressedProviderVersionAdvisory(disabledStatus, status?.version),
+      } satisfies ServerProviderStatus;
+      projected.push(
+        status?.updateState
+          ? { ...disabledStatusWithAdvisory, updateState: status.updateState }
+          : disabledStatusWithAdvisory,
+      );
       continue;
     }
 
     if (status && !isDisabledProviderStatusOverlay(status)) {
-      projected.push(status);
+      projected.push(
+        settings.enableProviderUpdateChecks ? status : suppressProviderVersionAdvisory(status),
+      );
     }
   }
 
@@ -425,6 +461,18 @@ export const ProviderHealthLive = Layer.effect(
     const enrichStatuses = Effect.fn("enrichProviderStatuses")(function* (
       statuses: ReadonlyArray<ServerProviderStatus>,
     ) {
+      const settings = yield* serverSettings.ready.pipe(
+        Effect.flatMap(() => serverSettings.getSettings),
+        Effect.catch(() => Effect.succeed(null)),
+      );
+      if (settings?.enableProviderUpdateChecks === false) {
+        return yield* Effect.forEach(
+          statuses.map(suppressProviderVersionAdvisory),
+          applyVolatileProviderState,
+          { concurrency: "unbounded" },
+        );
+      }
+
       const enriched = yield* Effect.forEach(
         statuses,
         (status) =>
@@ -441,19 +489,31 @@ export const ProviderHealthLive = Layer.effect(
       });
     });
 
-    const loadProviderStatuses = Effect.gen(function* () {
-      const settings = yield* serverSettings.getSettings.pipe(
-        Effect.catch(() => Effect.succeed(DEFAULT_SERVER_SETTINGS)),
-      );
-      const statuses = isProviderEnabledForSettings(OPENCODE_PROVIDER, settings)
-        ? [
-            yield* makeCheckOpenCodeProviderStatus(settings.providers.opencode.binaryPath).pipe(
-              Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, spawner),
-            ),
-          ]
-        : [];
-      return yield* enrichStatuses(statuses);
-    });
+    const checkProviderWhenEnabled = <R>(
+      settings: ServerSettings,
+      provider: ProviderKind,
+      check: Effect.Effect<ServerProviderStatus, never, R>,
+    ): Effect.Effect<Option.Option<ServerProviderStatus>, never, R> =>
+      isProviderEnabledForSettings(provider, settings)
+        ? check.pipe(Effect.map(Option.some))
+        : Effect.succeed(Option.none());
+
+    const loadProviderStatuses = serverSettings.ready.pipe(
+      Effect.flatMap(() => serverSettings.getSettings),
+      Effect.catch(() => Effect.succeed(DEFAULT_SERVER_SETTINGS)),
+      Effect.flatMap((settings) =>
+        checkProviderWhenEnabled(
+          settings,
+          OPENCODE_PROVIDER,
+          makeCheckOpenCodeProviderStatus(settings.providers.opencode.binaryPath),
+        ),
+      ),
+      Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, spawner),
+      Effect.map((status) =>
+        orderProviderStatuses(Option.isSome(status) ? [status.value] : []),
+      ),
+      Effect.flatMap(enrichStatuses),
+    );
 
     const persistStatuses = (statuses: ProviderStatuses) =>
       Effect.forEach(

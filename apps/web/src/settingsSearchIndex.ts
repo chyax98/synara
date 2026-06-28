@@ -203,6 +203,16 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     keywords: "关闭终端标签并清除其历史前进行确认。安全",
   },
 
+  // ── Keyboard Shortcuts ────────────────────────────────────────────────────────
+  {
+    id: "shortcuts:keyboard-shortcuts",
+    section: "shortcuts",
+    title: "Keyboard Shortcuts",
+    keywords:
+      "Every keyboard shortcut available in Synara, grouped by context. keybindings hotkeys key combo cmd ctrl reference",
+    target: null,
+  },
+
   // ── Worktrees ─────────────────────────────────────────────────────────────────
   {
     id: "worktrees:managed-worktrees",
@@ -234,6 +244,12 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   },
 
   // ── Providers ─────────────────────────────────────────────────────────────────
+  {
+    id: "providers:automatic-cli-update-checks",
+    section: "providers",
+    title: "自动 CLI 更新检查",
+    keywords: "在后台检查 OpenCode CLI 是否有新版本。更新 升级 禁用",
+  },
   {
     id: "providers:opencode",
     section: "providers",
