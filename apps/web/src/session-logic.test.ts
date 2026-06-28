@@ -22,6 +22,7 @@ import {
   findLatestProposedPlan,
   findSidebarProposedPlan,
   hasActionableProposedPlan,
+  isContextCompactionInProgress,
   isFileChangeWorkLogEntry,
   isLatestTurnSettled,
   isProviderFileEditWorkLogEntry,
@@ -2828,6 +2829,30 @@ describe("deriveWorkLogEntries context window handling", () => {
 
     expect(entries).toHaveLength(1);
     expect(entries[0]?.label).toBe("Ran command");
+  });
+
+  it("detects in-progress context compaction from thread activities", () => {
+    expect(
+      isContextCompactionInProgress([
+        makeActivity({
+          id: "compaction-progress",
+          kind: "context-compaction",
+          summary: "Compacting conversation...",
+          tone: "info",
+          payload: { status: "inProgress" },
+        }),
+      ]),
+    ).toBe(true);
+    expect(
+      isContextCompactionInProgress([
+        makeActivity({
+          id: "compaction-done",
+          kind: "context-compaction",
+          summary: "Context compacted manually",
+          tone: "info",
+        }),
+      ]),
+    ).toBe(false);
   });
 
   it("keeps context compaction activities as normal work log entries", () => {

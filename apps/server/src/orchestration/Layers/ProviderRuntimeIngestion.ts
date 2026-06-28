@@ -42,6 +42,10 @@ import { ProjectionTurnRepository } from "../../persistence/Services/ProjectionT
 import { ProjectionTurnRepositoryLive } from "../../persistence/Layers/ProjectionTurns.ts";
 import { resolveThreadWorkspaceCwd } from "../../checkpointing/Utils.ts";
 import { isGitRepository } from "../../git/isRepo.ts";
+import {
+  COMPACT_SESSION_SET_COMMAND_TAG,
+  resolveOrchestrationSessionAfterCompactEvent,
+} from "../providerCompactSession.ts";
 import { OrchestrationEngineService } from "../Services/OrchestrationEngine.ts";
 import { ProjectionSnapshotQuery } from "../Services/ProjectionSnapshotQuery.ts";
 import {
@@ -2175,13 +2179,17 @@ const make = Effect.gen(function* () {
         event.type === "turn.completed" ||
         event.type === "turn.aborted"
       ) {
+        const compactSessionState = isCompactedThreadStateChange
+          ? resolveOrchestrationSessionAfterCompactEvent({
+              compactTurnId: event.turnId,
+              activeTurnId,
+            })
+          : null;
         const nextActiveTurnId =
           event.type === "turn.started"
             ? (eventTurnId ?? null)
-            : isCompactedThreadStateChange
-              ? event.turnId === undefined
-                ? null
-                : (eventTurnId ?? activeTurnId)
+            : compactSessionState
+              ? compactSessionState.activeTurnId
               : isTerminalTurnEvent ||
                   event.type === "session.exited" ||
                   (event.type === "session.state.changed" &&
@@ -2195,8 +2203,7 @@ const make = Effect.gen(function* () {
             case "session.state.changed":
               return orchestrationSessionStatusFromRuntimeState(event.payload.state);
             case "thread.state.changed":
-              // Idle compaction clears the active turn; in-turn compaction keeps running.
-              return event.turnId === undefined ? "ready" : "running";
+              return compactSessionState?.status ?? "ready";
             case "turn.started":
               return "running";
             case "session.exited":
@@ -2244,7 +2251,10 @@ const make = Effect.gen(function* () {
 
           yield* orchestrationEngine.dispatch({
             type: "thread.session.set",
-            commandId: providerCommandId(event, "thread-session-set"),
+            commandId: providerCommandId(
+              event,
+              isCompactedThreadStateChange ? COMPACT_SESSION_SET_COMMAND_TAG : "thread-session-set",
+            ),
             threadId: thread.id,
             session: {
               threadId: thread.id,

@@ -2,9 +2,10 @@ import { EventId, ThreadId, TurnId } from "@t3tools/contracts";
 import { describe, expect, it } from "vitest";
 
 import { shouldDrainQueuedTurnsAfterRuntimeEvent } from "./ProviderCommandReactor.ts";
+import { shouldDrainQueuedTurnsAfterCompactSessionSet } from "../providerCompactSession.ts";
 
 describe("shouldDrainQueuedTurnsAfterRuntimeEvent", () => {
-  it("drains after terminal turn events", () => {
+  it("drains after terminal turn events only", () => {
     expect(
       shouldDrainQueuedTurnsAfterRuntimeEvent({
         type: "turn.completed",
@@ -28,31 +29,16 @@ describe("shouldDrainQueuedTurnsAfterRuntimeEvent", () => {
       }),
     ).toBe(true);
   });
+});
 
-  it("drains after idle compaction", () => {
+describe("compact queue drain ordering", () => {
+  it("waits for compact session-set instead of raw compacted runtime events", () => {
     expect(
-      shouldDrainQueuedTurnsAfterRuntimeEvent({
-        type: "thread.state.changed",
-        eventId: EventId.makeUnsafe("evt-3"),
-        provider: "opencode",
-        createdAt: "2026-01-01T00:00:00.000Z",
-        threadId: ThreadId.makeUnsafe("thread-1"),
-        payload: { state: "compacted", detail: { source: "opencode" } },
+      shouldDrainQueuedTurnsAfterCompactSessionSet({
+        commandId: "provider:evt-3:thread-session-set-after-compact:abc",
+        status: "ready",
+        activeTurnId: null,
       }),
     ).toBe(true);
-  });
-
-  it("does not drain when compaction still belongs to an active turn", () => {
-    expect(
-      shouldDrainQueuedTurnsAfterRuntimeEvent({
-        type: "thread.state.changed",
-        eventId: EventId.makeUnsafe("evt-4"),
-        provider: "opencode",
-        createdAt: "2026-01-01T00:00:00.000Z",
-        threadId: ThreadId.makeUnsafe("thread-1"),
-        turnId: TurnId.makeUnsafe("turn-1"),
-        payload: { state: "compacted", detail: { source: "opencode" } },
-      }),
-    ).toBe(false);
   });
 });

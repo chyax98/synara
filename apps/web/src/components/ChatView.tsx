@@ -202,6 +202,7 @@ import {
   buildSourceProposedPlanReference,
   hasActionableProposedPlan,
   hasLiveTurnTailWork,
+  isContextCompactionInProgress,
   isLatestTurnSettled,
   type ActiveTaskListState,
 } from "../session-logic";
@@ -1353,6 +1354,7 @@ export default function ChatView({
   const activeThreadId = activeThread?.id ?? null;
   const activeLatestTurn = activeThread?.latestTurn ?? null;
   const threadActivities = activeThread?.activities ?? EMPTY_ACTIVITIES;
+  const isContextCompacting = isContextCompactionInProgress(threadActivities);
   const hasLiveTurnTail = hasLiveTurnTailWork({
     latestTurn: activeLatestTurn,
     messages: activeThread?.messages ?? EMPTY_MESSAGES,
@@ -8327,6 +8329,7 @@ export default function ChatView({
     runtimeMode,
     interactionMode,
     threadId,
+    queuedTurnCount: queuedComposerTurns.length,
     syncServerShellSnapshot,
     navigateToThread: (nextThreadId, options) =>
       navigate({
@@ -9077,6 +9080,7 @@ export default function ChatView({
               onRemove={removeQueuedComposerTurn}
               onEdit={onEditQueuedComposerTurn}
               attachedToPrevious={showComposerLiveChangesHeader || showComposerActiveTaskListCard}
+              isContextCompacting={isContextCompacting}
             />
             <div
               className={cn(

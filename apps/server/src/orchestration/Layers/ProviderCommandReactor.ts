@@ -22,6 +22,8 @@ import {
 } from "@t3tools/contracts";
 import { Cache, Cause, Duration, Effect, Equal, Layer, Option, Schema, Stream } from "effect";
 import { makeDrainableWorker } from "@t3tools/shared/DrainableWorker";
+
+import { shouldDrainQueuedTurnsAfterCompactSessionSet } from "../providerCompactSession.ts";
 import {
   buildPromptThreadTitleFallback,
   isGenericChatThreadTitle,
@@ -84,16 +86,12 @@ type ProviderIntentEvent = Extract<
 type ProviderQueueDrainEvent = Extract<
   ProviderRuntimeEvent,
   {
-    type: "turn.completed" | "turn.aborted" | "thread.state.changed";
+    type: "turn.completed" | "turn.aborted";
   }
 >;
 
 export function shouldDrainQueuedTurnsAfterRuntimeEvent(event: ProviderQueueDrainEvent): boolean {
-  if (event.type === "turn.completed" || event.type === "turn.aborted") {
-    return true;
-  }
-  // Idle compaction leaves the session ready; promote any queued turns waiting behind it.
-  return event.payload.state === "compacted" && event.turnId === undefined;
+  return event.type === "turn.completed" || event.type === "turn.aborted";
 }
 
 function toNonEmptyProviderInput(value: string | undefined): string | undefined {
@@ -1418,6 +1416,22 @@ const make = Effect.gen(function* () {
     yield* drainQueuedTurnsForThread(event.threadId);
   });
 
+  const processCompactSessionSetDrain = Effect.fnUntraced(function* (
+    event: Extract<OrchestrationEvent, { type: "thread.session-set" }>,
+  ) {
+    const session = event.payload.session;
+    if (
+      !shouldDrainQueuedTurnsAfterCompactSessionSet({
+        commandId: event.commandId ?? null,
+        status: session.status,
+        activeTurnId: session.activeTurnId,
+      })
+    ) {
+      return;
+    }
+    yield* drainQueuedTurnsForThread(event.payload.threadId);
+  });
+
   const processTurnInterruptRequested = Effect.fnUntraced(function* (
     event: Extract<ProviderIntentEvent, { type: "thread.turn-interrupt-requested" }>,
   ) {
@@ -1976,17 +1990,29 @@ const make = Effect.gen(function* () {
       return worker.enqueue(event);
     }).pipe(Effect.forkScoped),
     Stream.runForEach(providerService.streamEvents, (event) => {
-      if (
-        event.type !== "turn.completed" &&
-        event.type !== "turn.aborted" &&
-        event.type !== "thread.state.changed"
-      ) {
+      if (event.type !== "turn.completed" && event.type !== "turn.aborted") {
         return Effect.void;
       }
       if (!shouldDrainQueuedTurnsAfterRuntimeEvent(event)) {
         return Effect.void;
       }
       return processQueueDrainEventSafely(event);
+    }).pipe(Effect.forkScoped),
+    Stream.runForEach(orchestrationEngine.streamDomainEvents, (event) => {
+      if (event.type !== "thread.session-set") {
+        return Effect.void;
+      }
+      return processCompactSessionSetDrain(event).pipe(
+        Effect.catchCause((cause) => {
+          if (Cause.hasInterruptsOnly(cause)) {
+            return Effect.failCause(cause);
+          }
+          return Effect.logWarning("provider command reactor failed to drain after compact", {
+            threadId: event.payload.threadId,
+            cause: Cause.pretty(cause),
+          });
+        }),
+      );
     }).pipe(Effect.forkScoped),
   ]).pipe(Effect.asVoid);
 

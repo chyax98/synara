@@ -29,6 +29,7 @@ interface ComposerQueuedHeaderProps {
   onRemove: (queuedTurnId: string) => void;
   onEdit: (queuedTurn: QueuedComposerTurn) => void;
   attachedToPrevious?: boolean;
+  isContextCompacting?: boolean;
 }
 
 export const ComposerQueuedHeader = memo(function ComposerQueuedHeader({
@@ -37,6 +38,7 @@ export const ComposerQueuedHeader = memo(function ComposerQueuedHeader({
   onRemove,
   onEdit,
   attachedToPrevious = false,
+  isContextCompacting = false,
 }: ComposerQueuedHeaderProps) {
   if (queuedTurns.length === 0) {
     return null;
@@ -44,6 +46,16 @@ export const ComposerQueuedHeader = memo(function ComposerQueuedHeader({
 
   return (
     <ComposerStackedPanel attachedToPrevious={attachedToPrevious} className="flex flex-col">
+      <div
+        className="flex items-center justify-between gap-2 px-3 py-1.5 text-xs text-muted-foreground"
+        data-testid="queued-follow-up-summary"
+      >
+        <span>
+          {queuedTurns.length} 条排队
+          {isContextCompacting ? " · 压缩完成后自动发送" : ""}
+        </span>
+        {isContextCompacting ? <span className="text-amber-600">正在压缩上下文…</span> : null}
+      </div>
       {queuedTurns.map((queuedTurn, queuedTurnIndex) => (
         <ComposerStackedPanelRow
           key={queuedTurn.id}
@@ -60,6 +72,7 @@ export const ComposerQueuedHeader = memo(function ComposerQueuedHeader({
             onSteer={onSteer}
             onRemove={onRemove}
             onEdit={onEdit}
+            steerDisabled={isContextCompacting}
           />
         </ComposerStackedPanelRow>
       ))}

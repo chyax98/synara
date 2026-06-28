@@ -65,6 +65,7 @@ export function useComposerSlashCommands(input: {
   runtimeMode: RuntimeMode;
   interactionMode: ProviderInteractionMode;
   threadId: ThreadId;
+  queuedTurnCount?: number;
   syncServerShellSnapshot: (snapshot: OrchestrationShellSnapshot) => void;
   navigateToThread: (threadId: ThreadId, options?: { splitViewId?: SplitViewId }) => Promise<void>;
   handleClearConversation: () => Promise<void> | void;
@@ -113,6 +114,7 @@ export function useComposerSlashCommands(input: {
     runtimeMode,
     interactionMode,
     threadId,
+    queuedTurnCount = 0,
     syncServerShellSnapshot,
     navigateToThread,
     handleClearConversation,
@@ -151,6 +153,14 @@ export function useComposerSlashCommands(input: {
     }
 
     try {
+      toastManager.add({
+        type: "info",
+        title: "正在压缩上下文",
+        description:
+          queuedTurnCount > 0
+            ? `已排队的 ${queuedTurnCount} 条消息会保留，压缩完成后继续发送。`
+            : "压缩完成后会话会恢复空闲状态。",
+      });
       void api.provider
         .compactThread({
           threadId: activeThread.id,
@@ -171,7 +181,7 @@ export function useComposerSlashCommands(input: {
       });
       return false;
     }
-  }, [activeThread, canOfferCompactCommand, isServerThread]);
+  }, [activeThread, canOfferCompactCommand, isServerThread, queuedTurnCount]);
 
   const setFastModeFromSlashCommand = useCallback(
     (enabled: boolean) => {

@@ -19,6 +19,7 @@ type QueuedComposerActionsProps = {
   onSteer: (queuedTurn: QueuedComposerTurn) => void;
   onRemove: (queuedTurnId: string) => void;
   onEdit: (queuedTurn: QueuedComposerTurn) => void;
+  steerDisabled?: boolean;
 };
 
 function QueuedComposerActions({
@@ -26,10 +27,17 @@ function QueuedComposerActions({
   onSteer,
   onRemove,
   onEdit,
+  steerDisabled = false,
 }: QueuedComposerActionsProps) {
   return (
     <div className="flex shrink-0 items-center gap-0">
-      <Button variant="subtle" size="chip" onClick={() => void onSteer(queuedTurn)}>
+      <Button
+        variant="subtle"
+        size="chip"
+        disabled={steerDisabled}
+        title={steerDisabled ? "压缩完成后再引导当前轮次" : "立即引导当前轮次"}
+        onClick={() => void onSteer(queuedTurn)}
+      >
         <SteerIcon />
         <span>引导</span>
       </Button>

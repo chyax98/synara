@@ -760,6 +760,38 @@ export function buildSourceProposedPlanReference(input: {
   };
 }
 
+function readActivityPayloadStatus(activity: OrchestrationThreadActivity): string | null {
+  const payload = activity.payload;
+  if (!payload || typeof payload !== "object") {
+    return null;
+  }
+  const status = (payload as { status?: unknown }).status;
+  return typeof status === "string" ? status : null;
+}
+
+export function isContextCompactionInProgress(
+  activities: ReadonlyArray<OrchestrationThreadActivity>,
+): boolean {
+  for (let index = activities.length - 1; index >= 0; index -= 1) {
+    const activity = activities[index];
+    if (!activity || activity.kind !== "context-compaction") {
+      continue;
+    }
+    if (activity.summary === "Context compacted manually") {
+      return false;
+    }
+    const status = readActivityPayloadStatus(activity);
+    if (status === "completed") {
+      return false;
+    }
+    if (status === "inProgress" || activity.summary === "Compacting conversation...") {
+      return true;
+    }
+    return false;
+  }
+  return false;
+}
+
 export function deriveWorkLogEntries(
   activities: ReadonlyArray<OrchestrationThreadActivity>,
   latestTurnId: TurnId | undefined,
