@@ -2162,12 +2162,15 @@ const make = Effect.gen(function* () {
         event.type === "turn.started" && shouldApplyThreadLifecycle
           ? yield* getSourceProposedPlanReferenceForAcceptedTurnStart(thread.id, eventTurnId)
           : null;
+      const isCompactedThreadStateChange =
+        event.type === "thread.state.changed" && event.payload.state === "compacted";
 
       if (
         event.type === "session.started" ||
         event.type === "session.state.changed" ||
         event.type === "session.exited" ||
         event.type === "thread.started" ||
+        isCompactedThreadStateChange ||
         event.type === "turn.started" ||
         event.type === "turn.completed" ||
         event.type === "turn.aborted"
@@ -2175,18 +2178,25 @@ const make = Effect.gen(function* () {
         const nextActiveTurnId =
           event.type === "turn.started"
             ? (eventTurnId ?? null)
-            : isTerminalTurnEvent ||
-                event.type === "session.exited" ||
-                (event.type === "session.state.changed" &&
-                  (event.payload.state === "ready" ||
-                    event.payload.state === "stopped" ||
-                    event.payload.state === "error"))
-              ? null
-              : activeTurnId;
+            : isCompactedThreadStateChange
+              ? event.turnId === undefined
+                ? null
+                : (eventTurnId ?? activeTurnId)
+              : isTerminalTurnEvent ||
+                  event.type === "session.exited" ||
+                  (event.type === "session.state.changed" &&
+                    (event.payload.state === "ready" ||
+                      event.payload.state === "stopped" ||
+                      event.payload.state === "error"))
+                ? null
+                : activeTurnId;
         const status = (() => {
           switch (event.type) {
             case "session.state.changed":
               return orchestrationSessionStatusFromRuntimeState(event.payload.state);
+            case "thread.state.changed":
+              // Idle compaction clears the active turn; in-turn compaction keeps running.
+              return event.turnId === undefined ? "ready" : "running";
             case "turn.started":
               return "running";
             case "session.exited":

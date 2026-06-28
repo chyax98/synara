@@ -17,6 +17,7 @@ import { createContext, useContext } from "react";
 
 import { openInPreferredEditor } from "../editorPreferences";
 import { readNativeApi } from "../nativeApi";
+import { resolvePathLinkTarget } from "../terminal-links";
 import { projectReadFileQueryOptions } from "./projectReactQuery";
 
 export interface WorkspaceFileOpener {
@@ -28,6 +29,8 @@ export interface WorkspaceFileOpener {
   openFile: (path: string) => boolean;
   /** Optional hover warm-up for the file contents + syntax highlighter. */
   prefetchFile?: (path: string) => void;
+  /** Thread runtime cwd used to resolve workspace-relative paths for external editors. */
+  workspaceRoot?: string | null;
 }
 
 export const WorkspaceFileOpenerContext = createContext<WorkspaceFileOpener | null>(null);
@@ -94,18 +97,48 @@ export function resolveDockFileOpenTarget(
 }
 
 /**
+ * Resolves a chat file reference to the absolute path external editors expect.
+ * Workspace-relative references join against the thread runtime cwd; absolute
+ * scratch previews and out-of-workspace paths pass through unchanged.
+ */
+export function resolveExternalEditorOpenTarget(
+  rawPath: string,
+  workspaceRoot: string | null | undefined,
+): string {
+  const scratchTarget = resolveScratchPreviewFileOpenTarget(rawPath);
+  if (scratchTarget) {
+    return scratchTarget;
+  }
+  if (workspaceRoot) {
+    return resolvePathLinkTarget(rawPath, workspaceRoot);
+  }
+  return rawPath.trim();
+}
+
+/**
  * Shared activation path for clickable file references: try the surface's
  * in-app viewer first, fall back to the preferred external editor when the
  * reference isn't viewable in-app (path outside the workspace, no opener).
  * Pass a null opener to force the external editor (e.g. meta/ctrl-click).
  */
-export function openWorkspaceFileReference(opener: WorkspaceFileOpener | null, path: string): void {
-  if (opener?.openFile(path)) {
+export function openWorkspaceFileReference(
+  opener: WorkspaceFileOpener | null,
+  path: string,
+  options?: {
+    readonly workspaceRoot?: string | null;
+    readonly forceExternal?: boolean;
+  },
+): void {
+  if (!options?.forceExternal && opener?.openFile(path)) {
     return;
   }
   const api = readNativeApi();
   if (api) {
-    void openInPreferredEditor(api, path).catch(() => undefined);
+    const externalTarget = resolveExternalEditorOpenTarget(
+      path,
+      options?.workspaceRoot ?? opener?.workspaceRoot,
+    );
+    void openInPreferredEditor(api, externalTarget).catch(() => undefined);
   } else {
     console.warn("Native API not found. Unable to open file in editor.");
   }

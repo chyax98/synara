@@ -742,7 +742,9 @@ function OpenableFileChip(props: {
         event.preventDefault();
         event.stopPropagation();
         const forceExternalEditor = event.metaKey || event.ctrlKey;
-        openWorkspaceFileReference(forceExternalEditor ? null : opener, props.targetPath);
+        openWorkspaceFileReference(opener, props.targetPath, {
+          forceExternal: forceExternalEditor,
+        });
       }}
       {...(opener?.prefetchFile
         ? { onHoverPrefetch: () => opener.prefetchFile?.(props.targetPath) }

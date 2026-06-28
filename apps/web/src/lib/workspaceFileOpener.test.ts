@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   resolveDockFileOpenTarget,
+  resolveExternalEditorOpenTarget,
   resolveScratchPreviewFileOpenTarget,
   resolveWorkspaceFileOpenTarget,
 } from "./workspaceFileOpener";
@@ -68,6 +69,29 @@ describe("resolveScratchPreviewFileOpenTarget", () => {
     expect(
       resolveScratchPreviewFileOpenTarget("synara-codex-workspaces/thread-1/a.pdf"),
     ).toBeNull();
+  });
+});
+
+describe("resolveExternalEditorOpenTarget", () => {
+  it("joins workspace-relative paths against the thread runtime cwd", () => {
+    expect(resolveExternalEditorOpenTarget("src/page.tsx", "/repo/.worktrees/feature")).toBe(
+      "/repo/.worktrees/feature/src/page.tsx",
+    );
+  });
+
+  it("preserves line and column suffixes for external editors", () => {
+    expect(resolveExternalEditorOpenTarget("src/page.tsx:42:7", "/repo/app")).toBe(
+      "/repo/app/src/page.tsx:42:7",
+    );
+  });
+
+  it("passes absolute scratch preview paths through unchanged", () => {
+    const scratchPdf = "/private/tmp/synara-codex-workspaces/thread-1/report.pdf";
+    expect(resolveExternalEditorOpenTarget(scratchPdf, "/repo/app")).toBe(scratchPdf);
+  });
+
+  it("returns the raw path when no workspace root is available", () => {
+    expect(resolveExternalEditorOpenTarget("src/page.tsx", null)).toBe("src/page.tsx");
   });
 });
 

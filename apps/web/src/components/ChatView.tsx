@@ -48,6 +48,7 @@ import {
   resolveThreadWorkspaceState,
   resolveThreadBranchSourceCwd,
   resolveThreadWorkspaceCwd as resolveSharedThreadWorkspaceCwd,
+  isPendingThreadWorktree,
 } from "@t3tools/shared/threadEnvironment";
 import { deriveAssociatedWorktreeMetadata } from "@t3tools/shared/threadWorkspace";
 import {
@@ -3774,7 +3775,14 @@ export default function ChatView({
       threadId,
       onTogglePanel: hasRightDockPanes ? toggleRightDock : undefined,
       isPanelOpen: hasRightDockPanes ? rightDockOpen : undefined,
-      cwd: gitCwd ?? activeProject?.cwd ?? "",
+      cwd:
+        gitCwd ??
+        (isPendingThreadWorktree({
+          envMode: resolvedThreadEnvMode,
+          worktreePath: resolvedThreadWorktreePath,
+        })
+          ? ""
+          : (activeProject?.cwd ?? "")),
       runtimeEnv: threadTerminalRuntimeEnv,
       height: terminalState.terminalHeight,
       terminalIds: terminalState.terminalIds,
@@ -3838,6 +3846,8 @@ export default function ChatView({
       createNewTerminalTab,
       moveTerminalToNewGroup,
       gitCwd,
+      resolvedThreadEnvMode,
+      resolvedThreadWorktreePath,
       activeThreadId,
       newTerminalShortcutLabel,
       setTerminalHeight,

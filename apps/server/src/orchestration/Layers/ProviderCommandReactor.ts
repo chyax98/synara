@@ -84,9 +84,17 @@ type ProviderIntentEvent = Extract<
 type ProviderQueueDrainEvent = Extract<
   ProviderRuntimeEvent,
   {
-    type: "turn.completed" | "turn.aborted";
+    type: "turn.completed" | "turn.aborted" | "thread.state.changed";
   }
 >;
+
+export function shouldDrainQueuedTurnsAfterRuntimeEvent(event: ProviderQueueDrainEvent): boolean {
+  if (event.type === "turn.completed" || event.type === "turn.aborted") {
+    return true;
+  }
+  // Idle compaction leaves the session ready; promote any queued turns waiting behind it.
+  return event.payload.state === "compacted" && event.turnId === undefined;
+}
 
 function toNonEmptyProviderInput(value: string | undefined): string | undefined {
   const normalized = value?.trim();
@@ -1968,7 +1976,14 @@ const make = Effect.gen(function* () {
       return worker.enqueue(event);
     }).pipe(Effect.forkScoped),
     Stream.runForEach(providerService.streamEvents, (event) => {
-      if (event.type !== "turn.completed" && event.type !== "turn.aborted") {
+      if (
+        event.type !== "turn.completed" &&
+        event.type !== "turn.aborted" &&
+        event.type !== "thread.state.changed"
+      ) {
+        return Effect.void;
+      }
+      if (!shouldDrainQueuedTurnsAfterRuntimeEvent(event)) {
         return Effect.void;
       }
       return processQueueDrainEventSafely(event);

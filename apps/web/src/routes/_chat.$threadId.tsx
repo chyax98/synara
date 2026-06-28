@@ -1667,6 +1667,7 @@ function SingleChatSurface(props: {
   // editor.
   const dockFileOpener = useMemo<WorkspaceFileOpener>(
     () => ({
+      workspaceRoot,
       openFile: (path) => {
         // In-workspace references map to relative paths for the file-read RPC;
         // binary previews in a session's scratch workspace (outside the chat
@@ -1687,6 +1688,7 @@ function SingleChatSurface(props: {
   // references select into it instead of opening a dock pane.
   const editorFileOpener = useMemo<WorkspaceFileOpener>(
     () => ({
+      workspaceRoot,
       openFile: (path) => {
         if (!workspaceRoot) {
           return false;
