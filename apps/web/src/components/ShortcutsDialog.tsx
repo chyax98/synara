@@ -108,7 +108,7 @@ export default function ShortcutsDialog(props: {
             </div>
           ) : (
             <div className="px-6 py-10 text-center text-sm text-muted-foreground">
-              No shortcuts match &ldquo;{query}&rdquo;.
+              没有与「{query}」匹配的快捷键。
             </div>
           )}
         </DialogPanel>

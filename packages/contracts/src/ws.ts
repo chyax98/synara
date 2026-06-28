@@ -104,6 +104,13 @@ import {
   ProviderListSkillsInput,
   ProviderSkillsCatalogInput,
 } from "./providerDiscovery";
+import {
+  OpenCodeAuthRemoveInput,
+  OpenCodeAuthSetInput,
+  OpenCodeCatalogInput,
+  OpenCodeOauthAuthorizeInput,
+  OpenCodeOauthCallbackInput,
+} from "./openCodeCatalog";
 import { ProviderCompactThreadInput } from "./provider";
 
 // ── WebSocket RPC Method Names ───────────────────────────────────────
@@ -201,6 +208,16 @@ export const WS_METHODS = {
   providerReadPlugin: "provider.readPlugin",
   providerListModels: "provider.listModels",
   providerListAgents: "provider.listAgents",
+
+  // OpenCode catalog + auth proxy
+  opencodeCatalogOverview: "opencode.catalogOverview",
+  opencodeConfigProviders: "opencode.configProviders",
+  opencodeProviderAvailable: "opencode.providerAvailable",
+  opencodeProviderAuth: "opencode.providerAuth",
+  opencodeAuthSet: "opencode.authSet",
+  opencodeAuthRemove: "opencode.authRemove",
+  opencodeOauthAuthorize: "opencode.oauthAuthorize",
+  opencodeOauthCallback: "opencode.oauthCallback",
 
   // Automation methods
   automationList: "automation.list",
@@ -341,6 +358,16 @@ const WebSocketRequestBody = Schema.Union([
   tagRequestBody(WS_METHODS.providerReadPlugin, ProviderReadPluginInput),
   tagRequestBody(WS_METHODS.providerListModels, ProviderListModelsInput),
   tagRequestBody(WS_METHODS.providerListAgents, ProviderListAgentsInput),
+
+  // OpenCode catalog + auth proxy
+  tagRequestBody(WS_METHODS.opencodeCatalogOverview, OpenCodeCatalogInput),
+  tagRequestBody(WS_METHODS.opencodeConfigProviders, OpenCodeCatalogInput),
+  tagRequestBody(WS_METHODS.opencodeProviderAvailable, OpenCodeCatalogInput),
+  tagRequestBody(WS_METHODS.opencodeProviderAuth, OpenCodeCatalogInput),
+  tagRequestBody(WS_METHODS.opencodeAuthSet, OpenCodeAuthSetInput),
+  tagRequestBody(WS_METHODS.opencodeAuthRemove, OpenCodeAuthRemoveInput),
+  tagRequestBody(WS_METHODS.opencodeOauthAuthorize, OpenCodeOauthAuthorizeInput),
+  tagRequestBody(WS_METHODS.opencodeOauthCallback, OpenCodeOauthCallbackInput),
 
   // Automation methods
   tagRequestBody(WS_METHODS.automationList, AutomationListInput),

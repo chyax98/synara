@@ -14,7 +14,6 @@ import {
   type ProjectEntry,
   type ProjectId,
   type ProviderApprovalDecision,
-  type ProviderAgentDescriptor,
   type ProviderModelDescriptor,
   type ProviderMentionReference,
   type ProviderNativeCommandDescriptor,
@@ -78,10 +77,8 @@ import {
 } from "~/lib/gitReactQuery";
 import { resolveProviderDiscoveryCwd } from "~/lib/providerDiscovery";
 import {
-  providerAgentsQueryOptions,
   providerComposerCapabilitiesQueryOptions,
   providerCommandsQueryOptions,
-  providerModelsQueryOptions,
   providerPluginsQueryOptions,
   providerSkillsQueryOptions,
   supportsNativeSlashCommandDiscovery,
@@ -294,7 +291,6 @@ import {
 } from "~/lib/terminalCloseConfirmation";
 import { promoteThreadCreate } from "~/lib/threadCreatePromotion";
 import {
-  getAppModelOptions,
   getCustomBinaryPathForProvider,
   getCustomModelsByProvider,
   getProviderStartOptions,
@@ -509,17 +505,13 @@ import { useComposerSlashCommands } from "../hooks/useComposerSlashCommands";
 import { useFeatureFlags } from "../featureFlags";
 
 import { useHandleNewThread } from "../hooks/useHandleNewThread";
+import { useProviderModelCatalog } from "../hooks/useProviderModelCatalog";
 
 import {
   resolveDiffEnvironmentState,
   resolveThreadEnvironmentMode,
 } from "../lib/threadEnvironment";
-import {
-  buildModelSelection,
-  buildNextProviderOptions,
-  mergeDynamicModelOptions,
-  type ProviderModelOption,
-} from "../providerModelOptions";
+import { buildModelSelection, buildNextProviderOptions } from "../providerModelOptions";
 import {
   isDuplicateProjectCreateError,
   waitForRecoverableProjectForDuplicateCreate,
@@ -651,7 +643,6 @@ function canHandleComposerPickerShortcut(
 }
 const EMPTY_AVAILABLE_EDITORS: EditorId[] = [];
 const EMPTY_PROVIDER_STATUSES: ServerProviderStatus[] = [];
-const EMPTY_PROVIDER_AGENTS: readonly ProviderAgentDescriptor[] = [];
 const EMPTY_PENDING_USER_INPUT_ANSWERS: Record<string, PendingUserInputDraftAnswer> = {};
 const MAX_DISMISSED_PROVIDER_HEALTH_BANNERS = 50;
 
@@ -1752,54 +1743,22 @@ export default function ChatView({
     serverCwd: serverConfigQuery.data?.cwd ?? null,
   });
   const openCodeModelDiscoveryEnabled =
-    selectedProvider === "opencode" || lockedProvider === "opencode" || isModelPickerOpen;
-  const openCodeDynamicModelsQuery = useQuery(
-    providerModelsQueryOptions({
-      provider: "opencode",
-      binaryPath: settings.openCodeBinaryPath || null,
-      cwd: providerModelDiscoveryCwd,
-      enabled: openCodeModelDiscoveryEnabled,
-    }),
-  );
-  const openCodeDynamicAgentsQuery = useQuery(
-    providerAgentsQueryOptions({
-      provider: "opencode",
-      binaryPath: settings.openCodeBinaryPath || null,
-      cwd: providerModelDiscoveryCwd,
-      enabled: openCodeModelDiscoveryEnabled,
-    }),
-  );
-  const hasResolvedOpenCodeModelDiscovery =
-    (openCodeDynamicModelsQuery.data?.source === "opencode-cli" ||
-      openCodeDynamicModelsQuery.data?.source === "opencode") &&
-    (openCodeDynamicModelsQuery.data.models.length ?? 0) > 0;
-  const openCodeModelDiscoveryPending =
-    openCodeModelDiscoveryEnabled &&
-    !hasResolvedOpenCodeModelDiscovery &&
-    (openCodeDynamicModelsQuery.isLoading || openCodeDynamicModelsQuery.isFetching);
-  const modelOptionsByProvider = useMemo(() => {
-    const staticOptions = getAppModelOptions(
-      "opencode",
-      customModelsByProvider.opencode,
-      composerModelHintByProvider.opencode,
-    );
-    const dynamicModels = openCodeDynamicModelsQuery.data?.models;
-    const opencodeOptions =
-      dynamicModels && dynamicModels.length > 0
-        ? mergeDynamicModelOptions({
-            provider: "opencode",
-            staticOptions,
-            dynamicModels,
-          })
-        : staticOptions;
-    return {
-      opencode: opencodeOptions,
-    } as Record<ProviderKind, ReadonlyArray<ProviderModelOption & { isCustom?: boolean }>>;
-  }, [
-    composerModelHintByProvider.opencode,
-    customModelsByProvider.opencode,
-    openCodeDynamicModelsQuery.data,
-  ]);
+    selectedProvider === "opencode" ||
+    lockedProvider === "opencode" ||
+    isModelPickerOpen ||
+    isTraitsPickerOpen;
+  const {
+    modelOptionsByProvider,
+    loadingModelProviders,
+    runtimeModelsByProvider,
+    selectedRuntimeAgents,
+    modelsQueryByProvider: providerModelsQueryByProvider,
+  } = useProviderModelCatalog({
+    selectedProvider,
+    discoveryEnabled: openCodeModelDiscoveryEnabled,
+    cwd: providerModelDiscoveryCwd,
+    modelHintByProvider: composerModelHintByProvider,
+  });
   const { modelOptions: composerModelOptions, selectedModel } = useEffectiveComposerModelState({
     threadId,
     selectedProvider,
@@ -1807,16 +1766,8 @@ export default function ChatView({
     projectModelSelection: activeProject?.defaultModelSelection,
     customModelsByProvider,
     availableModelOptionsByProvider: modelOptionsByProvider,
+    defaultChatModel: settings.defaultChatModel,
   });
-  const runtimeModelsByProvider = useMemo(
-    () => ({
-      opencode: openCodeDynamicModelsQuery.data?.models ?? [],
-    }),
-    [openCodeDynamicModelsQuery.data?.models],
-  ) as Record<ProviderKind, ReadonlyArray<ProviderModelDescriptor>>;
-  const providerModelsQueryByProvider = {
-    opencode: openCodeDynamicModelsQuery,
-  } as const;
   const selectedRuntimeModel = useMemo(
     () =>
       resolveRuntimeModelDescriptor({
@@ -1879,14 +1830,14 @@ export default function ChatView({
   const selectedProviderModelsQuery = providerModelsQueryByProvider[selectedProvider];
   const providerModelsLoading =
     selectedProvider === "opencode"
-      ? openCodeModelDiscoveryPending
+      ? (loadingModelProviders.opencode ?? false)
       : selectedProviderModelsQuery !== undefined &&
         (selectedProviderModelsQuery.isLoading ||
           (selectedProviderModelsQuery.isFetching &&
             selectedProviderModelsQuery.data === undefined));
   const selectedProviderRequiresRuntimeModels = selectedProvider === "opencode";
   const selectedProviderRuntimeModelDiscoveryPending =
-    selectedProvider === "opencode" ? openCodeModelDiscoveryPending : false;
+    selectedProvider === "opencode" ? (loadingModelProviders.opencode ?? false) : false;
   const showComposerModelBootstrapSkeleton = shouldShowComposerModelBootstrapSkeleton({
     selectedProvider,
     selectedModel,
@@ -2826,15 +2777,14 @@ export default function ChatView({
       interactionMode,
       isSidechat: Boolean(activeThread.sidechatSourceThreadId),
     });
-  const selectedDynamicAgents = openCodeDynamicAgentsQuery.data?.agents ?? EMPTY_PROVIDER_AGENTS;
   const dynamicAgents = useMemo(
     () =>
-      selectedDynamicAgents.map((agent) =>
+      selectedRuntimeAgents.map((agent) =>
         agent.description
           ? { name: agent.name, displayName: agent.displayName, description: agent.description }
           : { name: agent.name, displayName: agent.displayName },
       ),
-    [selectedDynamicAgents],
+    [selectedRuntimeAgents],
   );
   const normalComposerMenuItems = useComposerCommandMenuItems({
     composerTrigger: effectiveComposerTrigger,
@@ -7912,9 +7862,7 @@ export default function ChatView({
         lockedProvider={lockedProvider}
         providers={providerStatuses}
         modelOptionsByProvider={modelOptionsByProvider}
-        loadingModelProviders={{
-          opencode: openCodeModelDiscoveryPending,
-        }}
+        loadingModelProviders={loadingModelProviders}
         hiddenProviders={settings.hiddenProviders}
         providerOrder={settings.providerOrder}
         onProviderModelChange={onProviderModelSelect}
@@ -7950,9 +7898,7 @@ export default function ChatView({
       lockedProvider={lockedProvider}
       providers={providerStatuses}
       modelOptionsByProvider={modelOptionsByProvider}
-      loadingModelProviders={{
-        opencode: openCodeModelDiscoveryPending,
-      }}
+      loadingModelProviders={loadingModelProviders}
       hiddenProviders={settings.hiddenProviders}
       providerOrder={settings.providerOrder}
       threadId={threadId}

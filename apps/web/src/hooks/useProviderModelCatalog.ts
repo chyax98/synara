@@ -1,7 +1,6 @@
 // FILE: useProviderModelCatalog.ts
-// Purpose: Shared OpenCode model option catalog for composer-like surfaces.
+// Purpose: OpenCode model catalog for composer-like surfaces (models, agents, runtime).
 // Layer: Web hooks
-// Exports: useProviderModelCatalog, ProviderModelCatalog
 
 import type {
   ProviderAgentDescriptor,
@@ -11,13 +10,10 @@ import type {
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 
-import { getAppModelOptions, getCustomModelsByProvider, useAppSettings } from "../appSettings";
 import { resolveRuntimeModelDescriptor } from "../components/chat/runtimeModelCapabilities";
-import {
-  providerAgentsQueryOptions,
-  providerModelsQueryOptions,
-} from "../lib/providerDiscoveryReactQuery";
-import { mergeDynamicModelOptions, type ProviderModelOption } from "../providerModelOptions";
+import { providerAgentsQueryOptions } from "../lib/providerDiscoveryReactQuery";
+import { type ProviderModelOption } from "../providerModelOptions";
+import { useOpenCodeModelCatalog } from "./useOpenCodeModelCatalog";
 
 const OPENCODE_PROVIDER: ProviderKind = "opencode";
 
@@ -30,6 +26,7 @@ export interface ProviderModelCatalog {
   runtimeModelsByProvider: Record<ProviderKind, ReadonlyArray<ProviderModelDescriptor>>;
   selectedRuntimeModel: ProviderModelDescriptor | undefined;
   selectedRuntimeAgents: ReadonlyArray<ProviderAgentDescriptor>;
+  modelsQueryByProvider: Partial<Record<ProviderKind, ReturnType<typeof useQuery>>>;
 }
 
 const EMPTY_PROVIDER_AGENTS: ReadonlyArray<ProviderAgentDescriptor> = [];
@@ -39,77 +36,64 @@ export function useProviderModelCatalog(input: {
   discoveryEnabled: boolean;
   cwd?: string | null;
   modelHintByProvider?: Partial<Record<ProviderKind, string | null>>;
+  /** Resolved composer selection; falls back to model hint when omitted. */
+  selectedModelByProvider?: Partial<Record<ProviderKind, string | null>>;
 }): ProviderModelCatalog {
-  const { discoveryEnabled, modelHintByProvider } = input;
   const discoveryCwd = input.cwd ?? null;
-  const { settings } = useAppSettings();
-  const customModelsByProvider = useMemo(() => getCustomModelsByProvider(settings), [settings]);
+  const modelHint = input.modelHintByProvider?.opencode ?? null;
+  const selectedModel =
+    input.selectedModelByProvider?.opencode ?? input.modelHintByProvider?.opencode ?? null;
 
-  const openCodeDynamicModelsQuery = useQuery(
-    providerModelsQueryOptions({
-      provider: OPENCODE_PROVIDER,
-      binaryPath: settings.openCodeBinaryPath || null,
-      cwd: discoveryCwd,
-      enabled: discoveryEnabled,
-    }),
-  );
-  const openCodeDynamicAgentsQuery = useQuery(
+  const catalog = useOpenCodeModelCatalog({
+    cwd: discoveryCwd,
+    enabled: input.discoveryEnabled,
+    modelHint,
+  });
+
+  const agentsQuery = useQuery(
     providerAgentsQueryOptions({
       provider: OPENCODE_PROVIDER,
-      binaryPath: settings.openCodeBinaryPath || null,
+      binaryPath: catalog.connection.binaryPath,
       cwd: discoveryCwd,
-      enabled: discoveryEnabled,
+      enabled: input.discoveryEnabled,
     }),
   );
 
-  const staticOptions = useMemo(
-    () =>
-      getAppModelOptions(
-        OPENCODE_PROVIDER,
-        customModelsByProvider.opencode,
-        modelHintByProvider?.opencode,
-      ),
-    [customModelsByProvider.opencode, modelHintByProvider?.opencode],
-  );
-
-  const dynamicModels = openCodeDynamicModelsQuery.data?.models ?? [];
   const modelOptionsByProvider = useMemo(
-    () => ({
-      opencode: mergeDynamicModelOptions({
-        provider: OPENCODE_PROVIDER,
-        staticOptions,
-        dynamicModels,
-      }),
-    }),
-    [dynamicModels, staticOptions],
-  ) as Record<ProviderKind, ReadonlyArray<ProviderModelOption & { isCustom?: boolean }>>;
+    () =>
+      ({
+        opencode: catalog.visibleOptions,
+      }) as Record<ProviderKind, ReadonlyArray<ProviderModelOption & { isCustom?: boolean }>>,
+    [catalog.visibleOptions],
+  );
 
   const runtimeModelsByProvider = useMemo(
     () => ({
-      opencode: dynamicModels,
+      opencode: catalog.dynamicModels,
     }),
-    [dynamicModels],
+    [catalog.dynamicModels],
   ) as Record<ProviderKind, ReadonlyArray<ProviderModelDescriptor>>;
 
   const selectedRuntimeModel = useMemo(
     () =>
       resolveRuntimeModelDescriptor({
         provider: OPENCODE_PROVIDER,
-        model: modelHintByProvider?.opencode,
+        model: selectedModel,
         runtimeModels: runtimeModelsByProvider.opencode,
       }),
-    [modelHintByProvider?.opencode, runtimeModelsByProvider.opencode],
+    [runtimeModelsByProvider.opencode, selectedModel],
   );
-
-  const selectedRuntimeAgents = openCodeDynamicAgentsQuery.data?.agents ?? EMPTY_PROVIDER_AGENTS;
 
   return {
     modelOptionsByProvider,
     loadingModelProviders: {
-      opencode: openCodeDynamicModelsQuery.isPending && dynamicModels.length === 0,
+      opencode: catalog.isDiscoveryPending,
     },
     runtimeModelsByProvider,
     selectedRuntimeModel,
-    selectedRuntimeAgents,
+    selectedRuntimeAgents: agentsQuery.data?.agents ?? EMPTY_PROVIDER_AGENTS,
+    modelsQueryByProvider: {
+      opencode: catalog.overviewQuery,
+    },
   };
 }

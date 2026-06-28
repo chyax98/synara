@@ -6,16 +6,19 @@ import { ServerConfig } from "../config";
 import { ServerSettingsLive } from "../serverSettings";
 import { makeEventNdjsonLogger } from "./Layers/EventNdjsonLogger";
 import { makeOpenCodeAdapterLive } from "./Layers/OpenCodeAdapter";
+import { OpenCodeRuntimeLive } from "./opencodeRuntime";
+import { OpenCodeCatalogServiceLive } from "./Layers/OpenCodeCatalogService";
 import { ProviderDiscoveryServiceLive } from "./Layers/ProviderDiscoveryService";
 import { makeProviderServiceLive } from "./Layers/ProviderService";
 import { ProviderSessionDirectoryLive } from "./Layers/ProviderSessionDirectory";
+import { OpenCodeCatalogService } from "./Services/OpenCodeCatalogService";
 import { ProviderDiscoveryService } from "./Services/ProviderDiscoveryService";
 import { ProviderService } from "./Services/ProviderService";
 import { ProviderSessionDirectory } from "./Services/ProviderSessionDirectory";
 import { ProviderSessionRuntimeRepositoryLive } from "../persistence/Layers/ProviderSessionRuntime";
 
 export function makeServerProviderLayer(): Layer.Layer<
-  ProviderService | ProviderDiscoveryService | ProviderSessionDirectory,
+  ProviderService | ProviderDiscoveryService | OpenCodeCatalogService | ProviderSessionDirectory,
   never,
   | SqlClient.SqlClient
   | ServerConfig
@@ -48,9 +51,13 @@ export function makeServerProviderLayer(): Layer.Layer<
       Layer.provide(openCodeAdapterLayer),
       Layer.provide(ServerSettingsLive),
     );
+    const openCodeCatalogLayer = OpenCodeCatalogServiceLive.pipe(
+      Layer.provide(OpenCodeRuntimeLive),
+    );
     return Layer.mergeAll(
       providerServiceLayer,
       providerDiscoveryLayer,
+      openCodeCatalogLayer,
       openCodeAdapterLayer,
       providerSessionDirectoryLayer,
     );

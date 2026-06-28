@@ -22,8 +22,9 @@ import {
   normalizeModelSlug,
   resolveSelectableModel,
 } from "@t3tools/shared/model";
-import { useLocalStorage } from "./hooks/useLocalStorage";
+import { getLocalStorageItem, useLocalStorage } from "./hooks/useLocalStorage";
 import { EnvMode } from "./components/BranchToolbar.logic";
+import { type HiddenModelRef, normalizeHiddenModelRefs } from "./lib/modelCatalogSettings";
 import { formatProviderModelOptionName, type ProviderModelOption } from "./providerModelOptions";
 import {
   DEFAULT_PROVIDER_ORDER,
@@ -79,6 +80,12 @@ export const DEFAULT_SIDEBAR_PROJECT_SORT_ORDER: SidebarProjectSortOrder = "manu
 export const SidebarThreadSortOrder = Schema.Literals(["updated_at", "created_at"]);
 export type SidebarThreadSortOrder = typeof SidebarThreadSortOrder.Type;
 export const DEFAULT_SIDEBAR_THREAD_SORT_ORDER: SidebarThreadSortOrder = "updated_at";
+
+const HiddenModelRefSchema = Schema.Struct({
+  providerID: Schema.String.check(Schema.isMaxLength(128)),
+  modelID: Schema.String.check(Schema.isMaxLength(256)),
+});
+export type { HiddenModelRef };
 
 export const UiDensity = Schema.Literals(UI_DENSITY_MODES);
 export type UiDensity = typeof UiDensity.Type;
@@ -166,6 +173,10 @@ export const AppSettingsSchema = Schema.Struct({
   ),
   timestampFormat: TimestampFormat.pipe(withDefaults(() => DEFAULT_TIMESTAMP_FORMAT)),
   customOpenCodeModels: Schema.Array(Schema.String).pipe(withDefaults(() => [])),
+  // OpenCode upstream catalog visibility — keys are providerID/modelID parsed from slugs.
+  hiddenModels: Schema.Array(HiddenModelRefSchema).pipe(withDefaults(() => [])),
+  // Default chat model for new sessions: "providerID/modelID" (OpenCode catalog slug).
+  defaultChatModel: Schema.String.check(Schema.isMaxLength(512)).pipe(withDefaults(() => "")),
   textGenerationProvider: ProviderKind.pipe(withDefaults(() => "opencode" as const)),
   textGenerationModel: Schema.optional(TrimmedNonEmptyString),
   uiFontFamily: Schema.String.check(Schema.isMaxLength(256)).pipe(withDefaults(() => "")),
@@ -310,6 +321,8 @@ function normalizeAppSettings(settings: AppSettings): AppSettings {
     terminalFontSizePx: normalizeTerminalFontSizePx(settings.terminalFontSizePx),
     terminalFontFamily: normalizeTerminalFontFamily(settings.terminalFontFamily),
     customOpenCodeModels: normalizeCustomModelSlugs(settings.customOpenCodeModels, "opencode"),
+    hiddenModels: normalizeHiddenModelRefs(settings.hiddenModels),
+    defaultChatModel: settings.defaultChatModel.trim(),
     defaultProvider: "opencode",
     textGenerationProvider: "opencode",
     hiddenProviders: [],
@@ -737,4 +750,10 @@ export function useAppSettings() {
     resetSettings,
     defaults,
   } as const;
+}
+
+export function readCachedAppSettings(): AppSettings {
+  return normalizeAppSettings(
+    getLocalStorageItem(APP_SETTINGS_STORAGE_KEY, AppSettingsSchema) ?? DEFAULT_APP_SETTINGS,
+  );
 }

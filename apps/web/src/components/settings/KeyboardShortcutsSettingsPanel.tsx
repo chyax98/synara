@@ -71,9 +71,9 @@ export function KeyboardShortcutsSettingsPanel() {
           size="sm"
           variant="soft"
           nativeInput
-          placeholder="Search shortcuts..."
+          placeholder="搜索快捷键…"
           value={query}
-          aria-label="Search shortcuts"
+          aria-label="搜索快捷键"
           onChange={(event) => setQuery(event.target.value)}
           onKeyDown={(event) => {
             if (event.key === "Escape" && query.length > 0) {
@@ -95,8 +95,8 @@ export function KeyboardShortcutsSettingsPanel() {
           className={cn(SETTINGS_CARD_CLASS_NAME, "divide-y divide-[color:var(--color-border)]")}
         >
           <div className="flex items-center justify-between gap-4 px-3 py-2 text-[11px] font-medium text-muted-foreground">
-            <span>Command</span>
-            <span>Keybinding</span>
+            <span>操作</span>
+            <span>快捷键</span>
           </div>
           {filteredSections.flatMap((section) => {
             const muted = section.tone === "muted";
@@ -129,7 +129,7 @@ export function KeyboardShortcutsSettingsPanel() {
             "px-4 py-10 text-center text-sm text-muted-foreground",
           )}
         >
-          No shortcuts match &ldquo;{query}&rdquo;.
+          没有与「{query}」匹配的快捷键。
         </div>
       )}
     </div>

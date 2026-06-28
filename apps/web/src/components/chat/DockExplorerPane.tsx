@@ -48,6 +48,16 @@ export const DockExplorerPane = memo(function DockExplorerPane(props: {
     });
   }, []);
 
+  if (!props.workspaceRoot) {
+    return (
+      <div className="flex h-full min-h-0 w-full items-center justify-center p-4 text-sm text-muted-foreground">
+        <PanelStateMessage density="compact" fill="flex">
+          <p>No workspace. Open a project to browse files.</p>
+        </PanelStateMessage>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-full min-h-0 w-full">
       <WorkspaceExplorerSidebar

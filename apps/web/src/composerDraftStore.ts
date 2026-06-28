@@ -32,6 +32,7 @@ import {
 import { useMemo } from "react";
 import { getLocalStorageItem } from "./hooks/useLocalStorage";
 import { resolveAppModelSelection } from "./appSettings";
+import { resolveOpenCodeDefaultChatModel } from "./lib/modelCatalogSettings";
 import {
   DEFAULT_INTERACTION_MODE,
   DEFAULT_RUNTIME_MODE,
@@ -1270,6 +1271,7 @@ export function deriveEffectiveComposerModelState(input: {
   threadModelSelection: ModelSelection | null | undefined;
   projectModelSelection: ModelSelection | null | undefined;
   customModelsByProvider: Record<ProviderKind, readonly string[]>;
+  defaultChatModel?: string | null;
   availableModelOptionsByProvider?: Partial<
     Record<ProviderKind, ReadonlyArray<{ slug: string; name: string }>>
   >;
@@ -1281,35 +1283,12 @@ export function deriveEffectiveComposerModelState(input: {
     }
     return resolveSelectableModel(input.selectedProvider, candidate, availableOptions);
   };
-  const baseModel = resolveModelSlugForProvider(
-    input.selectedProvider,
-    (input.threadModelSelection?.provider === input.selectedProvider
-      ? input.threadModelSelection.model
-      : null) ??
-      (input.projectModelSelection?.provider === input.selectedProvider
-        ? input.projectModelSelection.model
-        : null) ??
-      getDefaultModel(input.selectedProvider),
-  );
-  const persistedThreadModel =
-    input.threadModelSelection?.provider === input.selectedProvider
-      ? (normalizeModelSlug(input.threadModelSelection.model, input.selectedProvider) ??
-        input.threadModelSelection.model)
-      : null;
-  const persistedProjectModel =
-    input.projectModelSelection?.provider === input.selectedProvider
-      ? (normalizeModelSlug(input.projectModelSelection.model, input.selectedProvider) ??
-        input.projectModelSelection.model)
-      : null;
+  const catalogOptions = input.availableModelOptionsByProvider?.[input.selectedProvider] ?? [];
+  const configuredDefaultModel =
+    input.selectedProvider === "opencode"
+      ? resolveOpenCodeDefaultChatModel(input.defaultChatModel ?? "", catalogOptions)
+      : "";
   const activeSelection = input.draft?.modelSelectionByProvider?.[input.selectedProvider];
-  const selectedDraftModel = activeSelection?.model
-    ? resolveAppModelSelection(
-        input.selectedProvider,
-        input.customModelsByProvider,
-        activeSelection.model,
-      )
-    : null;
-  const unlistedDraftModel = input.selectedProvider === "opencode" ? selectedDraftModel : null;
   const selectedModel =
     resolveAvailableModel(activeSelection?.model) ??
     resolveAvailableModel(
@@ -1322,14 +1301,9 @@ export function deriveEffectiveComposerModelState(input: {
         ? input.projectModelSelection.model
         : null,
     ) ??
-    resolveAvailableModel(selectedDraftModel) ??
-    persistedThreadModel ??
-    persistedProjectModel ??
-    unlistedDraftModel ??
-    input.availableModelOptionsByProvider?.[input.selectedProvider]?.[0]?.slug ??
-    selectedDraftModel ??
-    baseModel ??
-    getDefaultModel("opencode");
+    resolveAvailableModel(configuredDefaultModel) ??
+    catalogOptions[0]?.slug ??
+    "";
   const modelOptions = deriveEffectiveComposerModelOptions(input);
 
   return {
@@ -1348,6 +1322,7 @@ export function resolvePreferredComposerModelSelection(input: {
   threadModelSelection: ModelSelection | null | undefined;
   projectModelSelection: ModelSelection | null | undefined;
   defaultProvider?: ProviderKind | null | undefined;
+  defaultChatModel?: string | null;
 }): ModelSelection {
   const draftProviderWithSelection =
     COMPOSER_PROVIDER_KINDS.find(
@@ -1368,9 +1343,16 @@ export function resolvePreferredComposerModelSelection(input: {
       : null) ??
     (input.projectModelSelection?.provider === preferredProvider
       ? input.projectModelSelection
+      : null) ??
+    input.draft?.modelSelectionByProvider?.opencode ??
+    (input.defaultChatModel?.trim()
+      ? {
+          provider: "opencode" as const,
+          model: input.defaultChatModel.trim(),
+        }
       : null) ?? {
       provider: "opencode",
-      model: getDefaultModel("opencode"),
+      model: "",
     }
   );
 }
@@ -3969,6 +3951,7 @@ export function useEffectiveComposerModelState(input: {
   threadModelSelection: ModelSelection | null | undefined;
   projectModelSelection: ModelSelection | null | undefined;
   customModelsByProvider: Record<ProviderKind, readonly string[]>;
+  defaultChatModel?: string | null;
   availableModelOptionsByProvider?: Partial<
     Record<ProviderKind, ReadonlyArray<{ slug: string; name: string }>>
   >;
@@ -3983,6 +3966,9 @@ export function useEffectiveComposerModelState(input: {
         threadModelSelection: input.threadModelSelection,
         projectModelSelection: input.projectModelSelection,
         customModelsByProvider: input.customModelsByProvider,
+        ...(input.defaultChatModel !== undefined
+          ? { defaultChatModel: input.defaultChatModel }
+          : {}),
         ...(input.availableModelOptionsByProvider !== undefined
           ? { availableModelOptionsByProvider: input.availableModelOptionsByProvider }
           : {}),
@@ -3991,6 +3977,7 @@ export function useEffectiveComposerModelState(input: {
       input.availableModelOptionsByProvider,
       draft,
       input.customModelsByProvider,
+      input.defaultChatModel,
       input.projectModelSelection,
       input.selectedProvider,
       input.threadModelSelection,

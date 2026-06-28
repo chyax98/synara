@@ -51,9 +51,9 @@ Reference usage: opening/closing a project and the sidebar sections in `apps/web
 
 This fork has **two upstreams**. See [`docs/upstreams.md`](docs/upstreams.md) for merge/cherry-pick workflows, remote setup, and conflict rules.
 
-| Upstream | Repo | When to pull from it |
-|----------|------|----------------------|
-| **First** (direct) | [Synara](https://github.com/Emanuele-web04/synara) — `origin` | UI, product features, OpenCode path, routine `merge origin/main` |
+| Upstream                 | Repo                                                                   | When to pull from it                                                                         |
+| ------------------------ | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| **First** (direct)       | [Synara](https://github.com/Emanuele-web04/synara) — `origin`          | UI, product features, OpenCode path, routine `merge origin/main`                             |
 | **Second** (grandparent) | [T3Code](https://github.com/pingdotgg/t3code) — add as `t3code` remote | Server modularization, protocol/contracts, CI — only when Synara has not absorbed the change |
 
 Fork constraints that must survive any upstream sync: **OpenCode-only** single provider (no handoff, no multi-provider registry), **Chinese UI** where already localized, **AppSettings v2**. Run `bun run test:capabilities` after merges.

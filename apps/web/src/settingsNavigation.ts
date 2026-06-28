@@ -56,7 +56,7 @@ export const SETTINGS_NAV_ITEMS: readonly SettingsNavItem[] = [
     id: "general",
     group: "app",
     label: "通用",
-    description: "默认提供商、会话模式和侧边栏组织。",
+    description: "默认工作区模式、侧边栏组织与会话行为。",
     icon: "settings-gear-1",
     eyebrow: "工作流默认",
   },
@@ -95,10 +95,10 @@ export const SETTINGS_NAV_ITEMS: readonly SettingsNavItem[] = [
   {
     id: "shortcuts",
     group: "app",
-    label: "Keyboard Shortcuts",
-    description: "Every keyboard shortcut available in Synara, grouped by context.",
+    label: "快捷键",
+    description: "Synara 中所有可用的键盘快捷键，按场景分组。",
     icon: "shortcut",
-    eyebrow: "Key bindings",
+    eyebrow: "按键绑定",
   },
   {
     id: "worktrees",
@@ -119,18 +119,10 @@ export const SETTINGS_NAV_ITEMS: readonly SettingsNavItem[] = [
   {
     id: "models",
     group: "synara",
-    label: "模型",
-    description: "版本控制文案默认设置和自定义模型代号。",
+    label: "模型与提供商",
+    description: "浏览 OpenCode 模型目录，控制输入区可见模型。",
     icon: "brain",
-    eyebrow: "AI 配置",
-  },
-  {
-    id: "providers",
-    group: "synara",
-    label: "提供商",
-    description: "OpenCode 是唯一提供商，无需额外配置。",
-    icon: "puzzle",
-    eyebrow: "选择器可见性",
+    eyebrow: "模型目录",
   },
   {
     id: "skills",
@@ -167,6 +159,9 @@ export function settingRowAnchorId(title: string): string {
 export function normalizeSettingsSection(value: unknown): SettingsSectionId {
   if (typeof value !== "string") {
     return "general";
+  }
+  if (value === "providers") {
+    return "models";
   }
   return SETTINGS_SECTION_IDS.find((candidate) => candidate === value) ?? "general";
 }

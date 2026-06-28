@@ -318,8 +318,8 @@ export const ProviderModelMenuItems = memo(function ProviderModelMenuItems(
       ) : (
         <div className="px-2 py-2 text-muted-foreground text-sm">
           {provider === "opencode" && normalizedModelSearchQuery.length === 0
-            ? "No Pi models found"
-            : "No matches"}
+            ? "未发现可用模型"
+            : "没有匹配的模型"}
         </div>
       );
 
@@ -345,7 +345,7 @@ export const ProviderModelMenuItems = memo(function ProviderModelMenuItems(
 
     return (
       <PickerPanelShell
-        searchPlaceholder="Search models or providers"
+        searchPlaceholder="搜索模型或提供商…"
         query={modelSearchQuery}
         onQueryChange={setModelSearchQuery}
         stopSearchKeyPropagation
@@ -359,8 +359,8 @@ export const ProviderModelMenuItems = memo(function ProviderModelMenuItems(
     );
   };
 
-  if (props.lockedProvider !== null) {
-    return <>{renderModelRadioGroup(props.lockedProvider)}</>;
+  if (props.lockedProvider !== null || visibleAvailableProviderOptions.length === 1) {
+    return <>{renderModelRadioGroup(activeProvider)}</>;
   }
 
   return (

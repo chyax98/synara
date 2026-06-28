@@ -14,10 +14,10 @@ Synara (Emanuele-web04/synara)     ← 第一上游：直接上游 / 日常同�
 本仓库 (本地 main)
 ```
 
-| 层级 | 仓库 | 角色 |
-|------|------|------|
-| **第一上游** | [Synara](https://github.com/Emanuele-web04/synara) | 产品功能、UI 迭代、release、OpenCode 集成方向；**优先从这里合** |
-| **第二上游** | [T3Code](https://github.com/pingdotgg/t3code) | 更底层的 server 模块化、协议、CI/release 骨架；**仅在 Synara 尚未吸收或需要追底层架构时参考** |
+| 层级         | 仓库                                               | 角色                                                                                          |
+| ------------ | -------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| **第一上游** | [Synara](https://github.com/Emanuele-web04/synara) | 产品功能、UI 迭代、release、OpenCode 集成方向；**优先从这里合**                               |
+| **第二上游** | [T3Code](https://github.com/pingdotgg/t3code)      | 更底层的 server 模块化、协议、CI/release 骨架；**仅在 Synara 尚未吸收或需要追底层架构时参考** |
 
 README「起源」段与此一致：Synara 从 T3Code fork 后已独立发展，但代码库仍保留大量 `T3CODE_*` 命名与 T3code 风格 server 结构。见 [`docs/server-architecture-migration.md`](./server-architecture-migration.md)。
 
@@ -39,9 +39,9 @@ git fetch t3code
 
 推荐命名约定：
 
-| Remote | 指向 | 用途 |
-|--------|------|------|
-| `origin` | Synara | `git fetch origin`、合并 `origin/main` |
+| Remote   | 指向   | 用途                                                     |
+| -------- | ------ | -------------------------------------------------------- |
+| `origin` | Synara | `git fetch origin`、合并 `origin/main`                   |
 | `t3code` | T3Code | 对照底层架构、cherry-pick 尚未进入 Synara 的 server 重构 |
 
 若你方有独立 GitHub fork，可把自有 remote 设为 `origin`，再把 Synara 设为 `upstream`——本文档统一用 **`origin` = Synara** 描述当前本机配置。
@@ -84,12 +84,12 @@ bash scripts/test-capabilities.sh
 
 适合 **整段 merge** 或 **按 commit cherry-pick** 的场景：
 
-| 类型 | 示例 |
-|------|------|
-| UI / UX | 右侧 dock 资源管理器、transcript 滚动、sidebar、composer、disclosure 动效 |
-| 产品功能 | 桌面行为、通知、设置项、explorer、diff / git 面板 |
-| OpenCode 路径 | provider 发现、compact / queue、orchestration 投影 |
-| 缺陷修复 | 任何不依赖「恢复第二 provider」的 fix |
+| 类型          | 示例                                                                      |
+| ------------- | ------------------------------------------------------------------------- |
+| UI / UX       | 右侧 dock 资源管理器、transcript 滚动、sidebar、composer、disclosure 动效 |
+| 产品功能      | 桌面行为、通知、设置项、explorer、diff / git 面板                         |
+| OpenCode 路径 | provider 发现、compact / queue、orchestration 投影                        |
+| 缺陷修复      | 任何不依赖「恢复第二 provider」的 fix                                     |
 
 **合并主分支：**
 
@@ -120,12 +120,12 @@ git cherry-pick <commit-sha>
 
 仅在以下情况参考或 cherry-pick：
 
-| 类型 | 示例 |
-|------|------|
-| Server 模块化 | `apps/server/src/http.ts` 拆分、`orchestration/` / `persistence/` 边界 |
-| 协议 / contracts 清理 | `packages/contracts` 拆分、WS 方法表整理 |
-| CI / devex | workflow、release 脚本（需改品牌为 Synara） |
-| 性能 / 可靠性 | 与 provider 种类无关的 wsServer、SQLite、重连逻辑 |
+| 类型                  | 示例                                                                   |
+| --------------------- | ---------------------------------------------------------------------- |
+| Server 模块化         | `apps/server/src/http.ts` 拆分、`orchestration/` / `persistence/` 边界 |
+| 协议 / contracts 清理 | `packages/contracts` 拆分、WS 方法表整理                               |
+| CI / devex            | workflow、release 脚本（需改品牌为 Synara）                            |
+| 性能 / 可靠性         | 与 provider 种类无关的 wsServer、SQLite、重连逻辑                      |
 
 **不要**从 T3Code 直接合并：
 
@@ -152,12 +152,12 @@ git log --oneline origin/main..t3code/main -- apps/server/
 
 ## 当前同步快照（维护者更新）
 
-| 项 | 状态 |
-|----|------|
-| 第一上游最新 tag | `v0.3.3`（`84369233`） |
-| 本机 `main` 相对 `origin/main` | ahead 25, behind 0（以 `git rev-list --count` 为准） |
-| 最近一次大合并 | `c479196e` — merge Synara upstream main into opencode-native-zh main |
-| 合并后本地修复 | `7d400175`（类型 / explorer 中文）, `d5168320`（AppSettings v2） |
+| 项                             | 状态                                                                 |
+| ------------------------------ | -------------------------------------------------------------------- |
+| 第一上游最新 tag               | `v0.3.3`（`84369233`）                                               |
+| 本机 `main` 相对 `origin/main` | ahead 25, behind 0（以 `git rev-list --count` 为准）                 |
+| 最近一次大合并                 | `c479196e` — merge Synara upstream main into opencode-native-zh main |
+| 合并后本地修复                 | `7d400175`（类型 / explorer 中文）, `d5168320`（AppSettings v2）     |
 
 更新合并后请改上表日期与 commit，便于下次判断从哪条基线继续。
 

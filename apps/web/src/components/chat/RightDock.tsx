@@ -3,9 +3,18 @@
 // Layer: Chat right-dock UI
 // Depends on: ui/sidebar primitive, right-dock pane metadata, and a caller-provided pane renderer.
 
-import { type ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 
 import { cn } from "~/lib/utils";
+import { createPanelResizeOverlay, removePanelResizeOverlay } from "~/lib/panelResize";
 import {
   type DockPaneRuntimeMode,
   EMPTY_PANE_ID_SET,
@@ -142,9 +151,18 @@ export function RightDock(props: RightDockProps) {
     if (!wrapper || !shell) {
       return;
     }
-    const halfWidth = Math.round(shell.getBoundingClientRect().width / 2);
-    if (halfWidth > 0) {
-      wrapper.style.setProperty("--sidebar-width", `${Math.max(minWidth, halfWidth)}px`);
+    const shellW = shell.getBoundingClientRect().width;
+    const halfWidth = Math.round(shellW / 2);
+    const maxDockW = shellW - 24 * 16; // leave room for chat/composer
+    let targetW = Math.max(minWidth, Math.min(halfWidth, maxDockW));
+    // Back off if the composer probe (which can be stricter after messages/full UI) rejects this target.
+    // The probe does temp apply/reset, so this may cause brief layout during open (acceptable, similar to the half-measure itself).
+    for (let i = 0; i < 12 && targetW > minWidth; i += 1) {
+      if (props.shouldAcceptWidth({ nextWidth: targetW, wrapper })) break;
+      targetW = Math.max(minWidth, targetW - 16);
+    }
+    if (targetW > 0) {
+      wrapper.style.setProperty("--sidebar-width", `${targetW}px`);
     }
   }, [props.state.open, minWidth]);
   const renderedPanes = props.state.panes.filter(
@@ -180,6 +198,47 @@ export function RightDock(props: RightDockProps) {
     ? SIDEBAR_OFFCANVAS_MOTION_SUPPRESSED_CLASS
     : SIDEBAR_OFFCANVAS_MOTION_CLASS;
 
+  const startDockResize = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      const wrapper = contentRef.current?.closest<HTMLElement>("[data-slot='sidebar-wrapper']");
+      if (!wrapper) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      const startX = event.clientX;
+      const startW = wrapper.getBoundingClientRect().width;
+      const minW = props.minWidth;
+      const resizeOverlay = createPanelResizeOverlay();
+
+      const onPointerMove = (moveEvent: PointerEvent) => {
+        const delta = startX - moveEvent.clientX;
+        const nextWidth = Math.max(minW, startW + delta);
+        if (!props.shouldAcceptWidth({ nextWidth, wrapper })) {
+          return;
+        }
+        wrapper.style.setProperty("--sidebar-width", `${nextWidth}px`);
+      };
+
+      const onPointerUp = () => {
+        removePanelResizeOverlay(resizeOverlay);
+        document.body.style.removeProperty("userSelect");
+        document.body.style.removeProperty("user-select");
+        document.body.style.removeProperty("cursor");
+        resizeOverlay.removeEventListener("pointermove", onPointerMove);
+        resizeOverlay.removeEventListener("pointerup", onPointerUp);
+        resizeOverlay.removeEventListener("pointercancel", onPointerUp);
+      };
+
+      document.body.style.cursor = "col-resize";
+      document.body.style.userSelect = "none";
+      resizeOverlay.addEventListener("pointermove", onPointerMove);
+      resizeOverlay.addEventListener("pointerup", onPointerUp);
+      resizeOverlay.addEventListener("pointercancel", onPointerUp);
+    },
+    [props.minWidth, props.shouldAcceptWidth],
+  );
+
   return (
     <SidebarProvider
       defaultOpen={false}
@@ -191,7 +250,7 @@ export function RightDock(props: RightDockProps) {
         side="right"
         collapsible="offcanvas"
         className={cn(
-          "border-l border-[var(--app-surface-divider)] text-foreground",
+          "border-l border-[var(--app-surface-divider)] text-foreground !z-10",
           chromeMotionClass,
         )}
         innerClassName={CHAT_BACKGROUND_CLASS_NAME}
@@ -202,7 +261,15 @@ export function RightDock(props: RightDockProps) {
           shouldAcceptWidth: props.shouldAcceptWidth,
         }}
       >
-        <div ref={contentRef} className="flex h-full min-h-0 w-full flex-col">
+        <div ref={contentRef} className="relative flex h-full min-h-0 w-full flex-col">
+          {/* Direct resize grip on the left edge of the dock content. This ensures reliable
+              dragging even after transcript content appears (which can affect shouldAccept
+              thresholds and layout). Uses overlay for webview safety inside panes like browser. */}
+          <div
+            className="absolute inset-y-0 left-0 z-40 w-2 -translate-x-1/2 cursor-col-resize bg-transparent hover:bg-[var(--app-surface-divider)]"
+            onPointerDown={startDockResize}
+            title="拖拽调整右侧栏宽度"
+          />
           <div
             className={cn(
               CHAT_SURFACE_HEADER_ROW_CLASS_NAME,
@@ -287,7 +354,6 @@ export function RightDock(props: RightDockProps) {
             })}
           </div>
         </div>
-        <SidebarRail className="w-5 [[data-side=right][data-collapsible=offcanvas]_&]:-left-4 z-40" />
       </Sidebar>
     </SidebarProvider>
   );

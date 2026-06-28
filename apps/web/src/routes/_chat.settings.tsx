@@ -4,14 +4,13 @@
 // Exports: Settings route component for `/settings`
 
 import {
-  PROVIDER_DISPLAY_NAMES,
   type ProviderKind,
   type ThreadId,
   DEFAULT_GIT_TEXT_GENERATION_MODEL,
 } from "@t3tools/contracts";
 import { createFileRoute, useSearch } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getModelOptions, normalizeModelSlug } from "@t3tools/shared/model";
+import { normalizeModelSlug } from "@t3tools/shared/model";
 import { type RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   type AppSettings,
@@ -20,7 +19,6 @@ import {
   MAX_CHAT_FONT_SIZE_PX,
   MAX_TERMINAL_FONT_SIZE_PX,
   getCustomModelsForProvider,
-  getGitTextGenerationModelOptions,
   MAX_CUSTOM_MODEL_LENGTH,
   MIN_CHAT_FONT_SIZE_PX,
   MIN_TERMINAL_FONT_SIZE_PX,
@@ -34,7 +32,7 @@ import {
 } from "../appSettings";
 import { APP_VERSION } from "../branding";
 import { useDesktopTopBarTrafficLightGutterClassName } from "../hooks/useDesktopTopBarGutter";
-import { ProviderOptionLabel } from "../components/ProviderIcon";
+
 import {
   Autocomplete,
   AutocompleteEmpty,
@@ -65,6 +63,9 @@ import {
 
 import { ProfileSettingsPanel } from "../components/settings/ProfileSettingsPanel";
 import { KeyboardShortcutsSettingsPanel } from "../components/settings/KeyboardShortcutsSettingsPanel";
+import { DefaultChatModelSettingsRow } from "../components/settings/DefaultChatModelSettingsRow";
+import { GitTextGenerationModelSettingsRow } from "../components/settings/GitTextGenerationModelSettingsRow";
+import { ModelProvidersSettingsPanel } from "../components/settings/ModelProvidersSettingsPanel";
 import { SkillsSettingsPanel } from "../components/settings/SkillsSettingsPanel";
 import {
   CHAT_CONTENT_CARD_CLASS_NAME,
@@ -175,8 +176,6 @@ const THEME_OPTIONS = [
   },
 ] as const;
 
-const PROVIDER_SELECT_OPTIONS = ["opencode"] as const satisfies readonly ProviderKind[];
-
 const TIMESTAMP_FORMAT_LABELS = {
   locale: "系统默认",
   "12-hour": "12 小时制",
@@ -199,10 +198,6 @@ const CUSTOM_MODEL_PROVIDER: ProviderKind = "opencode";
 // ── Settings UI primitives ────────────────────────────────────────────────
 
 // Shared settings controls live in ~/components/settings/SettingControls.
-
-function isProviderSelectOption(value: string): value is ProviderKind {
-  return PROVIDER_SELECT_OPTIONS.includes(value as ProviderKind);
-}
 
 function normalizeManagedWorktreePath(value: string | null | undefined): string | null {
   const trimmed = value?.trim();
@@ -356,36 +351,15 @@ function SettingsRouteView() {
     return groups;
   }, [managedWorktrees, threadShells]);
 
-  // Builds provider model-option arrays; only the Models panel reads it. Memoize on the
-  // narrow inputs the helper actually uses (destructured so exhaustive-deps stays exact) so
-  // typing in any other settings field — every keystroke re-renders this monolithic route —
-  // doesn't rebuild these lists.
-  const { customOpenCodeModels, textGenerationModel, textGenerationProvider } = settings;
-  const gitTextGenerationModelOptions = useMemo(
-    () =>
-      getGitTextGenerationModelOptions({
-        customOpenCodeModels,
-        textGenerationModel,
-        textGenerationProvider,
-      }),
-    [customOpenCodeModels, textGenerationModel, textGenerationProvider],
-  );
   const currentGitTextGenerationProvider = settings.textGenerationProvider ?? "opencode";
   const currentGitTextGenerationModel =
     settings.textGenerationModel ?? DEFAULT_GIT_TEXT_GENERATION_MODEL;
-  const currentGitTextGenerationValue = `${currentGitTextGenerationProvider}:${currentGitTextGenerationModel}`;
   const defaultGitTextGenerationProvider = defaults.textGenerationProvider ?? "opencode";
   const defaultGitTextGenerationModel =
     defaults.textGenerationModel ?? DEFAULT_GIT_TEXT_GENERATION_MODEL;
   const isGitTextGenerationModelDirty =
     currentGitTextGenerationProvider !== defaultGitTextGenerationProvider ||
     currentGitTextGenerationModel !== defaultGitTextGenerationModel;
-  const selectedGitTextGenerationModelLabel =
-    gitTextGenerationModelOptions.find(
-      (option) =>
-        option.provider === currentGitTextGenerationProvider &&
-        option.slug === currentGitTextGenerationModel,
-    )?.name ?? currentGitTextGenerationModel;
   const selectedCustomModelProviderSettings = MODEL_PROVIDER_SETTINGS.find(
     (providerSettings) => providerSettings.provider === CUSTOM_MODEL_PROVIDER,
   )!;
@@ -409,7 +383,10 @@ function SettingsRouteView() {
   const changedSettingLabels = [
     ...(theme !== "system" ? ["主题"] : []),
     ...(!isDefaultActiveTheme ? [`${resolvedTheme === "dark" ? "深色" : "浅色"}主题包`] : []),
-    ...(settings.defaultProvider !== defaults.defaultProvider ? ["默认提供商"] : []),
+    ...(settings.hiddenModels.length > 0 ? ["模型可见性"] : []),
+    ...(settings.defaultChatModel.trim() !== defaults.defaultChatModel.trim()
+      ? ["默认聊天模型"]
+      : []),
     ...(settings.defaultThreadEnvMode !== defaults.defaultThreadEnvMode ? ["默认工作区模式"] : []),
     ...(settings.sidebarProjectSortOrder !== defaults.sidebarProjectSortOrder ? ["项目排序"] : []),
     ...(settings.sidebarThreadSortOrder !== defaults.sidebarThreadSortOrder ? ["会话排序"] : []),
@@ -478,14 +455,7 @@ function SettingsRouteView() {
       if (!normalized) {
         setCustomModelErrorByProvider((existing) => ({
           ...existing,
-          [provider]: "深色",
-        }));
-        return;
-      }
-      if (getModelOptions(provider).some((option) => option.slug === normalized)) {
-        setCustomModelErrorByProvider((existing) => ({
-          ...existing,
-          [provider]: "浅色",
+          [provider]: "请输入 providerID/modelID 格式的模型代号。",
         }));
         return;
       }
@@ -499,7 +469,7 @@ function SettingsRouteView() {
       if (customModels.includes(normalized)) {
         setCustomModelErrorByProvider((existing) => ({
           ...existing,
-          [provider]: "默认提供商",
+          [provider]: "该模型代号已存在。",
         }));
         return;
       }
@@ -850,44 +820,6 @@ function SettingsRouteView() {
   const renderGeneralPanel = () => (
     <div className="space-y-6">
       <SettingsSection title="核心默认">
-        <SettingsRow
-          title="默认提供商"
-          description="新会话使用 OpenCode。"
-          resetAction={
-            settings.defaultProvider !== defaults.defaultProvider ? (
-              <SettingResetButton
-                label="默认提供商"
-                onClick={() => updateSettings({ defaultProvider: defaults.defaultProvider })}
-              />
-            ) : null
-          }
-          control={
-            <SettingsSelectControl
-              value={settings.defaultProvider}
-              onValueChange={(value) => {
-                if (!isProviderSelectOption(value)) return;
-                updateSettings({ defaultProvider: value });
-              }}
-              ariaLabel="默认提供商"
-              valueContent={
-                <ProviderOptionLabel
-                  provider={settings.defaultProvider}
-                  label={PROVIDER_DISPLAY_NAMES[settings.defaultProvider]}
-                />
-              }
-            >
-              {PROVIDER_SELECT_OPTIONS.map((provider) => (
-                <SelectItem hideIndicator key={provider} value={provider}>
-                  <ProviderOptionLabel
-                    provider={provider}
-                    label={PROVIDER_DISPLAY_NAMES[provider]}
-                  />
-                </SelectItem>
-              ))}
-            </SettingsSelectControl>
-          }
-        />
-
         <SettingsRow
           title="默认工作区模式"
           description="选择新建草稿会话的默认工作区模式。"
@@ -1673,52 +1605,33 @@ function SettingsRouteView() {
   };
 
   const renderModelsPanel = () => (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      <ModelProvidersSettingsPanel />
+
       <SettingsSection title="生成默认">
-        <SettingsRow
-          title="版本控制文案模型"
-          description="用于生成提交说明、合并请求标题与分支名。"
-          resetAction={
-            isGitTextGenerationModelDirty ? (
-              <SettingResetButton
-                label="版本控制文案模型"
-                onClick={() =>
-                  updateSettings({
-                    textGenerationProvider: defaults.textGenerationProvider,
-                    textGenerationModel: defaults.textGenerationModel,
-                  })
-                }
-              />
-            ) : null
+        <DefaultChatModelSettingsRow
+          defaultChatModel={settings.defaultChatModel}
+          defaultsDefaultChatModel={defaults.defaultChatModel}
+          onChange={(slug) => updateSettings({ defaultChatModel: slug })}
+          onReset={() => updateSettings({ defaultChatModel: defaults.defaultChatModel })}
+        />
+
+        <GitTextGenerationModelSettingsRow
+          textGenerationProvider={currentGitTextGenerationProvider}
+          textGenerationModel={currentGitTextGenerationModel}
+          defaultsTextGenerationProvider={defaultGitTextGenerationProvider}
+          defaultsTextGenerationModel={defaultGitTextGenerationModel}
+          onChange={(provider, model) =>
+            updateSettings({
+              textGenerationProvider: provider,
+              textGenerationModel: model,
+            })
           }
-          control={
-            <SettingsSelectControl
-              value={currentGitTextGenerationValue}
-              onValueChange={(value) => {
-                if (!value) return;
-                const separatorIndex = value.indexOf(":");
-                const provider = value.slice(0, separatorIndex) as ProviderKind;
-                const model = value.slice(separatorIndex + 1);
-                if (!provider || !model) return;
-                updateSettings({
-                  textGenerationProvider: provider,
-                  textGenerationModel: model,
-                });
-              }}
-              ariaLabel="Git 文案生成模型"
-              triggerClassName="w-full sm:w-52"
-              valueContent={selectedGitTextGenerationModelLabel}
-            >
-              {gitTextGenerationModelOptions.map((option) => (
-                <SelectItem
-                  hideIndicator
-                  key={`${option.provider}:${option.slug}`}
-                  value={`${option.provider}:${option.slug}`}
-                >
-                  {PROVIDER_DISPLAY_NAMES[option.provider]} / {option.name}
-                </SelectItem>
-              ))}
-            </SettingsSelectControl>
+          onReset={() =>
+            updateSettings({
+              textGenerationProvider: defaults.textGenerationProvider,
+              textGenerationModel: defaults.textGenerationModel,
+            })
           }
         />
       </SettingsSection>
@@ -1726,7 +1639,7 @@ function SettingsRouteView() {
       <SettingsSection title="自定义模型">
         <SettingsRow
           title="已保存模型代号"
-          description="为支持的提供商添加自定义模型代号。"
+          description="手动添加 OpenCode 尚未发现的模型代号（providerID/modelID）。添加后会出现在模型目录中。"
           resetAction={
             totalCustomModels > 0 ? (
               <SettingResetButton
@@ -1815,17 +1728,6 @@ function SettingsRouteView() {
             ) : null}
           </div>
         </SettingsRow>
-      </SettingsSection>
-    </div>
-  );
-
-  const renderProvidersPanel = () => (
-    <div className="space-y-6">
-      <SettingsSection title="提供商">
-        <SettingsRow
-          title="唯一提供商"
-          description="Synara 仅支持 OpenCode 作为唯一提供商，无需额外配置。"
-        />{" "}
       </SettingsSection>
     </div>
   );
@@ -1933,7 +1835,7 @@ function SettingsRouteView() {
       case "models":
         return renderModelsPanel();
       case "providers":
-        return renderProvidersPanel();
+        return renderModelsPanel();
       case "profile":
         return <ProfileSettingsPanel />;
       case "skills":

@@ -42,6 +42,7 @@ import { makeDispatchCommandNormalizer } from "./orchestration/dispatchCommandNo
 import { makeImportThreadHandler } from "./orchestration/importThreadRoute";
 import { OrchestrationEngineService } from "./orchestration/Services/OrchestrationEngine";
 import { ProjectionSnapshotQuery } from "./orchestration/Services/ProjectionSnapshotQuery";
+import { OpenCodeCatalogService } from "./provider/Services/OpenCodeCatalogService";
 import { ProviderDiscoveryService } from "./provider/Services/ProviderDiscoveryService";
 import { discoverSkillsCatalog, synaraSkillsDir } from "./provider/skillsCatalog";
 import { OpenCodeAdapter } from "./provider/Services/OpenCodeAdapter";
@@ -341,6 +342,7 @@ export const makeWsRpcLayer = () =>
       const projectionReadModelQuery = yield* ProjectionSnapshotQuery;
       const openCodeAdapter = yield* OpenCodeAdapter;
       const providerDiscoveryService = yield* ProviderDiscoveryService;
+      const openCodeCatalogService = yield* OpenCodeCatalogService;
       const providerHealth = yield* ProviderHealth;
       const providerService = yield* ProviderService;
       const lifecycleEvents = yield* ServerLifecycleEvents;
@@ -1137,6 +1139,34 @@ export const makeWsRpcLayer = () =>
           rpcEffect(providerDiscoveryService.listModels(input), "Failed to list models"),
         [WS_METHODS.providerListAgents]: (input) =>
           rpcEffect(providerDiscoveryService.listAgents(input), "Failed to list agents"),
+        [WS_METHODS.opencodeCatalogOverview]: (input) =>
+          rpcEffect(
+            openCodeCatalogService.catalogOverview(input),
+            "Failed to load catalog overview",
+          ),
+        [WS_METHODS.opencodeConfigProviders]: (input) =>
+          rpcEffect(
+            openCodeCatalogService.configProviders(input),
+            "Failed to list config providers",
+          ),
+        [WS_METHODS.opencodeProviderAvailable]: (input) =>
+          rpcEffect(
+            openCodeCatalogService.providerAvailable(input),
+            "Failed to list available providers",
+          ),
+        [WS_METHODS.opencodeProviderAuth]: (input) =>
+          rpcEffect(
+            openCodeCatalogService.providerAuth(input),
+            "Failed to list provider auth methods",
+          ),
+        [WS_METHODS.opencodeAuthSet]: (input) =>
+          rpcEffect(openCodeCatalogService.authSet(input), "Failed to set provider auth"),
+        [WS_METHODS.opencodeAuthRemove]: (input) =>
+          rpcEffect(openCodeCatalogService.authRemove(input), "Failed to remove provider auth"),
+        [WS_METHODS.opencodeOauthAuthorize]: (input) =>
+          rpcEffect(openCodeCatalogService.oauthAuthorize(input), "Failed to start OAuth flow"),
+        [WS_METHODS.opencodeOauthCallback]: (input) =>
+          rpcEffect(openCodeCatalogService.oauthCallback(input), "Failed to complete OAuth flow"),
         [WS_METHODS.automationList]: (input) =>
           rpcEffect(automationService.list(input), "Failed to list automations"),
         [WS_METHODS.automationCreate]: (input) =>

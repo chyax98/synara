@@ -159,6 +159,20 @@ import type {
   ProviderReadPluginInput,
   ProviderReadPluginResult,
 } from "./providerDiscovery";
+import type {
+  OpenCodeAuthMutationResult,
+  OpenCodeAuthRemoveInput,
+  OpenCodeAuthSetInput,
+  OpenCodeCatalogInput,
+  OpenCodeCatalogOverviewResult,
+  OpenCodeConfigProvidersResult,
+  OpenCodeOauthAuthorizeInput,
+  OpenCodeOauthAuthorizeResult,
+  OpenCodeOauthCallbackInput,
+  OpenCodeOauthCallbackResult,
+  OpenCodeProviderAuthMethodsResult,
+  OpenCodeProviderAvailabilityResult,
+} from "./openCodeCatalog";
 import type { ProviderCompactThreadInput } from "./provider";
 import type {
   StatsGetProfileStatsInput,
@@ -485,6 +499,16 @@ export interface NativeApi {
     readPlugin: (input: ProviderReadPluginInput) => Promise<ProviderReadPluginResult>;
     listModels: (input: ProviderListModelsInput) => Promise<ProviderListModelsResult>;
     listAgents: (input: ProviderListAgentsInput) => Promise<ProviderListAgentsResult>;
+  };
+  opencode: {
+    catalogOverview: (input: OpenCodeCatalogInput) => Promise<OpenCodeCatalogOverviewResult>;
+    configProviders: (input: OpenCodeCatalogInput) => Promise<OpenCodeConfigProvidersResult>;
+    providerAvailable: (input: OpenCodeCatalogInput) => Promise<OpenCodeProviderAvailabilityResult>;
+    providerAuth: (input: OpenCodeCatalogInput) => Promise<OpenCodeProviderAuthMethodsResult>;
+    authSet: (input: OpenCodeAuthSetInput) => Promise<OpenCodeAuthMutationResult>;
+    authRemove: (input: OpenCodeAuthRemoveInput) => Promise<OpenCodeAuthMutationResult>;
+    oauthAuthorize: (input: OpenCodeOauthAuthorizeInput) => Promise<OpenCodeOauthAuthorizeResult>;
+    oauthCallback: (input: OpenCodeOauthCallbackInput) => Promise<OpenCodeOauthCallbackResult>;
   };
   orchestration: {
     getSnapshot: () => Promise<OrchestrationReadModel>;

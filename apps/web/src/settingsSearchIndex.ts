@@ -203,13 +203,13 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     keywords: "关闭终端标签并清除其历史前进行确认。安全",
   },
 
-  // ── Keyboard Shortcuts ────────────────────────────────────────────────────────
+  // ── 快捷键 ────────────────────────────────────────────────────────────────────
   {
     id: "shortcuts:keyboard-shortcuts",
     section: "shortcuts",
-    title: "Keyboard Shortcuts",
+    title: "快捷键",
     keywords:
-      "Every keyboard shortcut available in Synara, grouped by context. keybindings hotkeys key combo cmd ctrl reference",
+      "Synara 中所有可用的键盘快捷键，按场景分组。keybindings hotkeys 按键 组合键 cmd ctrl 参考",
     target: null,
   },
 
@@ -231,6 +231,18 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
 
   // ── Models ────────────────────────────────────────────────────────────────────
   {
+    id: "models:model-catalog",
+    section: "models",
+    title: "模型目录",
+    keywords: "OpenCode 模型提供商 Anthropic OpenAI 连接 认证 API Key OAuth 可见性 隐藏 显示 选单",
+  },
+  {
+    id: "models:default-chat-model",
+    section: "models",
+    title: "默认聊天模型",
+    keywords: "新建会话 默认模型 OpenCode providerID modelID 聊天",
+  },
+  {
     id: "models:git-writing-model",
     section: "models",
     title: "版本控制文案模型",
@@ -241,20 +253,6 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     section: "models",
     title: "已保存模型代号",
     keywords: "为支持的提供商添加自定义模型代号。",
-  },
-
-  // ── Providers ─────────────────────────────────────────────────────────────────
-  {
-    id: "providers:automatic-cli-update-checks",
-    section: "providers",
-    title: "自动 CLI 更新检查",
-    keywords: "在后台检查 OpenCode CLI 是否有新版本。更新 升级 禁用",
-  },
-  {
-    id: "providers:opencode",
-    section: "providers",
-    title: "唯一提供商",
-    keywords: "OpenCode 提供商 无需配置",
   },
 
   // ── Skills ────────────────────────────────────────────────────────────────────

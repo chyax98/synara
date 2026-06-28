@@ -21,6 +21,7 @@ import {
   type KanbanCard,
   type KanbanDraftOpenThreadReason,
 } from "../components/kanban/kanban.logic";
+import { readCachedAppSettings } from "../appSettings";
 import {
   resolvePreferredComposerModelSelection,
   useComposerDraftStore,
@@ -146,6 +147,7 @@ async function dispatchKanbanDraftThreadOnce(
     threadModelSelection: thread?.modelSelection ?? null,
     projectModelSelection: project?.defaultModelSelection ?? null,
     defaultProvider: input.defaultProvider,
+    defaultChatModel: readCachedAppSettings().defaultChatModel,
   });
   const draftThread = composerStore.getDraftThread(threadId);
   // Worktree creation is owned by the full chat composer path. Kanban stays a
@@ -243,6 +245,7 @@ async function dispatchKanbanDraftThreadOnce(
         activeDraftThread: null,
         activeThread: null,
         defaultProvider: input.defaultProvider,
+        defaultChatModel: readCachedAppSettings().defaultChatModel,
         draftComposerState,
         draftThread,
         options: undefined,

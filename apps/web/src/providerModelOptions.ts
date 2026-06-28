@@ -182,7 +182,7 @@ export function groupProviderModelOptionsWithFavorites(input: {
   return [
     {
       key: "__favorites__",
-      label: input.favoriteLabel ?? "Favourites",
+      label: input.favoriteLabel ?? "收藏",
       options: favoriteOptions,
     },
     ...groupedOptions,

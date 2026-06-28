@@ -1,5 +1,6 @@
 import { type ProjectId, ThreadId } from "@t3tools/contracts";
 import { getDefaultModel } from "@t3tools/shared/model";
+import { resolveOpenCodeDefaultChatModel } from "../lib/modelCatalogSettings";
 import { useNavigate } from "@tanstack/react-router";
 import { useCallback } from "react";
 import { useAppSettings } from "../appSettings";
@@ -56,7 +57,10 @@ export function useHandleNewThread() {
         if (!options?.provider) {
           return;
         }
-        const defaultModel = getDefaultModel(options.provider);
+        const defaultModel =
+          options.provider === "opencode"
+            ? resolveOpenCodeDefaultChatModel(settings.defaultChatModel, [])
+            : getDefaultModel(options.provider);
         if (!defaultModel) {
           return;
         }
@@ -147,6 +151,7 @@ export function useHandleNewThread() {
           activeDraftThread: activeDraftThreadSnapshot,
           activeThread: activeThreadSnapshot,
           defaultProvider: options?.provider ?? settings.defaultProvider,
+          defaultChatModel: settings.defaultChatModel,
           draftComposerState:
             useComposerDraftStore.getState().draftsByThreadId[targetThreadId] ?? null,
           draftThread,

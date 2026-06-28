@@ -98,6 +98,7 @@ interface ResolveTerminalThreadCreationStateInput {
   activeDraftThread: DraftThreadState | null;
   activeThread: ActiveThreadSnapshot | null;
   defaultProvider?: ProviderKind | null | undefined;
+  defaultChatModel?: string | null;
   draftComposerState: ComposerThreadDraftState | null;
   draftThread: DraftThreadState | null;
   options: NewThreadOptions | undefined;
@@ -295,6 +296,7 @@ export function resolveTerminalThreadCreationState(
           : null,
       projectModelSelection: input.projectDefaultModelSelection,
       defaultProvider: input.defaultProvider,
+      ...(input.defaultChatModel !== undefined ? { defaultChatModel: input.defaultChatModel } : {}),
     }),
     runtimeMode:
       input.draftThread?.runtimeMode ??
