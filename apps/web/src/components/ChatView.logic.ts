@@ -616,6 +616,17 @@ export function shouldRenderTerminalWorkspace(options: {
   return options.terminalOpen && options.presentationMode === "workspace";
 }
 
+export function resolveMentionSearchCwd(input: {
+  discoveryCwd: string | null;
+  envMode: ThreadEnvironmentMode | null;
+  worktreePath: string | null;
+}): string | null {
+  if (isPendingThreadWorktree({ envMode: input.envMode, worktreePath: input.worktreePath })) {
+    return null;
+  }
+  return input.discoveryCwd;
+}
+
 export function resolveProjectScriptCwd(input: {
   optionsCwd?: string | undefined;
   gitCwd: string | null;

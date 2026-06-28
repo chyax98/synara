@@ -154,6 +154,7 @@ import {
   resolveDefaultEnvironmentPanelOpen,
   resolveEnvironmentPanelOpen,
   resolveEnvironmentPanelVisible,
+  resolveMentionSearchCwd,
   resolveProjectScriptCwd,
   resolveProjectScriptTerminalTarget,
   shouldEnableComposerPastedTextCollapse,
@@ -2674,11 +2675,16 @@ export default function ChatView({
         composerSkillCwd !== null,
     }),
   );
+  const mentionSearchCwd = resolveMentionSearchCwd({
+    discoveryCwd: composerSkillCwd,
+    envMode: resolvedThreadEnvMode,
+    worktreePath: resolvedThreadWorktreePath,
+  });
   const workspaceEntriesQuery = useQuery(
     projectSearchEntriesQueryOptions({
-      cwd: composerSkillCwd,
+      cwd: mentionSearchCwd,
       query: effectiveMentionQuery,
-      enabled: isMentionTrigger && !isLocalFolderBrowserOpen && composerSkillCwd !== null,
+      enabled: isMentionTrigger && !isLocalFolderBrowserOpen && mentionSearchCwd !== null,
       limit: 80,
     }),
   );

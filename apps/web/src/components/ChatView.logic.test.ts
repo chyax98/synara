@@ -17,6 +17,7 @@ import {
   resolveDefaultEnvironmentPanelOpen,
   resolveEnvironmentPanelOpen,
   resolveEnvironmentPanelVisible,
+  resolveMentionSearchCwd,
   resolveProjectScriptCwd,
   resolveProjectScriptTerminalTarget,
   resolveRuntimeModeAfterApprovalDecision,
@@ -740,6 +741,28 @@ describe("shouldRenderTerminalWorkspace", () => {
         terminalOpen: true,
       }),
     ).toBe(false);
+  });
+});
+
+describe("resolveMentionSearchCwd", () => {
+  it("returns null while worktree is pending even when discovery cwd falls back to project root", () => {
+    expect(
+      resolveMentionSearchCwd({
+        discoveryCwd: "/repo/project",
+        envMode: "worktree",
+        worktreePath: null,
+      }),
+    ).toBeNull();
+  });
+
+  it("returns discovery cwd once worktree path is materialized", () => {
+    expect(
+      resolveMentionSearchCwd({
+        discoveryCwd: "/repo/.worktrees/feature",
+        envMode: "worktree",
+        worktreePath: "/repo/.worktrees/feature",
+      }),
+    ).toBe("/repo/.worktrees/feature");
   });
 });
 

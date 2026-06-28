@@ -94,6 +94,21 @@ export function shouldDrainQueuedTurnsAfterRuntimeEvent(event: ProviderQueueDrai
   return event.type === "turn.completed" || event.type === "turn.aborted";
 }
 
+/** Shipped domain-event listener body for compact-ready queue drain. */
+export function runCompactSessionSetDrainForDomainEvent(
+  event: OrchestrationEvent,
+  drainQueuedTurns: (threadId: ThreadId) => Effect.Effect<void, unknown, never>,
+): Effect.Effect<void, unknown, never> {
+  if (event.type !== "thread.session-set") {
+    return Effect.void;
+  }
+  const drainThreadId = resolveCompactSessionSetDrainThreadId(event);
+  if (!drainThreadId) {
+    return Effect.void;
+  }
+  return drainQueuedTurns(drainThreadId);
+}
+
 function toNonEmptyProviderInput(value: string | undefined): string | undefined {
   const normalized = value?.trim();
   return normalized && normalized.length > 0 ? normalized : undefined;
@@ -1419,11 +1434,9 @@ const make = Effect.gen(function* () {
   const processCompactSessionSetDrain = Effect.fnUntraced(function* (
     event: Extract<OrchestrationEvent, { type: "thread.session-set" }>,
   ) {
-    const drainThreadId = resolveCompactSessionSetDrainThreadId(event);
-    if (!drainThreadId) {
-      return;
-    }
-    yield* drainQueuedTurnsForThread(drainThreadId);
+    yield* runCompactSessionSetDrainForDomainEvent(event, (threadId) =>
+      drainQueuedTurnsForThread(threadId),
+    );
   });
 
   const processTurnInterruptRequested = Effect.fnUntraced(function* (

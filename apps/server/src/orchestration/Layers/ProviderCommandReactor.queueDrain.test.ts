@@ -1,7 +1,11 @@
-import { EventId, ThreadId, TurnId } from "@t3tools/contracts";
+import { CommandId, EventId, ThreadId, TurnId } from "@t3tools/contracts";
+import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
 
-import { shouldDrainQueuedTurnsAfterRuntimeEvent } from "./ProviderCommandReactor.ts";
+import {
+  runCompactSessionSetDrainForDomainEvent,
+  shouldDrainQueuedTurnsAfterRuntimeEvent,
+} from "./ProviderCommandReactor.ts";
 import { shouldDrainQueuedTurnsAfterCompactSessionSet } from "../providerCompactSession.ts";
 
 describe("shouldDrainQueuedTurnsAfterRuntimeEvent", () => {
@@ -28,6 +32,40 @@ describe("shouldDrainQueuedTurnsAfterRuntimeEvent", () => {
         payload: { reason: "interrupted" },
       }),
     ).toBe(true);
+  });
+});
+
+describe("runCompactSessionSetDrainForDomainEvent", () => {
+  it("routes only compact-ready thread.session-set events to the drain callback", async () => {
+    const drainThreadIds: ThreadId[] = [];
+    await Effect.runPromise(
+      runCompactSessionSetDrainForDomainEvent(
+        {
+          type: "thread.session-set",
+          commandId: CommandId.makeUnsafe("provider:evt:thread-session-set-after-compact:route"),
+          payload: {
+            threadId: ThreadId.makeUnsafe("thread-route"),
+            session: {
+              threadId: ThreadId.makeUnsafe("thread-route"),
+              status: "ready",
+              providerName: "opencode",
+              runtimeMode: "full-access",
+              activeTurnId: null,
+              lastError: null,
+              updatedAt: "2026-06-28T00:00:00.000Z",
+            },
+          },
+        } as Extract<
+          import("@t3tools/contracts").OrchestrationEvent,
+          { type: "thread.session-set" }
+        >,
+        (threadId) =>
+          Effect.sync(() => {
+            drainThreadIds.push(threadId);
+          }),
+      ),
+    );
+    expect(drainThreadIds).toEqual([ThreadId.makeUnsafe("thread-route")]);
   });
 });
 

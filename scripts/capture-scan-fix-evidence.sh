@@ -54,13 +54,21 @@ run_launch_pair() {
   wait_for_health "$port"
 
   bun scripts/probe-compact-queue-scenario.ts --port "$port" --out "$SCRATCH/launch-${launch_index}-compact-probe.log" \
-    2>&1 | tee -a "$SCRATCH/launch-${launch_index}-compact-probe.log"
+    2>&1 | tee "$SCRATCH/launch-${launch_index}-compact-probe.log"
   rg -q "COMPACT_DRAIN_GATE: true" "$SCRATCH/launch-${launch_index}-compact-probe.log"
   rg -q "SNAPSHOT_THREADS: [1-9]" "$SCRATCH/launch-${launch_index}-compact-probe.log"
 
   bun scripts/probe-orchestration-snapshot.ts "$port" \
     2>&1 | tee "$SCRATCH/launch-${launch_index}-probe.log"
   rg -q "SNAPSHOT_PROJECTS: [1-9]" "$SCRATCH/launch-${launch_index}-probe.log"
+
+  {
+    echo ""
+    echo "== launch-${launch_index} compact probe excerpt =="
+    cat "$SCRATCH/launch-${launch_index}-compact-probe.log"
+    echo "== launch-${launch_index} snapshot probe excerpt =="
+    cat "$SCRATCH/launch-${launch_index}-probe.log"
+  } >>"$SCRATCH/launch-${launch_index}.log"
 
   kill "$server_pid" 2>/dev/null || true
   wait "$server_pid" 2>/dev/null || true
@@ -75,23 +83,20 @@ echo "== step 1: full scan greps + check scripts =="
     apps/server/src/orchestration \
     apps/server/src/provider \
     apps/web/src/components/chat \
-    apps/web/src/session-logic.ts \
-    2>/dev/null | head -400
+    apps/web/src/session-logic.ts
 
   echo ""
   echo "=== path resolution / worktree open ==="
-  rg -n "resolve.*[Ww]orkspace.*[Pp]ath|worktreePath|resolveExternalEditorOpenTarget|resolveProjectScriptCwd|forceExternal" \
+  rg -n "resolve.*[Ww]orkspace.*[Pp]ath|worktreePath|resolveExternalEditorOpenTarget|resolveProjectScriptCwd|resolveMentionSearchCwd|forceExternal" \
     apps/web/src \
     apps/server/src/open.ts \
-    packages/shared/src \
-    2>/dev/null | head -200
+    packages/shared/src
 
   echo ""
   echo "=== stale|isBusy|compaction ==="
-  rg -n "stale|isBusy|isContextCompaction|COMPACT_SESSION_SET" \
+  rg -n "stale|isBusy|isContextCompaction|COMPACT_SESSION_SET|runCompactSessionSetDrainForDomainEvent" \
     apps/server/src/orchestration \
-    apps/web/src \
-    2>/dev/null | head -200
+    apps/web/src
 
   echo ""
   echo "=== check-opencode-remnants ==="
@@ -106,9 +111,9 @@ echo "== step 1: full scan greps + check scripts =="
 
 cat >"$SCRATCH/full-scan-findings.txt" <<'EOF'
 Scan findings (opencode-native-zh):
-- P0 compact+queue: drain on thread.session-set after compact (resolveCompactSessionSetDrainThreadId), not raw runtime compacted.
+- P0 compact+queue: drain on thread.session-set after compact via runCompactSessionSetDrainForDomainEvent listener.
 - P0 queue starvation: stale activeTurnId cleared on idle compact via resolveOrchestrationSessionAfterCompactEvent.
-- P1 worktree paths: resolveExternalEditorOpenTarget + forceExternal; resolveProjectScriptCwd; composerSkillCwd for mentions.
+- P1 worktree paths: resolveExternalEditorOpenTarget + forceExternal; resolveProjectScriptCwd; resolveMentionSearchCwd for @mentions.
 - P1 steer during compaction: shouldDisableQueuedSteerDuringCompaction wired in ComposerQueuedHeader.
 - UX: buildQueuedFollowUpSummaryLabel, compaction progress in queued header, /compact toast preserves queue count.
 EOF
@@ -129,9 +134,21 @@ echo "== step 2: logic exercise 1 (server) =="
     src/orchestration/providerCompactSession.integration.test.ts \
     src/orchestration/decider.queueInterop.test.ts \
     src/orchestration/Layers/ProviderCommandReactor.queueDrain.test.ts \
-    src/provider/Layers/OpenCodeAdapter.test.ts
+    src/orchestration/Layers/ProviderCommandReactor.compactDrain.integration.test.ts
+  echo ""
+  echo "=== OpenCodeAdapter compact/steer shipped paths (verbose) ==="
+  bun run test src/provider/Layers/OpenCodeAdapter.test.ts \
+    -t "compactThread calls session.summarize" \
+    --reporter=verbose
+  bun run test src/provider/Layers/OpenCodeAdapter.test.ts \
+    -t "emits thread.state.changed compacted" \
+    --reporter=verbose
+  bun run test src/provider/Layers/OpenCodeAdapter.test.ts \
+    -t "sendTurn after interruptTurn matches steer-style handoff" \
+    --reporter=verbose
 ) 2>&1 | tee "$SCRATCH/logic-exercise-1.log"
-rg -q "Tests +[1-9][0-9]* passed" "$SCRATCH/logic-exercise-1.log"
+rg -q "compactThread calls session.summarize" "$SCRATCH/logic-exercise-1.log"
+rg -q "drains queued turns when streamDomainEvents emits compact-ready thread.session-set" "$SCRATCH/logic-exercise-1.log"
 
 echo "== step 2: logic exercise 2 (web) =="
 (
@@ -139,9 +156,11 @@ echo "== step 2: logic exercise 2 (web) =="
   bun run test \
     src/components/ChatView.logic.test.ts \
     src/session-logic.test.ts \
-    src/lib/workspaceFileOpener.test.ts
+    src/lib/workspaceFileOpener.test.ts \
+    --reporter=verbose
 ) 2>&1 | tee "$SCRATCH/logic-exercise-2.log"
-rg -q "Tests +[1-9][0-9]* passed" "$SCRATCH/logic-exercise-2.log"
+rg -q "resolveMentionSearchCwd" "$SCRATCH/logic-exercise-2.log"
+rg -q "blocks queued steer while compaction activity is in progress" "$SCRATCH/logic-exercise-2.log"
 
 echo "== step 3: isolated launches =="
 run_launch_pair 1 3158 58090 "./.synara-scan-fix"
@@ -150,7 +169,7 @@ run_launch_pair 2 3159 58091 "./.synara-scan-fix-2"
 echo "== post-fix greps + excerpts =="
 {
   echo "=== ProviderCommandReactor compact drain wiring ==="
-  rg -n "resolveCompactSessionSetDrainThreadId|processCompactSessionSetDrain|drainQueuedTurnsForThread" \
+  rg -n "runCompactSessionSetDrainForDomainEvent|resolveCompactSessionSetDrainThreadId|processCompactSessionSetDrain|drainQueuedTurnsForThread" \
     apps/server/src/orchestration/Layers/ProviderCommandReactor.ts
   echo ""
   echo "=== providerCompactSession drain gate ==="
@@ -158,35 +177,26 @@ echo "== post-fix greps + excerpts =="
     apps/server/src/orchestration/providerCompactSession.ts
   echo ""
   echo "=== web path + queue UX ==="
-  rg -n "resolveProjectScriptCwd|resolveExternalEditorOpenTarget|shouldDisableQueuedSteerDuringCompaction|composerSkillCwd" \
+  rg -n "resolveMentionSearchCwd|resolveProjectScriptCwd|resolveExternalEditorOpenTarget|shouldDisableQueuedSteerDuringCompaction" \
     apps/web/src/components/ChatView.tsx apps/web/src/components/chat/ComposerQueuedHeader.tsx apps/web/src/session-logic.ts
 } >"$SCRATCH/post-fix-greps.txt"
 
 {
   sed -n '1,60p' apps/server/src/orchestration/providerCompactSession.ts
-  echo "--- ProviderCommandReactor processCompactSessionSetDrain ---"
-  sed -n '1415,1435p' apps/server/src/orchestration/Layers/ProviderCommandReactor.ts
-  echo "--- resolveProjectScriptCwd ---"
-  sed -n '619,633p' apps/web/src/components/ChatView.logic.ts
+  echo "--- runCompactSessionSetDrainForDomainEvent ---"
+  rg -n -A 12 "export function runCompactSessionSetDrainForDomainEvent" apps/server/src/orchestration/Layers/ProviderCommandReactor.ts
+  echo "--- resolveMentionSearchCwd ---"
+  rg -n -A 10 "export function resolveMentionSearchCwd" apps/web/src/components/ChatView.logic.ts
   echo "--- queue UX ---"
-  sed -n '769,790p' apps/web/src/session-logic.ts
+  rg -n -A 12 "export function shouldDisableQueuedSteerDuringCompaction" apps/web/src/session-logic.ts
 } >"$SCRATCH/fixed-excerpts.txt"
 
 echo "== step 4: final bundled verification =="
-{
-  bun fmt
-  echo "fmt exit: $?"
-  bun lint
-  echo "lint exit: $?"
-  bun typecheck
-  echo "typecheck exit: $?"
-  bun run test
-  echo "test exit: $?"
-} 2>&1 | tee "$SCRATCH/final-checks.log"
-
-rg -q "fmt exit: 0" "$SCRATCH/final-checks.log"
-rg -q "lint exit: 0" "$SCRATCH/final-checks.log"
-rg -q "typecheck exit: 0" "$SCRATCH/final-checks.log"
-rg -q "test exit: 0" "$SCRATCH/final-checks.log"
+set +e
+( bun fmt && bun lint && bun typecheck && bun run test ) 2>&1 | tee "$SCRATCH/final-checks.log"
+bundled_exit=${PIPESTATUS[0]}
+set -e
+echo "bundled exit: ${bundled_exit}" | tee -a "$SCRATCH/final-checks.log"
+test "${bundled_exit}" -eq 0
 
 echo "Evidence captured under $SCRATCH"
