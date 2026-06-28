@@ -9,6 +9,15 @@ import { ProviderOptionDescriptor } from "./model";
 
 const ProviderDiscoveryKind = Schema.Literal("opencode");
 
+/** Shared OpenCode SDK connection fields for catalog + provider discovery RPCs. */
+export const OpenCodeConnectionInput = Schema.Struct({
+  binaryPath: Schema.optional(TrimmedNonEmptyString),
+  cwd: Schema.optional(TrimmedNonEmptyString),
+  serverUrl: Schema.optional(TrimmedNonEmptyString),
+  serverPassword: Schema.optional(TrimmedNonEmptyString),
+});
+export type OpenCodeConnectionInput = typeof OpenCodeConnectionInput.Type;
+
 export const ProviderSkillInterface = Schema.Struct({
   displayName: Schema.optional(TrimmedNonEmptyString),
   shortDescription: Schema.optional(TrimmedNonEmptyString),
@@ -232,10 +241,9 @@ export type ProviderReadPluginResult = typeof ProviderReadPluginResult.Type;
 
 export const ProviderListModelsInput = Schema.Struct({
   provider: ProviderDiscoveryKind,
-  binaryPath: Schema.optional(TrimmedNonEmptyString),
+  ...OpenCodeConnectionInput.fields,
   apiEndpoint: Schema.optional(TrimmedNonEmptyString),
   agentDir: Schema.optional(TrimmedNonEmptyString),
-  cwd: Schema.optional(TrimmedNonEmptyString),
 });
 export type ProviderListModelsInput = typeof ProviderListModelsInput.Type;
 
@@ -279,8 +287,7 @@ export type ProviderListModelsResult = typeof ProviderListModelsResult.Type;
 
 export const ProviderListAgentsInput = Schema.Struct({
   provider: ProviderDiscoveryKind,
-  binaryPath: Schema.optional(TrimmedNonEmptyString),
-  cwd: Schema.optional(TrimmedNonEmptyString),
+  ...OpenCodeConnectionInput.fields,
 });
 export type ProviderListAgentsInput = typeof ProviderListAgentsInput.Type;
 

@@ -5,31 +5,49 @@ import {
   flattenModelsFromCatalogOverview,
 } from "./openCodeModelCatalog";
 
-describe("flattenModelsFromCatalogOverview", () => {
-  it("flattens SDK provider.list models", () => {
-    const models = flattenModelsFromCatalogOverview({
-      availability: {
-        all: [
-          {
-            id: "anthropic",
-            name: "Anthropic",
-            models: {
-              "claude-sonnet-4": { name: "Claude Sonnet 4" },
-            },
-          },
-        ],
-        connected: ["anthropic"],
-        default: {},
-      },
-    });
-    expect(models).toEqual([
+const sampleOverview = {
+  availability: {
+    all: [
       {
-        slug: "anthropic/claude-sonnet-4",
-        name: "Claude Sonnet 4",
-        upstreamProviderId: "anthropic",
-        upstreamProviderName: "Anthropic",
+        id: "anthropic",
+        name: "Anthropic",
+        models: {
+          "claude-sonnet-4": { name: "Claude Sonnet 4", reasoning: true, limit: 200000 },
+        },
       },
-    ]);
+    ],
+    connected: ["anthropic"],
+    default: {},
+  },
+  authMethods: {},
+  models: [
+    {
+      slug: "anthropic/claude-sonnet-4",
+      name: "Claude Sonnet 4",
+      upstreamProviderId: "anthropic",
+      upstreamProviderName: "Anthropic",
+      supportedReasoningEfforts: [{ value: "high", label: "高" }],
+    },
+  ],
+  agents: [{ name: "build", displayName: "Build" }],
+} as const;
+
+describe("flattenModelsFromCatalogOverview", () => {
+  it("prefers server-enriched overview.models", () => {
+    const models = flattenModelsFromCatalogOverview(sampleOverview);
+    expect(models).toHaveLength(1);
+    expect(models[0]?.slug).toBe("anthropic/claude-sonnet-4");
+    expect(models[0]?.supportedReasoningEfforts).toEqual([{ value: "high", label: "高" }]);
+  });
+
+  it("falls back to SDK availability payload with reasoning/limit enrichment", () => {
+    const models = flattenModelsFromCatalogOverview({
+      availability: sampleOverview.availability,
+      models: [],
+    });
+    expect(models[0]?.slug).toBe("anthropic/claude-sonnet-4");
+    expect(models[0]?.supportedReasoningEfforts).toEqual([{ value: "medium", label: "中" }]);
+    expect(models[0]?.contextWindowOptions).toEqual([{ value: "200000", label: "200K" }]);
   });
 });
 
@@ -37,44 +55,20 @@ describe("buildOpenCodeModelCatalogOptions", () => {
   it("merges dynamic models and filters hidden slugs", () => {
     const { catalogOptions, visibleOptions } = buildOpenCodeModelCatalogOptions({
       customOpenCodeModels: [],
-      dynamicModels: [
-        {
-          slug: "openai/gpt-5",
-          name: "GPT-5",
-          upstreamProviderId: "openai",
-          upstreamProviderName: "OpenAI",
-        },
-        {
-          slug: "anthropic/claude-sonnet-4",
-          name: "Claude Sonnet 4",
-          upstreamProviderId: "anthropic",
-          upstreamProviderName: "Anthropic",
-        },
-      ],
+      dynamicModels: flattenModelsFromCatalogOverview(sampleOverview),
       hiddenModels: [{ providerID: "openai", modelID: "gpt-5" }],
     });
 
-    expect(catalogOptions.map((option) => option.slug)).toEqual(
-      expect.arrayContaining(["openai/gpt-5", "anthropic/claude-sonnet-4"]),
-    );
+    expect(catalogOptions.map((option) => option.slug)).toEqual(["anthropic/claude-sonnet-4"]);
     expect(visibleOptions.map((option) => option.slug)).toEqual(["anthropic/claude-sonnet-4"]);
   });
 
-  it("keeps the active model hint visible even when hidden", () => {
+  it("never injects static openai/gpt-5 when catalog is empty", () => {
     const { visibleOptions } = buildOpenCodeModelCatalogOptions({
       customOpenCodeModels: [],
-      dynamicModels: [
-        {
-          slug: "openai/gpt-5",
-          name: "GPT-5",
-          upstreamProviderId: "openai",
-          upstreamProviderName: "OpenAI",
-        },
-      ],
-      hiddenModels: [{ providerID: "openai", modelID: "gpt-5" }],
-      modelHint: "openai/gpt-5",
+      dynamicModels: [],
+      hiddenModels: [],
     });
-
-    expect(visibleOptions.map((option) => option.slug)).toEqual(["openai/gpt-5"]);
+    expect(visibleOptions).toEqual([]);
   });
 });

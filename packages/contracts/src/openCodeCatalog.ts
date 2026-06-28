@@ -5,13 +5,16 @@
 
 import { Schema } from "effect";
 import { TrimmedNonEmptyString } from "./baseSchemas";
+import {
+  OpenCodeConnectionInput,
+  ProviderAgentDescriptor,
+  ProviderModelDescriptor,
+} from "./providerDiscovery";
 
-export const OpenCodeCatalogInput = Schema.Struct({
-  binaryPath: Schema.optional(TrimmedNonEmptyString),
-  cwd: Schema.optional(TrimmedNonEmptyString),
-  serverUrl: Schema.optional(TrimmedNonEmptyString),
-  serverPassword: Schema.optional(TrimmedNonEmptyString),
-});
+export { OpenCodeConnectionInput };
+export type { OpenCodeConnectionInput as OpenCodeConnectionInputType };
+
+export const OpenCodeCatalogInput = OpenCodeConnectionInput;
 export type OpenCodeCatalogInput = typeof OpenCodeCatalogInput.Type;
 
 export const OpenCodeCatalogProviderSource = Schema.Literals(["env", "config", "custom", "api"]);
@@ -59,10 +62,12 @@ export const OpenCodeProviderAuthMethodsResult = Schema.Record(
 );
 export type OpenCodeProviderAuthMethodsResult = typeof OpenCodeProviderAuthMethodsResult.Type;
 
-/** Single SDK session: provider availability + auth methods (settings/catalog reads). */
+/** Single SDK session: availability, auth, enriched models, and agents for settings + composer. */
 export const OpenCodeCatalogOverviewResult = Schema.Struct({
   availability: OpenCodeProviderAvailabilityResult,
   authMethods: OpenCodeProviderAuthMethodsResult,
+  models: Schema.Array(ProviderModelDescriptor),
+  agents: Schema.Array(ProviderAgentDescriptor),
 });
 export type OpenCodeCatalogOverviewResult = typeof OpenCodeCatalogOverviewResult.Type;
 

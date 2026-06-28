@@ -290,11 +290,11 @@ import {
   shouldPromptForTerminalClose,
 } from "~/lib/terminalCloseConfirmation";
 import { promoteThreadCreate } from "~/lib/threadCreatePromotion";
+import { resolveCatalogModelSelection } from "~/lib/modelCatalogSettings";
 import {
   getCustomBinaryPathForProvider,
   getCustomModelsByProvider,
   getProviderStartOptions,
-  resolveAppModelSelection,
   resolveAssistantDeliveryMode,
   useAppSettings,
 } from "../appSettings";
@@ -7715,7 +7715,12 @@ export default function ChatView({
       const resolvedModel = resolveCommittedProviderModel({
         selectedModel: model,
         availableOptions: modelOptionsByProvider[provider],
-        fallback: () => resolveAppModelSelection(provider, customModelsByProvider, model),
+        fallback: () =>
+          resolveCatalogModelSelection({
+            candidate: model,
+            catalogOptions: modelOptionsByProvider[provider] ?? [],
+            defaultChatModel: settings.defaultChatModel,
+          }),
       });
       const nextModelSelection: ModelSelection = {
         provider,
@@ -7738,8 +7743,8 @@ export default function ChatView({
       setComposerDraftModelSelection,
       setComposerDraftProviderModelOptions,
       setStickyComposerModelSelection,
-      customModelsByProvider,
       modelOptionsByProvider,
+      settings.defaultChatModel,
     ],
   );
   const setPromptFromTraits = useCallback(
@@ -8137,6 +8142,7 @@ export default function ChatView({
         api,
         workspaceRoot,
         createIfMissing: false,
+        defaultChatModel: settings.defaultChatModel,
         loadSnapshot: () => api.orchestration.getShellSnapshot().catch(() => null),
       });
       if (creationResult.snapshot) {
@@ -8154,6 +8160,7 @@ export default function ChatView({
       handleSelectProjectForEmptyDraft,
       isLocalDraftThread,
       moveEmptyDraftToLocalProject,
+      settings.defaultChatModel,
       syncServerShellSnapshot,
     ],
   );

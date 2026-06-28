@@ -1,5 +1,5 @@
 // FILE: useOpenCodeModelCatalog.ts
-// Purpose: Shared OpenCode model catalog state via SDK catalog overview (not CLI).
+// Purpose: Shared OpenCode catalog state via SDK catalog overview (authoritative pipeline).
 // Layer: Web hooks
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -22,6 +22,7 @@ import {
 } from "~/lib/openCodeCatalogReactQuery";
 
 export function useOpenCodeModelCatalog(input?: {
+  /** null = server cwd (settings); project path scopes per-project catalog in chat. */
   cwd?: string | null;
   enabled?: boolean;
   modelHint?: string | null;
@@ -46,6 +47,11 @@ export function useOpenCodeModelCatalog(input?: {
   const dynamicModels = useMemo(
     () => (overviewQuery.data ? flattenModelsFromCatalogOverview(overviewQuery.data) : []),
     [overviewQuery.data],
+  );
+
+  const catalogAgents = useMemo(
+    () => overviewQuery.data?.agents ?? [],
+    [overviewQuery.data?.agents],
   );
 
   const { catalogOptions, visibleOptions } = useMemo(
@@ -119,6 +125,7 @@ export function useOpenCodeModelCatalog(input?: {
     updateSettings,
     overviewQuery,
     dynamicModels,
+    catalogAgents,
     catalogOptions,
     visibleOptions,
     modelGroups,

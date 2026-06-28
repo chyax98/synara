@@ -1,11 +1,19 @@
-import { Effect, Layer } from "effect";
+import { Effect, Exit, Layer } from "effect";
 import type { OpencodeClient } from "@opencode-ai/sdk/v2";
 
 import { ServerConfig } from "../../config.ts";
 import {
+  emptyOpenCodeModelInventory,
+  flattenOpenCodeAgents,
+  flattenOpenCodeModels,
+  mergeOpenCodeCliModelDescriptors,
+  resolvePreferredOpenCodeModelProviders,
+} from "./OpenCodeAdapter.ts";
+import {
   OPENCODE_CLI_SPEC,
   OpenCodeRuntime,
   OpenCodeRuntimeError,
+  openCodeRuntimeErrorDetail,
   runOpenCodeSdk,
 } from "../opencodeRuntime.ts";
 import {
@@ -43,6 +51,31 @@ const catalogDirectory = (input: CatalogRequestInput, fallbackCwd: string) => {
   return trimmed && trimmed.length > 0 ? trimmed : fallbackCwd;
 };
 
+const resolveCatalogModels = (input: {
+  readonly inventory: ReturnType<typeof emptyOpenCodeModelInventory>;
+  readonly cliModels: ReadonlyArray<import("../opencodeRuntime.ts").OpenCodeCliModelDescriptor>;
+  readonly credentialProviderIDs: ReadonlyArray<string>;
+}) => {
+  const preferredProviderIDs = new Set(
+    resolvePreferredOpenCodeModelProviders({
+      inventory: input.inventory,
+      credentialProviderIDs: input.credentialProviderIDs,
+    }).map((provider) => provider.id),
+  );
+  const inventoryModels = flattenOpenCodeModels({
+    inventory: input.inventory,
+    credentialProviderIDs: input.credentialProviderIDs,
+  });
+  const preferredCliModels = input.cliModels.filter((model) =>
+    preferredProviderIDs.has(model.providerID),
+  );
+  return mergeOpenCodeCliModelDescriptors({
+    inventory: input.inventory,
+    models: inventoryModels,
+    cliModels: preferredCliModels.length > 0 ? preferredCliModels : input.cliModels,
+  });
+};
+
 const make = Effect.gen(function* () {
   const openCodeRuntime = yield* OpenCodeRuntime;
   const serverConfig = yield* ServerConfig;
@@ -75,15 +108,59 @@ const make = Effect.gen(function* () {
   const catalogOverview: OpenCodeCatalogServiceShape["catalogOverview"] = (input) =>
     withSdkClient(input, (client, directory) =>
       Effect.gen(function* () {
-        const [listResponse, authResponse] = yield* Effect.all(
+        const binaryPath = input.binaryPath?.trim() || DEFAULT_BINARY_PATH;
+        const [listResponse, authResponse, inventoryExit, cliModels] = yield* Effect.all(
           [
             runOpenCodeSdk("provider.list", () => client.provider.list({ directory })),
             runOpenCodeSdk("provider.auth", () => client.provider.auth({ directory })),
+            openCodeRuntime.loadOpenCodeInventory(client).pipe(Effect.exit),
+            openCodeRuntime
+              .listOpenCodeCliModels({
+                binaryPath,
+                cliSpec: OPENCODE_CLI_SPEC,
+                cwd: directory,
+              })
+              .pipe(
+                Effect.catch((error) =>
+                  Effect.logDebug("OpenCode catalog CLI model discovery failed", {
+                    binaryPath,
+                    detail: openCodeRuntimeErrorDetail(error),
+                  }).pipe(Effect.as([] as const)),
+                ),
+              ),
           ],
           { concurrency: "unbounded" },
         );
         const availability = yield* unwrapSdkData("provider.list", listResponse);
         const authMethods = yield* unwrapSdkData("provider.auth", authResponse);
+
+        let models = [] as ReturnType<typeof resolveCatalogModels>;
+        let agents = [] as ReturnType<typeof flattenOpenCodeAgents>;
+
+        if (Exit.isSuccess(inventoryExit)) {
+          const inventory = inventoryExit.value;
+          const credentialProviderIDs = yield* openCodeRuntime.loadOpenCodeCredentialProviderIDs(
+            client,
+            OPENCODE_CLI_SPEC,
+          );
+          const modelInventory = {
+            providerList: inventory.providerList,
+            consoleState: inventory.consoleState,
+          };
+          models = resolveCatalogModels({
+            inventory: modelInventory,
+            cliModels,
+            credentialProviderIDs,
+          });
+          agents = flattenOpenCodeAgents(inventory.agents);
+        } else if (cliModels.length > 0) {
+          models = mergeOpenCodeCliModelDescriptors({
+            inventory: emptyOpenCodeModelInventory(),
+            models: [],
+            cliModels,
+          });
+        }
+
         return {
           availability: {
             all: availability.all,
@@ -91,6 +168,8 @@ const make = Effect.gen(function* () {
             default: availability.default,
           },
           authMethods,
+          models,
+          agents,
         };
       }),
     );

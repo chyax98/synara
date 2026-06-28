@@ -1,5 +1,5 @@
 import { ModelSelection, ThreadId } from "@t3tools/contracts";
-import { getDefaultModel } from "@t3tools/shared/model";
+import { resolveCatalogModelSelection } from "~/lib/modelCatalogSettings";
 import "../../index.css";
 
 import { page } from "vitest/browser";
@@ -21,8 +21,7 @@ async function mountMenu(props?: {
   const draftsByThreadId = {} as ReturnType<
     typeof useComposerDraftStore.getState
   >["draftsByThreadId"];
-  const model =
-    props?.modelSelection?.model ?? getDefaultModel(provider) ?? getDefaultModel("opencode");
+  const model = props?.modelSelection?.model ?? "anthropic/claude-sonnet-4";
 
   draftsByThreadId[threadId] = {
     prompt: props?.prompt ?? "",

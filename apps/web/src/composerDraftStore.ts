@@ -24,7 +24,6 @@ import * as Schema from "effect/Schema";
 import * as Equal from "effect/Equal";
 import { DeepMutable } from "effect/Types";
 import {
-  getDefaultModel,
   normalizeModelSlug,
   resolveSelectableModel,
   resolveModelSlugForProvider,
@@ -1247,8 +1246,7 @@ function legacyToModelSelectionByProvider(
     for (const provider of COMPOSER_PROVIDER_KINDS) {
       const options = modelOptions[provider];
       if (options && Object.keys(options).length > 0) {
-        const model =
-          modelSelection?.provider === provider ? modelSelection.model : getDefaultModel(provider);
+        const model = modelSelection?.provider === provider ? modelSelection.model : "";
         if (model) {
           result[provider] = makeModelSelection(provider, model, options);
         }
@@ -3054,7 +3052,7 @@ export const useComposerDraftStore = create<ComposerDraftStoreState>()(
             const opts = normalizedOpts[provider];
             const current = nextMap[provider];
             if (opts) {
-              const model = current?.model ?? getDefaultModel(provider);
+              const model = current?.model ?? "";
               if (!model) continue;
               nextMap[provider] = makeModelSelection(provider, model, opts);
             } else if (current?.options) {
@@ -3092,9 +3090,7 @@ export const useComposerDraftStore = create<ComposerDraftStoreState>()(
           normalizedProvider,
         );
         const providerOpts = normalizedOpts?.[normalizedProvider];
-        const fallbackModel =
-          normalizeModelSlug(options?.model, normalizedProvider) ??
-          getDefaultModel(normalizedProvider);
+        const fallbackModel = normalizeModelSlug(options?.model, normalizedProvider) ?? "";
 
         set((state) => {
           const existing = state.draftsByThreadId[threadId];

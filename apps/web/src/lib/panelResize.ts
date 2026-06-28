@@ -33,7 +33,16 @@ export function canComposerHandlePanelWidth(input: {
   const composerForm = document.querySelector<HTMLElement>(scopeSelector);
   if (!composerForm) return true;
 
-  const composerViewport = composerForm.parentElement;
+  let composerViewport = composerForm.parentElement;
+  if (!composerViewport || composerViewport.clientWidth < 50) {
+    // Fallback for display:contents or degenerate parent (e.g. after transcript appears, composer wrapper becomes "contents").
+    // Walk up to find a real chat column container with meaningful width.
+    let p: HTMLElement | null = composerViewport || composerForm;
+    while (p && p.clientWidth < 100 && p.parentElement && p !== document.body) {
+      p = p.parentElement;
+    }
+    composerViewport = p || composerForm.parentElement || composerForm;
+  }
   if (!composerViewport) return true;
 
   input.applyWidth(input.nextWidth);

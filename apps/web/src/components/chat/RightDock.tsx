@@ -153,7 +153,7 @@ export function RightDock(props: RightDockProps) {
     }
     const shellW = shell.getBoundingClientRect().width;
     const halfWidth = Math.round(shellW / 2);
-    const maxDockW = shellW - 24 * 16; // leave room for chat/composer
+    const maxDockW = shellW - 20 * 16; // leave room for chat/composer (matches RIGHT_DOCK_MIN_CHAT_WIDTH)
     let targetW = Math.max(minWidth, Math.min(halfWidth, maxDockW));
     // Back off if the composer probe (which can be stricter after messages/full UI) rejects this target.
     // The probe does temp apply/reset, so this may cause brief layout during open (acceptable, similar to the half-measure itself).
@@ -213,9 +213,16 @@ export function RightDock(props: RightDockProps) {
 
       const onPointerMove = (moveEvent: PointerEvent) => {
         const delta = startX - moveEvent.clientX;
-        const nextWidth = Math.max(minW, startW + delta);
+        let nextWidth = Math.max(minW, startW + delta);
+        // Hard bounds from shell (robust even if probe vetoes due to composer measurement edge cases).
+        const shell = wrapper.parentElement;
+        if (shell) {
+          const maxDock = shell.clientWidth - 20 * 16; // match RIGHT_DOCK_MIN_CHAT_WIDTH
+          nextWidth = Math.min(nextWidth, maxDock);
+        }
         if (!props.shouldAcceptWidth({ nextWidth, wrapper })) {
-          return;
+          // Still allow the hard-bounded move for usability; probe is soft guard for composer.
+          // (After probe fallback fix, this path should rarely veto safe moves.)
         }
         wrapper.style.setProperty("--sidebar-width", `${nextWidth}px`);
       };
@@ -256,17 +263,13 @@ export function RightDock(props: RightDockProps) {
         innerClassName={CHAT_BACKGROUND_CLASS_NAME}
         gapClassName={chromeMotionClass}
         transparentSurface
-        resizable={{
-          minWidth: props.minWidth,
-          shouldAcceptWidth: props.shouldAcceptWidth,
-        }}
       >
         <div ref={contentRef} className="relative flex h-full min-h-0 w-full flex-col">
           {/* Direct resize grip on the left edge of the dock content. This ensures reliable
               dragging even after transcript content appears (which can affect shouldAccept
               thresholds and layout). Uses overlay for webview safety inside panes like browser. */}
           <div
-            className="absolute inset-y-0 left-0 z-40 w-2 -translate-x-1/2 cursor-col-resize bg-transparent hover:bg-[var(--app-surface-divider)]"
+            className="absolute inset-y-0 left-0 z-50 w-6 -translate-x-[40%] cursor-col-resize bg-transparent hover:bg-[var(--app-surface-divider)]/30 before:absolute before:inset-y-0 before:left-0 before:w-px before:bg-[var(--app-surface-divider)] before:transition-colors hover:before:bg-foreground/60"
             onPointerDown={startDockResize}
             title="拖拽调整右侧栏宽度"
           />

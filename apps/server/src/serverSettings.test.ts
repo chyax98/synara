@@ -16,7 +16,11 @@ const makeTestLayer = Layer.merge(NodeServices.layer, serverConfigLayer);
 const testLayer = Layer.merge(makeTestLayer, ServerSettingsLive.pipe(Layer.provide(makeTestLayer)));
 
 const runWithSettings = <A, E>(
-  effect: Effect.Effect<A, E, ServerSettingsService | ServerConfig | FileSystem.FileSystem>,
+  effect: Effect.Effect<
+    A,
+    E,
+    ServerSettingsService | ServerConfig | FileSystem.FileSystem | Path.Path
+  >,
 ) => Effect.runPromise(effect.pipe(Effect.provide(testLayer)) as Effect.Effect<A, E, never>);
 
 describe("ServerSettingsService", () => {

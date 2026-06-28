@@ -566,7 +566,7 @@ it.layer(NodeServices.layer)("keybindings", (it) => {
       });
 
       const persisted = yield* readKeybindingsConfig(keybindingsConfigPath);
-      assert.isFalse(persisted.some((entry) => entry.command === "chat.newClaude"));
+      assert.isFalse(persisted.some((entry) => String(entry.command) === "chat.newClaude"));
       assert.isTrue(persisted.some((entry) => entry.command === "chat.new"));
 
       const configState = yield* Effect.gen(function* () {

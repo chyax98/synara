@@ -8,7 +8,7 @@ import {
   type OrchestrationShellSnapshot,
   type ProjectId,
 } from "@t3tools/contracts";
-import { getDefaultModel } from "@t3tools/shared/model";
+import { resolveOpenCodeDefaultChatModel } from "./modelCatalogSettings";
 
 import {
   extractDuplicateProjectCreateProjectId,
@@ -35,6 +35,7 @@ export async function createOrRecoverProjectFromPath(input: {
   api: NativeApi;
   workspaceRoot: string;
   createIfMissing?: boolean;
+  defaultChatModel?: string | null;
   loadSnapshot: () => Promise<OrchestrationShellSnapshot | null>;
   maxAttempts?: number;
   delayMs?: number;
@@ -66,7 +67,7 @@ export async function createOrRecoverProjectFromPath(input: {
       createWorkspaceRootIfMissing: input.createIfMissing === true,
       defaultModelSelection: {
         provider: "opencode",
-        model: getDefaultModel("opencode"),
+        model: resolveOpenCodeDefaultChatModel(input.defaultChatModel ?? "", []),
       },
       createdAt,
     });

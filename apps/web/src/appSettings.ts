@@ -567,15 +567,38 @@ export function getGitTextGenerationModelOptions(
   return deduped;
 }
 
+/** @deprecated User paths should use catalog-only `resolveCatalogModelSelection`. */
 export function resolveAppModelSelection(
   provider: ProviderKind,
   customModels: Record<ProviderKind, readonly string[]>,
   selectedModel: string | null | undefined,
+  catalogOptions?: ReadonlyArray<AppModelOption | ProviderModelOption>,
 ): string {
+  if (catalogOptions && catalogOptions.length > 0) {
+    const resolved = resolveSelectableModel(provider, selectedModel, catalogOptions);
+    return resolved ?? catalogOptions[0]?.slug ?? "";
+  }
   const customModelsForProvider = customModels[provider];
-  const options = getAppModelOptions(provider, customModelsForProvider, selectedModel);
+  const customOptions = customModelsForProvider.map((slug) => ({
+    provider,
+    slug,
+    name: formatProviderModelOptionName({ provider, slug }),
+    isCustom: true as const,
+  }));
+  const normalizedSelectedModel = normalizeModelSlug(selectedModel, provider);
+  if (
+    normalizedSelectedModel &&
+    !customOptions.some((option) => option.slug === normalizedSelectedModel)
+  ) {
+    customOptions.push({
+      provider,
+      slug: normalizedSelectedModel,
+      name: formatProviderModelOptionName({ provider, slug: normalizedSelectedModel }),
+      isCustom: true,
+    });
+  }
   return (
-    resolveSelectableModel(provider, selectedModel, options) ?? getDefaultModel(provider) ?? ""
+    resolveSelectableModel(provider, selectedModel, customOptions) ?? customOptions[0]?.slug ?? ""
   );
 }
 

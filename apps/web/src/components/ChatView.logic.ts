@@ -425,12 +425,18 @@ export function shouldShowComposerModelBootstrapSkeleton(input: {
 export function resolveCommittedProviderModel(input: {
   selectedModel: ModelSlug;
   availableOptions: ReadonlyArray<ProviderModelOption>;
-  fallback: () => string;
+  fallback?: () => string;
 }): string {
   const directRuntimeOption = input.availableOptions.find(
     (option) => option.slug === input.selectedModel,
   );
-  return directRuntimeOption?.slug ?? input.fallback();
+  if (directRuntimeOption?.slug) {
+    return directRuntimeOption.slug;
+  }
+  if (input.fallback) {
+    return input.fallback();
+  }
+  return input.availableOptions[0]?.slug ?? "";
 }
 
 // Lets a pending custom binary path re-check a session that was already observed ready.

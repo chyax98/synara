@@ -67,14 +67,39 @@ export const providerDiscoveryQueryKeys = {
   models: (
     provider: ProviderKind,
     binaryPath: string | null,
+    serverUrl: string | null,
+    serverPassword: string | null,
     apiEndpoint: string | null,
     agentDir: string | null,
     cwd: string | null,
-  ) => ["provider-discovery", "models", provider, binaryPath, apiEndpoint, agentDir, cwd] as const,
+  ) =>
+    [
+      "provider-discovery",
+      "models",
+      provider,
+      binaryPath,
+      serverUrl,
+      serverPassword,
+      apiEndpoint,
+      agentDir,
+      cwd,
+    ] as const,
   agentsForProvider: (provider: ProviderKind) =>
     ["provider-discovery", "agents", provider] as const,
-  agents: (provider: ProviderKind, binaryPath: string | null, cwd: string | null) =>
-    [...providerDiscoveryQueryKeys.agentsForProvider(provider), binaryPath, cwd] as const,
+  agents: (
+    provider: ProviderKind,
+    binaryPath: string | null,
+    serverUrl: string | null,
+    serverPassword: string | null,
+    cwd: string | null,
+  ) =>
+    [
+      ...providerDiscoveryQueryKeys.agentsForProvider(provider),
+      binaryPath,
+      serverUrl,
+      serverPassword,
+      cwd,
+    ] as const,
 };
 
 export function providerComposerCapabilitiesQueryOptions(provider: ProviderKind) {
@@ -184,15 +209,21 @@ export function providerCommandsQueryOptions(input: {
 export function providerModelsQueryOptions(input: {
   provider: ProviderKind;
   binaryPath?: string | null;
+  serverUrl?: string | null;
+  serverPassword?: string | null;
   apiEndpoint?: string | null;
   agentDir?: string | null;
   cwd?: string | null;
   enabled?: boolean;
 }) {
+  const serverUrl = input.serverUrl ?? null;
+  const serverPassword = input.serverPassword ?? null;
   return queryOptions({
     queryKey: providerDiscoveryQueryKeys.models(
       input.provider,
       input.binaryPath ?? null,
+      serverUrl,
+      serverPassword,
       input.apiEndpoint ?? null,
       input.agentDir ?? null,
       input.cwd ?? null,
@@ -202,6 +233,8 @@ export function providerModelsQueryOptions(input: {
       return api.provider.listModels({
         provider: input.provider,
         ...(input.binaryPath ? { binaryPath: input.binaryPath } : {}),
+        ...(serverUrl ? { serverUrl } : {}),
+        ...(serverPassword ? { serverPassword } : {}),
         ...(input.apiEndpoint ? { apiEndpoint: input.apiEndpoint } : {}),
         ...(input.agentDir ? { agentDir: input.agentDir } : {}),
         ...(input.cwd ? { cwd: input.cwd } : {}),
@@ -217,13 +250,19 @@ export function providerModelsQueryOptions(input: {
 export function providerAgentsQueryOptions(input: {
   provider: ProviderKind;
   binaryPath?: string | null;
+  serverUrl?: string | null;
+  serverPassword?: string | null;
   cwd?: string | null;
   enabled?: boolean;
 }) {
+  const serverUrl = input.serverUrl ?? null;
+  const serverPassword = input.serverPassword ?? null;
   return queryOptions({
     queryKey: providerDiscoveryQueryKeys.agents(
       input.provider,
       input.binaryPath ?? null,
+      serverUrl,
+      serverPassword,
       input.cwd ?? null,
     ),
     queryFn: async () => {
@@ -231,6 +270,8 @@ export function providerAgentsQueryOptions(input: {
       return api.provider.listAgents({
         provider: input.provider,
         ...(input.binaryPath ? { binaryPath: input.binaryPath } : {}),
+        ...(serverUrl ? { serverUrl } : {}),
+        ...(serverPassword ? { serverPassword } : {}),
         ...(input.cwd ? { cwd: input.cwd } : {}),
       });
     },

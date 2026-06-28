@@ -124,7 +124,20 @@ describe("resolveAppModelSelection", () => {
     ).toBe("galapagos-alpha");
   });
 
-  it("falls back to the provider default when no model is selected", () => {
+  it("uses catalog options instead of static default when provided", () => {
+    expect(
+      resolveAppModelSelection(
+        "opencode",
+        {
+          opencode: [],
+        },
+        "",
+        [{ slug: "anthropic/claude-sonnet-4", name: "Claude Sonnet 4", provider: "opencode" }],
+      ),
+    ).toBe("anthropic/claude-sonnet-4");
+  });
+
+  it("does not fall back to static gpt-5 when catalog and selection are empty", () => {
     expect(
       resolveAppModelSelection(
         "opencode",
@@ -133,7 +146,7 @@ describe("resolveAppModelSelection", () => {
         },
         "",
       ),
-    ).toBe("openai/gpt-5");
+    ).toBe("");
   });
 
   it("resolves transient selected custom models included in app model options", () => {

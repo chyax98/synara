@@ -171,7 +171,7 @@ const BROWSER_SPLIT_PANE_PANEL_DEFAULT_WIDTH_PX = 30 * 16;
 const SPLIT_PANE_CHAT_MIN_WIDTH = 20 * 16;
 const SINGLE_PANEL_MIN_WIDTH = 26 * 16;
 const BROWSER_PANEL_MIN_WIDTH = 21 * 16;
-const RIGHT_DOCK_MIN_CHAT_WIDTH = 24 * 16;
+const RIGHT_DOCK_MIN_CHAT_WIDTH = 20 * 16;
 const RIGHT_PANEL_SIDEBAR_WIDTH_STORAGE_KEY = "chat_right_panel_width";
 const SPLIT_RATIO_MIN = 0.25;
 const SPLIT_RATIO_MAX = 0.75;
@@ -1913,9 +1913,9 @@ function SingleChatSurface(props: {
 
   const shouldAcceptDockWidth = useCallback(
     ({ nextWidth, wrapper }: { nextWidth: number; wrapper: HTMLElement }) => {
-      const parent = wrapper.parentElement;
-      if (parent) {
-        const chatWidth = parent.clientWidth - nextWidth;
+      const shell = wrapper.parentElement;
+      if (shell) {
+        const chatWidth = shell.clientWidth - nextWidth;
         if (chatWidth < RIGHT_DOCK_MIN_CHAT_WIDTH) {
           return false;
         }
@@ -1923,6 +1923,8 @@ function SingleChatSurface(props: {
       const previousSidebarWidth = wrapper.style.getPropertyValue("--sidebar-width");
       return canComposerHandlePanelWidth({
         nextWidth,
+        // For dock we rely on the (improved) probe fallback inside can... to measure real chat column
+        // even when composer wrapper is display:contents post-transcript.
         applyWidth: (width) => {
           wrapper.style.setProperty("--sidebar-width", `${width}px`);
         },

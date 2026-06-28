@@ -237,6 +237,19 @@ export function resolveOpenCodeDefaultChatModel(
   return catalogOptions[0]?.slug ?? "";
 }
 
+/** Pick a catalog slug for user actions; never falls back to static built-in models. */
+export function resolveCatalogModelSelection(input: {
+  candidate?: string | null;
+  catalogOptions: ReadonlyArray<{ slug: string }>;
+  defaultChatModel?: string | null;
+}): string {
+  const candidate = input.candidate?.trim() ?? "";
+  if (candidate.length > 0 && input.catalogOptions.some((option) => option.slug === candidate)) {
+    return candidate;
+  }
+  return resolveOpenCodeDefaultChatModel(input.defaultChatModel ?? "", input.catalogOptions);
+}
+
 export function filterModelCatalogModels(
   models: ReadonlyArray<ProviderModelOption>,
   query: string,

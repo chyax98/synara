@@ -78,7 +78,7 @@ import {
   type ServerLocalServerProcess,
 } from "@t3tools/contracts";
 import { isGenericChatThreadTitle } from "@t3tools/shared/chatThreads";
-import { getDefaultModel } from "@t3tools/shared/model";
+import { resolveCatalogModelSelection } from "~/lib/modelCatalogSettings";
 import { pluralize } from "@t3tools/shared/text";
 import { localServerAddressLabel, localServerMatchesRun } from "@t3tools/shared/localServers";
 import { resolveThreadWorkspaceCwd } from "@t3tools/shared/threadEnvironment";
@@ -2263,6 +2263,7 @@ export default function Sidebar() {
         const creationResult = await createOrRecoverProjectFromPath({
           api,
           workspaceRoot: cwd,
+          defaultChatModel: appSettings.defaultChatModel,
           ...(options.createIfMissing === undefined
             ? {}
             : { createIfMissing: options.createIfMissing }),
@@ -2420,14 +2421,17 @@ export default function Sidebar() {
         throw new Error("The target project could not be resolved.");
       }
 
-      const providerDefaultModel = getDefaultModel(provider);
+      const catalogDefaultModel = resolveCatalogModelSelection({
+        catalogOptions: [],
+        defaultChatModel: appSettings.defaultChatModel,
+      });
       const modelSelection =
         activeProject.defaultModelSelection?.provider === provider
           ? activeProject.defaultModelSelection
-          : providerDefaultModel
+          : catalogDefaultModel
             ? {
                 provider,
-                model: providerDefaultModel,
+                model: catalogDefaultModel,
               }
             : null;
       if (!modelSelection) {
@@ -2481,7 +2485,13 @@ export default function Sidebar() {
         throw error;
       }
     },
-    [appSettings.defaultThreadEnvMode, currentProjectShortcutTargetId, navigate, projects],
+    [
+      appSettings.defaultChatModel,
+      appSettings.defaultThreadEnvMode,
+      currentProjectShortcutTargetId,
+      navigate,
+      projects,
+    ],
   );
 
   const commitRename = useCallback(

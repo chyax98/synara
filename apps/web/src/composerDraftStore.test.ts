@@ -1354,6 +1354,8 @@ describe("composerDraftStore modelSelection", () => {
   it("does not clear other provider options when setting options for a single provider", () => {
     const store = useComposerDraftStore.getState();
 
+    store.setModelSelection(threadId, modelSelection("opencode", "anthropic/claude-sonnet-4"));
+
     // Set options for both providers
     store.setModelOptions(
       threadId,
@@ -1371,6 +1373,7 @@ describe("composerDraftStore modelSelection", () => {
   it("preserves other provider options when switching the active model selection", () => {
     const store = useComposerDraftStore.getState();
 
+    store.setModelSelection(threadId, modelSelection("opencode", "anthropic/claude-sonnet-4"));
     store.setModelOptions(
       threadId,
       providerModelOptions({
@@ -1428,7 +1431,7 @@ describe("composerDraftStore modelSelection", () => {
     expect(state.selectedModel).toBe("opencode/gpt-5-nano");
   });
 
-  it("preserves the persisted OpenCode thread model when discovery omits it", () => {
+  it("ignores persisted thread models that are absent from the live catalog", () => {
     const state = deriveEffectiveComposerModelState({
       draft: {
         modelSelectionByProvider: {},
@@ -1446,7 +1449,7 @@ describe("composerDraftStore modelSelection", () => {
       },
     });
 
-    expect(state.selectedModel).toBe("openai/gpt-5.4");
+    expect(state.selectedModel).toBe("openai/gpt-5-codex");
   });
 
   it("falls back to the first exposed OpenCode runtime model when the draft selection is stale", () => {
@@ -1469,10 +1472,10 @@ describe("composerDraftStore modelSelection", () => {
       },
     });
 
-    expect(state.selectedModel).toBe("openai/gpt-5");
+    expect(state.selectedModel).toBe("opencode/gpt-5-nano");
   });
 
-  it("preserves a selected Pi custom model when discovery omits it", () => {
+  it("drops stale draft selections that are absent from the live catalog", () => {
     const state = deriveEffectiveComposerModelState({
       draft: {
         modelSelectionByProvider: {
@@ -1492,7 +1495,7 @@ describe("composerDraftStore modelSelection", () => {
       },
     });
 
-    expect(state.selectedModel).toBe("openai/gpt-5.5");
+    expect(state.selectedModel).toBe("openai/gpt-5.1");
   });
 
   it("updates only the draft when sticky persistence is disabled", () => {

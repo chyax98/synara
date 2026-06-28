@@ -7,14 +7,29 @@ import type {
   OpenCodeAuthSetInput,
 } from "@t3tools/contracts";
 import { queryOptions } from "@tanstack/react-query";
-import { buildOpenCodeCatalogRequest } from "~/lib/openCodeCatalogConnection";
+import {
+  buildOpenCodeCatalogRequest,
+  openCodeConnectionQueryKey,
+} from "~/lib/openCodeCatalogConnection";
 import { ensureNativeApi } from "~/nativeApi";
 import { providerDiscoveryQueryKeys } from "~/lib/providerDiscoveryReactQuery";
 
 export const openCodeCatalogQueryKeys = {
   all: ["opencode-catalog"] as const,
-  overview: (binaryPath: string | null, serverUrl: string | null, cwd: string | null) =>
-    [...openCodeCatalogQueryKeys.all, "overview", binaryPath, serverUrl, cwd] as const,
+  overview: (
+    binaryPath: string | null,
+    serverUrl: string | null,
+    serverPassword: string | null,
+    cwd: string | null,
+  ) =>
+    [
+      ...openCodeCatalogQueryKeys.all,
+      "overview",
+      binaryPath,
+      serverUrl,
+      serverPassword,
+      cwd,
+    ] as const,
   configProviders: (binaryPath: string | null, cwd: string | null) =>
     [...openCodeCatalogQueryKeys.all, "config-providers", binaryPath, cwd] as const,
   providerAvailable: (binaryPath: string | null, cwd: string | null) =>
@@ -40,7 +55,7 @@ export function openCodeCatalogOverviewQueryOptions(input: {
     cwd,
   });
   return queryOptions({
-    queryKey: openCodeCatalogQueryKeys.overview(input.binaryPath, serverUrl, cwd),
+    queryKey: openCodeCatalogQueryKeys.overview(input.binaryPath, serverUrl, serverPassword, cwd),
     enabled: input.enabled ?? true,
     staleTime: 30_000,
     retry: 1,

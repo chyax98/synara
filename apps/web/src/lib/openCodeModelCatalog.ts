@@ -1,5 +1,5 @@
 // FILE: openCodeModelCatalog.ts
-// Purpose: Merge OpenCode SDK catalog models with user-added slugs and apply visibility prefs.
+// Purpose: Project OpenCode catalog overview into picker options and runtime descriptors.
 // Layer: Web catalog helpers
 // Depends on: modelCatalogSettings, providerModelOptions.
 
@@ -16,10 +16,7 @@ import {
   type ProviderModelOption,
 } from "~/providerModelOptions";
 
-type OpenCodeDynamicModel = Pick<
-  ProviderModelDescriptor,
-  "slug" | "name" | "upstreamProviderId" | "upstreamProviderName"
->;
+type OpenCodeDynamicModel = ProviderModelDescriptor;
 
 function readCatalogModelName(model: unknown, fallback: string): string {
   if (model && typeof model === "object" && "name" in model) {
@@ -31,10 +28,66 @@ function readCatalogModelName(model: unknown, fallback: string): string {
   return fallback;
 }
 
-/** Flatten models from OpenCode SDK `provider.list` payload (catalog overview). */
+function readReasoningEfforts(
+  model: unknown,
+): ProviderModelDescriptor["supportedReasoningEfforts"] {
+  if (!model || typeof model !== "object") {
+    return undefined;
+  }
+  const object = model as Record<string, unknown>;
+  const reasoning = object.reasoning;
+  if (reasoning === true) {
+    return [{ value: "medium", label: "中" }];
+  }
+  if (Array.isArray(reasoning)) {
+    const efforts = reasoning
+      .map((entry) => {
+        if (typeof entry === "string" && entry.trim().length > 0) {
+          return { value: entry.trim() };
+        }
+        if (entry && typeof entry === "object" && "value" in entry) {
+          const value = (entry as { value?: unknown }).value;
+          if (typeof value === "string" && value.trim().length > 0) {
+            const label = (entry as { label?: unknown }).label;
+            return {
+              value: value.trim(),
+              ...(typeof label === "string" && label.trim().length > 0
+                ? { label: label.trim() }
+                : {}),
+            };
+          }
+        }
+        return null;
+      })
+      .filter((entry): entry is NonNullable<typeof entry> => entry !== null);
+    return efforts.length > 0 ? efforts : undefined;
+  }
+  return undefined;
+}
+
+function readContextWindowOptions(model: unknown): ProviderModelDescriptor["contextWindowOptions"] {
+  if (!model || typeof model !== "object") {
+    return undefined;
+  }
+  const limit = (model as { limit?: unknown }).limit;
+  if (typeof limit === "number" && Number.isFinite(limit) && limit > 0) {
+    const label = `${Math.round(limit / 1000)}K`;
+    return [{ value: String(limit), label }];
+  }
+  if (typeof limit === "string" && limit.trim().length > 0) {
+    return [{ value: limit.trim(), label: limit.trim() }];
+  }
+  return undefined;
+}
+
+/** Fallback flatten when server overview.models is absent (tests / legacy). */
 export function flattenModelsFromCatalogOverview(
-  overview: Pick<OpenCodeCatalogOverviewResult, "availability">,
+  overview: Pick<OpenCodeCatalogOverviewResult, "availability" | "models">,
 ): OpenCodeDynamicModel[] {
+  if (overview.models && overview.models.length > 0) {
+    return [...overview.models];
+  }
+
   const models: OpenCodeDynamicModel[] = [];
   const seen = new Set<string>();
 
@@ -59,6 +112,14 @@ export function flattenModelsFromCatalogOverview(
         name: readCatalogModelName(modelDef, trimmedId),
         upstreamProviderId: providerId,
         upstreamProviderName: provider.name.trim() || providerId,
+        ...(() => {
+          const supportedReasoningEfforts = readReasoningEfforts(modelDef);
+          const contextWindowOptions = readContextWindowOptions(modelDef);
+          return {
+            ...(supportedReasoningEfforts ? { supportedReasoningEfforts } : {}),
+            ...(contextWindowOptions ? { contextWindowOptions } : {}),
+          };
+        })(),
       });
     }
   }

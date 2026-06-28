@@ -1567,7 +1567,7 @@ function fallbackOpenCodeProviderName(providerId: string): string {
     .join(" ");
 }
 
-function mergeOpenCodeCliModelDescriptors(input: {
+export function mergeOpenCodeCliModelDescriptors(input: {
   readonly inventory: OpenCodeModelInventory;
   readonly models: ReadonlyArray<OpenCodeModelDescriptor>;
   readonly cliModels: ReadonlyArray<OpenCodeCliModelDescriptor>;
@@ -1612,7 +1612,7 @@ function mergeOpenCodeCliModelDescriptors(input: {
   return [...mergedBySlug.values()].toSorted(compareOpenCodeModelDescriptors);
 }
 
-function emptyOpenCodeModelInventory(): OpenCodeModelInventory {
+export function emptyOpenCodeModelInventory(): OpenCodeModelInventory {
   return {
     providerList: {
       connected: [],
@@ -1622,7 +1622,9 @@ function emptyOpenCodeModelInventory(): OpenCodeModelInventory {
   };
 }
 
-function flattenOpenCodeAgents(agents: ReadonlyArray<Agent>): ProviderListAgentsResult["agents"] {
+export function flattenOpenCodeAgents(
+  agents: ReadonlyArray<Agent>,
+): ProviderListAgentsResult["agents"] {
   return agents
     .filter((agent) => !agent.hidden && (agent.mode === "primary" || agent.mode === "all"))
     .map((agent) => {
@@ -4225,6 +4227,8 @@ export function makeOpenCodeAdapterLive(options?: OpenCodeAdapterLiveOptions) {
         input: {
           readonly binaryPath?: string | null;
           readonly cwd?: string | null;
+          readonly serverUrl?: string | null;
+          readonly serverPassword?: string | null;
         },
         fn: (input: {
           readonly client: OpencodeClient;
@@ -4264,6 +4268,12 @@ export function makeOpenCodeAdapterLive(options?: OpenCodeAdapterLiveOptions) {
       const listModels: NonNullable<OpenCodeAdapterShape["listModels"]> = (input) => {
         const binaryPath = input.binaryPath?.trim() || adapterConfig.defaultBinaryPath;
         const freeOnlyProviderID = undefined;
+        const discoveryConn = {
+          binaryPath,
+          ...(input.cwd ? { cwd: input.cwd } : {}),
+          ...(input.serverUrl ? { serverUrl: input.serverUrl } : {}),
+          ...(input.serverPassword ? { serverPassword: input.serverPassword } : {}),
+        };
         return Effect.gen(function* () {
           const cliModelsEffect = openCodeRuntime
             .listOpenCodeCliModels({
@@ -4280,7 +4290,7 @@ export function makeOpenCodeAdapterLive(options?: OpenCodeAdapterLiveOptions) {
               ),
             );
           const inventoryEffect = withDiscoveryInventory(
-            { binaryPath, ...(input.cwd ? { cwd: input.cwd } : {}) },
+            discoveryConn,
             ({ inventory, credentialProviderIDs }) =>
               Effect.succeed({
                 inventory,
@@ -4369,7 +4379,12 @@ export function makeOpenCodeAdapterLive(options?: OpenCodeAdapterLiveOptions) {
       const listAgents: NonNullable<OpenCodeAdapterShape["listAgents"]> = (input) => {
         const binaryPath = input.binaryPath?.trim() || adapterConfig.defaultBinaryPath;
         return withDiscoveryInventory(
-          { binaryPath, ...(input.cwd ? { cwd: input.cwd } : {}) },
+          {
+            binaryPath,
+            ...(input.cwd ? { cwd: input.cwd } : {}),
+            ...(input.serverUrl ? { serverUrl: input.serverUrl } : {}),
+            ...(input.serverPassword ? { serverPassword: input.serverPassword } : {}),
+          },
           ({ inventory }) =>
             Effect.succeed({
               agents: flattenOpenCodeAgents(inventory.agents),

@@ -4,7 +4,7 @@
 // Exports: useKanbanTaskScratchDraft
 
 import type { ModelSlug, ProviderKind } from "@t3tools/contracts";
-import { getDefaultModel } from "@t3tools/shared/model";
+import { resolveCatalogModelSelection } from "~/lib/modelCatalogSettings";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
@@ -60,7 +60,8 @@ export function useKanbanTaskScratchDraft(input: { readonly defaultProvider: Pro
     scratchDraft.modelSelectionByProvider[selectedProvider] ??
     stickyModelSelectionByProvider[selectedProvider];
   const selectedModel: ModelSlug | null =
-    draftModelSelection?.model ?? getDefaultModel(selectedProvider);
+    draftModelSelection?.model ??
+    resolveCatalogModelSelection({ catalogOptions: [], defaultChatModel: null });
   const selectedProviderModelOptions = draftModelSelection?.options;
 
   const previousSelectedProviderRef = useRef<{
