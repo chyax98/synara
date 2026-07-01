@@ -24,11 +24,6 @@ import {
   OrchestrationEventStore,
   type OrchestrationEventStoreShape,
 } from "../Services/OrchestrationEventStore.ts";
-import {
-  normalizeLegacyModelSelection,
-  normalizePersistedModelSelection,
-} from "../modelSelectionCompatibility.ts";
-
 const decodeEvent = Schema.decodeUnknownEffect(OrchestrationEvent);
 const UnknownFromJsonString = Schema.fromJsonString(Schema.Unknown);
 const EventMetadataFromJsonString = Schema.fromJsonString(OrchestrationEventMetadata);
@@ -67,100 +62,6 @@ const ReadFromSequenceRequestSchema = Schema.Struct({
 });
 const DEFAULT_READ_FROM_SEQUENCE_LIMIT = 1_000;
 const READ_PAGE_SIZE = 500;
-const LEGACY_MODEL_SELECTION_EVENT_TYPES = new Set([
-  "thread.created",
-  "thread.meta-updated",
-  "thread.turn-start-requested",
-]);
-
-type PersistedEventRow = typeof OrchestrationEventPersistedRowSchema.Type;
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function readTrimmedString(record: Record<string, unknown>, key: string): string | undefined {
-  const value = record[key];
-  if (typeof value !== "string") {
-    return undefined;
-  }
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : undefined;
-}
-
-function normalizeLegacyEventRow(row: PersistedEventRow): PersistedEventRow {
-  if (!isRecord(row.payload)) {
-    return row;
-  }
-
-  const originalPayload = row.payload;
-  let normalizedPayload: Record<string, unknown> | undefined;
-  const payloadWithNormalizedModelSelection = () => {
-    normalizedPayload ??= { ...originalPayload };
-    return normalizedPayload;
-  };
-
-  if (
-    (row.type === "project.created" || row.type === "project.meta-updated") &&
-    originalPayload.defaultModelSelection !== undefined &&
-    originalPayload.defaultModelSelection !== null
-  ) {
-    payloadWithNormalizedModelSelection().defaultModelSelection = normalizePersistedModelSelection(
-      originalPayload.defaultModelSelection,
-    );
-  }
-
-  if (
-    LEGACY_MODEL_SELECTION_EVENT_TYPES.has(row.type) &&
-    originalPayload.modelSelection !== undefined
-  ) {
-    payloadWithNormalizedModelSelection().modelSelection = normalizePersistedModelSelection(
-      originalPayload.modelSelection,
-    );
-  }
-
-  if (
-    (row.type === "project.created" || row.type === "project.meta-updated") &&
-    originalPayload.defaultModelSelection === undefined
-  ) {
-    const nextPayload = payloadWithNormalizedModelSelection();
-    const legacyModel = readTrimmedString(originalPayload, "defaultModel");
-    nextPayload.defaultModelSelection = legacyModel
-      ? normalizeLegacyModelSelection({
-          provider: originalPayload.defaultProvider,
-          model: legacyModel,
-          options: originalPayload.defaultModelOptions,
-        })
-      : null;
-    delete nextPayload.defaultProvider;
-    delete nextPayload.defaultModel;
-    delete nextPayload.defaultModelOptions;
-    return { ...row, payload: nextPayload };
-  }
-
-  if (
-    LEGACY_MODEL_SELECTION_EVENT_TYPES.has(row.type) &&
-    originalPayload.modelSelection === undefined
-  ) {
-    const nextPayload = payloadWithNormalizedModelSelection();
-    const legacyModel =
-      readTrimmedString(originalPayload, "model") ??
-      (row.type === "thread.created" ? "gpt-5.5" : undefined);
-    if (legacyModel !== undefined) {
-      nextPayload.modelSelection = normalizeLegacyModelSelection({
-        provider: originalPayload.provider,
-        model: legacyModel,
-        options: originalPayload.modelOptions,
-      });
-    }
-    delete nextPayload.provider;
-    delete nextPayload.model;
-    delete nextPayload.modelOptions;
-    return { ...row, payload: nextPayload };
-  }
-
-  return normalizedPayload === undefined ? row : { ...row, payload: normalizedPayload };
-}
 
 function inferActorKind(
   event: Omit<OrchestrationEvent, "sequence">,
@@ -328,7 +229,7 @@ const makeEventStore = Effect.gen(function* () {
           ),
           Effect.flatMap((rows) =>
             Effect.forEach(rows, (row) =>
-              decodeEvent(normalizeLegacyEventRow(row)).pipe(
+              decodeEvent(row).pipe(
                 Effect.mapError(
                   toPersistenceDecodeError(
                     `OrchestrationEventStore.readFromSequence:rowToEvent(sequence=${row.sequence}, type=${row.type})`,

@@ -167,26 +167,60 @@ export function groupProviderModelOptionsWithFavorites(input: {
   favoriteSlugs: ReadonlySet<string>;
   favoriteLabel?: string;
 }): ProviderModelOptionGroup[] {
-  if (input.favoriteSlugs.size === 0) {
-    return groupProviderModelOptions(input.options);
+  return groupProviderModelOptionsWithPrefs({
+    options: input.options,
+    favoriteSlugs: input.favoriteSlugs,
+    recentSlugs: [] as const,
+    ...(input.favoriteLabel !== undefined ? { favoriteLabel: input.favoriteLabel } : {}),
+  });
+}
+
+export function groupProviderModelOptionsWithPrefs(input: {
+  options: ReadonlyArray<ProviderModelOption>;
+  favoriteSlugs: ReadonlySet<string>;
+  recentSlugs: ReadonlyArray<string>;
+  favoriteLabel?: string;
+  recentLabel?: string;
+}): ProviderModelOptionGroup[] {
+  const optionBySlug = new Map(input.options.map((option) => [option.slug, option]));
+  const reservedSlugs = new Set<string>();
+
+  const favoriteOptions = [...input.favoriteSlugs]
+    .map((slug) => optionBySlug.get(slug))
+    .filter((option): option is ProviderModelOption => option !== undefined);
+  for (const option of favoriteOptions) {
+    reservedSlugs.add(option.slug);
   }
 
-  const favoriteOptions = input.options.filter((option) => input.favoriteSlugs.has(option.slug));
-  if (favoriteOptions.length === 0) {
-    return groupProviderModelOptions(input.options);
-  }
-  const groupedOptions = groupProviderModelOptions(
-    input.options.filter((option) => !input.favoriteSlugs.has(option.slug)),
-  );
+  const recentOptions = input.recentSlugs
+    .map((slug) => optionBySlug.get(slug))
+    .filter((option): option is ProviderModelOption => {
+      if (!option || reservedSlugs.has(option.slug)) {
+        return false;
+      }
+      reservedSlugs.add(option.slug);
+      return true;
+    });
 
-  return [
-    {
+  const remainingOptions = input.options.filter((option) => !reservedSlugs.has(option.slug));
+  const groupedOptions = groupProviderModelOptions(remainingOptions);
+
+  const sections: ProviderModelOptionGroup[] = [];
+  if (favoriteOptions.length > 0) {
+    sections.push({
       key: "__favorites__",
       label: input.favoriteLabel ?? "收藏",
       options: favoriteOptions,
-    },
-    ...groupedOptions,
-  ];
+    });
+  }
+  if (recentOptions.length > 0) {
+    sections.push({
+      key: "__recent__",
+      label: input.recentLabel ?? "最近",
+      options: recentOptions,
+    });
+  }
+  return [...sections, ...groupedOptions];
 }
 
 export const COLLAPSIBLE_MODEL_GROUP_THRESHOLD = 3;

@@ -118,64 +118,17 @@ function normalizeSettings(
   );
 }
 
-export function migrateLegacyServerSettingsObject(raw: unknown): unknown {
-  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
-    return raw;
-  }
-
-  const source = raw as Record<string, unknown>;
-  const migrated: Record<string, unknown> = {};
-
-  for (const key of [
-    "enableAssistantStreaming",
-    "enableProviderUpdateChecks",
-    "defaultThreadEnvMode",
-    "addProjectBaseDirectory",
-    "skills",
-  ] as const) {
-    if (key in source) {
-      migrated[key] = source[key];
-    }
-  }
-
-  const textGenerationModelSelection = source.textGenerationModelSelection;
-  if (
-    typeof textGenerationModelSelection === "object" &&
-    textGenerationModelSelection !== null &&
-    !Array.isArray(textGenerationModelSelection) &&
-    (textGenerationModelSelection as { provider?: unknown }).provider === "opencode"
-  ) {
-    migrated.textGenerationModelSelection = textGenerationModelSelection;
-  }
-
-  const providers = source.providers;
-  if (typeof providers === "object" && providers !== null && !Array.isArray(providers)) {
-    const opencode = (providers as Record<string, unknown>).opencode;
-    if (opencode !== undefined) {
-      migrated.providers = { opencode };
-    }
-  }
-
-  return migrated;
-}
-
 type DecodeSettingsResult =
-  | { readonly _tag: "Success"; readonly value: ServerSettings; readonly migrated: boolean }
+  | { readonly _tag: "Success"; readonly value: ServerSettings }
   | { readonly _tag: "Failure"; readonly error: string };
 
 function decodeSettingsUnknown(settingsPath: string, raw: unknown): DecodeSettingsResult {
-  const direct = Schema.decodeUnknownExit(ServerSettings)(raw);
-  if (direct._tag === "Success") {
-    return { _tag: "Success", value: direct.value, migrated: false };
+  const decoded = Schema.decodeUnknownExit(ServerSettings)(raw);
+  if (decoded._tag === "Success") {
+    return { _tag: "Success", value: decoded.value };
   }
 
-  const migrated = migrateLegacyServerSettingsObject(raw);
-  const remigrated = Schema.decodeUnknownExit(ServerSettings)(migrated);
-  if (remigrated._tag === "Success") {
-    return { _tag: "Success", value: remigrated.value, migrated: true };
-  }
-
-  return { _tag: "Failure", error: Cause.pretty(direct.cause) };
+  return { _tag: "Failure", error: Cause.pretty(decoded.cause) };
 }
 
 function decodeSettingsFromJson(settingsPath: string, raw: string): DecodeSettingsResult {
@@ -254,12 +207,6 @@ const makeServerSettings = Effect.gen(function* () {
         error: decoded.error,
       });
       return DEFAULT_SERVER_SETTINGS;
-    }
-    if (decoded.migrated) {
-      yield* Effect.logInfo("migrated legacy settings.json to OpenCode-only schema", {
-        path: settingsPath,
-      });
-      yield* writeSettingsAtomically(decoded.value);
     }
     return decoded.value;
   });

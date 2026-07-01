@@ -503,7 +503,7 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
   const submitBrowsePath = async () => {
     if (isAddingProject) return;
     if (trimmedQuery.length === 0 && !highlightedFolderPath) {
-      setAddProjectError("粘贴 Cline 会话 ID");
+      setAddProjectError("请输入项目路径");
       return;
     }
     if (unsupportedWindowsPath) {
@@ -656,15 +656,7 @@ export function SidebarSearchPalette(props: SidebarSearchPaletteProps) {
                   }}
                 />
                 <p className="text-xs text-muted-foreground">
-                  {importProvider === "opencode"
-                    ? "导入中…"
-                    : importProvider === "opencode"
-                      ? "Cursor resumes a persisted session by session id."
-                      : importProvider === "opencode"
-                        ? "Kilo resumes a persisted session by session id."
-                        : importProvider === "opencode"
-                          ? "OpenCode resumes a persisted session by session id."
-                          : "输入项目路径（例如 ~/projects/my-app）"}
+                  OpenCode 可通过 session id 恢复已有会话。
                 </p>
               </div>
               {importError ? (

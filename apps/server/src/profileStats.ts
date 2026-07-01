@@ -384,11 +384,7 @@ function normalizeProviderKind(value: unknown): ProviderKind | "unknown" {
   if (!provider || provider === "unknown") {
     return "unknown";
   }
-  if (PROVIDER_KINDS.has(provider as ProviderKind)) {
-    return provider as ProviderKind;
-  }
-  // Older persisted rows may still carry a pre-OpenCode provider label.
-  return "opencode";
+  return provider === "opencode" ? "opencode" : "unknown";
 }
 
 function computeStreaks(

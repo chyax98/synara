@@ -254,6 +254,42 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
     title: "自定义模型",
     keywords: "手动添加 OpenCode 模型代号 providerID modelID 自定义模型",
   },
+  {
+    id: "models:opencode-reload",
+    section: "models",
+    title: "重新加载",
+    keywords: "刷新 OpenCode 配置 opencode.json 模型目录 提供商 catalog reload",
+  },
+  {
+    id: "models:opencode-auto-reload",
+    section: "models",
+    title: "认证后自动重新加载",
+    keywords: "OpenCode 自动刷新 catalog 连接 断开 config.update 极客",
+  },
+  {
+    id: "models:custom-provider",
+    section: "models",
+    title: "自定义 OpenAI 兼容提供商",
+    keywords: "custom provider baseURL openai-compatible config.update npm 极客",
+  },
+  {
+    id: "models:assistant-transport",
+    section: "models",
+    title: "助手输出传输",
+    keywords: "streaming buffered 流式 传输 transport 极客",
+  },
+  {
+    id: "models:provider-sources",
+    section: "models",
+    title: "配置来源",
+    keywords: "OpenCode 用户配置 项目配置 认证凭据 自定义配置 provenance",
+  },
+  {
+    id: "advanced:opencode-reload",
+    section: "advanced",
+    title: "重新加载 OpenCode 配置",
+    keywords: "刷新 opencode.json 模型目录 提供商 runtime reload",
+  },
 
   // ── Skills ────────────────────────────────────────────────────────────────────
   {

@@ -169,9 +169,19 @@ import type {
   OpenCodeOauthAuthorizeInput,
   OpenCodeOauthAuthorizeResult,
   OpenCodeOauthCallbackInput,
+  OpenCodeProviderConfigSources,
+  OpenCodeProviderConfigSourcesInput,
   OpenCodeOauthCallbackResult,
   OpenCodeProviderAuthMethodsResult,
   OpenCodeProviderAvailabilityResult,
+  OpenCodeConfigGetResult,
+  OpenCodeConfigUpdateInput,
+  OpenCodeConfigMutationResult,
+  OpenCodeProviderDisconnectInput,
+  OpenCodeProviderDisconnectResult,
+  OpenCodeAddProviderModelInput,
+  OpenCodeUpsertCustomProviderInput,
+  OpenCodeRemoveProviderModelInput,
 } from "./openCodeCatalog";
 import type { ProviderCompactThreadInput } from "./provider";
 import type {
@@ -509,6 +519,23 @@ export interface NativeApi {
     authRemove: (input: OpenCodeAuthRemoveInput) => Promise<OpenCodeAuthMutationResult>;
     oauthAuthorize: (input: OpenCodeOauthAuthorizeInput) => Promise<OpenCodeOauthAuthorizeResult>;
     oauthCallback: (input: OpenCodeOauthCallbackInput) => Promise<OpenCodeOauthCallbackResult>;
+    providerConfigSources: (
+      input: OpenCodeProviderConfigSourcesInput,
+    ) => Promise<OpenCodeProviderConfigSources>;
+    configGet: (input: OpenCodeCatalogInput) => Promise<OpenCodeConfigGetResult>;
+    configUpdate: (input: OpenCodeConfigUpdateInput) => Promise<OpenCodeConfigMutationResult>;
+    providerDisconnect: (
+      input: OpenCodeProviderDisconnectInput,
+    ) => Promise<OpenCodeProviderDisconnectResult>;
+    addProviderModel: (
+      input: OpenCodeAddProviderModelInput,
+    ) => Promise<OpenCodeConfigMutationResult>;
+    upsertCustomProvider: (
+      input: OpenCodeUpsertCustomProviderInput,
+    ) => Promise<OpenCodeConfigMutationResult>;
+    removeProviderModel: (
+      input: OpenCodeRemoveProviderModelInput,
+    ) => Promise<OpenCodeConfigMutationResult>;
   };
   orchestration: {
     getSnapshot: () => Promise<OrchestrationReadModel>;

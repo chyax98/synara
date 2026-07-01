@@ -1060,14 +1060,7 @@ function shouldRemoveDraft(draft: ComposerThreadDraftState): boolean {
 }
 
 function normalizeProviderKind(value: unknown): ProviderKind | null {
-  if (value === "opencode") {
-    return "opencode";
-  }
-  // Older persisted drafts may carry a provider label from pre-OpenCode builds.
-  if (typeof value === "string" && value.trim().length > 0) {
-    return "opencode";
-  }
-  return isProviderKind(value) ? value : null;
+  return value === "opencode" ? "opencode" : null;
 }
 
 function legacyVariantFromCandidate(candidate: Record<string, unknown> | null): string | undefined {

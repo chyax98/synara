@@ -20,6 +20,18 @@ import {
   OpenCodeCatalogService,
   type OpenCodeCatalogServiceShape,
 } from "../Services/OpenCodeCatalogService.ts";
+import {
+  getOpenCodeProviderConfigSources,
+  removeOpenCodeProviderConfig,
+  removeOpenCodeProviderModel,
+} from "../openCodeConfigLayers.ts";
+import {
+  orchestrateAddProviderModel,
+  orchestrateProviderDisconnect,
+  orchestrateRemoveProviderModel,
+  orchestrateUpsertCustomProvider,
+  type OpenCodeCatalogOrchestrationPorts,
+} from "../openCodeCatalogOrchestration.ts";
 
 const DEFAULT_BINARY_PATH = "opencode";
 
@@ -292,6 +304,183 @@ const make = Effect.gen(function* () {
         ).pipe(Effect.as({ ok: true as const })),
     );
 
+  const providerConfigSources: OpenCodeCatalogServiceShape["providerConfigSources"] = (input) =>
+    Effect.sync(() => {
+      const directory = catalogDirectory(input, serverConfig.cwd);
+      return getOpenCodeProviderConfigSources({
+        providerId: input.providerID,
+        cwd: directory,
+      });
+    });
+
+  const configGet: OpenCodeCatalogServiceShape["configGet"] = (input) =>
+    withSdkClient(input, (client, directory) =>
+      Effect.gen(function* () {
+        const response = yield* runOpenCodeSdk("config.get", () =>
+          client.config.get({ directory }),
+        );
+        const data = yield* unwrapSdkData("config.get", response);
+        return {
+          config: (typeof data === "object" && data !== null ? data : {}) as Record<
+            string,
+            unknown
+          >,
+        };
+      }),
+    );
+
+  const configUpdate: OpenCodeCatalogServiceShape["configUpdate"] = (input) =>
+    withSdkClient(
+      {
+        binaryPath: input.binaryPath,
+        cwd: input.cwd,
+        serverUrl: input.serverUrl,
+        serverPassword: input.serverPassword,
+      },
+      (client, directory) =>
+        runOpenCodeSdk("config.update", () =>
+          client.config.update({
+            directory,
+            config: input.config,
+          }),
+        ).pipe(Effect.as({ ok: true as const })),
+    );
+
+  const toOrchestrationError = (operation: string, error: unknown): OpenCodeRuntimeError =>
+    new OpenCodeRuntimeError({
+      operation,
+      detail: error instanceof Error ? error.message : String(error),
+    });
+
+  const makeOrchestrationPorts = (
+    connection: CatalogRequestInput,
+    directory: string,
+  ): OpenCodeCatalogOrchestrationPorts => ({
+    cwd: directory,
+    configGet: () => Effect.runPromise(configGet(connection)),
+    configUpdate: (config) =>
+      Effect.runPromise(
+        configUpdate({
+          binaryPath: connection.binaryPath,
+          cwd: connection.cwd,
+          serverUrl: connection.serverUrl,
+          serverPassword: connection.serverPassword,
+          config,
+        }),
+      ),
+    authSet: (providerID, apiKey) =>
+      Effect.runPromise(
+        authSet({
+          binaryPath: connection.binaryPath,
+          cwd: connection.cwd,
+          serverUrl: connection.serverUrl,
+          serverPassword: connection.serverPassword,
+          providerID,
+          apiKey,
+        }),
+      ),
+    authRemove: (providerID) =>
+      Effect.runPromise(
+        authRemove({
+          binaryPath: connection.binaryPath,
+          cwd: connection.cwd,
+          serverUrl: connection.serverUrl,
+          serverPassword: connection.serverPassword,
+          providerID,
+        }),
+      ),
+    getSources: (providerID) =>
+      getOpenCodeProviderConfigSources({ providerId: providerID, cwd: directory }),
+    removeProviderConfigLayer: ({ providerId, scope }) =>
+      removeOpenCodeProviderConfig({ providerId, cwd: directory, scope }),
+    removeProviderModelLayer: ({ providerId, modelId, scope }) =>
+      removeOpenCodeProviderModel({ providerId, modelId, cwd: directory, scope }),
+  });
+
+  const providerDisconnect: OpenCodeCatalogServiceShape["providerDisconnect"] = (input) =>
+    Effect.gen(function* () {
+      const directory = catalogDirectory(input, serverConfig.cwd);
+      const connection = {
+        binaryPath: input.binaryPath,
+        cwd: input.cwd,
+        serverUrl: input.serverUrl,
+        serverPassword: input.serverPassword,
+      };
+      return yield* Effect.tryPromise({
+        try: () =>
+          orchestrateProviderDisconnect({
+            providerID: input.providerID,
+            scope: input.scope ?? "all",
+            ports: makeOrchestrationPorts(connection, directory),
+          }),
+        catch: (error) => toOrchestrationError("providerDisconnect", error),
+      });
+    });
+
+  const addProviderModel: OpenCodeCatalogServiceShape["addProviderModel"] = (input) =>
+    Effect.gen(function* () {
+      const directory = catalogDirectory(input, serverConfig.cwd);
+      const connection = {
+        binaryPath: input.binaryPath,
+        cwd: input.cwd,
+        serverUrl: input.serverUrl,
+        serverPassword: input.serverPassword,
+      };
+      return yield* Effect.tryPromise({
+        try: () =>
+          orchestrateAddProviderModel({
+            slug: input.slug,
+            displayName: input.displayName,
+            ports: makeOrchestrationPorts(connection, directory),
+          }),
+        catch: (error) => toOrchestrationError("addProviderModel", error),
+      });
+    });
+
+  const upsertCustomProvider: OpenCodeCatalogServiceShape["upsertCustomProvider"] = (input) =>
+    Effect.gen(function* () {
+      const directory = catalogDirectory(input, serverConfig.cwd);
+      const connection = {
+        binaryPath: input.binaryPath,
+        cwd: input.cwd,
+        serverUrl: input.serverUrl,
+        serverPassword: input.serverPassword,
+      };
+      return yield* Effect.tryPromise({
+        try: () =>
+          orchestrateUpsertCustomProvider({
+            providerID: input.providerID,
+            name: input.name,
+            baseURL: input.baseURL,
+            apiKey: input.apiKey,
+            models: input.models,
+            ...(input.headers ? { headers: input.headers } : {}),
+            ports: makeOrchestrationPorts(connection, directory),
+          }),
+        catch: (error) => toOrchestrationError("upsertCustomProvider", error),
+      });
+    });
+
+  const removeProviderModel: OpenCodeCatalogServiceShape["removeProviderModel"] = (input) =>
+    Effect.gen(function* () {
+      const directory = catalogDirectory(input, serverConfig.cwd);
+      const connection = {
+        binaryPath: input.binaryPath,
+        cwd: input.cwd,
+        serverUrl: input.serverUrl,
+        serverPassword: input.serverPassword,
+      };
+      return yield* Effect.tryPromise({
+        try: () =>
+          orchestrateRemoveProviderModel({
+            slug: input.slug,
+            scope: input.scope,
+            ports: makeOrchestrationPorts(connection, directory),
+          }),
+        catch: (error) => toOrchestrationError("removeProviderModel", error),
+      });
+    });
+
   return {
     catalogOverview,
     configProviders,
@@ -301,6 +490,13 @@ const make = Effect.gen(function* () {
     authRemove,
     oauthAuthorize,
     oauthCallback,
+    providerConfigSources,
+    configGet,
+    configUpdate,
+    providerDisconnect,
+    addProviderModel,
+    upsertCustomProvider,
+    removeProviderModel,
   } satisfies OpenCodeCatalogServiceShape;
 });
 

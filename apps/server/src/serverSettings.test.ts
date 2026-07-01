@@ -3,11 +3,7 @@ import { DEFAULT_MODEL_BY_PROVIDER } from "@t3tools/contracts";
 import { Effect, FileSystem, Layer, Path } from "effect";
 import { describe, expect, it } from "vitest";
 import { ServerConfig } from "./config";
-import {
-  ServerSettingsLive,
-  ServerSettingsService,
-  migrateLegacyServerSettingsObject,
-} from "./serverSettings";
+import { ServerSettingsLive, ServerSettingsService } from "./serverSettings";
 
 const serverConfigLayer = ServerConfig.layerTest(process.cwd(), {
   prefix: "dpcode-settings-test-",
@@ -76,8 +72,8 @@ describe("ServerSettingsService", () => {
     });
   });
 
-  it("migrates legacy multi-provider settings.json on startup", async () => {
-    const result = await runWithSettings(
+  it("falls back to defaults when settings.json uses a legacy schema", async () => {
+    const settings = await runWithSettings(
       Effect.gen(function* () {
         const service = yield* ServerSettingsService;
         const { settingsPath } = yield* ServerConfig;
@@ -87,55 +83,22 @@ describe("ServerSettingsService", () => {
           settingsPath,
           `${JSON.stringify({
             enableAssistantStreaming: false,
-            defaultThreadEnvMode: "local",
             textGenerationModelSelection: {
-              provider: "cline",
-              model: "claude-sonnet-4-6",
+              provider: "codex",
+              model: "gpt-5",
             },
             providers: {
-              cline: {
-                enabled: true,
-                binaryPath: "",
-                customModels: [],
-              },
+              codex: { enabled: true },
             },
-            clineUpstreamProviders: {},
           })}\n`,
         );
         yield* service.start;
-        const settings = yield* service.getSettings;
-        const raw = yield* fs.readFileString(settingsPath);
-        return { settings, parsed: JSON.parse(raw) as Record<string, unknown> };
+        return yield* service.getSettings;
       }),
     );
 
-    expect(result.settings.textGenerationModelSelection.provider).toBe("opencode");
-    expect(result.parsed).not.toHaveProperty("clineUpstreamProviders");
-    expect(result.parsed.providers).toEqual({
-      opencode: expect.objectContaining({ binaryPath: "opencode" }),
-    });
-  });
-
-  it("migrateLegacyServerSettingsObject keeps valid opencode fields only", () => {
-    const migrated = migrateLegacyServerSettingsObject({
-      enableAssistantStreaming: true,
-      textGenerationModelSelection: { provider: "opencode", model: "openai/gpt-5" },
-      providers: {
-        opencode: { enabled: true, binaryPath: "opencode", customModels: [] },
-        cline: { enabled: true },
-      },
-      clineUpstreamProviders: {},
-    }) as Record<string, unknown>;
-
-    expect(migrated.enableAssistantStreaming).toBe(true);
-    expect(migrated.textGenerationModelSelection).toEqual({
-      provider: "opencode",
-      model: "openai/gpt-5",
-    });
-    expect(migrated.providers).toEqual({
-      opencode: { enabled: true, binaryPath: "opencode", customModels: [] },
-    });
-    expect(migrated).not.toHaveProperty("clineUpstreamProviders");
+    expect(settings.providers.opencode.binaryPath).toBe("opencode");
+    expect(settings.textGenerationModelSelection.provider).toBe("opencode");
   });
 
   it("keeps opencode as the text generation provider when enabled", async () => {

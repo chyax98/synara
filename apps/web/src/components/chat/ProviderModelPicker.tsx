@@ -5,7 +5,6 @@
 
 import { type ModelSlug, type ProviderKind, type ServerProviderStatus } from "@t3tools/contracts";
 import { resolveSelectableModel } from "@t3tools/shared/model";
-import * as Schema from "effect/Schema";
 import { memo, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { type ProviderPickerKind, PROVIDER_OPTIONS } from "../../session-logic";
 import { formatProviderModelOptionName } from "../../providerModelOptions";
@@ -35,11 +34,20 @@ import { ShortcutKbd } from "../ui/shortcut-kbd";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "../ui/tooltip";
 import {
   groupProviderModelOptions,
-  groupProviderModelOptionsWithFavorites,
+  groupProviderModelOptionsWithPrefs,
   shouldUseCollapsibleModelGroups,
   type ProviderModelOption,
 } from "../../providerModelOptions";
-import { useLocalStorage } from "../../hooks/useLocalStorage";
+import { useAppSettings } from "~/appSettings";
+import {
+  favoriteModelSlugSet,
+  pushRecentModelSlug,
+  toggleFavoriteModelSlug,
+} from "~/lib/modelPrefs";
+import {
+  collapsedModelPickerSectionSet,
+  setModelPickerSectionCollapsed,
+} from "~/lib/modelPickerSections";
 import { Skeleton } from "../ui/skeleton";
 import { AddCustomOpenCodeModelPanel } from "./AddCustomOpenCodeModelPanel";
 
@@ -107,28 +115,13 @@ function providerIconClassName(
   provider: ProviderKind | ProviderPickerKind,
   fallbackClassName: string,
 ): string {
-  return provider === "opencode" || provider === "opencode" || provider === "opencode"
-    ? "text-foreground"
-    : fallbackClassName;
+  return provider === "opencode" ? "text-foreground" : fallbackClassName;
 }
 
 const SEARCHABLE_MODEL_PICKER_THRESHOLD = 15;
-const FAVORITE_MODEL_STORAGE_KEYS = {
-  opencode: "synara:opencode-favourite-models:v1",
-} as const;
-const FavoriteModelSlugs = Schema.Array(Schema.String);
-type FavoriteModelProvider = keyof typeof FAVORITE_MODEL_STORAGE_KEYS;
 
-function supportsModelFavorites(provider: ProviderKind): provider is FavoriteModelProvider {
+function supportsModelFavorites(provider: ProviderKind): provider is "opencode" {
   return provider === "opencode";
-}
-
-// Keeps persisted favorite slugs compact and stable while preserving the user's order.
-function toggleFavoriteModelSlug(current: ReadonlyArray<string>, slug: string): string[] {
-  const normalizedCurrent = Array.from(new Set(current.filter((entry) => entry.trim().length > 0)));
-  return normalizedCurrent.includes(slug)
-    ? normalizedCurrent.filter((entry) => entry !== slug)
-    : [...normalizedCurrent, slug];
 }
 
 function stripParameterizedModelSuffix(model: string): string {
@@ -190,11 +183,7 @@ export const ProviderModelMenuItems = memo(function ProviderModelMenuItems(
 ) {
   const { onAfterSelection } = props;
   const [modelSearchQuery, setModelSearchQuery] = useState("");
-  const [openCodeFavoriteModelSlugs, setOpenCodeFavoriteModelSlugs] = useLocalStorage(
-    FAVORITE_MODEL_STORAGE_KEYS.opencode,
-    [],
-    FavoriteModelSlugs,
-  );
+  const { settings, updateSettings } = useAppSettings();
   const deferredModelSearchQuery = useDeferredValue(modelSearchQuery);
   const activeProvider = props.lockedProvider ?? props.provider;
   const hiddenProviders = props.hiddenProviders;
@@ -233,8 +222,28 @@ export const ProviderModelMenuItems = memo(function ProviderModelMenuItems(
     [hiddenProviderSet, protectedProviderSet, providerOrder],
   );
   const openCodeFavoriteModelSlugSet = useMemo(
-    () => new Set(openCodeFavoriteModelSlugs),
-    [openCodeFavoriteModelSlugs],
+    () => favoriteModelSlugSet(settings.favoriteModels),
+    [settings.favoriteModels],
+  );
+  const openCodeRecentModelSlugs = useMemo(
+    () => settings.recentModels.map((ref) => `${ref.providerID}/${ref.modelID}`),
+    [settings.recentModels],
+  );
+  const collapsedModelPickerSectionKeys = useMemo(
+    () => collapsedModelPickerSectionSet(settings.collapsedModelPickerSections),
+    [settings.collapsedModelPickerSections],
+  );
+  const handleModelPickerSectionOpenChange = useCallback(
+    (sectionKey: string, open: boolean) => {
+      updateSettings({
+        collapsedModelPickerSections: setModelPickerSectionCollapsed(
+          settings.collapsedModelPickerSections,
+          sectionKey,
+          !open,
+        ),
+      });
+    },
+    [settings.collapsedModelPickerSections, updateSettings],
   );
   const favoriteModelSlugSets = useMemo(
     () => ({
@@ -249,14 +258,21 @@ export const ProviderModelMenuItems = memo(function ProviderModelMenuItems(
       resolveSelectableModel(provider, value, props.modelOptionsByProvider[provider]) ??
       (provider === "opencode" && parseOpenCodeModelSlug(value) ? value.trim() : null);
     if (!resolvedModel) return;
+    if (provider === "opencode") {
+      updateSettings({
+        recentModels: pushRecentModelSlug(settings.recentModels, resolvedModel),
+      });
+    }
     props.onProviderModelChange(provider, resolvedModel);
     onAfterSelection?.();
   };
   const toggleFavoriteModel = useCallback(
-    (_provider: FavoriteModelProvider, slug: string) => {
-      setOpenCodeFavoriteModelSlugs((current) => toggleFavoriteModelSlug(current, slug));
+    (_provider: "opencode", slug: string) => {
+      updateSettings({
+        favoriteModels: toggleFavoriteModelSlug(settings.favoriteModels, slug),
+      });
     },
-    [setOpenCodeFavoriteModelSlugs],
+    [settings.favoriteModels, updateSettings],
   );
 
   const renderModelRadioGroup = (provider: ProviderKind) => {
@@ -275,11 +291,7 @@ export const ProviderModelMenuItems = memo(function ProviderModelMenuItems(
 
     const providerOptions = props.modelOptionsByProvider[provider];
     const shouldShowSearch =
-      (provider === "opencode" ||
-        provider === "opencode" ||
-        provider === "opencode" ||
-        provider === "opencode") &&
-      providerOptions.length >= SEARCHABLE_MODEL_PICKER_THRESHOLD;
+      provider === "opencode" && providerOptions.length >= SEARCHABLE_MODEL_PICKER_THRESHOLD;
     const normalizedModelSearchQuery = deferredModelSearchQuery.trim().toLowerCase();
     const filteredOptions =
       shouldShowSearch && normalizedModelSearchQuery.length > 0
@@ -292,9 +304,10 @@ export const ProviderModelMenuItems = memo(function ProviderModelMenuItems(
       favoriteProvider !== null ? favoriteModelSlugSets[favoriteProvider] : undefined;
     const groupedOptions =
       favoriteModelSlugSet !== undefined
-        ? groupProviderModelOptionsWithFavorites({
+        ? groupProviderModelOptionsWithPrefs({
             options: filteredOptions,
             favoriteSlugs: favoriteModelSlugSet,
+            recentSlugs: openCodeRecentModelSlugs,
           })
         : groupProviderModelOptions(filteredOptions);
 
@@ -322,6 +335,8 @@ export const ProviderModelMenuItems = memo(function ProviderModelMenuItems(
               favoriteProvider={favoriteProvider}
               favoriteModelSlugSet={favoriteModelSlugSet}
               onToggleFavorite={toggleFavoriteModel}
+              collapsedSectionKeys={collapsedModelPickerSectionKeys}
+              onSectionOpenChange={handleModelPickerSectionOpenChange}
               {...(onAfterSelection ? { onAfterSelection } : {})}
             />
           </MenuRadioGroup>

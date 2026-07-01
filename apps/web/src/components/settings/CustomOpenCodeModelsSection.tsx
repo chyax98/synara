@@ -4,8 +4,7 @@
 
 import { useMemo, useState } from "react";
 
-import { getDefaultCustomModelsForProvider, useAppSettings } from "~/appSettings";
-import { SettingResetButton } from "~/components/settings/SettingControls";
+import { useOpenCodeModelCatalog } from "~/hooks/useOpenCodeModelCatalog";
 import { SettingsRow, SettingsSection } from "~/components/settings/SettingsPanelPrimitives";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -18,8 +17,10 @@ import {
 } from "~/settingsPanelStyles";
 
 export function CustomOpenCodeModelsSection() {
-  const { defaults, updateSettings } = useAppSettings();
-  const editor = useCustomOpenCodeModelEditor();
+  const catalog = useOpenCodeModelCatalog();
+  const editor = useCustomOpenCodeModelEditor({
+    onCatalogRefresh: catalog.refreshCatalog,
+  });
   const [showAll, setShowAll] = useState(false);
 
   const savedRows = useMemo(
@@ -31,23 +32,8 @@ export function CustomOpenCodeModelsSection() {
   return (
     <SettingsSection title="自定义模型">
       <SettingsRow
-        title="已保存模型代号"
-        description="手动添加 OpenCode 目录中尚未出现的模型（providerID/modelID）。无需先连接下方提供商，保存后即可在输入区选单中使用。"
-        resetAction={
-          editor.customModels.length > 0 ? (
-            <SettingResetButton
-              label="自定义模型"
-              onClick={() => {
-                updateSettings({
-                  customOpenCodeModels: getDefaultCustomModelsForProvider(defaults, "opencode"),
-                });
-                editor.setInput("");
-                editor.clearError();
-                setShowAll(false);
-              }}
-            />
-          ) : null
-        }
+        title="OpenCode 配置中的模型"
+        description="通过 SDK config.update 写入 opencode.json（providerID/modelID）。列表来自 config.providers 的 config/custom 来源。"
       >
         <div className={cn("mt-4 pt-4", SETTINGS_CARD_ROW_DIVIDER_CLASS_NAME)}>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -67,16 +53,18 @@ export function CustomOpenCodeModelsSection() {
                   return;
                 }
                 event.preventDefault();
-                editor.addModel();
+                void editor.addModel();
               }}
               placeholder={editor.example}
+              disabled={editor.busy}
               spellCheck={false}
             />
             <Button
               className="shrink-0"
               type="button"
               variant="outline"
-              onClick={() => editor.addModel()}
+              disabled={editor.busy}
+              onClick={() => void editor.addModel()}
             >
               <PlusIcon className="size-3.5" />
               添加
@@ -84,6 +72,10 @@ export function CustomOpenCodeModelsSection() {
           </div>
 
           {editor.error ? <p className="mt-2 text-xs text-destructive">{editor.error}</p> : null}
+
+          {editor.isLoadingModels ? (
+            <p className="mt-2 text-xs text-muted-foreground">正在读取 OpenCode 配置中的模型…</p>
+          ) : null}
 
           {editor.customModels.length > 0 ? (
             <div className={cn("mt-3", SETTINGS_INSET_LIST_CLASS_NAME)}>
@@ -97,7 +89,7 @@ export function CustomOpenCodeModelsSection() {
                     type="button"
                     className="shrink-0 opacity-0 transition-opacity group-hover:opacity-100 hover:opacity-100"
                     aria-label={`移除 ${row.slug}`}
-                    onClick={() => editor.removeModel(row.slug)}
+                    onClick={() => void editor.removeModel(row.slug)}
                   >
                     <XIcon className="size-3.5 text-muted-foreground hover:text-foreground" />
                   </button>

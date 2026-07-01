@@ -1,47 +1,25 @@
 import assert from "node:assert/strict";
 import { describe, it } from "vitest";
 
-import {
-  normalizeLegacyModelSelection,
-  normalizePersistedModelSelection,
-} from "./modelSelectionCompatibility.ts";
+import { normalizePersistedModelSelection } from "./modelSelectionCompatibility.ts";
 
 describe("modelSelectionCompatibility", () => {
-  it("maps legacy provider literals to opencode", () => {
-    assert.deepEqual(
-      normalizePersistedModelSelection({ provider: "pi", model: "openai/gpt-5.5" }),
-      {
-        provider: "opencode",
-        model: "openai/gpt-5.5",
-      },
-    );
-    assert.deepEqual(
-      normalizePersistedModelSelection({
-        provider: "claudeAgent",
-        model: "claude-sonnet-4-6",
-      }),
-      {
-        provider: "opencode",
-        model: "claude-sonnet-4-6",
-      },
-    );
+  it("leaves non-opencode provider selections untouched", () => {
+    const legacy = { provider: "codex", model: "gpt-5.4" };
+    assert.deepEqual(normalizePersistedModelSelection(legacy), legacy);
   });
 
-  it("normalizes legacy provider-scoped options into opencode options", () => {
+  it("normalizes opencode option rows into an options object", () => {
     assert.deepEqual(
-      normalizeLegacyModelSelection({
-        provider: "codex",
-        model: "gpt-5.4",
-        options: {
-          codex: { reasoningEffort: "high" },
-        },
+      normalizePersistedModelSelection({
+        provider: "opencode",
+        model: "openai/gpt-5",
+        options: [{ id: "reasoningEffort", value: "high" }],
       }),
       {
         provider: "opencode",
-        model: "gpt-5.4",
-        options: {
-          codex: { reasoningEffort: "high" },
-        },
+        model: "openai/gpt-5",
+        options: { reasoningEffort: "high" },
       },
     );
   });

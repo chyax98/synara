@@ -1,5 +1,5 @@
 // FILE: ProviderAuthSettingsPanel.tsx
-// Purpose: Connect/disconnect an OpenCode upstream provider via API key or OAuth.
+// Purpose: Connect an OpenCode upstream provider via API key or OAuth (remove lives in provenance panel).
 // Layer: Settings UI
 
 import { useState } from "react";
@@ -9,11 +9,11 @@ import { Input } from "~/components/ui/input";
 import { buildOpenCodeCatalogRequest } from "~/lib/openCodeCatalogConnection";
 import type { OpenCodeCatalogConnection } from "~/lib/openCodeCatalogConnection";
 import {
-  mutateOpenCodeAuthRemove,
   mutateOpenCodeAuthSet,
   mutateOpenCodeOauthAuthorize,
   mutateOpenCodeOauthCallback,
 } from "~/lib/openCodeCatalogReactQuery";
+import { useAppSettings } from "~/appSettings";
 import { ensureNativeApi } from "~/nativeApi";
 import { cn } from "~/lib/utils";
 import { SETTINGS_CARD_CLASS_NAME } from "~/settingsPanelStyles";
@@ -29,6 +29,7 @@ export function ProviderAuthSettingsPanel(props: {
   variant?: "card" | "inline";
 }) {
   const variant = props.variant ?? "card";
+  const { settings } = useAppSettings();
   const [apiKey, setApiKey] = useState("");
   const [busyKey, setBusyKey] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -43,7 +44,9 @@ export function ProviderAuthSettingsPanel(props: {
     setErrorMessage(null);
     try {
       await action();
-      await props.onAuthChanged();
+      if (settings.openCodeAutoReloadCatalog) {
+        await props.onAuthChanged();
+      }
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "操作失败，请重试。");
     } finally {
@@ -64,15 +67,6 @@ export function ProviderAuthSettingsPanel(props: {
         ...catalogRequest,
       });
       setApiKey("");
-    });
-  };
-
-  const handleDisconnect = () => {
-    void runMutation(`remove:${props.providerId}`, async () => {
-      await mutateOpenCodeAuthRemove({
-        providerID: props.providerId,
-        ...catalogRequest,
-      });
     });
   };
 
@@ -119,15 +113,9 @@ export function ProviderAuthSettingsPanel(props: {
       {errorMessage ? <p className="text-xs text-destructive">{errorMessage}</p> : null}
 
       {props.connected ? (
-        <Button
-          type="button"
-          variant="outline"
-          size="xs"
-          disabled={busyKey !== null}
-          onClick={handleDisconnect}
-        >
-          断开连接
-        </Button>
+        <p className="text-xs text-muted-foreground">
+          已连接。要移除凭据或配置，请使用下方「配置来源」中的移除控件。
+        </p>
       ) : (
         <div className="space-y-3">
           {apiMethods.length > 0 ? (
@@ -203,7 +191,9 @@ export function ProviderAuthSettingsPanel(props: {
           ))}
 
           {apiMethods.length === 0 && oauthMethods.length === 0 ? (
-            <p className="text-xs text-muted-foreground">此提供商暂无可用的认证方式。</p>
+            <p className="text-xs text-muted-foreground">
+              此提供商暂无可用的认证方式。若仅为配置条目，可在「配置来源」中移除。
+            </p>
           ) : null}
         </div>
       )}
@@ -220,7 +210,7 @@ export function ProviderAuthSettingsPanel(props: {
         <h4 className="text-sm font-medium text-foreground">{props.providerName}</h4>
         <p className="text-[11px] text-muted-foreground">
           {props.connected
-            ? "此提供商已连接。断开后需要重新认证才能使用其模型。"
+            ? "已连接。配置移除请使用配置来源面板。"
             : "连接此提供商后即可在选单中使用其模型。"}
         </p>
       </div>

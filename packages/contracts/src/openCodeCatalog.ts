@@ -121,3 +121,96 @@ export type OpenCodeOauthCallbackInput = typeof OpenCodeOauthCallbackInput.Type;
 
 export const OpenCodeOauthCallbackResult = OpenCodeAuthMutationResult;
 export type OpenCodeOauthCallbackResult = typeof OpenCodeOauthCallbackResult.Type;
+
+export const OpenCodeConfigSourceLayer = Schema.Struct({
+  exists: Schema.Boolean,
+  path: Schema.NullOr(Schema.String),
+});
+export type OpenCodeConfigSourceLayer = typeof OpenCodeConfigSourceLayer.Type;
+
+export const OpenCodeProviderConfigSources = Schema.Struct({
+  auth: OpenCodeConfigSourceLayer,
+  user: OpenCodeConfigSourceLayer,
+  project: OpenCodeConfigSourceLayer,
+  custom: OpenCodeConfigSourceLayer,
+});
+export type OpenCodeProviderConfigSources = typeof OpenCodeProviderConfigSources.Type;
+
+export const OpenCodeProviderConfigSourcesInput = Schema.Struct({
+  ...OpenCodeCatalogConnectionFields,
+  providerID: TrimmedNonEmptyString,
+});
+export type OpenCodeProviderConfigSourcesInput = typeof OpenCodeProviderConfigSourcesInput.Type;
+
+/** Loose OpenCode config document (opencode.json shape). */
+export const OpenCodeConfigDocument = Schema.Record(Schema.String, Schema.Unknown);
+export type OpenCodeConfigDocument = typeof OpenCodeConfigDocument.Type;
+
+export const OpenCodeConfigGetResult = Schema.Struct({
+  config: OpenCodeConfigDocument,
+});
+export type OpenCodeConfigGetResult = typeof OpenCodeConfigGetResult.Type;
+
+export const OpenCodeConfigUpdateInput = Schema.Struct({
+  ...OpenCodeCatalogConnectionFields,
+  config: OpenCodeConfigDocument,
+});
+export type OpenCodeConfigUpdateInput = typeof OpenCodeConfigUpdateInput.Type;
+
+export const OpenCodeConfigMutationResult = Schema.Struct({
+  ok: Schema.Literal(true),
+});
+export type OpenCodeConfigMutationResult = typeof OpenCodeConfigMutationResult.Type;
+
+export const OpenCodeProviderDisconnectScope = Schema.Literals([
+  "auth",
+  "user",
+  "project",
+  "custom",
+  "all",
+]);
+export type OpenCodeProviderDisconnectScope = typeof OpenCodeProviderDisconnectScope.Type;
+
+export const OpenCodeProviderDisconnectInput = Schema.Struct({
+  ...OpenCodeCatalogConnectionFields,
+  providerID: TrimmedNonEmptyString,
+  scope: Schema.optional(OpenCodeProviderDisconnectScope),
+});
+export type OpenCodeProviderDisconnectInput = typeof OpenCodeProviderDisconnectInput.Type;
+
+export const OpenCodeProviderDisconnectResult = Schema.Struct({
+  ok: Schema.Literal(true),
+  removed: Schema.Boolean,
+});
+export type OpenCodeProviderDisconnectResult = typeof OpenCodeProviderDisconnectResult.Type;
+
+export const OpenCodeAddProviderModelInput = Schema.Struct({
+  ...OpenCodeCatalogConnectionFields,
+  slug: TrimmedNonEmptyString,
+  displayName: Schema.optional(TrimmedNonEmptyString),
+});
+export type OpenCodeAddProviderModelInput = typeof OpenCodeAddProviderModelInput.Type;
+
+export const OpenCodeCustomProviderModel = Schema.Struct({
+  id: TrimmedNonEmptyString,
+  name: TrimmedNonEmptyString,
+});
+export type OpenCodeCustomProviderModel = typeof OpenCodeCustomProviderModel.Type;
+
+export const OpenCodeUpsertCustomProviderInput = Schema.Struct({
+  ...OpenCodeCatalogConnectionFields,
+  providerID: TrimmedNonEmptyString,
+  name: TrimmedNonEmptyString,
+  baseURL: TrimmedNonEmptyString,
+  apiKey: Schema.optional(TrimmedNonEmptyString),
+  models: Schema.Array(OpenCodeCustomProviderModel),
+  headers: Schema.optional(Schema.Record(TrimmedNonEmptyString, TrimmedNonEmptyString)),
+});
+export type OpenCodeUpsertCustomProviderInput = typeof OpenCodeUpsertCustomProviderInput.Type;
+
+export const OpenCodeRemoveProviderModelInput = Schema.Struct({
+  ...OpenCodeCatalogConnectionFields,
+  slug: TrimmedNonEmptyString,
+  scope: Schema.optional(OpenCodeProviderDisconnectScope),
+});
+export type OpenCodeRemoveProviderModelInput = typeof OpenCodeRemoveProviderModelInput.Type;

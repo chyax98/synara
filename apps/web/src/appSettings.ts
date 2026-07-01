@@ -174,6 +174,13 @@ export const AppSettingsSchema = Schema.Struct({
   customOpenCodeModels: Schema.Array(Schema.String).pipe(withDefaults(() => [])),
   // OpenCode upstream catalog visibility — keys are providerID/modelID parsed from slugs.
   hiddenModels: Schema.Array(HiddenModelRefSchema).pipe(withDefaults(() => [])),
+  // Picker curation (OpenChamber-style): starred and recently used models.
+  favoriteModels: Schema.Array(HiddenModelRefSchema).pipe(withDefaults(() => [])),
+  recentModels: Schema.Array(HiddenModelRefSchema).pipe(withDefaults(() => [])),
+  // Collapsed accordion keys in the composer model picker (e.g. provider:anthropic).
+  collapsedModelPickerSections: Schema.Array(Schema.String).pipe(withDefaults(() => [])),
+  // Reload OpenCode catalog after provider auth/config mutations (OpenChamber-style).
+  openCodeAutoReloadCatalog: Schema.Boolean.pipe(withDefaults(() => true)),
   // Default chat model for new sessions: "providerID/modelID" (OpenCode catalog slug).
   defaultChatModel: Schema.String.check(Schema.isMaxLength(512)).pipe(withDefaults(() => "")),
   textGenerationProvider: ProviderKind.pipe(withDefaults(() => "opencode" as const)),
@@ -322,6 +329,15 @@ function normalizeAppSettings(settings: AppSettings): AppSettings {
     terminalFontFamily: normalizeTerminalFontFamily(settings.terminalFontFamily),
     customOpenCodeModels: normalizeCustomModelSlugs(settings.customOpenCodeModels, "opencode"),
     hiddenModels: normalizeHiddenModelRefs(settings.hiddenModels),
+    favoriteModels: normalizeHiddenModelRefs(settings.favoriteModels).slice(0, 32),
+    recentModels: normalizeHiddenModelRefs(settings.recentModels).slice(0, 8),
+    collapsedModelPickerSections: Array.from(
+      new Set(
+        settings.collapsedModelPickerSections
+          .map((entry) => entry.trim())
+          .filter((entry) => entry.length > 0 && entry.length <= 128),
+      ),
+    ),
     defaultChatModel: settings.defaultChatModel.trim(),
     defaultProvider: "opencode",
     textGenerationProvider: "opencode",
@@ -365,7 +381,9 @@ function touchesProviderDiscoverySettings(patch: Partial<AppSettings>): boolean 
   );
 }
 
-function appSettingsPatchToServerSettingsPatch(patch: Partial<AppSettings>): ServerSettingsPatch {
+export function appSettingsPatchToServerSettingsPatch(
+  patch: Partial<AppSettings>,
+): ServerSettingsPatch {
   const providers: MutableServerSettingsProvidersPatch = {};
   const serverPatch: MutableServerSettingsPatch = {};
 
@@ -451,6 +469,14 @@ function buildInitialServerSettingsMigrationPatch(settings: AppSettings): Server
 
 export function normalizeStoredAppSettings(settings: AppSettings): AppSettings {
   return normalizeAppSettings(settings);
+}
+
+/** Local-only merge used by `useAppSettings().updateSettings` before any server patch. */
+export function applyLocalAppSettingsUpdate(
+  previous: AppSettings,
+  patch: Partial<AppSettings>,
+): AppSettings {
+  return normalizeAppSettings({ ...previous, ...patch });
 }
 
 export function getCustomModelsForProvider(
@@ -696,7 +722,7 @@ export function useAppSettings() {
 
   const updateSettings = useCallback(
     (patch: Partial<AppSettings>) => {
-      setSettings((prev) => normalizeAppSettings({ ...prev, ...patch }));
+      setSettings((prev) => applyLocalAppSettingsUpdate(prev, patch));
       if (touchesProviderDiscoverySettings(patch)) {
         void queryClient.invalidateQueries({ queryKey: providerDiscoveryQueryKeys.all });
       }

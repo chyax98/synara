@@ -670,6 +670,17 @@ export function createWsNativeApi(): NativeApi {
       authRemove: (input) => transport.request(WS_METHODS.opencodeAuthRemove, input),
       oauthAuthorize: (input) => transport.request(WS_METHODS.opencodeOauthAuthorize, input),
       oauthCallback: (input) => transport.request(WS_METHODS.opencodeOauthCallback, input),
+      providerConfigSources: (input) =>
+        transport.request(WS_METHODS.opencodeProviderConfigSources, input),
+      configGet: (input) => transport.request(WS_METHODS.opencodeConfigGet, input),
+      configUpdate: (input) => transport.request(WS_METHODS.opencodeConfigUpdate, input),
+      providerDisconnect: (input) =>
+        transport.request(WS_METHODS.opencodeProviderDisconnect, input),
+      addProviderModel: (input) => transport.request(WS_METHODS.opencodeAddProviderModel, input),
+      upsertCustomProvider: (input) =>
+        transport.request(WS_METHODS.opencodeUpsertCustomProvider, input),
+      removeProviderModel: (input) =>
+        transport.request(WS_METHODS.opencodeRemoveProviderModel, input),
     },
     orchestration: {
       getSnapshot: () => transport.request(ORCHESTRATION_WS_METHODS.getSnapshot),

@@ -110,6 +110,12 @@ import {
   OpenCodeCatalogInput,
   OpenCodeOauthAuthorizeInput,
   OpenCodeOauthCallbackInput,
+  OpenCodeProviderConfigSourcesInput,
+  OpenCodeConfigUpdateInput,
+  OpenCodeProviderDisconnectInput,
+  OpenCodeAddProviderModelInput,
+  OpenCodeUpsertCustomProviderInput,
+  OpenCodeRemoveProviderModelInput,
 } from "./openCodeCatalog";
 import { ProviderCompactThreadInput } from "./provider";
 
@@ -218,6 +224,13 @@ export const WS_METHODS = {
   opencodeAuthRemove: "opencode.authRemove",
   opencodeOauthAuthorize: "opencode.oauthAuthorize",
   opencodeOauthCallback: "opencode.oauthCallback",
+  opencodeProviderConfigSources: "opencode.providerConfigSources",
+  opencodeConfigGet: "opencode.configGet",
+  opencodeConfigUpdate: "opencode.configUpdate",
+  opencodeProviderDisconnect: "opencode.providerDisconnect",
+  opencodeAddProviderModel: "opencode.addProviderModel",
+  opencodeUpsertCustomProvider: "opencode.upsertCustomProvider",
+  opencodeRemoveProviderModel: "opencode.removeProviderModel",
 
   // Automation methods
   automationList: "automation.list",
@@ -368,6 +381,13 @@ const WebSocketRequestBody = Schema.Union([
   tagRequestBody(WS_METHODS.opencodeAuthRemove, OpenCodeAuthRemoveInput),
   tagRequestBody(WS_METHODS.opencodeOauthAuthorize, OpenCodeOauthAuthorizeInput),
   tagRequestBody(WS_METHODS.opencodeOauthCallback, OpenCodeOauthCallbackInput),
+  tagRequestBody(WS_METHODS.opencodeProviderConfigSources, OpenCodeProviderConfigSourcesInput),
+  tagRequestBody(WS_METHODS.opencodeConfigGet, OpenCodeCatalogInput),
+  tagRequestBody(WS_METHODS.opencodeConfigUpdate, OpenCodeConfigUpdateInput),
+  tagRequestBody(WS_METHODS.opencodeProviderDisconnect, OpenCodeProviderDisconnectInput),
+  tagRequestBody(WS_METHODS.opencodeAddProviderModel, OpenCodeAddProviderModelInput),
+  tagRequestBody(WS_METHODS.opencodeUpsertCustomProvider, OpenCodeUpsertCustomProviderInput),
+  tagRequestBody(WS_METHODS.opencodeRemoveProviderModel, OpenCodeRemoveProviderModelInput),
 
   // Automation methods
   tagRequestBody(WS_METHODS.automationList, AutomationListInput),

@@ -11,6 +11,16 @@ import type {
   OpenCodeOauthCallbackResult,
   OpenCodeProviderAuthMethodsResult,
   OpenCodeProviderAvailabilityResult,
+  OpenCodeProviderConfigSources,
+  OpenCodeProviderConfigSourcesInput,
+  OpenCodeConfigGetResult,
+  OpenCodeConfigUpdateInput,
+  OpenCodeConfigMutationResult,
+  OpenCodeProviderDisconnectInput,
+  OpenCodeProviderDisconnectResult,
+  OpenCodeAddProviderModelInput,
+  OpenCodeUpsertCustomProviderInput,
+  OpenCodeRemoveProviderModelInput,
 } from "@t3tools/contracts";
 import { ServiceMap } from "effect";
 import type { Effect } from "effect";
@@ -44,6 +54,27 @@ export interface OpenCodeCatalogServiceShape {
   readonly oauthCallback: (
     input: OpenCodeOauthCallbackInput,
   ) => Effect.Effect<OpenCodeOauthCallbackResult, OpenCodeCatalogServiceError>;
+  readonly providerConfigSources: (
+    input: OpenCodeProviderConfigSourcesInput,
+  ) => Effect.Effect<OpenCodeProviderConfigSources, OpenCodeCatalogServiceError>;
+  readonly configGet: (
+    input: OpenCodeCatalogInput,
+  ) => Effect.Effect<OpenCodeConfigGetResult, OpenCodeCatalogServiceError>;
+  readonly configUpdate: (
+    input: OpenCodeConfigUpdateInput,
+  ) => Effect.Effect<OpenCodeConfigMutationResult, OpenCodeCatalogServiceError>;
+  readonly providerDisconnect: (
+    input: OpenCodeProviderDisconnectInput,
+  ) => Effect.Effect<OpenCodeProviderDisconnectResult, OpenCodeCatalogServiceError>;
+  readonly addProviderModel: (
+    input: OpenCodeAddProviderModelInput,
+  ) => Effect.Effect<OpenCodeConfigMutationResult, OpenCodeCatalogServiceError>;
+  readonly upsertCustomProvider: (
+    input: OpenCodeUpsertCustomProviderInput,
+  ) => Effect.Effect<OpenCodeConfigMutationResult, OpenCodeCatalogServiceError>;
+  readonly removeProviderModel: (
+    input: OpenCodeRemoveProviderModelInput,
+  ) => Effect.Effect<OpenCodeConfigMutationResult, OpenCodeCatalogServiceError>;
 }
 
 export class OpenCodeCatalogService extends ServiceMap.Service<

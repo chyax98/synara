@@ -1,9 +1,7 @@
 // FILE: modelSelectionCompatibility.ts
-// Purpose: Normalizes persisted model-selection JSON from older/newer app builds.
-// Layer: Persistence compatibility helper
-// Exports: normalizeLegacyModelSelection, normalizePersistedModelSelection
-
-type ModelProviderKind = "opencode";
+// Purpose: Normalizes persisted OpenCode model-selection option shape only.
+// Layer: Persistence helper
+// Exports: normalizePersistedModelSelection
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -16,14 +14,6 @@ function readTrimmedString(record: Record<string, unknown>, key: string): string
   }
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : undefined;
-}
-
-function readLegacyProviderOptions(options: unknown): unknown {
-  if (!isRecord(options)) {
-    return options;
-  }
-  const providerScopedOptions = options.opencode;
-  return providerScopedOptions === undefined ? options : providerScopedOptions;
 }
 
 function normalizeModelOptions(input: unknown): unknown {
@@ -45,34 +35,20 @@ function normalizeModelOptions(input: unknown): unknown {
   return Object.fromEntries(entries);
 }
 
-export function normalizeLegacyModelSelection(input: {
-  readonly provider: unknown;
-  readonly model: string;
-  readonly options: unknown;
-}): Record<string, unknown> {
-  const options = normalizeModelOptions(readLegacyProviderOptions(input.options));
-  return {
-    provider: "opencode" satisfies ModelProviderKind,
-    model: input.model,
-    ...(options === undefined ? {} : { options }),
-  };
-}
-
 export function normalizePersistedModelSelection(input: unknown): unknown {
   if (!isRecord(input)) {
     return input;
   }
 
   const model = readTrimmedString(input, "model");
-  if (model === undefined) {
+  if (model === undefined || input.provider !== "opencode") {
     return input;
   }
 
-  // Newer T3 Code writes provider-less selections as { instanceId, model } and
-  // option rows as [{ id, value }]; Synara stores canonical provider/options objects.
-  return normalizeLegacyModelSelection({
-    provider: input.provider ?? input.instanceId,
+  const options = normalizeModelOptions(input.options);
+  return {
+    provider: "opencode",
     model,
-    options: input.options,
-  });
+    ...(options === undefined ? {} : { options }),
+  };
 }

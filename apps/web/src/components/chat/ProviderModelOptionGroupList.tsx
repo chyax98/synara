@@ -3,7 +3,7 @@
 // Layer: Chat composer presentation
 // Depends on: menu radio primitives, collapsible UI, and provider model grouping helpers.
 
-import { memo, useState } from "react";
+import { memo } from "react";
 
 import { StarFilledIcon, StarIcon } from "~/lib/icons";
 import { cn } from "~/lib/utils";
@@ -23,7 +23,7 @@ import {
   COMPOSER_PICKER_RADIUS_CLASS_NAME,
 } from "./composerPickerStyles";
 
-type FavoriteModelProvider = "opencode" | "opencode" | "opencode" | "opencode";
+type FavoriteModelProvider = "opencode";
 
 type ProviderModelOptionGroupListProps = {
   groupedOptions: ReadonlyArray<ProviderModelOptionGroup>;
@@ -33,6 +33,8 @@ type ProviderModelOptionGroupListProps = {
   favoriteProvider: FavoriteModelProvider | null;
   favoriteModelSlugSet: ReadonlySet<string> | undefined;
   onToggleFavorite: (provider: FavoriteModelProvider, slug: string) => void;
+  collapsedSectionKeys?: ReadonlySet<string>;
+  onSectionOpenChange?: (sectionKey: string, open: boolean) => void;
   onAfterSelection?: () => void;
 };
 
@@ -115,21 +117,23 @@ function ProviderModelRadioItem(
 function CollapsibleModelGroup(
   props: Readonly<{
     group: ProviderModelOptionGroup;
-    defaultOpen: boolean;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
     children: React.ReactNode;
   }>,
 ) {
-  const [open, setOpen] = useState(props.defaultOpen);
-
   return (
-    <Collapsible open={open} onOpenChange={setOpen} className="px-0.5">
+    <Collapsible open={props.open} onOpenChange={props.onOpenChange} className="px-0.5">
       <CollapsibleTrigger
-        className={cn(COMPOSER_PICKER_MODEL_GROUP_HEADER_CLASS_NAME, open && "text-foreground/75")}
+        className={cn(
+          COMPOSER_PICKER_MODEL_GROUP_HEADER_CLASS_NAME,
+          props.open && "text-foreground/75",
+        )}
         onPointerDown={(event) => {
           event.stopPropagation();
         }}
       >
-        <DisclosureChevron open={open} className="col-start-1 size-3 shrink-0 opacity-50" />
+        <DisclosureChevron open={props.open} className="col-start-1 size-3 shrink-0 opacity-50" />
         <span className="col-start-2 min-w-0 truncate normal-case tracking-normal">
           {props.group.label}
         </span>
@@ -177,16 +181,20 @@ export const ProviderModelOptionGroupList = memo(function ProviderModelOptionGro
         }
 
         if (useCollapsibleGroups) {
+          const defaultOpen = resolveModelGroupDefaultOpen({
+            groupKey: group.key,
+            options: group.options,
+            activeModel: props.activeModel,
+            groupCount: props.groupedOptions.length,
+          });
+          const persistedCollapsed = props.collapsedSectionKeys?.has(group.key) ?? false;
+          const open = props.collapsedSectionKeys ? !persistedCollapsed : defaultOpen;
           return (
             <CollapsibleModelGroup
               key={`${props.provider}:${group.key}`}
               group={group}
-              defaultOpen={resolveModelGroupDefaultOpen({
-                groupKey: group.key,
-                options: group.options,
-                activeModel: props.activeModel,
-                groupCount: props.groupedOptions.length,
-              })}
+              open={open}
+              onOpenChange={(nextOpen) => props.onSectionOpenChange?.(group.key, nextOpen)}
             >
               {groupItems}
             </CollapsibleModelGroup>

@@ -102,6 +102,16 @@ import {
   OpenCodeOauthCallbackResult,
   OpenCodeProviderAuthMethodsResult,
   OpenCodeProviderAvailabilityResult,
+  OpenCodeProviderConfigSources,
+  OpenCodeProviderConfigSourcesInput,
+  OpenCodeConfigGetResult,
+  OpenCodeConfigUpdateInput,
+  OpenCodeConfigMutationResult,
+  OpenCodeProviderDisconnectInput,
+  OpenCodeProviderDisconnectResult,
+  OpenCodeAddProviderModelInput,
+  OpenCodeUpsertCustomProviderInput,
+  OpenCodeRemoveProviderModelInput,
 } from "./openCodeCatalog";
 import {
   ProjectCreateLocalFilePreviewGrantInput,
@@ -778,6 +788,51 @@ export const WsOpenCodeOauthCallbackRpc = Rpc.make(WS_METHODS.opencodeOauthCallb
   error: WsRpcError,
 });
 
+export const WsOpenCodeProviderConfigSourcesRpc = Rpc.make(
+  WS_METHODS.opencodeProviderConfigSources,
+  {
+    payload: OpenCodeProviderConfigSourcesInput,
+    success: OpenCodeProviderConfigSources,
+    error: WsRpcError,
+  },
+);
+
+export const WsOpenCodeConfigGetRpc = Rpc.make(WS_METHODS.opencodeConfigGet, {
+  payload: OpenCodeCatalogInput,
+  success: OpenCodeConfigGetResult,
+  error: WsRpcError,
+});
+
+export const WsOpenCodeConfigUpdateRpc = Rpc.make(WS_METHODS.opencodeConfigUpdate, {
+  payload: OpenCodeConfigUpdateInput,
+  success: OpenCodeConfigMutationResult,
+  error: WsRpcError,
+});
+
+export const WsOpenCodeProviderDisconnectRpc = Rpc.make(WS_METHODS.opencodeProviderDisconnect, {
+  payload: OpenCodeProviderDisconnectInput,
+  success: OpenCodeProviderDisconnectResult,
+  error: WsRpcError,
+});
+
+export const WsOpenCodeAddProviderModelRpc = Rpc.make(WS_METHODS.opencodeAddProviderModel, {
+  payload: OpenCodeAddProviderModelInput,
+  success: OpenCodeConfigMutationResult,
+  error: WsRpcError,
+});
+
+export const WsOpenCodeUpsertCustomProviderRpc = Rpc.make(WS_METHODS.opencodeUpsertCustomProvider, {
+  payload: OpenCodeUpsertCustomProviderInput,
+  success: OpenCodeConfigMutationResult,
+  error: WsRpcError,
+});
+
+export const WsOpenCodeRemoveProviderModelRpc = Rpc.make(WS_METHODS.opencodeRemoveProviderModel, {
+  payload: OpenCodeRemoveProviderModelInput,
+  success: OpenCodeConfigMutationResult,
+  error: WsRpcError,
+});
+
 export const WsAutomationListRpc = Rpc.make(WS_METHODS.automationList, {
   payload: AutomationListInput,
   success: AutomationListResult,
@@ -927,6 +982,13 @@ export const WsRpcGroup = RpcGroup.make(
   WsOpenCodeAuthRemoveRpc,
   WsOpenCodeOauthAuthorizeRpc,
   WsOpenCodeOauthCallbackRpc,
+  WsOpenCodeProviderConfigSourcesRpc,
+  WsOpenCodeConfigGetRpc,
+  WsOpenCodeConfigUpdateRpc,
+  WsOpenCodeProviderDisconnectRpc,
+  WsOpenCodeAddProviderModelRpc,
+  WsOpenCodeUpsertCustomProviderRpc,
+  WsOpenCodeRemoveProviderModelRpc,
   WsAutomationListRpc,
   WsAutomationCreateRpc,
   WsAutomationUpdateRpc,

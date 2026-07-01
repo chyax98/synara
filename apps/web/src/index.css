@@ -309,6 +309,13 @@
     -webkit-backdrop-filter: var(--app-settings-backdrop-filter, none);
   }
 
+  [data-settings-search-highlight="true"] {
+    outline: 2px solid color-mix(in srgb, var(--color-accent, #3b82f6) 55%, transparent);
+    outline-offset: 2px;
+    border-radius: 0.5rem;
+    transition: outline-color 220ms ease-out;
+  }
+
   /* Animate terminal run state in CSS so many open terminals don't schedule JS timers. */
   .terminal-running-indicator__dot {
     animation: terminal-running-indicator-pulse 640ms ease-in-out infinite;

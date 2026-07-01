@@ -5,6 +5,7 @@
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { useCustomOpenCodeModelEditor } from "~/hooks/useCustomOpenCodeModelEditor";
+import { useOpenCodeModelCatalog } from "~/hooks/useOpenCodeModelCatalog";
 import { PlusIcon } from "~/lib/icons";
 
 type AddCustomOpenCodeModelPanelProps = {
@@ -12,10 +13,13 @@ type AddCustomOpenCodeModelPanelProps = {
 };
 
 export function AddCustomOpenCodeModelPanel(props: AddCustomOpenCodeModelPanelProps) {
-  const editor = useCustomOpenCodeModelEditor();
+  const catalog = useOpenCodeModelCatalog();
+  const editor = useCustomOpenCodeModelEditor({
+    onCatalogRefresh: catalog.refreshCatalog,
+  });
 
-  const handleAdd = () => {
-    const slug = editor.addModel();
+  const handleAdd = async () => {
+    const slug = await editor.addModel();
     if (slug) {
       props.onAdded?.(slug);
     }
@@ -24,7 +28,7 @@ export function AddCustomOpenCodeModelPanel(props: AddCustomOpenCodeModelPanelPr
   return (
     <div className="space-y-2 border-t border-[color:var(--color-border)] px-2 py-2">
       <p className="px-1 text-[11px] leading-5 text-muted-foreground">
-        添加自定义模型（providerID/modelID），无需先连接提供商。
+        写入 opencode.json 添加模型（providerID/modelID）。
       </p>
       <div className="flex flex-col gap-2">
         <Input
@@ -42,13 +46,21 @@ export function AddCustomOpenCodeModelPanel(props: AddCustomOpenCodeModelPanelPr
               return;
             }
             event.preventDefault();
-            handleAdd();
+            void handleAdd();
           }}
           placeholder={editor.example}
+          disabled={editor.busy}
           spellCheck={false}
           aria-label="自定义模型代号"
         />
-        <Button type="button" size="xs" variant="outline" className="w-full" onClick={handleAdd}>
+        <Button
+          type="button"
+          size="xs"
+          variant="outline"
+          className="w-full"
+          disabled={editor.busy}
+          onClick={() => void handleAdd()}
+        >
           <PlusIcon className="size-3.5" />
           添加模型
         </Button>

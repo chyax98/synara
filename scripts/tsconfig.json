@@ -16,6 +16,9 @@
   "exclude": [
     "probe-orchestration-snapshot.ts",
     "probe-compact-queue-scenario.ts",
-    "opencode-launch-smoke.ts"
+    "opencode-launch-smoke.ts",
+    "opencode-config-ux-drive.ts",
+    "opencode-providers-ux-smoke.ts",
+    "settings-ux-drive.ts"
   ]
 }

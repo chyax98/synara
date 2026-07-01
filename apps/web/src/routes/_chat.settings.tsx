@@ -55,7 +55,7 @@ import { ProfileSettingsPanel } from "../components/settings/ProfileSettingsPane
 import { KeyboardShortcutsSettingsPanel } from "../components/settings/KeyboardShortcutsSettingsPanel";
 import { DefaultChatModelSettingsRow } from "../components/settings/DefaultChatModelSettingsRow";
 import { GitTextGenerationModelSettingsRow } from "../components/settings/GitTextGenerationModelSettingsRow";
-import { CustomOpenCodeModelsSection } from "../components/settings/CustomOpenCodeModelsSection";
+
 import { ModelProvidersSettingsPanel } from "../components/settings/ModelProvidersSettingsPanel";
 import { SkillsSettingsPanel } from "../components/settings/SkillsSettingsPanel";
 import {
@@ -118,6 +118,8 @@ import { useStore } from "../store";
 import { createAllThreadsMessagelessSelector, createThreadShellsSelector } from "../storeSelectors";
 import { formatRelativeTime } from "../lib/relativeTime";
 import { formatWorktreePathForDisplay } from "../worktreeCleanup";
+import { useSettingsSearchHighlight } from "~/hooks/useSettingsSearchHighlight";
+import { useOpenCodeModelCatalog } from "~/hooks/useOpenCodeModelCatalog";
 
 // ── Settings taxonomy ──────────────────────────────────────────────────────
 
@@ -255,7 +257,9 @@ function SettingsRouteView() {
 
   const [isOpeningKeybindings, setIsOpeningKeybindings] = useState(false);
   const [isRepairingLocalState, setIsRepairingLocalState] = useState(false);
+  const [isReloadingOpenCode, setIsReloadingOpenCode] = useState(false);
   const [showRecoveryTools, setShowRecoveryTools] = useState(false);
+  const openCodeCatalog = useOpenCodeModelCatalog({ enabled: activeSection === "advanced" });
 
   const [openKeybindingsError, setOpenKeybindingsError] = useState<string | null>(null);
   const environmentPanelRef = useRef<HTMLDivElement | null>(null);
@@ -282,19 +286,9 @@ function SettingsRouteView() {
     environmentPanelRef,
   );
 
-  // Sidebar search deep-links to an individual row via its `settingRowAnchorId`. The active
-  // panel renders synchronously with this section change, so scroll once the row has mounted.
-  useEffect(() => {
-    if (!settingsTarget || !settingsTarget.startsWith("setting-")) {
-      return;
-    }
-    const frame = window.requestAnimationFrame(() => {
-      document
-        .getElementById(settingsTarget)
-        ?.scrollIntoView({ block: "start", behavior: "smooth" });
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, [activeSection, settingsTarget]);
+  useSettingsSearchHighlight(
+    settingsTarget && settingsTarget.startsWith("setting-") ? settingsTarget : null,
+  );
   const managedWorktrees = serverWorktreesQuery.data?.worktrees;
   const worktreesByWorkspaceRoot = useMemo(() => {
     type WorktreeGroup = {
@@ -1511,8 +1505,6 @@ function SettingsRouteView() {
 
   const renderModelsPanel = () => (
     <div className="space-y-8">
-      <CustomOpenCodeModelsSection />
-
       <ModelProvidersSettingsPanel />
 
       <SettingsSection title="生成默认">
@@ -1547,6 +1539,27 @@ function SettingsRouteView() {
 
   const renderAdvancedPanel = () => (
     <div className="space-y-6">
+      <SettingsSection title="OpenCode 运行时">
+        <SettingsRow
+          title="重新加载 OpenCode 配置"
+          description="在外部编辑 opencode.json 或完成提供商认证后，刷新模型目录与提供商列表。"
+          control={
+            <Button
+              size="xs"
+              variant="outline"
+              disabled={isReloadingOpenCode}
+              onClick={() => {
+                setIsReloadingOpenCode(true);
+                void openCodeCatalog.refreshCatalog().finally(() => setIsReloadingOpenCode(false));
+              }}
+            >
+              <RotateCcwIcon className="size-3.5" />
+              {isReloadingOpenCode ? "加载中…" : "重新加载"}
+            </Button>
+          }
+        />
+      </SettingsSection>
+
       <SettingsSection title="开发者工具">
         <SettingsRow
           title="快捷键"

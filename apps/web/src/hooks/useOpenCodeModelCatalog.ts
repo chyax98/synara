@@ -17,8 +17,15 @@ import {
   type ModelCatalogProviderGroup,
 } from "~/lib/modelCatalogSettings";
 import {
+  configuredProviderIdsFromConfigProviders,
+  mergeCatalogAvailabilityWithConfigProviders,
+  modelOptionsFromConfigProviders,
+  splitConfiguredSidebarGroups,
+} from "~/lib/mergeConfigProvidersIntoCatalog";
+import {
   invalidateOpenCodeDiscovery,
   openCodeCatalogOverviewQueryOptions,
+  openCodeConfigProvidersQueryOptions,
 } from "~/lib/openCodeCatalogReactQuery";
 
 export function useOpenCodeModelCatalog(input?: {
@@ -44,10 +51,62 @@ export function useOpenCodeModelCatalog(input?: {
     }),
   );
 
-  const dynamicModels = useMemo(
-    () => (overviewQuery.data ? flattenModelsFromCatalogOverview(overviewQuery.data) : []),
-    [overviewQuery.data],
+  const configProvidersQuery = useQuery(
+    openCodeConfigProvidersQueryOptions({
+      binaryPath: connection.binaryPath,
+      serverUrl: connection.serverUrl,
+      serverPassword: connection.serverPassword,
+      cwd,
+      enabled,
+    }),
   );
+
+  const configProviders = configProvidersQuery.data?.providers ?? [];
+
+  const discoverableAvailability = useMemo(
+    () =>
+      overviewQuery.data?.availability.all.map((provider) => ({
+        id: provider.id,
+        name: provider.name,
+      })) ?? [],
+    [overviewQuery.data?.availability.all],
+  );
+
+  const discoverableAvailabilityIds = useMemo(
+    () => new Set(discoverableAvailability.map((provider) => provider.id)),
+    [discoverableAvailability],
+  );
+
+  const mergedAvailability = useMemo(
+    () => mergeCatalogAvailabilityWithConfigProviders(discoverableAvailability, configProviders),
+    [configProviders, discoverableAvailability],
+  );
+
+  const configuredProviderIds = useMemo(
+    () => configuredProviderIdsFromConfigProviders(configProviders),
+    [configProviders],
+  );
+
+  const configModelOptions = useMemo(
+    () => modelOptionsFromConfigProviders(configProviders),
+    [configProviders],
+  );
+
+  const dynamicModels = useMemo(() => {
+    const fromOverview = overviewQuery.data
+      ? flattenModelsFromCatalogOverview(overviewQuery.data)
+      : [];
+    const seen = new Set(fromOverview.map((model) => model.slug));
+    const fromConfig = configModelOptions
+      .filter((option) => !seen.has(option.slug))
+      .map((option) => ({
+        slug: option.slug,
+        name: option.name,
+        upstreamProviderId: option.upstreamProviderId,
+        upstreamProviderName: option.upstreamProviderName,
+      }));
+    return [...fromOverview, ...fromConfig];
+  }, [configModelOptions, overviewQuery.data]);
 
   const catalogAgents = useMemo(
     () => overviewQuery.data?.agents ?? [],
@@ -76,12 +135,7 @@ export function useOpenCodeModelCatalog(input?: {
   );
 
   const catalogSidebar = useMemo(() => {
-    const availability =
-      overviewQuery.data?.availability.all.map((provider) => ({
-        id: provider.id,
-        name: provider.name,
-      })) ?? [];
-    if (availability.length === 0 && modelGroups.length > 0) {
+    if (mergedAvailability.length === 0 && modelGroups.length > 0) {
       return buildModelCatalogSidebar({
         availability: modelGroups.map((group) => ({ id: group.id, name: group.name })),
         connectedIds: connectedProviderIds,
@@ -89,11 +143,21 @@ export function useOpenCodeModelCatalog(input?: {
       });
     }
     return buildModelCatalogSidebar({
-      availability,
+      availability: mergedAvailability,
       connectedIds: connectedProviderIds,
       modelGroups,
     });
-  }, [connectedProviderIds, modelGroups, overviewQuery.data?.availability.all]);
+  }, [connectedProviderIds, mergedAvailability, modelGroups]);
+
+  const { configuredOnlyProviders, discoverableUnconnectedProviders } = useMemo(
+    () =>
+      splitConfiguredSidebarGroups({
+        unconnectedProviders: catalogSidebar.unconnectedProviders,
+        discoverableAvailabilityIds,
+        configuredProviderIds,
+      }),
+    [catalogSidebar.unconnectedProviders, configuredProviderIds, discoverableAvailabilityIds],
+  );
 
   const refreshCatalog = useCallback(async () => {
     await invalidateOpenCodeDiscovery(queryClient);
@@ -112,11 +176,12 @@ export function useOpenCodeModelCatalog(input?: {
       }
       return (
         catalogSidebar.sidebarGroups.find((group) => group.id === providerId) ??
-        catalogSidebar.unconnectedProviders.find((group) => group.id === providerId) ??
+        configuredOnlyProviders.find((group) => group.id === providerId) ??
+        discoverableUnconnectedProviders.find((group) => group.id === providerId) ??
         null
       );
     },
-    [catalogSidebar.sidebarGroups, catalogSidebar.unconnectedProviders],
+    [catalogSidebar.sidebarGroups, configuredOnlyProviders, discoverableUnconnectedProviders],
   );
 
   return {
@@ -132,6 +197,9 @@ export function useOpenCodeModelCatalog(input?: {
     connectedProviderIds,
     sidebarGroups: catalogSidebar.sidebarGroups,
     unconnectedProviders: catalogSidebar.unconnectedProviders,
+    configuredOnlyProviders,
+    discoverableUnconnectedProviders,
+    configuredProviderIds,
     authMethodsByProvider: overviewQuery.data?.authMethods ?? {},
     isLoading,
     isError,

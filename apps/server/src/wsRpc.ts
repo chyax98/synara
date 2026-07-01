@@ -1167,6 +1167,35 @@ export const makeWsRpcLayer = () =>
           rpcEffect(openCodeCatalogService.oauthAuthorize(input), "Failed to start OAuth flow"),
         [WS_METHODS.opencodeOauthCallback]: (input) =>
           rpcEffect(openCodeCatalogService.oauthCallback(input), "Failed to complete OAuth flow"),
+        [WS_METHODS.opencodeProviderConfigSources]: (input) =>
+          rpcEffect(
+            openCodeCatalogService.providerConfigSources(input),
+            "Failed to read provider config sources",
+          ),
+        [WS_METHODS.opencodeConfigGet]: (input) =>
+          rpcEffect(openCodeCatalogService.configGet(input), "Failed to read OpenCode config"),
+        [WS_METHODS.opencodeConfigUpdate]: (input) =>
+          rpcEffect(openCodeCatalogService.configUpdate(input), "Failed to update OpenCode config"),
+        [WS_METHODS.opencodeProviderDisconnect]: (input) =>
+          rpcEffect(
+            openCodeCatalogService.providerDisconnect(input),
+            "Failed to disconnect provider",
+          ),
+        [WS_METHODS.opencodeAddProviderModel]: (input) =>
+          rpcEffect(
+            openCodeCatalogService.addProviderModel(input),
+            "Failed to add provider model to OpenCode config",
+          ),
+        [WS_METHODS.opencodeUpsertCustomProvider]: (input) =>
+          rpcEffect(
+            openCodeCatalogService.upsertCustomProvider(input),
+            "Failed to upsert custom OpenCode provider",
+          ),
+        [WS_METHODS.opencodeRemoveProviderModel]: (input) =>
+          rpcEffect(
+            openCodeCatalogService.removeProviderModel(input),
+            "Failed to remove provider model from OpenCode config",
+          ),
         [WS_METHODS.automationList]: (input) =>
           rpcEffect(automationService.list(input), "Failed to list automations"),
         [WS_METHODS.automationCreate]: (input) =>
